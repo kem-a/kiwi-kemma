@@ -1,94 +1,50 @@
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import Clutter from 'gi://Clutter';
-import St from 'gi://St';
+import { AddUsernameToQuickMenu } from './addUsernameToQuickMenu.js';
+import { MoveFullscreenWindow } from './moveFullscreenWindow.js';
+import { FocusLaunchedWindow } from './focusLaunchedWindow.js';
+import { LockIcon } from './lockIcon.js';
+import { TransparentMove } from './transparentMove.js';
+// import { BatteryPercentage } from './batteryPercentage.js';
+import Gio from 'gi://Gio';
 
-export default class FullscreenWorkspaceExtension extends Extension {
+export default class KiwiExtension extends Extension {
+    constructor(metadata) {
+        super(metadata);
+        this._settings = this.getSettings();
+        this._instances = {
+            moveFullscreenWindow: new MoveFullscreenWindow(),
+            addUsernameToQuickMenu: new AddUsernameToQuickMenu(),
+            focusLaunchedWindow: new FocusLaunchedWindow(),
+            lockIcon: new LockIcon(),
+            transparentMove: new TransparentMove(),
+            // batteryPercentage: new BatteryPercentage(),
+        };
+    }
+
     enable() {
-        this._fullscreenWindow = null;
-        this._previousWorkspace = null;
-
-        // Connect to the 'window-created' signal to handle new windows
-        this._windowCreatedSignal = global.display.connect('window-created', this._onWindowCreated.bind(this));
-
-        // Monitor mouse movements to slide the top bar
-        this._monitorMouseMovement();
+        if (this._settings.get_boolean('move-window-to-new-workspace')) {
+            this._instances.moveFullscreenWindow.enable();
+        }
+        if (this._settings.get_boolean('add-username-to-quick-menu')) {
+            this._instances.addUsernameToQuickMenu.enable();
+        }
+        if (this._settings.get_boolean('focus-launched-window')) {
+            this._instances.focusLaunchedWindow.enable();
+        }
+        if (this._settings.get_boolean('lock-icon')) {
+            this._instances.lockIcon.enable();
+        }
+        if (this._settings.get_boolean('transparent-move')) {
+            this._instances.transparentMove.enable();
+        }
+        // if (this._settings.get_boolean('battery-percentage')) {
+        //     this._instances.batteryPercentage.enable();
+        // }
     }
 
     disable() {
-        // Disconnect signals and clean up
-        global.display.disconnect(this._windowCreatedSignal);
-        if (this._mouseSignal) {
-            global.stage.disconnect(this._mouseSignal);
-        }
-        if (this._windowSignals) {
-            this._windowSignals.forEach(signal => signal.window.disconnect(signal.id));
+        for (let instance of Object.values(this._instances)) {
+            instance.disable();
         }
     }
-
-    _monitorMouseMovement() {
-        this._mouseSignal = global.stage.connect('motion-event', () => {
-            if (Main.overview.visible) return;
-
-            let [x, y] = global.get_pointer();
-
-            // Detect when the mouse touches the top of the screen
-            if (y <= 2) {
-                this._showTopBar();
-            } else if (y > 50) {
-                this._hideTopBar();
-            }
-        });
-    }
-
-    _showTopBar() {
-        if (!Main.panel.visible) {
-            Main.panel.show();
-            Main.panel.ease({
-                opacity: 255,
-                time: 0.25,
-                transition: Clutter.AnimationMode.EASE_OUT_QUAD,
-            });
-        }
-    }
-
-    _hideTopBar() {
-        if (Main.panel.visible) {
-            Main.panel.ease({
-                opacity: 0,
-                time: 0.25,
-                transition: Clutter.AnimationMode.EASE_IN_QUAD,
-                onComplete: () => {
-                    Main.panel.hide();
-                },
-            });
-        }
-    }
-
-    _onWindowCreated(display, window) {
-        if (!window) return;
-
-        const fullscreenChangedId = window.connect('notify::fullscreen', this._onFullscreenChanged.bind(this));
-
-        if (!this._windowSignals) {
-            this._windowSignals = [];
-        }
-
-        this._windowSignals.push({ window, id: fullscreenChangedId });
-    }
-
-    _onFullscreenChanged(window) {
-        if (window.fullscreen) {
-            this._fullscreenWindow = window;
-            this._previousWorkspace = window.get_workspace();
-            // Move the fullscreen window to a new empty workspace
-        } else {
-            this._fullscreenWindow = null;
-            this._previousWorkspace = null;
-        }
-    }
-}
-
-function init() {
-    return new FullscreenWorkspaceExtension();
 }
