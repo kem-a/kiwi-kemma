@@ -22,11 +22,16 @@ class AddUsernameToQuickMenu extends SystemIndicator {
 
     enable() {
         const QuickSettingsMenu = Main.panel.statusArea.quickSettings;
-        QuickSettingsMenu.addExternalIndicator(this);
+        QuickSettingsMenu._indicators.insert_child_at_index(this, 0);
     }
 
+    /**
+     * Disables the extension by destroying the indicator.
+     */
     disable() {
-        this.destroy();
+        const QuickSettingsMenu = Main.panel.statusArea.quickSettings;
+        QuickSettingsMenu._indicators.remove_child(this);
+        this._indicator.destroy();
     }
 });
 
