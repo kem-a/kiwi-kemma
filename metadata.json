@@ -1,0 +1,9 @@
+{
+  "uuid": "kiwi@kemma",
+  "name": "MacOS style window workflow",
+  "description": "Moves applications to a new workspace when fullscreen and handles header bar slide on mouse.",
+  "shell-version": ["45", "46"],
+  "version": 1,
+  "url": "https://yourdomain.com",
+  "settings-schema": "org.gnome.shell.extensions.kiwi"
+}
