@@ -4,12 +4,13 @@ import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
-import Gdk from 'gi://Gdk';
 
 export const LockIcon = GObject.registerClass(
 class LockIcon extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'Lock Indicator', false);
+
+        this.keymap = Clutter.get_default_backend().get_default_seat().get_keymap();
 
         this._capsLockIcon = new St.Icon({
             icon_name: 'caps-lock-enabled-symbolic',
@@ -24,62 +25,48 @@ class LockIcon extends PanelMenu.Button {
         this._capsLockIcon.visible = false;
         this._numLockIcon.visible = false;
 
-        this.add_child(this._capsLockIcon);
-        this.add_child(this._numLockIcon);
+        const layoutManager = new St.BoxLayout({
+            vertical: false,
+            style_class: 'lockkeys-container',
+        });
+        layoutManager.add_child(this._capsLockIcon);
+        layoutManager.add_child(this._numLockIcon);
+        this.add_child(layoutManager);
 
         this._updateLockState();
+
+        this._keymapChangedId = this.keymap.connect('state-changed', () => {
+            this._updateLockState();
+        });
     }
 
     _updateLockState() {
-        const display = Gdk.Display.get_default();
-        if (!display) {
-            log('Failed to get default display');
-            return;
-        }
-
-        const keymap = display.get_keymap();
-        if (!keymap) {
-            log('Failed to get keymap from display');
-            return;
-        }
-
-        const capsLockEnabled = keymap.get_caps_lock_state();
-        const numLockEnabled = keymap.get_num_lock_state();
+        const capsLockEnabled = this.keymap.get_caps_lock_state();
+        const numLockEnabled = this.keymap.get_num_lock_state();
 
         this._capsLockIcon.visible = capsLockEnabled;
         this._numLockIcon.visible = numLockEnabled;
     }
 
-    enable() {
-        Main.panel.addToStatusArea('lock-indicator', this, 1, 'right');
-
-        const display = Gdk.Display.get_default();
-        if (!display) {
-            log('Failed to get default display');
-            return;
+    destroy() {
+        if (this._keymapChangedId) {
+            this.keymap.disconnect(this._keymapChangedId);
+            this._keymapChangedId = null;
         }
-
-        const keymap = display.get_keymap();
-        if (!keymap) {
-            log('Failed to get keymap from display');
-            return;
-        }
-
-        this._keymapChangedId = keymap.connect('state-changed', () => {
-            this._updateLockState();
-        });
-    }
-
-    disable() {
-        const display = Gdk.Display.get_default();
-        if (display) {
-            const keymap = display.get_keymap();
-            if (keymap && this._keymapChangedId) {
-                keymap.disconnect(this._keymapChangedId);
-                this._keymapChangedId = null;
-            }
-        }
-
-        this.destroy();
+        super.destroy();
     }
 });
+
+let lockIcon;
+
+export function enable() {
+    lockIcon = new LockIcon();
+    Main.panel.addToStatusArea('lock-indicator', lockIcon, 1, 'right');
+}
+
+export function disable() {
+    if (lockIcon) {
+        lockIcon.destroy();
+        lockIcon = null;
+    }
+}

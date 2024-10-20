@@ -1,8 +1,8 @@
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
-import { AddUsernameToQuickMenu } from './addUsernameToQuickMenu.js';
+import { AddUsernameToQuickMenu, enable as addUsernameEnable, disable as addUsernameDisable } from './addUsernameToQuickMenu.js';
 import { MoveFullscreenWindow } from './moveFullscreenWindow.js';
 import { FocusLaunchedWindow } from './focusLaunchedWindow.js';
-import { LockIcon } from './lockIcon.js';
+import { LockIcon, enable as lockIconEnable, disable as lockIconDisable } from './lockIcon.js';
 import { TransparentMove } from './transparentMove.js';
 // import { BatteryPercentage } from './batteryPercentage.js';
 
@@ -29,9 +29,9 @@ export default class KiwiExtension extends Extension {
         }
 
         if (this._settings.get_boolean('add-username-to-quick-menu')) {
-            this._instances.addUsernameToQuickMenu.enable();
+            addUsernameEnable();
         } else {
-            this._instances.addUsernameToQuickMenu.disable();
+            addUsernameDisable();
         }
 
         if (this._settings.get_boolean('focus-launched-window')) {
@@ -41,9 +41,9 @@ export default class KiwiExtension extends Extension {
         }
 
         if (this._settings.get_boolean('lock-icon')) {
-            this._instances.lockIcon.enable();
+            lockIconEnable();
         } else {
-            this._instances.lockIcon.disable();
+            lockIconDisable();
         }
 
         if (this._settings.get_boolean('transparent-move')) {
