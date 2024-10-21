@@ -1,9 +1,9 @@
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
-import { AddUsernameToQuickMenu, enable as addUsernameEnable, disable as addUsernameDisable } from './addUsernameToQuickMenu.js';
-import { MoveFullscreenWindow } from './moveFullscreenWindow.js';
+import { enable as addUsernameEnable, disable as addUsernameDisable } from './addUsernameToQuickMenu.js';
+import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from './moveFullscreenWindow.js';
 import { FocusLaunchedWindow } from './focusLaunchedWindow.js';
-import { LockIcon, enable as lockIconEnable, disable as lockIconDisable } from './lockIcon.js';
-import { TransparentMove } from './transparentMove.js';
+import { enable as lockIconEnable, disable as lockIconDisable } from './lockIcon.js';
+import { enable as transparentMoveEnable, disable as transparentMoveDisable } from './transparentMove.js';
 // import { BatteryPercentage } from './batteryPercentage.js';
 
 
@@ -12,20 +12,20 @@ export default class KiwiExtension extends Extension {
         super(metadata);
         this._settings = this.getSettings();
         this._instances = {
-            moveFullscreenWindow: new MoveFullscreenWindow(),
-            addUsernameToQuickMenu: new AddUsernameToQuickMenu(),
+            //moveFullscreenWindow: new MoveFullscreenWindow(),
+            //addUsernameToQuickMenu: new AddUsernameToQuickMenu(),
             focusLaunchedWindow: new FocusLaunchedWindow(),
-            lockIcon: new LockIcon(),
-            transparentMove: new TransparentMove(),
+            //lockIcon: new LockIcon(),
+            //transparentMove: new TransparentMove(),
             // batteryPercentage: new BatteryPercentage(),
         };
     }
 
     _on_settings_changed() {
         if (this._settings.get_boolean('move-window-to-new-workspace')) {
-            this._instances.moveFullscreenWindow.enable();
+            moveFullscreenEnable();
         } else {
-            this._instances.moveFullscreenWindow.disable();
+            moveFullscreenDisable();
         }
 
         if (this._settings.get_boolean('add-username-to-quick-menu')) {
@@ -47,9 +47,9 @@ export default class KiwiExtension extends Extension {
         }
 
         if (this._settings.get_boolean('transparent-move')) {
-            this._instances.transparentMove.enable();
+            transparentMoveEnable();
         } else {
-            this._instances.transparentMove.disable();
+            transparentMoveDisable();
         }
 
         // if (this._settings.get_boolean('battery-percentage')) {

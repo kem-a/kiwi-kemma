@@ -2,34 +2,55 @@
 <schemalist>
     <schema id="org.gnome.shell.extensions.kiwi" path="/org/gnome/shell/extensions/kiwi/">
       <key name="move-window-to-new-workspace" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Move Window to New Workspace</summary>
         <description>Enable or disable moving windows to new workspaces.</description>
       </key>
       <key name="add-username-to-quick-menu" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Add Username to Quick Menu</summary>
         <description>Enable or disable adding the username to the quick menu.</description>
       </key>
       <key name="focus-launched-window" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Focus Launched Window</summary>
         <description>Enable or disable focusing launched windows.</description>
       </key>
       <key name="lock-icon" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Lock Icon</summary>
         <description>Enable or disable the lock icon.</description>
       </key>
       <key name="transparent-move" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Transparent Move</summary>
         <description>Enable or disable transparent move.</description>
       </key>
       <key name="battery-percentage" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Battery Percentage</summary>
         <description>Enable or disable showing battery percentage.</description>
+      </key>
+
+      <key name="transparent-on-moving" type="b">
+        <default>true</default>
+        <summary>Enable transparency when moving windows</summary>
+        <description>If true, windows become transparent when they are being moved.</description>
+      </key>
+      <key name="transparent-on-resizing" type="b">
+        <default>false</default>
+        <summary>Enable transparency when resizing windows</summary>
+        <description>If true, windows become transparent when they are being resized.</description>
+      </key>
+      <key name="window-opacity" type="i">
+        <default>128</default>
+        <summary>Window opacity during move/resize</summary>
+        <description>Opacity value (0-255) for windows when moving or resizing.</description>
+      </key>
+      <key name="transition-time" type="d">
+        <default>0.2</default>
+        <summary>Transition time for opacity change</summary>
+        <description>Time in seconds for the opacity transition animation.</description>
       </key>
     </schema>
 </schemalist>
