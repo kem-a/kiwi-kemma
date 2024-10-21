@@ -1,20 +1,34 @@
 // focusLaunchedWindow.js
-export class FocusLaunchedWindow {
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+
+export class FocusMyWindow {
     enable() {
-        this._windowSignal = global.display.connect('window-created', this._onWindowCreated.bind(this));
+        this._handlerid = global.display.connect('window-demands-attention', (display, window) => {
+            Main.activateWindow(window);
+        });
     }
 
     disable() {
-        if (this._windowSignal) {
-            global.display.disconnect(this._windowSignal);
-            this._windowSignal = null;
+        if (this._handlerid) {
+            global.display.disconnect(this._handlerid);
+            this._handlerid = null;
         }
     }
+}
 
-    _onWindowCreated(display, window) {
-        if (window) {
-            window.activate(global.get_current_time());
-        }
+let focusMyWindowInstance = null;
+
+export function enable() {
+    if (!focusMyWindowInstance) {
+        focusMyWindowInstance = new FocusMyWindow();
+        focusMyWindowInstance.enable();
+    }
+}
+
+export function disable() {
+    if (focusMyWindowInstance) {
+        focusMyWindowInstance.disable();
+        focusMyWindowInstance = null;
     }
 }
 

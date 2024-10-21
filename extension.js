@@ -1,24 +1,15 @@
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { enable as addUsernameEnable, disable as addUsernameDisable } from './addUsernameToQuickMenu.js';
 import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from './moveFullscreenWindow.js';
-import { FocusLaunchedWindow } from './focusLaunchedWindow.js';
+import { enable as focusLaunchedWindowEnable, disable as focusLaunchedWindowDisable } from './focusLaunchedWindow.js';
 import { enable as lockIconEnable, disable as lockIconDisable } from './lockIcon.js';
 import { enable as transparentMoveEnable, disable as transparentMoveDisable } from './transparentMove.js';
-// import { BatteryPercentage } from './batteryPercentage.js';
-
+// import { enable as batteryPercentageEnable, disable as batteryPercentageDisable } from './batteryPercentage.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
         super(metadata);
         this._settings = this.getSettings();
-        this._instances = {
-            //moveFullscreenWindow: new MoveFullscreenWindow(),
-            //addUsernameToQuickMenu: new AddUsernameToQuickMenu(),
-            focusLaunchedWindow: new FocusLaunchedWindow(),
-            //lockIcon: new LockIcon(),
-            //transparentMove: new TransparentMove(),
-            // batteryPercentage: new BatteryPercentage(),
-        };
     }
 
     _on_settings_changed() {
@@ -35,9 +26,9 @@ export default class KiwiExtension extends Extension {
         }
 
         if (this._settings.get_boolean('focus-launched-window')) {
-            this._instances.focusLaunchedWindow.enable();
+            focusLaunchedWindowEnable();
         } else {
-            this._instances.focusLaunchedWindow.disable();
+            focusLaunchedWindowDisable();
         }
 
         if (this._settings.get_boolean('lock-icon')) {
@@ -53,24 +44,28 @@ export default class KiwiExtension extends Extension {
         }
 
         // if (this._settings.get_boolean('battery-percentage')) {
-        //     this._instances.batteryPercentage.enable();
+        //     batteryPercentageEnable();
         // } else {
-        //     this._instances.batteryPercentage.disable();
+        //     batteryPercentageDisable();
         // }
     }
 
     enable() {
-        this._settings = this.getSettings();
+        this._settingsChangedId = this._settings.connect('changed', this._on_settings_changed.bind(this));
         this._on_settings_changed();
-        this._settings.connectObject('changed', this._on_settings_changed.bind(this), this);
     }
 
     disable() {
-        this._settings.disconnectObject(this);
-        this._settings = null;
-
-        for (let instance of Object.values(this._instances)) {
-            instance.disable();
+        if (this._settingsChangedId) {
+            this._settings.disconnect(this._settingsChangedId);
+            this._settingsChangedId = null;
         }
+
+        moveFullscreenDisable();
+        addUsernameDisable();
+        focusLaunchedWindowDisable();
+        lockIconDisable();
+        transparentMoveDisable();
+        // batteryPercentageDisable();
     }
 }
