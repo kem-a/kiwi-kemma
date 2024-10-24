@@ -22,6 +22,9 @@ class BatteryPercentage {
         
         // Initialize the battery proxy to interact with UPower
         this._initBatteryProxy();
+        // Track the last battery state and percentage to avoid redundant animations
+        this._lastPercentage = null;
+        this._lastState = null;
     }
 
     _initBatteryProxy() {
@@ -67,14 +70,25 @@ class BatteryPercentage {
             // Update the label text with the current battery percentage
             this._batteryLabel.text = `${percentage}%`;
 
-            // Animate in when battery percentage is exactly 25% and not charging, or when enabling extension
-            if ((state === 2 && percentage === BATTERY_TRIGGER_PERCENTAGE)) {
+            // Animate when percentage changes to 25% while not charging
+            if (percentage === BATTERY_TRIGGER_PERCENTAGE && state === 2 && percentage !== this._lastPercentage) {
                 this._animateIn();
             }
-            // Animate out only when charging
-            else if (state === 1) {
-                this._animateOut();
+
+            // Animate when plugging or unplugging the charger while below 25%
+            if (percentage <= BATTERY_TRIGGER_PERCENTAGE && state !== this._lastState) {
+                if (state === 1 || state === 2) { // State: 1 = Charging, 2 = Discharging
+                    if (state === 1) {
+                        this._animateOut();
+                    } else if (state === 2) {
+                        this._animateIn();
+                    }
+                }
             }
+
+            // Update the last known state and percentage
+            this._lastPercentage = percentage;
+            this._lastState = state;
         } catch (e) {
             // Handle update error
         }
