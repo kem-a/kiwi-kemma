@@ -4,7 +4,7 @@ import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from
 import { enable as focusLaunchedWindowEnable, disable as focusLaunchedWindowDisable } from './focusLaunchedWindow.js';
 import { enable as lockIconEnable, disable as lockIconDisable } from './lockIcon.js';
 import { enable as transparentMoveEnable, disable as transparentMoveDisable } from './transparentMove.js';
-// import { enable as batteryPercentageEnable, disable as batteryPercentageDisable } from './batteryPercentage.js';
+import { enable as batteryPercentageEnable, disable as batteryPercentageDisable } from './batteryPercentage.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -43,11 +43,11 @@ export default class KiwiExtension extends Extension {
             transparentMoveDisable();
         }
 
-        // if (this._settings.get_boolean('battery-percentage')) {
-        //     batteryPercentageEnable();
-        // } else {
-        //     batteryPercentageDisable();
-        // }
+        if (this._settings.get_boolean('battery-percentage')) {
+            batteryPercentageEnable();
+        } else {
+            batteryPercentageDisable();
+        }
     }
 
     enable() {
@@ -66,6 +66,6 @@ export default class KiwiExtension extends Extension {
         focusLaunchedWindowDisable();
         lockIconDisable();
         transparentMoveDisable();
-        // batteryPercentageDisable();
+        batteryPercentageDisable();
     }
 }
