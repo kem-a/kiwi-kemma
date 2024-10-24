@@ -1,7 +1,6 @@
 // transparentMove.js
 import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
-import GObject from 'gi://GObject';
 
 const TRANSPARENT_ON_MOVING = true;
 const TRANSPARENT_ON_RESIZING = true;

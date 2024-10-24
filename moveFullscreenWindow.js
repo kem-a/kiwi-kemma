@@ -1,6 +1,4 @@
 // moveFullscreenWindow.js
-import GObject from 'gi://GObject';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 class MoveFullscreenWindow {
     constructor() {
