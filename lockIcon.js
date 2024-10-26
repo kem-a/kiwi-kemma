@@ -16,6 +16,7 @@ class LockIcon extends PanelMenu.Button {
 
         this.keymap = Clutter.get_default_backend().get_default_seat().get_keymap();
 
+        // Create icons
         this._numLockIcon = new St.Icon({
             gicon: Gio.FileIcon.new(Gio.File.new_for_path(extensionObject.dir.get_child('icons/num-lock-symbolic.svg').get_path())),
             style_class: 'system-status-icon',
@@ -25,7 +26,8 @@ class LockIcon extends PanelMenu.Button {
             gicon: Gio.FileIcon.new(Gio.File.new_for_path(extensionObject.dir.get_child('icons/caps-lock-symbolic.svg').get_path())),
             style_class: 'system-status-icon',
         });
-        
+
+        // Create containers
         this._numLockContainer = new St.Widget({
             layout_manager: new Clutter.BinLayout(),
             x_expand: false,
@@ -50,34 +52,33 @@ class LockIcon extends PanelMenu.Button {
         layoutManager.add_child(this._capsLockContainer);
         this.add_child(layoutManager);
 
-        this._capsLockEnabled = this.keymap.get_caps_lock_state();
-        this._numLockEnabled = this.keymap.get_num_lock_state();
+        // Delay the state initialization to ensure the keymap is fully ready
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+            this._capsLockEnabled = this.keymap.get_caps_lock_state();
+            this._numLockEnabled = this.keymap.get_num_lock_state();
 
-        this._initializeIcon(this._numLockContainer, this._numLockIcon, this._numLockEnabled);
-        this._initializeIcon(this._capsLockContainer, this._capsLockIcon, this._capsLockEnabled);
-        this._updateLockState();
-
-        this._keymapChangedId = this.keymap.connect('state-changed', () => {
+            this._initializeIcon(this._numLockContainer, this._numLockIcon, this._numLockEnabled);
+            this._initializeIcon(this._capsLockContainer, this._capsLockIcon, this._capsLockEnabled);
             this._updateLockState();
+
+            // Connect to keymap state change after initial state has been set
+            this._keymapChangedId = this.keymap.connect('state-changed', () => {
+                this._updateLockState();
+            });
+
+            return GLib.SOURCE_REMOVE;
         });
     }
 
     _initializeIcon(container, icon, enabled) {
         container.visible = enabled;
-        icon.translation_x = enabled ? 0 : icon.width;
-
-        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        // Immediately set container width based on the state
+        if (enabled) {
             let [, naturalWidth] = icon.get_preferred_width(-1);
             container.set_width(naturalWidth);
-
-            if (enabled) {
-                icon.translation_x = 0;
-            } else {
-                icon.translation_x = naturalWidth;
-            }
-
-            return GLib.SOURCE_REMOVE;
-        });
+        } else {
+            container.set_width(0);
+        }
     }
 
     _updateLockState() {
@@ -100,7 +101,7 @@ class LockIcon extends PanelMenu.Button {
     
         GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
             let [, naturalWidth] = icon.get_preferred_width(-1);
-    
+            this.visible = true;
             if (show) {
                 container.visible = true;
                 container.ease({
@@ -119,26 +120,30 @@ class LockIcon extends PanelMenu.Button {
                     },
                 });
             } else {
-                icon.ease({
-                    translation_x: naturalWidth,
+                container.ease({
+                    width: 0,
                     duration: 250,
                     mode: Clutter.AnimationMode.LINEAR,
                     onComplete: () => {
-                        container.ease({
-                            width: 0,
-                            duration: 250,
-                            mode: Clutter.AnimationMode.LINEAR,
-                            onComplete: () => {
-                                container.visible = false;
-                            },
-                        });
+                        container.visible = false;
+                        if (!this._capsLockEnabled && !this._numLockEnabled) {
+                            this.visible = false;      
+                        }
+                    },
+                });
+
+                icon.ease({
+                    translation_x: 0,
+                    duration: 250,
+                    mode: Clutter.AnimationMode.LINEAR,
+                    onComplete: () => {
+                        icon.translation_x = naturalWidth;
                     },
                 });
             }
             return GLib.SOURCE_REMOVE;
         });
     }
-    
 
     destroy() {
         if (this._keymapChangedId) {
