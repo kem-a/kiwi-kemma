@@ -96,16 +96,19 @@ class LockIcon extends PanelMenu.Button {
 
     _animateIcon(container, icon, show) {
         icon.remove_all_transitions();
-
-        if (show) {
-            container.visible = true;
-        }
-
+        container.remove_all_transitions();
+    
         GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
             let [, naturalWidth] = icon.get_preferred_width(-1);
-            container.set_width(naturalWidth);
-
+    
             if (show) {
+                container.visible = true;
+                container.ease({
+                    width: naturalWidth,
+                    duration: 250,
+                    mode: Clutter.AnimationMode.LINEAR,
+                });
+    
                 icon.translation_x = naturalWidth;
                 icon.ease({
                     translation_x: 0,
@@ -121,14 +124,21 @@ class LockIcon extends PanelMenu.Button {
                     duration: 250,
                     mode: Clutter.AnimationMode.LINEAR,
                     onComplete: () => {
-                        icon.translation_x = naturalWidth;
-                        container.visible = false;
+                        container.ease({
+                            width: 0,
+                            duration: 250,
+                            mode: Clutter.AnimationMode.LINEAR,
+                            onComplete: () => {
+                                container.visible = false;
+                            },
+                        });
                     },
                 });
             }
             return GLib.SOURCE_REMOVE;
         });
     }
+    
 
     destroy() {
         if (this._keymapChangedId) {
