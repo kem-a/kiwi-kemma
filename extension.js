@@ -5,6 +5,8 @@ import { enable as focusLaunchedWindowEnable, disable as focusLaunchedWindowDisa
 import { enable as lockIconEnable, disable as lockIconDisable } from './lockIcon.js';
 import { enable as transparentMoveEnable, disable as transparentMoveDisable } from './transparentMove.js';
 import { enable as batteryPercentageEnable, disable as batteryPercentageDisable } from './batteryPercentage.js';
+import { enable as calendarEnable, disable as calendarDisable } from './calendar.js';
+import { enable as windowTitleEnable, disable as windowTitleDisable } from './windowTitle.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -48,6 +50,18 @@ export default class KiwiExtension extends Extension {
         } else {
             batteryPercentageDisable();
         }
+
+        if (this._settings.get_boolean('move-calendar-right')) {
+            calendarEnable();
+        } else {
+            calendarDisable();
+        }
+
+        if (this._settings.get_boolean('show-window-title')) {
+            windowTitleEnable();
+        } else {
+            windowTitleDisable();
+        }
     }
 
     enable() {
@@ -67,5 +81,7 @@ export default class KiwiExtension extends Extension {
         lockIconDisable();
         transparentMoveDisable();
         batteryPercentageDisable();
+        calendarDisable();
+        windowTitleDisable();
     }
 }

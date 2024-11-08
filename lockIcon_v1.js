@@ -27,20 +27,38 @@ class LockIcon extends PanelMenu.Button {
             style_class: 'system-status-icon',
         });
 
-        // Create a layout container to hold both icons
-        this._lockKeysLayout = new St.BoxLayout({
+        // Create containers
+        this._numLockContainer = new St.Widget({
+            layout_manager: new Clutter.BinLayout(),
+            x_expand: false,
+            y_expand: false,
+            clip_to_allocation: true,
+        });
+        this._numLockContainer.add_child(this._numLockIcon);
+
+        this._capsLockContainer = new St.Widget({
+            layout_manager: new Clutter.BinLayout(),
+            x_expand: false,
+            y_expand: false,
+            clip_to_allocation: true,
+        });
+        this._capsLockContainer.add_child(this._capsLockIcon);
+
+        const layoutManager = new St.BoxLayout({
             vertical: false,
             style_class: 'lockkeys-container',
         });
-        this._lockKeysLayout.add_child(this._numLockIcon);
-        this._lockKeysLayout.add_child(this._capsLockIcon);
-        this.add_child(this._lockKeysLayout);
+        layoutManager.add_child(this._numLockContainer);
+        layoutManager.add_child(this._capsLockContainer);
+        this.add_child(layoutManager);
 
         // Delay the state initialization to ensure the keymap is fully ready
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-            //this._capsLockEnabled = this.keymap.get_caps_lock_state();
-            //this._numLockEnabled = this.keymap.get_num_lock_state();
+            this._capsLockEnabled = this.keymap.get_caps_lock_state();
+            this._numLockEnabled = this.keymap.get_num_lock_state();
 
+            this._initializeIcon(this._numLockContainer, this._numLockIcon, this._numLockEnabled);
+            this._initializeIcon(this._capsLockContainer, this._capsLockIcon, this._capsLockEnabled);
             this._updateLockState();
 
             // Connect to keymap state change after initial state has been set
@@ -52,56 +70,47 @@ class LockIcon extends PanelMenu.Button {
         });
     }
 
+    _initializeIcon(container, icon, enabled) {
+        container.visible = enabled;
+        // Immediately set container width based on the state
+        if (enabled) {
+            let [, naturalWidth] = icon.get_preferred_width(-1);
+            container.set_width(naturalWidth);
+        } else {
+            container.set_width(0);
+        }
+    }
+
     _updateLockState() {
         const capsLockEnabled = this.keymap.get_caps_lock_state();
         const numLockEnabled = this.keymap.get_num_lock_state();
-        
-        log(`Caps Lock is ${capsLockEnabled ? 'enabled' : 'disabled'}`);
-        log(`Num Lock is ${numLockEnabled ? 'enabled' : 'disabled'}`);
+
         if (capsLockEnabled !== this._capsLockEnabled) {
             this._capsLockEnabled = capsLockEnabled;
-            this._capsLockIcon.visible = capsLockEnabled;
-            this._animateIcon(this._lockKeysLayout, this._capsLockIcon, capsLockEnabled);
-            this._capsLockIcon.visible = capsLockEnabled;
+            this._animateIcon(this._capsLockContainer, this._capsLockIcon, capsLockEnabled);
         }
         if (numLockEnabled !== this._numLockEnabled) {
             this._numLockEnabled = numLockEnabled;
-            this._numLockIcon.visible = numLockEnabled;
-            this._animateIcon(this._lockKeysLayout, this._numLockIcon, numLockEnabled);
-            this._numLockIcon.visible = numLockEnabled;
+            this._animateIcon(this._numLockContainer, this._numLockIcon, numLockEnabled);
         }
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
-            //this._numLockIcon.visible = numLockEnabled;
-            //this._capsLockIcon.visible = capsLockEnabled;
-        });
     }
 
     _animateIcon(container, icon, show) {
         icon.remove_all_transitions();
         container.remove_all_transitions();
-
+    
         GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
             let [, naturalWidth] = icon.get_preferred_width(-1);
-            let totalWidth = naturalWidth;
-
-            if (this._capsLockEnabled && this._numLockEnabled) {
-                totalWidth = 2 * naturalWidth;
-            }
-
             this.visible = true;
             if (show) {
                 container.visible = true;
                 container.ease({
-                    width: totalWidth,
+                    width: naturalWidth,
                     duration: 250,
                     mode: Clutter.AnimationMode.LINEAR,
-                    onComplete: () => {
-                        container.translation_x = 0;
-                    },
                 });
-
+    
                 icon.translation_x = naturalWidth;
-                log(`Icon width: ${naturalWidth}`);
                 icon.ease({
                     translation_x: 0,
                     duration: 250,
@@ -112,24 +121,23 @@ class LockIcon extends PanelMenu.Button {
                 });
             } else {
                 container.ease({
-                    width: this._capsLockEnabled || this._numLockEnabled ? naturalWidth : 0,
+                    width: 0,
                     duration: 250,
                     mode: Clutter.AnimationMode.LINEAR,
                     onComplete: () => {
-                        container.visible = this._capsLockEnabled || this._numLockEnabled;
+                        container.visible = false;
                         if (!this._capsLockEnabled && !this._numLockEnabled) {
-                            this.visible = false;
+                            this.visible = false;      
                         }
                     },
                 });
-                
+
                 icon.ease({
-                    translation_x: naturalWidth,
+                    translation_x: 0,
                     duration: 250,
                     mode: Clutter.AnimationMode.LINEAR,
                     onComplete: () => {
                         icon.translation_x = naturalWidth;
-                        log(`Icon width on complete: ${naturalWidth}`);
                     },
                 });
             }

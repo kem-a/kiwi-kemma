@@ -32,6 +32,12 @@
         <description>Enable or disable showing battery percentage.</description>
       </key>
 
+      <key name="move-calendar-right" type="b">
+        <default>true</default>
+        <summary>Move Calendar to Right</summary>
+        <description>Move calendar to the right side of the top panel and hide notifications panel.</description>
+      </key>
+
       <key name="transparent-on-moving" type="b">
         <default>true</default>
         <summary>Enable transparency when moving windows</summary>
@@ -51,6 +57,11 @@
         <default>0.2</default>
         <summary>Transition time for opacity change</summary>
         <description>Time in seconds for the opacity transition animation.</description>
+      </key>
+      <key name="show-window-title" type="b">
+        <default>false</default>
+        <summary>Show window title in panel</summary>
+        <description>Display current window title in the top panel</description>
       </key>
     </schema>
 </schemalist>

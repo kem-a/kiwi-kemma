@@ -1,0 +1,42 @@
+.kiwi-clock {
+    margin-right: 3px;
+    padding-left: 6px;
+}
+
+.kiwi-clock > * {
+    margin-right: 5px;
+}
+
+.window-title {
+    margin-left: 2px;
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+.window-title.panel-button {
+    -natural-hpadding: 6px;
+    -minimum-hpadding: 6px;
+}
+
+.window-title:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.window-title .app-menu-icon {
+    -st-icon-style: symbolic;
+    margin-right: 4px;
+}
+
+.window-title StLabel {
+    font-weight: bold;
+    margin: 0 4px;
+    padding-left: 6px;
+}
+/*
+.panel-button {
+    padding-left: 6px;
+    padding-right: 6px
+}*/
+.app-menu-icon {
+    padding-left: 0px;
+}
