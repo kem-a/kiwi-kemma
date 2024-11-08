@@ -1,15 +1,15 @@
 # Kiwi is not an Apple
 
-Kiwi is a GNOME Shell extension that mimics various macOS features. This extension provides several functionalities such as moving windows to new workspaces, adding the username to the quick menu, focusing launched windows, and more.
+Kiwi is a GNOME Shell extension that mimics various macOS features. This extension provides a collections of small quality of life functionalities such as moving windows to new workspaces, adding the username to the quick menu, focusing launched windows, and more.
 
 ## Features
 
-- **Move Window to New Workspace**: Automatically move windows to new workspaces.
+- **Move Window to New Workspace**: Automatically move fullscreen app to new workspaces.
 - **Add Username to Quick Menu**: Display the username in the quick settings menu.
-- **Focus Launched Window**: Focus on newly launched windows.
-- **Lock Icon**: Enable or disable the lock icon.
-- **Transparent Move**: Enable or disable transparent window movement.
-- **Battery Percentage**: Show or hide the battery percentage in the system menu.
+- **Focus Launched Window**: Focus on newly launched windows. Removes annoying window ready notification.
+- **Lock Icon**: Display Caps lock or Num lock icon in Gnome top panel.
+- **Transparent Move**: Make windows slightly transparent when moving.
+- **Battery Percentage**: Show battery percentage in the system menu when below 25%.
 
 ## Installation
 
