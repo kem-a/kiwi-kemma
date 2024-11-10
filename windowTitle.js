@@ -22,7 +22,10 @@ class WindowTitleIndicator extends PanelMenu.Button {
 
         this._box = new St.BoxLayout({style_class: 'panel-button'});
         
-        this._icon = new St.Icon({style_class: 'app-menu-icon'});
+        this._icon = new St.Icon({
+            style_class: 'app-menu-icon',
+            icon_size: 18,
+        });
         this._box.add_child(this._icon);
 
         this._label = new St.Label({
@@ -30,9 +33,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
             x_align: Clutter.ActorAlign.START
         });
         this._box.add_child(this._label);
-
         this.add_child(this._box);
-
         this._focusWindow = null;
         this._focusWindowSignal = global.display.connect('notify::focus-window', 
             this._onFocusedWindowChanged.bind(this));
@@ -46,7 +47,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._onFocusedWindowChanged();
 
         // Adjust the menu's arrow alignment to appear under the icon
-        this.menu._arrowAlignment = 0.0;
+        this.menu._arrowAlignment = 1.0;
 
         // Remove the previous 'hiding' signal connection
         if (this._overviewHidingId) {
@@ -103,13 +104,19 @@ class WindowTitleIndicator extends PanelMenu.Button {
         if (!this._focusWindow) return;
 
         const app = Shell.WindowTracker.get_default().get_window_app(this._focusWindow);
+        let windowTitle = this._focusWindow.get_title();
+        const dashIndex = Math.max(windowTitle.lastIndexOf(' - '), windowTitle.lastIndexOf(' — '));
+        if (dashIndex !== -1) {
+            windowTitle = windowTitle.substring(0, dashIndex);
+        }
+
         if (app) {
             this._icon.gicon = app.get_icon();
-            this._label.text = ` ${app.get_name()} — ${this._focusWindow.get_title()}`;
+            this._label.text = ` ${app.get_name()} — ${windowTitle}`;
             this._menu.setApp(app);
         } else {
             this._icon.gicon = null;
-            this._label.text = ` ${this._focusWindow.get_title()}`;
+            this._label.text = ` ${windowTitle}`;
             this._menu.setApp(null);
         }
         

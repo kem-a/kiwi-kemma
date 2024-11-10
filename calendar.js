@@ -1,10 +1,15 @@
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Clutter from 'gi://Clutter';
+import St from 'gi://St';
 
 let originalDateMenuPosition;
 let dateMenu;
 let originalFormatFunction;
 let originalBannerAlignment;
+let quickMenuNotificationsContainer;
+let notificationAddedId;
+let sourceAddedId;
+let sources = new Map();
 
 export function enable() {
     dateMenu = Main.panel.statusArea.dateMenu;
@@ -65,6 +70,38 @@ export function enable() {
         });
         Main.messageTray.add_child(Main.messageTray._bannerBin);
     }
+
+    // Create a container for notifications in quick settings
+    quickMenuNotificationsContainer = new St.BoxLayout({
+        style_class: 'quick-settings-notifications-container',
+        vertical: true,
+    });
+    
+    const quickSettings = Main.panel.statusArea.quickSettings;
+    if (quickSettings && quickSettings.menu) {
+        // Add to the bottom of the quick settings menu
+        quickSettings.menu.box.add_child(quickMenuNotificationsContainer);
+    }
+
+    // Connect to source-added signal and handle notifications
+    sourceAddedId = Main.messageTray.connect('source-added', (tray, source) => {
+        const notifyId = source.connect('notification-added', (source, notification) => {
+            if (quickMenuNotificationsContainer) {
+                quickMenuNotificationsContainer.add_child(notification.actor);
+            }
+        });
+        sources.set(source, notifyId);
+    });
+
+    // Handle existing sources
+    Main.messageTray.getSources().forEach(source => {
+        const notifyId = source.connect('notification-added', (source, notification) => {
+            if (quickMenuNotificationsContainer) {
+                quickMenuNotificationsContainer.add_child(notification.actor);
+            }
+        });
+        sources.set(source, notifyId);
+    });
 }
 
 export function disable() {
@@ -101,5 +138,32 @@ export function disable() {
             y_align: Clutter.ActorAlign.START,
         });
         Main.messageTray.add_child(Main.messageTray._bannerBin);
+    }
+
+    // Remove the notifications container
+    if (quickMenuNotificationsContainer) {
+        const quickSettings = Main.panel.statusArea.quickSettings;
+        if (quickSettings && quickSettings.menu) {
+            quickSettings.menu.box.remove_child(quickMenuNotificationsContainer);
+        }
+        quickMenuNotificationsContainer = null;
+    }
+
+    // Disconnect all notification signals
+    if (sourceAddedId) {
+        Main.messageTray.disconnect(sourceAddedId);
+        sourceAddedId = null;
+    }
+    
+    // Disconnect from all sources
+    for (const [source, id] of sources) {
+        source.disconnect(id);
+    }
+    sources.clear();
+
+    // Disconnect the notification-added signal
+    if (notificationAddedId) {
+        Main.messageTray.disconnect(notificationAddedId);
+        notificationAddedId = null;
     }
 }
