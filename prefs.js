@@ -13,17 +13,18 @@ export default class KiwiPreferences extends ExtensionPreferences {
         window._settings = settings;
         window.title = 'Kiwi is not an Apple';
 
-        const page = new Adw.PreferencesPage({
+        // Settings Page
+        const settingsPage = new Adw.PreferencesPage({
             title: 'Settings',
             icon_name: 'preferences-system-symbolic',
         });
-        window.add(page);
+        window.add(settingsPage);
 
         const group = new Adw.PreferencesGroup({
             title: _('Kiwi'),
             description: _('Kiwi is not an Apple is a collection of MacOS like features for GNOME'),
         });
-        page.add(group);
+        settingsPage.add(group);
 
         const switchList = [
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
@@ -50,7 +51,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             title: _('Window Control Button Style'),
             description: _('Select the style of window control buttons'),
         });
-        page.add(buttonTypeGroup);
+        settingsPage.add(buttonTypeGroup);
 
         // Add window controls switch to button style group
         const windowControlsSwitch = new Adw.SwitchRow({
@@ -103,19 +104,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         window.add(aboutPage);
 
-        const stack = new Gtk.Stack();
-        stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT);
-
-        const aboutDialog = new Gtk.AboutDialog({
-            program_name: 'Kiwi is not an Apple',
-            version: 'v0-alpha',
-            comments: 'Kiwi is not an Apple is a collection of MacOS like features for GNOME',
-            authors: ['Kemma'],
-            website: 'https://github.com/kem-a/kiwi-kemma',
-            website_label: 'GitHub: https://github.com/kem-a/kiwi-kemma',
-            license_type: Gtk.License.MIT_X11,
-        });
-
+        const aboutGroup = new Adw.PreferencesGroup();
         const aboutBox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 10,
@@ -126,29 +115,29 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
 
         aboutBox.append(new Gtk.Label({
-            label: `<b>${aboutDialog.program_name}</b>`,
+            label: '<b>Kiwi is not an Apple</b>',
             use_markup: true,
             halign: Gtk.Align.START,
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: `Version: ${aboutDialog.version}`,
+            label: 'Version: v0-alpha',
             halign: Gtk.Align.START,
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: aboutDialog.comments,
+            label: 'Kiwi is not an Apple is a collection of MacOS like features for GNOME',
             halign: Gtk.Align.START,
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: `Authors: ${aboutDialog.authors.join(', ')}`,
+            label: 'Authors: Kemma',
             halign: Gtk.Align.START,
         }));
 
         const websiteLink = new Gtk.LinkButton({
-            label: aboutDialog.website_label,
-            uri: aboutDialog.website,
+            label: 'GitHub: https://github.com/kem-a/kiwi-kemma',
+            uri: 'https://github.com/kem-a/kiwi-kemma',
         });
         aboutBox.append(websiteLink);
 
@@ -158,8 +147,17 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         aboutBox.append(licenseLink);
 
-        stack.add_titled(aboutBox, 'about', 'About');
+        aboutGroup.add(aboutBox);
+        aboutPage.add(aboutGroup);
 
+        // Credits Page
+        const creditsPage = new Adw.PreferencesPage({
+            title: 'Credits',
+            icon_name: 'emblem-favorite-symbolic',
+        });
+        window.add(creditsPage);
+
+        const creditsGroup = new Adw.PreferencesGroup();
         const creditsBox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 10,
@@ -170,21 +168,11 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
 
         creditsBox.append(new Gtk.Label({
-            label: `Special thanks to all contributors and the GNOME community.`,
+            label: 'Special thanks to all contributors and the GNOME community.',
             halign: Gtk.Align.START,
         }));
 
-        stack.add_titled(creditsBox, 'credits', 'Credits');
-
-        const stackSwitcher = new Gtk.StackSwitcher({
-            stack: stack,
-            halign: Gtk.Align.CENTER,
-            valign: Gtk.Align.START,
-        });
-
-        const aboutGroup = new Adw.PreferencesGroup();
-        aboutGroup.add(stackSwitcher);
-        aboutGroup.add(stack);
-        aboutPage.add(aboutGroup);
+        creditsGroup.add(creditsBox);
+        creditsPage.add(creditsGroup);
     }
 }
