@@ -24,13 +24,14 @@ class WindowTitleIndicator extends PanelMenu.Button {
         
         this._icon = new St.Icon({
             style_class: 'app-menu-icon',
-            icon_size: 18,
+            icon_size: 16,
         });
         this._box.add_child(this._icon);
 
         this._label = new St.Label({
             y_align: Clutter.ActorAlign.CENTER,
-            x_align: Clutter.ActorAlign.START
+            x_align: Clutter.ActorAlign.START,
+            style: 'max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'
         });
         this._box.add_child(this._label);
         this.add_child(this._box);

@@ -1,3 +1,4 @@
+/*@import 'spacing.css';/**/
 
 .window-title {
     margin-left: 8px;  /* Increased left margin */
@@ -51,7 +52,7 @@
 #panel {
   font-weight: 500;
   transition-duration: 250ms;
-  height: 32px !important;
+  /*height: 32px !important;*/
   box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
 }
 
@@ -248,4 +249,30 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
     background-color: transparent !important;
     background: none !important;
     box-shadow: none !important;
+}
+
+/* Hide window decorations for maximized windows */
+.maximized headerbar.titlebar,
+.fullscreen headerbar.titlebar {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    border: none;
+}
+
+.maximized .titlebar-button,
+.fullscreen .titlebar-button {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    border: none;
+}
+
+/* Ensure content fills the space */
+.maximized .window-content,
+.fullscreen .window-content {
+    margin-top: 0;
+    border-radius: 0;
 }
