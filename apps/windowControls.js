@@ -66,7 +66,9 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._maximizeButton.connect('clicked', () => {
             const window = global.display.focus_window;
             if (window) {
-                if (window.get_maximized()) {
+                if (window.is_fullscreen()) {
+                    window.unmake_fullscreen();
+                } else if (window.get_maximized()) {
                     window.unmaximize(Meta.MaximizeFlags.BOTH);
                 } else {
                     window.maximize(Meta.MaximizeFlags.BOTH);
