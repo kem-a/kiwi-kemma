@@ -241,10 +241,10 @@
 }
 
 /* Fix for window controls container hover effect */
-Gjs_kiwi_kemma_windowControls_WindowControlsIndicator.panel-button,
-Gjs_kiwi_kemma_windowControls_WindowControlsIndicator.panel-button:hover,
-Gjs_kiwi_kemma_windowControls_WindowControlsIndicator.panel-button:active,
-Gjs_kiwi_kemma_windowControls_WindowControlsIndicator.panel-button:focus {
+Gjs_apps_windowControls_WindowControlsIndicator.panel-button,
+Gjs_apps_windowControls_WindowControlsIndicator.panel-button:hover,
+Gjs_apps_windowControls_WindowControlsIndicator.panel-button:active,
+Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
     background-color: transparent !important;
     background: none !important;
     box-shadow: none !important;
