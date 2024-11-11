@@ -73,5 +73,10 @@
         <summary>Button icon set</summary>
         <description>Determines which set of icons to use for window control buttons.</description>
       </key>
+      <key name="show-controls-on-maximize" type="b">
+        <default>true</default>
+        <summary>Show Controls on Maximize</summary>
+        <description>Show window controls in panel when window is maximized.</description>
+      </key>
     </schema>
 </schemalist>

@@ -62,6 +62,19 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('show-window-controls', windowControlsSwitch, 'active', 
             Gio.SettingsBindFlags.DEFAULT);
 
+        // Add show on maximize switch
+        const showOnMaxSwitch = new Adw.SwitchRow({
+            title: _("Show Controls on Maximize"),
+            subtitle: _("Show window controls when window is maximized"),
+            active: settings.get_boolean('show-controls-on-maximize'),
+            sensitive: settings.get_boolean('show-window-controls'),
+        });
+        buttonTypeGroup.add(showOnMaxSwitch);
+        settings.bind('show-controls-on-maximize', showOnMaxSwitch, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('show-window-controls', showOnMaxSwitch, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+
         const buttonTypeModel = new Gtk.StringList();
         buttonTypeModel.append('titlebuttons');
         buttonTypeModel.append('titlebuttons-alt');

@@ -16,7 +16,13 @@ class WindowControlsIndicator extends PanelMenu.Button {
         super._init(0.0, 'window-controls', false);
 
         settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
-        this._settingsChangedId = settings.connect('changed::button-type', () => this._updateIcons());
+        this._settingsChangedId = settings.connect('changed', (_, key) => {
+            if (key === 'button-type') {
+                this._updateIcons();
+            } else if (key === 'show-controls-on-maximize') {
+                this._updateVisibility();
+            }
+        });
 
         // Get the extension path
         const extensionPath = Extension.lookupByUUID('kiwi@kemma').path;
@@ -98,9 +104,13 @@ class WindowControlsIndicator extends PanelMenu.Button {
     _onFocusWindowChanged() {
         // Disconnect previous signals
         if (this._focusWindow) {
-            if (this._focusWindowMaximizeSignal) {
-                this._focusWindow.disconnect(this._focusWindowMaximizeSignal);
-                this._focusWindowMaximizeSignal = null;
+            if (this._focusWindowMaximizeHorizSignal) {
+                this._focusWindow.disconnect(this._focusWindowMaximizeHorizSignal);
+                this._focusWindowMaximizeHorizSignal = null;
+            }
+            if (this._focusWindowMaximizeVertSignal) {
+                this._focusWindow.disconnect(this._focusWindowMaximizeVertSignal);
+                this._focusWindowMaximizeVertSignal = null;
             }
             if (this._focusWindowFullscreenSignal) {
                 this._focusWindow.disconnect(this._focusWindowFullscreenSignal);
@@ -113,10 +123,18 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
         // Connect to the new window's signals
         if (this._focusWindow) {
-            this._focusWindowMaximizeSignal = this._focusWindow.connect('notify::maximized',
-                this._updateVisibility.bind(this));
-            this._focusWindowFullscreenSignal = this._focusWindow.connect('notify::fullscreen',
-                this._updateVisibility.bind(this));
+            this._focusWindowMaximizeHorizSignal = this._focusWindow.connect(
+                'notify::maximized-horizontally',
+                this._updateVisibility.bind(this)
+            );
+            this._focusWindowMaximizeVertSignal = this._focusWindow.connect(
+                'notify::maximized-vertically',
+                this._updateVisibility.bind(this)
+            );
+            this._focusWindowFullscreenSignal = this._focusWindow.connect(
+                'notify::fullscreen',
+                this._updateVisibility.bind(this)
+            );
         }
 
         // Update visibility
@@ -152,11 +170,16 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
     _updateVisibility() {
         const focusWindow = this._focusWindow;
-        const isMaximized = focusWindow && focusWindow.get_maximized();
+        const isMaximizedHorizontally = focusWindow && focusWindow.maximized_horizontally;
+        const isMaximizedVertically = focusWindow && focusWindow.maximized_vertically;
+        const isMaximized = isMaximizedHorizontally && isMaximizedVertically;
         const isFullscreen = focusWindow && focusWindow.is_fullscreen();
+        const showOnMaximize = settings.get_boolean('show-controls-on-maximize');
 
-        // Show controls if window is maximized or fullscreen
-        this.visible = !Main.overview.visible && focusWindow && (isMaximized || isFullscreen);
+        // Show controls based on settings and window state
+        this.visible = !Main.overview.visible && 
+                      focusWindow && 
+                      ((showOnMaximize && isMaximized) || isFullscreen);
     }
 
     destroy() {
@@ -176,11 +199,17 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
         // Disconnect from focused window signals
         if (this._focusWindow) {
-            if (this._focusWindowMaximizeSignal) {
-                this._focusWindow.disconnect(this._focusWindowMaximizeSignal);
+            if (this._focusWindowMaximizeHorizSignal) {
+                this._focusWindow.disconnect(this._focusWindowMaximizeHorizSignal);
+                this._focusWindowMaximizeHorizSignal = null;
+            }
+            if (this._focusWindowMaximizeVertSignal) {
+                this._focusWindow.disconnect(this._focusWindowMaximizeVertSignal);
+                this._focusWindowMaximizeVertSignal = null;
             }
             if (this._focusWindowFullscreenSignal) {
                 this._focusWindow.disconnect(this._focusWindowFullscreenSignal);
+                this._focusWindowFullscreenSignal = null;
             }
             this._focusWindow = null;
         }
