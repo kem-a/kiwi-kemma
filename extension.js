@@ -1,20 +1,26 @@
+import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
-import { enable as addUsernameEnable, disable as addUsernameDisable } from './addUsernameToQuickMenu.js';
-import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from './moveFullscreenWindow.js';
-import { enable as focusLaunchedWindowEnable, disable as focusLaunchedWindowDisable } from './focusLaunchedWindow.js';
-import { enable as lockIconEnable, disable as lockIconDisable } from './lockIcon.js';
-import { enable as transparentMoveEnable, disable as transparentMoveDisable } from './transparentMove.js';
-import { enable as batteryPercentageEnable, disable as batteryPercentageDisable } from './batteryPercentage.js';
-import { enable as calendarEnable, disable as calendarDisable } from './calendar.js';
-import { enable as windowTitleEnable, disable as windowTitleDisable } from './windowTitle.js';
+import { enable as addUsernameEnable, disable as addUsernameDisable } from './apps/addUsernameToQuickMenu.js';
+import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from './apps/moveFullscreenWindow.js';
+import { enable as focusLaunchedWindowEnable, disable as focusLaunchedWindowDisable } from './apps/focusLaunchedWindow.js';
+import { enable as lockIconEnable, disable as lockIconDisable } from './apps/lockIcon.js';
+import { enable as transparentMoveEnable, disable as transparentMoveDisable } from './apps/transparentMove.js';
+import { enable as batteryPercentageEnable, disable as batteryPercentageDisable } from './apps/batteryPercentage.js';
+import { enable as calendarEnable, disable as calendarDisable } from './apps/calendar.js';
+import { enable as windowTitleEnable, disable as windowTitleDisable } from './apps/windowTitle.js';
+import { enable as windowControlsEnable, disable as windowControlsDisable } from './apps/windowControls.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
         super(metadata);
-        this._settings = this.getSettings();
     }
 
-    _on_settings_changed() {
+    _on_settings_changed(key) {
+        if (key === 'button-type' && this._settings.get_boolean('show-window-controls')) {
+            windowControlsDisable();
+            windowControlsEnable();
+        }
+
         if (this._settings.get_boolean('move-window-to-new-workspace')) {
             moveFullscreenEnable();
         } else {
@@ -62,11 +68,18 @@ export default class KiwiExtension extends Extension {
         } else {
             windowTitleDisable();
         }
+
+        if (this._settings.get_boolean('show-window-controls')) {
+            windowControlsEnable();
+        } else {
+            windowControlsDisable();
+        }
     }
 
     enable() {
-        this._settingsChangedId = this._settings.connect('changed', this._on_settings_changed.bind(this));
-        this._on_settings_changed();
+        this._settings = this.getSettings();
+        this._settingsChangedId = this._settings.connect('changed', (settings, key) => this._on_settings_changed(key));
+        this._on_settings_changed(null);
     }
 
     disable() {
@@ -83,5 +96,6 @@ export default class KiwiExtension extends Extension {
         batteryPercentageDisable();
         calendarDisable();
         windowTitleDisable();
+        windowControlsDisable();
     }
 }

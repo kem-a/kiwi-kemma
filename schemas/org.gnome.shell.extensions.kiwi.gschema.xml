@@ -63,5 +63,15 @@
         <summary>Show window title in panel</summary>
         <description>Display current window title in the top panel</description>
       </key>
+      <key name="show-window-controls" type="b">
+        <default>false</default>
+        <summary>Show Window Controls</summary>
+        <description>Display window control buttons in the top panel.</description>
+      </key>
+      <key name="button-type" type="s">
+        <default>'titlebuttons'</default>
+        <summary>Button icon set</summary>
+        <description>Determines which set of icons to use for window control buttons.</description>
+      </key>
     </schema>
 </schemalist>

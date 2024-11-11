@@ -3,6 +3,7 @@ import GObject from 'gi://GObject';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
+import Gio from 'gi://Gio';
 
 import {AppMenu} from 'resource:///org/gnome/shell/ui/appMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -13,7 +14,6 @@ let indicator = null;
 const WindowTitleIndicator = GObject.registerClass(
 class WindowTitleIndicator extends PanelMenu.Button {
     _init() {
-        // Adjust initialization to ensure the button is reactive
         super._init(0.0, 'window-title', true);
 
         this._menu = new AppMenu(this);
@@ -152,7 +152,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
 export function enable() {
     if (!indicator) {
         indicator = new WindowTitleIndicator();
-        Main.panel.addToStatusArea('window-title', indicator, 1, 'left');  // Changed order from 0 to 1
+        // Position 2 puts it after both Activities and window controls
+        Main.panel.addToStatusArea('window-title', indicator, 2, 'left');
     }
 }
 

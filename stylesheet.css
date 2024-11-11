@@ -1,17 +1,6 @@
-/*
-.kiwi-clock {
-    margin-right: 3px;
-    padding-left: 6px;
-}
-*/
-/*
-.kiwi-clock > * {
-    margin-right: 5px;
-}
-*/
 
 .window-title {
-    margin-left: 2px;
+    margin-left: 8px;  /* Increased left margin */
     margin-right: 8px;
     font-weight: bold;
     max-width: 150px;
@@ -68,7 +57,6 @@
 
 #panel .panel-button.clock-display .clock {
   padding-left: 8px !important;
-  /*margin-left: 8px !important;*/
   padding-right: 8px !important;
 }
 
@@ -120,22 +108,6 @@
   width: 0;
   height: 0;
 }
-/*
-#panel .panel-button:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-#panel .panel-button:hover.clock-display .clock,
-#panel .panel-button:active.clock-display .clock,
-#panel .panel-button:focus.clock-display .clock,
-#panel .panel-button:checked.clock-display .clock {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-*/
-#panel .panel-button:hover.clock-display, #panel .panel-button:active.clock-display, #panel .panel-button:overview.clock-display, #panel .panel-button:focus.clock-display, #panel .panel-button:checked.clock-display {
-  /*box-shadow: none !important;
-  background-color: transparent !important;*/
-}
 
 #panel .panel-button .system-status-icon {
   icon-size: 16px;
@@ -165,4 +137,115 @@
 #panel Gjs_ui_panel_AppMenuButton.panel-button,
 #panel .desktop-name-label {
   font-weight: bold !important;
+}
+
+/* Overview mode styles */
+#panel:overview {
+    font-weight: normal;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+#panel:overview .panel-button,
+#panel:overview .panel-button:hover,
+#panel:overview .panel-button:active,
+#panel:overview .panel-button:focus,
+#panel:overview .panel-button:checked {
+    text-shadow: none;
+}
+
+#panel:overview .panel-button .system-status-icon,
+#panel:overview .panel-button .app-menu-icon > StIcon,
+#panel:overview .panel-button .popup-menu-arrow {
+    icon-shadow: none;
+}
+
+#panel:overview .window-title,
+#panel:overview .window-title StLabel,
+#panel:overview Gjs_ui_panel_AppMenuButton.panel-button,
+#panel:overview .desktop-name-label {
+    font-weight: normal !important;
+}
+
+/* Window Control Buttons - Complete Override */
+#panel .window-controls.panel-button {
+    -natural-hpadding: 0;
+    -minimum-hpadding: 0;
+    background: transparent;
+}
+
+#panel .window-controls.panel-button:hover,
+#panel .window-controls.panel-button:active,
+#panel .window-controls.panel-button:overview,
+#panel .window-controls.panel-button:focus,
+#panel .window-controls.panel-button:checked {
+    background: transparent !important;
+}
+
+.window-controls-box {
+    spacing: 8px;
+    margin: 0;
+    padding: 0;
+}
+
+.window-control-button {
+    padding: 0;
+    margin: 0;
+    background: transparent;
+}
+
+.window-control-button:hover {
+    background: transparent;
+}
+
+/* Remove all remaining styles */
+#panel .window-controls * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    icon-shadow: none !important;
+    -st-icon-style: none;
+}
+
+/* Remove hover effect from container */
+.window-controls.panel-button:hover {
+    background-color: transparent !important;
+}
+
+/* Keep hover effect only on individual buttons */
+.window-control-button:hover {
+    background-color: none !important;
+    box-shadow: none;
+}
+
+/* Remove any hover effects and shadows */
+.window-control-button,
+.window-control-button:hover,
+.window-control-button:active,
+.window-control-button:focus {
+    box-shadow: none;
+    text-shadow: none;
+}
+
+.window-control-button StIcon,
+.window-control-button:hover StIcon,
+.window-control-button:active StIcon,
+.window-control-button:focus StIcon {
+    icon-shadow: none;
+}
+
+/* Remove any previous button-specific styles */
+.window-control-button.minimize,
+.window-control-button.maximize,
+.window-control-button.close {
+    background-image: none;
+}
+
+/* Fix for window controls container hover effect */
+Gjs_kiwi_kemma_windowControls_WindowControlsIndicator.panel-button,
+Gjs_kiwi_kemma_windowControls_WindowControlsIndicator.panel-button:hover,
+Gjs_kiwi_kemma_windowControls_WindowControlsIndicator.panel-button:active,
+Gjs_kiwi_kemma_windowControls_WindowControlsIndicator.panel-button:focus {
+    background-color: transparent !important;
+    background: none !important;
+    box-shadow: none !important;
 }

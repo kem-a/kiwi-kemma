@@ -1,6 +1,6 @@
+import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
-import Adw from 'gi://Adw';
 import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 export default class KiwiPreferences extends ExtensionPreferences {
@@ -44,6 +44,43 @@ export default class KiwiPreferences extends ExtensionPreferences {
             });
             group.add(switchRow);
             window._settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        });
+
+        const buttonTypeGroup = new Adw.PreferencesGroup({
+            title: _('Window Control Button Style'),
+            description: _('Select the style of window control buttons'),
+        });
+        page.add(buttonTypeGroup);
+
+        // Add window controls switch to button style group
+        const windowControlsSwitch = new Adw.SwitchRow({
+            title: _("Show Window Controls"),
+            subtitle: _("Display window control buttons in the top panel"),
+            active: settings.get_boolean('show-window-controls'),
+        });
+        buttonTypeGroup.add(windowControlsSwitch);
+        settings.bind('show-window-controls', windowControlsSwitch, 'active', 
+            Gio.SettingsBindFlags.DEFAULT);
+
+        const buttonTypeModel = new Gtk.StringList();
+        buttonTypeModel.append('titlebuttons');
+        buttonTypeModel.append('titlebuttons-alt');
+
+        const buttonTypeCombo = new Adw.ComboRow({
+            title: _('Button Type'),
+            subtitle: _('Choose the button icon set'),
+            model: buttonTypeModel,
+            selected: settings.get_string('button-type') === 'titlebuttons' ? 0 : 1,
+            sensitive: settings.get_boolean('show-window-controls'),
+        });
+        buttonTypeGroup.add(buttonTypeCombo);
+
+        // Bind combo sensitivity to switch state
+        settings.bind('show-window-controls', buttonTypeCombo, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+
+        buttonTypeCombo.connect('notify::selected', (combo) => {
+            settings.set_string('button-type', combo.selected_item.get_string());
         });
 
         // About Page
