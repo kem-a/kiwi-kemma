@@ -29,6 +29,15 @@ function updatePanelStyle(alpha = null) {
             Math.floor(backgroundColor.blue * 255)
         ];
 
+        // Check if the overview is visible
+        if (Main.overview.visible) {
+            // Make the panel fully transparent in overview mode
+            //panel.set_style('background-color: transparent !important; transition-duration: 250ms;');
+            panel.set_style('background-color: transparent !important;');
+            console.log('Panel style updated for overview (transparent)');
+            return;
+        }
+
         if (!settings?.get_boolean('panel-transparency')) {
             console.log('Panel transparency is disabled');
             panel.set_style(`background-color: rgb(${r}, ${g}, ${b})`);
@@ -36,12 +45,20 @@ function updatePanelStyle(alpha = null) {
         }
 
         const opacity = alpha ?? settings.get_int('panel-transparency-level') / 100;
-        const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important; transition-duration: 250ms;`;
+        //const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important; transition-duration: 250ms;`;
+        const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important;`;
         
         if (panel.get_style() !== newStyle) {
+            console.log('Current panel style:', panel.get_style());
             panel.set_style(newStyle);
+            console.log(`Panel style updated with opacity ${opacity}`);
+        } else {
+            console.log('Style unchanged, current:', panel.get_style());
         }
-        console.log(`Panel style updated with opacity ${opacity}`);
+
+        // Add stack trace to see what's calling this
+        console.log('Call stack:', new Error().stack);
+        
     } catch (error) {
         logError(error, 'Failed to update panel style');
         panel.set_style(originalStyle || '');
@@ -89,36 +106,60 @@ function handleWindowSignals(connect = true) {
         return;
     }
 
-    // Connect to each window's signals
-    const windows = global.get_window_actors();
-    windows.forEach(windowActor => {
-        const metaWindow = windowActor.get_meta_window();
+    // Connect to 'window-added' and 'window-removed' signals on the active workspace
+    const workspace = global.workspace_manager.get_active_workspace();
+    const workspaceSignals = [];
 
-        if (!metaWindow) return;
+    workspaceSignals.push(workspace.connect('window-added', (ws, win) => {
+        connectWindowSignals(win);
+        checkWindowTouchingPanel();
+    }));
 
-        const actorSignals = [];
+    workspaceSignals.push(workspace.connect('window-removed', (ws, win) => {
+        disconnectWindowSignals(win);
+        checkWindowTouchingPanel();
+    }));
 
-        // Connect to allocation changes (movement and resize)
-        actorSignals.push(windowActor.connect('notify::allocation', () => {
-            checkWindowTouchingPanel();
-        }));
+    windowSignals.push({ actor: workspace, signals: workspaceSignals });
 
-        // Connect to window state changes
-        actorSignals.push(metaWindow.connect('notify::maximized', () => {
-            checkWindowTouchingPanel();
-        }));
-        actorSignals.push(metaWindow.connect('notify::minimized', () => {
-            checkWindowTouchingPanel();
-        }));
-        actorSignals.push(metaWindow.connect('notify::fullscreen', () => {
-            checkWindowTouchingPanel();
-        }));
-        actorSignals.push(metaWindow.connect('unmanaged', () => {
-            checkWindowTouchingPanel();
-        }));
-
-        windowSignals.push({ actor: windowActor, signals: actorSignals });
+    // Connect signals for existing windows
+    workspace.list_windows().forEach(win => {
+        connectWindowSignals(win);
     });
+}
+
+function connectWindowSignals(metaWindow) {
+    const actorSignals = [];
+
+    actorSignals.push(metaWindow.connect('position-changed', () => {
+        checkWindowTouchingPanel();
+    }));
+
+    actorSignals.push(metaWindow.connect('size-changed', () => {
+        checkWindowTouchingPanel();
+    }));
+
+    actorSignals.push(metaWindow.connect('unmanaged', () => {
+        disconnectWindowSignals(metaWindow);
+        checkWindowTouchingPanel();
+    }));
+
+    windowSignals.push({ actor: metaWindow, signals: actorSignals });
+}
+
+function disconnectWindowSignals(metaWindow) {
+    const index = windowSignals.findIndex(item => item.actor === metaWindow);
+    if (index !== -1) {
+        const { signals } = windowSignals[index];
+        signals.forEach(signalId => {
+            try {
+                metaWindow.disconnect(signalId);
+            } catch (e) {
+                console.error(`Error disconnecting signal: ${e}`);
+            }
+        });
+        windowSignals.splice(index, 1);
+    }
 }
 
 function setupSignals() {
@@ -173,17 +214,21 @@ function setupSignals() {
         ]
     });
 
-    // Connect to overview showing/hiding
+    // Update the overview signal handlers with a delay for hidden state
     windowSignals.push({
         actor: Main.overview,
         signals: [
             Main.overview.connect('showing', () => {
                 console.log('Overview showing');
-                checkWindowTouchingPanel();
+                updatePanelStyle();
             }),
-            Main.overview.connect('hiding', () => {
-                console.log('Overview hiding');
-                checkWindowTouchingPanel();
+            Main.overview.connect('hidden', () => {
+                console.log('Overview hidden');
+                // Add delay to allow windows to settle into position
+                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1, () => {
+                    checkWindowTouchingPanel();
+                    return GLib.SOURCE_REMOVE;
+                });
             })
         ]
     });
