@@ -26,6 +26,55 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         settingsPage.add(group);
 
+        // Add panel transparency group
+        const transparencyGroup = new Adw.PreferencesGroup({
+            title: _('Panel Transparency'),
+            description: _('Configure panel transparency settings'),
+        });
+        settingsPage.add(transparencyGroup);
+
+        // Enable transparency switch
+        const transparencySwitch = new Adw.SwitchRow({
+            title: _("Enable Panel Transparency"),
+            subtitle: _("Make the top panel transparent"),
+            active: settings.get_boolean('panel-transparency'),
+        });
+        transparencyGroup.add(transparencySwitch);
+        settings.bind('panel-transparency', transparencySwitch, 'active', 
+            Gio.SettingsBindFlags.DEFAULT);
+
+        // Transparency level spinbox
+        const transparencySpinRow = new Adw.SpinRow({
+            title: _("Transparency Level"),
+            subtitle: _("Set panel transparency (0-100)"),
+            adjustment: new Gtk.Adjustment({
+                lower: 0,
+                upper: 100,
+                step_increment: 1,
+                page_increment: 10,
+                value: settings.get_int('panel-transparency-level'),
+            }),
+            sensitive: settings.get_boolean('panel-transparency'),
+        });
+        transparencyGroup.add(transparencySpinRow);
+        settings.bind('panel-transparency-level', transparencySpinRow, 'value',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-transparency', transparencySpinRow, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+
+        // Opaque on window touch switch
+        const opaqueOnWindowSwitch = new Adw.SwitchRow({
+            title: _("Opaque When Window Touches"),
+            subtitle: _("Make panel opaque when a window touches it"),
+            active: settings.get_boolean('panel-opaque-on-window'),
+            sensitive: settings.get_boolean('panel-transparency'),
+        });
+        transparencyGroup.add(opaqueOnWindowSwitch);
+        settings.bind('panel-opaque-on-window', opaqueOnWindowSwitch, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-transparency', opaqueOnWindowSwitch, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+
         const switchList = [
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
             { key: 'add-username-to-quick-menu', title: _("Add Username"), subtitle: _("Add username to the quick menu") },
@@ -35,6 +84,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'battery-percentage', title: _("Battery Percentage"), subtitle: _("Show battery percentage in the top bar when below 25%") },
             { key: 'move-calendar-right', title: _("Move Calendar to Right"), subtitle: _("Move calendar to right side and hide notifications") },
             { key: 'show-window-title', title: _("Show Window Title"), subtitle: _("Display current window title in the top panel") },
+            { key: 'panel-hover-fullscreen', title: _("Show Panel on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen") },
         ];
 
         switchList.forEach((item) => {

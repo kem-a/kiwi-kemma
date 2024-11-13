@@ -54,6 +54,8 @@
   transition-duration: 250ms;
   /*height: 32px !important;*/
   box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
+  transition-property: opacity;
+  transition-timing-function: ease-out;
 }
 
 #panel .panel-button.clock-display .clock {
@@ -142,6 +144,8 @@
 
 /* Overview mode styles */
 #panel:overview {
+    background-color: transparent !important;
+    background: transparent !important;
     font-weight: normal;
     text-shadow: none;
     box-shadow: none;
@@ -275,4 +279,9 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 .fullscreen .window-content {
     margin-top: 0;
     border-radius: 0;
+}
+
+Gjs_ui_panel_Panel  {
+    transition: background-color 200ms ease-out, margin-top 200ms ease-out;
+    margin-top: 0;
 }

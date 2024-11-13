@@ -78,5 +78,26 @@
         <summary>Show Controls on Maximize</summary>
         <description>Show window controls in panel when window is maximized.</description>
       </key>
+      <key name="panel-hover-fullscreen" type="b">
+        <default>true</default>
+        <summary>Show Panel on Hover in Fullscreen</summary>
+        <description>Show the top panel when hovering near the top edge in fullscreen mode.</description>
+      </key>
+      <key name="panel-transparency" type="b">
+        <default>false</default>
+        <summary>Enable Panel Transparency</summary>
+        <description>Make the top panel transparent.</description>
+      </key>
+      <key name="panel-transparency-level" type="i">
+        <default>50</default>
+        <range min="0" max="100"/>
+        <summary>Panel Transparency Level</summary>
+        <description>Set the transparency level of the panel (0-100).</description>
+      </key>
+      <key name="panel-opaque-on-window" type="b">
+        <default>true</default>
+        <summary>Panel Opaque on Window Touch</summary>
+        <description>Make panel opaque when a window touches it.</description>
+      </key>
     </schema>
 </schemalist>

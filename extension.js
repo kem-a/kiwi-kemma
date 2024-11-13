@@ -9,6 +9,8 @@ import { enable as batteryPercentageEnable, disable as batteryPercentageDisable 
 import { enable as calendarEnable, disable as calendarDisable } from './apps/calendar.js';
 import { enable as windowTitleEnable, disable as windowTitleDisable } from './apps/windowTitle.js';
 import { enable as windowControlsEnable, disable as windowControlsDisable } from './apps/windowControls.js';
+import { enable as panelHoverEnable, disable as panelHoverDisable } from './apps/panelHover.js';
+import { enable as panelTransparencyEnable, disable as panelTransparencyDisable } from './apps/panelTransparency.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -74,6 +76,18 @@ export default class KiwiExtension extends Extension {
         } else {
             windowControlsDisable();
         }
+
+        if (this._settings.get_boolean('panel-hover-fullscreen')) {
+            panelHoverEnable();
+        } else {
+            panelHoverDisable();
+        }
+
+        if (this._settings.get_boolean('panel-transparency')) {
+            panelTransparencyEnable(this._settings);  // Pass settings object
+        } else {
+            panelTransparencyDisable();
+        }
     }
 
     enable() {
@@ -97,5 +111,7 @@ export default class KiwiExtension extends Extension {
         calendarDisable();
         windowTitleDisable();
         windowControlsDisable();
+        panelHoverDisable();
+        panelTransparencyDisable();
     }
 }
