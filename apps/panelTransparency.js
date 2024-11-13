@@ -29,10 +29,10 @@ function updatePanelStyle(alpha = null) {
             Math.floor(backgroundColor.blue * 255)
         ];
 
+        // Remove transition-duration from all styles
         // Check if the overview is visible
         if (Main.overview.visible) {
             // Make the panel fully transparent in overview mode
-            //panel.set_style('background-color: transparent !important; transition-duration: 250ms;');
             panel.set_style('background-color: transparent !important;');
             console.log('Panel style updated for overview (transparent)');
             return;
@@ -45,7 +45,6 @@ function updatePanelStyle(alpha = null) {
         }
 
         const opacity = alpha ?? settings.get_int('panel-transparency-level') / 100;
-        //const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important; transition-duration: 250ms;`;
         const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important;`;
         
         if (panel.get_style() !== newStyle) {
