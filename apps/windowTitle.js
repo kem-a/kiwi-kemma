@@ -1,9 +1,8 @@
+// windowTitle.js - Display the title of the focused window in the top panel
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
-import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
-import Gio from 'gi://Gio';
 
 import {AppMenu} from 'resource:///org/gnome/shell/ui/appMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -39,24 +38,13 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._focusWindowSignal = global.display.connect('notify::focus-window', 
             this._onFocusedWindowChanged.bind(this));
         
-        // Add overview detection
         this._overviewShowingId = Main.overview.connect('showing',
             () => this._updateVisibility());
-        this._overviewHidingId = Main.overview.connect('hiding',
-            () => this._updateVisibility());
-            
+        
         this._onFocusedWindowChanged();
 
-        // Adjust the menu's arrow alignment to appear under the icon
         this.menu._arrowAlignment = 1.0;
 
-        // Remove the previous 'hiding' signal connection
-        if (this._overviewHidingId) {
-            Main.overview.disconnect(this._overviewHidingId);
-            this._overviewHidingId = null;
-        }
-
-        // Connect to the 'hidden' signal instead of 'hiding'
         this._overviewHiddenId = Main.overview.connect('hidden',
             () => this._onOverviewHidden());
     }
@@ -74,7 +62,6 @@ class WindowTitleIndicator extends PanelMenu.Button {
     _onFocusedWindowChanged() {
         let window = global.display.focus_window;
 
-        // Update condition to properly handle focus changes
         if (!window && this.menu && this.menu.isOpen)
             return;
 
@@ -97,7 +84,6 @@ class WindowTitleIndicator extends PanelMenu.Button {
     }
 
     _onOverviewHidden() {
-        // Update the title after the overview is fully hidden
         this._onFocusedWindowChanged();
     }
 
@@ -130,22 +116,15 @@ class WindowTitleIndicator extends PanelMenu.Button {
         if (this._overviewShowingId) {
             Main.overview.disconnect(this._overviewShowingId);
         }
-        if (this._overviewHidingId) {
-            Main.overview.disconnect(this._overviewHidingId);
-        }
         if (this._focusWindowSignal) {
             global.display.disconnect(this._focusWindowSignal);
         }
         if (this._focusWindow && this._titleSignal) {
             this._focusWindow.disconnect(this._titleSignal);
         }
-
-        // Disconnect the 'hidden' signal
         if (this._overviewHiddenId) {
             Main.overview.disconnect(this._overviewHiddenId);
-            this._overviewHiddenId = null;
         }
-
         super.destroy();
     }
 });
@@ -153,8 +132,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
 export function enable() {
     if (!indicator) {
         indicator = new WindowTitleIndicator();
-        // Position 2 puts it after both Activities and window controls
-        Main.panel.addToStatusArea('window-title', indicator, 2, 'left');
+        Main.panel.addToStatusArea('window-title', indicator, -1, 'left');
     }
 }
 
