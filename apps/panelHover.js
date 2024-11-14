@@ -2,91 +2,219 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
+import Shell from 'gi://Shell';
+import GObject from 'gi://GObject';
 
-let panelHideTimeoutId = null;
-let mouseTrackingHandler = null;
-let windowCreatedHandler = null;
 let fullscreenWindows = new Set();
+let windowSignals = new Map();
+let windowCreatedHandler = null;
+let panelHideTimeoutId = null;
+let hotCorner = null;
 
-function onWindowCreated(display, metaWindow) {
-    if (!metaWindow) return;
-    
-    // Connect to window state changes
-    metaWindow.connect('notify::fullscreen', () => {
-        if (metaWindow.is_fullscreen()) {
-            fullscreenWindows.add(metaWindow);
-        } else {
-            fullscreenWindows.delete(metaWindow);
-        }
+const PanelEdge = GObject.registerClass(
+class PanelEdge extends Clutter.Actor {
+    _init() {
+        super._init({
+            name: 'panel-edge-detector',
+            reactive: true,
+            x: 0,
+            y: 0,
+            width: global.stage.width,
+            height: 10,  // Increased height for better detection
+            opacity: 0  // Make it invisible
+        });
+
+        // Set up barrier
+        let primaryMonitor = global.display.get_primary_monitor();
+        let geometry = global.display.get_monitor_geometry(primaryMonitor);
         
-        // Reset panel position when no fullscreen windows
-        if (fullscreenWindows.size === 0) {
-            Main.panel.set_style('margin-top: 0px');
-        }
-    });
-}
+        this._barrier = new Meta.Barrier({
+            backend: global.backend,
+            x1: geometry.x,
+            x2: geometry.x + geometry.width,
+            y1: geometry.y,
+            y2: geometry.y,
+            directions: Meta.BarrierDirection.POSITIVE_Y
+        });
 
-function onMotionEvent(actor, event) {
-    if (fullscreenWindows.size === 0) return Clutter.EVENT_PROPAGATE;
-    
-    const panel = Main.panel;
-    const [mouseX, mouseY] = event.get_coords();
-    const panelHeight = panel.height;
-    
-    if (mouseY <= 1) {
-        if (panelHideTimeoutId) {
-            GLib.source_remove(panelHideTimeoutId);
-            panelHideTimeoutId = null;
+        // Keep actor at top
+        global.window_group.set_child_below_sibling(this, null);
+
+        // Add hover detection
+        this.connect('enter-event', this._onEnter.bind(this));
+        this.connect('leave-event', this._onLeave.bind(this));
+    }
+
+    destroy() {
+        if (this._barrier) {
+            this._barrier.destroy();
+            this._barrier = null;
         }
-        panel.set_style('margin-top: 0px');
-    } else if (mouseY > panelHeight) {
-        if (!panelHideTimeoutId) {
-            panelHideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
-                if (fullscreenWindows.size > 0) {
-                    panel.set_style(`margin-top: -${panelHeight}px`);
+        super.destroy();
+    }
+
+    _onTrigger() {
+        log('[PanelHover] Pressure barrier triggered');
+        if (fullscreenWindows.size > 0) {
+            this._showPanel();
+        }
+    }
+
+    _onEnter() {
+        log('[PanelHover] Edge entered');
+        if (fullscreenWindows.size > 0) {
+            this._showPanel();
+        }
+    }
+
+    _onLeave() {
+        log('[PanelHover] Edge left');
+        if (fullscreenWindows.size > 0) {
+            if (panelHideTimeoutId) {
+                GLib.source_remove(panelHideTimeoutId);
+            }
+            panelHideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                const [, mouseY] = global.get_pointer();
+                if (mouseY > Main.panel.height) {
+                    this._hidePanel();
                 }
                 panelHideTimeoutId = null;
                 return GLib.SOURCE_REMOVE;
             });
         }
     }
-    
-    return Clutter.EVENT_PROPAGATE;
+
+    _showPanel() {
+        log('[PanelHover] Showing panel');
+        Main.panel.ease({
+            margin_top: 0,
+            duration: 200,
+            mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+        });
+    }
+
+    _hidePanel() {
+        log('[PanelHover] Hiding panel');
+        Main.panel.ease({
+            margin_top: -Main.panel.height,
+            duration: 200,
+            mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+        });
+    }
+});
+
+function _connectWindowSignals(window) {
+    if (windowSignals.has(window)) {
+        return;
+    }
+
+    let fullscreenId = window.connect('notify::fullscreen', () => {
+        _onWindowFullscreenChanged(window);
+    });
+
+    let unmanagedId = window.connect('unmanaged', () => {
+        _disconnectWindowSignals(window);
+    });
+
+    windowSignals.set(window, {
+        fullscreen: fullscreenId,
+        unmanaged: unmanagedId,
+    });
+
+    // Check initial fullscreen state
+    if (window.is_fullscreen()) {
+        _onWindowFullscreenChanged(window);
+    }
+}
+
+function _disconnectWindowSignals(window) {
+    if (windowSignals.has(window)) {
+        let signalIds = windowSignals.get(window);
+        window.disconnect(signalIds.fullscreen);
+        window.disconnect(signalIds.unmanaged);
+        windowSignals.delete(window);
+    }
+}
+
+function _onWindowCreated(display, window) {
+    if (!window) return;
+    log('[PanelHover] Window created');
+    _connectWindowSignals(window);
+}
+
+function _onWindowFullscreenChanged(window) {
+    if (window.is_fullscreen()) {
+        fullscreenWindows.add(window);
+        log(`[PanelHover] Window entered fullscreen. Count: ${fullscreenWindows.size}`);
+        Main.panel.ease({
+            margin_top: -Main.panel.height,
+            duration: 200,
+            mode: Clutter.AnimationMode.EASE_OUT_QUAD
+        });
+    } else {
+        fullscreenWindows.delete(window);
+        log(`[PanelHover] Window exited fullscreen. Count: ${fullscreenWindows.size}`);
+        if (fullscreenWindows.size === 0) {
+            log('[PanelHover] No fullscreen windows, resetting panel');
+            Main.panel.ease({
+                margin_top: 0,
+                duration: 200,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD
+            });
+        }
+    }
 }
 
 export function enable() {
-    disable(); // Clean up existing handlers
-    
-    // Track existing windows
-    let windows = global.get_window_actors()
-        .map(actor => actor.meta_window)
-        .filter(win => win.is_fullscreen());
-    
-    windows.forEach(win => fullscreenWindows.add(win));
-    
-    // Set up handlers
-    mouseTrackingHandler = global.stage.connect('motion-event', onMotionEvent);
-    windowCreatedHandler = global.display.connect('window-created', onWindowCreated);
-    
-    Main.panel.set_style('margin-top: 0px');
+    log('[PanelHover] Enabling extension');
+    disable();
+
+    hotCorner = new PanelEdge();
+    Main.layoutManager.addChrome(hotCorner, {
+        trackFullscreen: true,
+        affectsStruts: false,
+        affectsInputRegion: true
+    });
+
+    // Connect to existing windows
+    global.get_window_actors().forEach(actor => {
+        let window = actor.meta_window;
+        _connectWindowSignals(window);
+    });
+
+    windowCreatedHandler = global.display.connect('window-created', _onWindowCreated);
 }
 
 export function disable() {
-    if (mouseTrackingHandler) {
-        global.stage.disconnect(mouseTrackingHandler);
-        mouseTrackingHandler = null;
-    }
+    log('[PanelHover] Disabling extension');
     
+    if (hotCorner) {
+        hotCorner.destroy();
+        hotCorner = null;
+    }
+
     if (windowCreatedHandler) {
         global.display.disconnect(windowCreatedHandler);
         windowCreatedHandler = null;
     }
-    
+
     if (panelHideTimeoutId) {
         GLib.source_remove(panelHideTimeoutId);
         panelHideTimeoutId = null;
     }
-    
+
+    // Disconnect window signals
+    windowSignals.forEach((signalIds, window) => {
+        window.disconnect(signalIds.fullscreen);
+        window.disconnect(signalIds.unmanaged);
+    });
+    windowSignals.clear();
     fullscreenWindows.clear();
-    Main.panel.set_style('margin-top: 0px');
+
+    // Ensure panel is restored
+    Main.panel.ease({
+        margin_top: 0,
+        duration: 200,
+        mode: Clutter.AnimationMode.EASE_OUT_QUAD
+    });
 }
