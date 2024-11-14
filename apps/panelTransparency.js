@@ -1,23 +1,21 @@
+// panelTransparency.js - Panel Transparency Extension
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import GLib from 'gi://GLib';
 import St from 'gi://St';
 import Gio from 'gi://Gio';
 import Meta from 'gi://Meta';
 
-// State management
 let settings;
 let windowSignals = [];
 let settingsSignals = [];
 let interfaceSettings;
 let originalStyle;
 let isUpdatingStyle = false;
+let interfaceSettingsSignal;
 
 function updatePanelStyle(alpha = null) {
-    console.log('updatePanel called');
     const panel = Main.panel;
-    
     if (isUpdatingStyle || !panel) return;
-    
     isUpdatingStyle = true;
     
     try {
@@ -29,17 +27,12 @@ function updatePanelStyle(alpha = null) {
             Math.floor(backgroundColor.blue * 255)
         ];
 
-        // Remove transition-duration from all styles
-        // Check if the overview is visible
         if (Main.overview.visible) {
-            // Make the panel fully transparent in overview mode
             panel.set_style('background-color: transparent !important;');
-            console.log('Panel style updated for overview (transparent)');
             return;
         }
 
         if (!settings?.get_boolean('panel-transparency')) {
-            console.log('Panel transparency is disabled');
             panel.set_style(`background-color: rgb(${r}, ${g}, ${b})`);
             return;
         }
@@ -48,18 +41,9 @@ function updatePanelStyle(alpha = null) {
         const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important;`;
         
         if (panel.get_style() !== newStyle) {
-            console.log('Current panel style:', panel.get_style());
             panel.set_style(newStyle);
-            console.log(`Panel style updated with opacity ${opacity}`);
-        } else {
-            console.log('Style unchanged, current:', panel.get_style());
         }
-
-        // Add stack trace to see what's calling this
-        console.log('Call stack:', new Error().stack);
-        
     } catch (error) {
-        logError(error, 'Failed to update panel style');
         panel.set_style(originalStyle || '');
     } finally {
         isUpdatingStyle = false;
@@ -67,7 +51,6 @@ function updatePanelStyle(alpha = null) {
 }
 
 function checkWindowTouchingPanel() {
-    console.log('checkWindowTouchingPanel called');
     if (!settings?.get_boolean('panel-transparency') || 
         !settings.get_boolean('panel-opaque-on-window')) {
         updatePanelStyle(null);
@@ -92,12 +75,10 @@ function checkWindowTouchingPanel() {
         );
 
     updatePanelStyle(windowTouching ? 1.0 : null);
-    console.log(`Window touching panel: ${windowTouching}`);
 }
 
 function handleWindowSignals(connect = true) {
     if (!connect) {
-        // Disconnect existing signals
         windowSignals.forEach(({ actor, signals }) => {
             signals.forEach(signalId => actor.disconnect(signalId));
         });
@@ -105,7 +86,6 @@ function handleWindowSignals(connect = true) {
         return;
     }
 
-    // Connect to 'window-added' and 'window-removed' signals on the active workspace
     const workspace = global.workspace_manager.get_active_workspace();
     const workspaceSignals = [];
 
@@ -121,7 +101,6 @@ function handleWindowSignals(connect = true) {
 
     windowSignals.push({ actor: workspace, signals: workspaceSignals });
 
-    // Connect signals for existing windows
     workspace.list_windows().forEach(win => {
         connectWindowSignals(win);
     });
@@ -153,19 +132,22 @@ function disconnectWindowSignals(metaWindow) {
         signals.forEach(signalId => {
             try {
                 metaWindow.disconnect(signalId);
-            } catch (e) {
-                console.error(`Error disconnecting signal: ${e}`);
-            }
+            } catch (e) {}
         });
         windowSignals.splice(index, 1);
     }
 }
 
 function setupSignals() {
-    // Connect settings signals
+    settingsSignals.forEach(signal => {
+        try {
+            settings.disconnect(signal);
+        } catch (e) {}
+    });
+    settingsSignals = [];
+
     settingsSignals = [
         settings.connect('changed::panel-transparency', () => {
-            console.log('panel-transparency setting changed');
             handleWindowSignals(false);
             if (settings.get_boolean('panel-transparency')) {
                 handleWindowSignals(true);
@@ -175,56 +157,55 @@ function setupSignals() {
             }
         }),
         settings.connect('changed::panel-transparency-level', () => {
-            console.log('panel-transparency-level setting changed');
             updatePanelStyle(null);
         }),
         settings.connect('changed::panel-opaque-on-window', () => {
-            console.log('panel-opaque-on-window setting changed');
             checkWindowTouchingPanel();
         })
     ];
 
-    // Connect window management signals
     handleWindowSignals(true);
 
-    // Connect to workspace changes
     windowSignals.push({
         actor: global.window_manager,
         signals: [
             global.window_manager.connect('switch-workspace', () => {
-                console.log('Workspace switched');
                 checkWindowTouchingPanel();
             })
         ]
     });
 
-    // Connect to monitor changes
     windowSignals.push({
         actor: global.display,
         signals: [
             global.display.connect('window-entered-monitor', () => {
-                console.log('Window entered monitor');
                 checkWindowTouchingPanel();
             }),
             global.display.connect('window-left-monitor', () => {
-                console.log('Window left monitor');
                 checkWindowTouchingPanel();
             })
         ]
     });
 
-    // Update the overview signal handlers with a delay for hidden state
     windowSignals.push({
         actor: Main.overview,
         signals: [
             Main.overview.connect('showing', () => {
-                console.log('Overview showing');
                 updatePanelStyle();
             }),
+            Main.overview.connect('hiding', () => {
+                const panel = Main.panel;
+                const themeNode = panel.get_theme_node();
+                const backgroundColor = themeNode.get_background_color();
+                const [r, g, b] = [
+                    Math.floor(backgroundColor.red * 255),
+                    Math.floor(backgroundColor.green * 255),
+                    Math.floor(backgroundColor.blue * 255)
+                ];
+                panel.set_style(`background-color: rgba(${r}, ${g}, ${b}, 0) !important;`);
+            }),
             Main.overview.connect('hidden', () => {
-                console.log('Overview hidden');
-                // Add delay to allow windows to settle into position
-                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1, () => {
+                GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
                     checkWindowTouchingPanel();
                     return GLib.SOURCE_REMOVE;
                 });
@@ -249,37 +230,20 @@ export function init(extensionSettings) {
 }
 
 export function enable(_settings) {
-    console.log('panelTransparency enable called');
     settings = _settings;
-    
     if (!settings) return;
     
     originalStyle = Main.panel.get_style();
     interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+    interfaceSettingsSignal = interfaceSettings.connect('changed::color-scheme', () => {
+        forceThemeUpdate();
+        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            updatePanelStyle();
+            return GLib.SOURCE_REMOVE;
+        });
+    });
 
-    // Connect settings signals
-    settingsSignals = [
-        settings.connect('changed::panel-transparency', () => {
-            console.log('panel-transparency setting changed');
-            if (settings.get_boolean('panel-transparency')) {
-                setupSignals();
-                checkWindowTouchingPanel();
-            } else {
-                updatePanelStyle(null);
-                handleWindowSignals(false);
-            }
-        }),
-        settings.connect('changed::panel-transparency-level', () => {
-            console.log('panel-transparency-level setting changed');
-            updatePanelStyle(null);
-        }),
-        settings.connect('changed::panel-opaque-on-window', () => {
-            console.log('panel-opaque-on-window setting changed');
-            checkWindowTouchingPanel();
-        })
-    ];
-
-    setupSignals(); // Initialize signals
+    setupSignals();
 
     updatePanelStyle();
     forceThemeUpdate();
@@ -291,22 +255,24 @@ export function enable(_settings) {
 }
 
 export function disable() {
-    console.log('panelTransparency disable called');
     settingsSignals.forEach(signal => {
         try {
-            settings?.disconnect(signal);
-        } catch (e) {
-            console.log(`Failed to disconnect settings signal: ${e}`);
-        }
+            settings.disconnect(signal);
+        } catch (e) {}
     });
     settingsSignals = [];
-    
+
     handleWindowSignals(false);
-    
+
+    if (interfaceSettingsSignal) {
+        interfaceSettings.disconnect(interfaceSettingsSignal);
+        interfaceSettingsSignal = null;
+    }
+    interfaceSettings = null;
+
     if (originalStyle) {
         Main.panel.set_style(originalStyle);
     }
 
-    interfaceSettings = null;
     settings = null;
 }
