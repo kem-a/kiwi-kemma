@@ -49,23 +49,27 @@ export function enable() {
     
     // Keep only calendar section in popup menu
     if (dateMenu.menu.box) {
-        log('DateMenu sections debug:');
-        log('- menu children count: ' + dateMenu.menu.box.get_children().length);
+        // Remove notification sections completely instead of hiding
+        if (dateMenu._notificationSection) {
+            dateMenu.menu.box.remove_child(dateMenu._notificationSection);
+            dateMenu._notificationSection.destroy();
+            dateMenu._notificationSection = null;
+        }
+        if (dateMenu._mediaSection) {
+            dateMenu.menu.box.remove_child(dateMenu._mediaSection);
+            dateMenu._mediaSection.destroy();
+            dateMenu._mediaSection = null;
+        }
+        if (dateMenu._messageList) {
+            dateMenu.menu.box.remove_child(dateMenu._messageList);
+            dateMenu._messageList.destroy();
+            dateMenu._messageList = null;
+        }
         
-        // Hide all sections except calendar
-        if (dateMenu._notificationSection?.hide) {
-            log('Hiding notification section');
-            dateMenu._notificationSection.hide();
-        }
-        if (dateMenu._mediaSection?.hide) {
-            log('Hiding media section');
-            dateMenu._mediaSection.hide();
-        }
-        if (dateMenu._messageList?.hide) {
-            log('Hiding message list');
-            dateMenu._messageList.hide();
-        }
-        // Increase width to accommodate calendar
+        // Block the default notification handling
+        dateMenu._shouldShowNotificationSection = () => false;
+        dateMenu._shouldShowMediaSection = () => false;
+        
         dateMenu.menu.box.style = 'width: 330px;';
     }
 
@@ -94,16 +98,18 @@ export function enable() {
         quickSettings.menu.box.add_child(quickMenuNotificationsContainer);
     }
 
-    // Connect to source-added signal and handle notifications
+    // Modified notification handling
     sourceAddedId = Main.messageTray.connect('source-added', (tray, source) => {
         const notifyId = source.connect('notification-added', (source, notification) => {
-            log('Notification added: ' + notification.title);
-            if (quickMenuNotificationsContainer && notification.actor) {
-                log('Adding notification to quick settings');
-                quickMenuNotificationsContainer.add_child(notification.actor);
-            } else {
-                log('Cannot add notification: container=' + !!quickMenuNotificationsContainer + 
-                    ' actor=' + !!notification.actor);
+            // Ensure notification doesn't get added to date menu
+            if (notification.actor) {
+                const parent = notification.actor.get_parent();
+                if (parent && parent !== quickMenuNotificationsContainer) {
+                    parent.remove_child(notification.actor);
+                }
+                if (!notification.actor.get_parent() && quickMenuNotificationsContainer) {
+                    quickMenuNotificationsContainer.add_child(notification.actor);
+                }
             }
         });
         sources.set(source, notifyId);
@@ -122,11 +128,6 @@ export function enable() {
 
 export function disable() {
     if (!dateMenu) return;
-
-    // Remove custom CSS class from clock
-    if (dateMenu._clockDisplay) {
-        dateMenu._clockDisplay.remove_style_class_name('kiwi-clock');
-    }
     
     // Restore original format
     if (dateMenu._clockDisplay && originalFormatFunction) {
