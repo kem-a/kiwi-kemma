@@ -14,11 +14,6 @@ let sources = new Map();
 export function enable() {
     dateMenu = Main.panel.statusArea.dateMenu;
     
-    // Add custom CSS class to clock
-    if (dateMenu._clockDisplay) {
-        dateMenu._clockDisplay.add_style_class_name('kiwi-clock');
-    }
-    
     // Store original position and format
     originalDateMenuPosition = Main.panel._rightBox.get_children().indexOf(dateMenu.container);
     if (dateMenu._clockDisplay) {
@@ -52,10 +47,26 @@ export function enable() {
         Main.panel._rightBox.insert_child_at_index(dateMenu.container, position);
     }
     
-    // Hide notification section in calendar popup
-    if (dateMenu.menu._messageList) {
-        dateMenu.menu._messageList.get_parent().remove_child(dateMenu.menu._messageList);
-        dateMenu.menu.box.style = 'width: 280px;';
+    // Keep only calendar section in popup menu
+    if (dateMenu.menu.box) {
+        log('DateMenu sections debug:');
+        log('- menu children count: ' + dateMenu.menu.box.get_children().length);
+        
+        // Hide all sections except calendar
+        if (dateMenu._notificationSection?.hide) {
+            log('Hiding notification section');
+            dateMenu._notificationSection.hide();
+        }
+        if (dateMenu._mediaSection?.hide) {
+            log('Hiding media section');
+            dateMenu._mediaSection.hide();
+        }
+        if (dateMenu._messageList?.hide) {
+            log('Hiding message list');
+            dateMenu._messageList.hide();
+        }
+        // Increase width to accommodate calendar
+        dateMenu.menu.box.style = 'width: 330px;';
     }
 
     // Move notification banners to right
@@ -86,17 +97,22 @@ export function enable() {
     // Connect to source-added signal and handle notifications
     sourceAddedId = Main.messageTray.connect('source-added', (tray, source) => {
         const notifyId = source.connect('notification-added', (source, notification) => {
-            if (quickMenuNotificationsContainer) {
+            log('Notification added: ' + notification.title);
+            if (quickMenuNotificationsContainer && notification.actor) {
+                log('Adding notification to quick settings');
                 quickMenuNotificationsContainer.add_child(notification.actor);
+            } else {
+                log('Cannot add notification: container=' + !!quickMenuNotificationsContainer + 
+                    ' actor=' + !!notification.actor);
             }
         });
         sources.set(source, notifyId);
     });
 
-    // Handle existing sources
+    // Handle existing sources with null check
     Main.messageTray.getSources().forEach(source => {
         const notifyId = source.connect('notification-added', (source, notification) => {
-            if (quickMenuNotificationsContainer) {
+            if (quickMenuNotificationsContainer && notification.actor) {
                 quickMenuNotificationsContainer.add_child(notification.actor);
             }
         });
@@ -117,17 +133,14 @@ export function disable() {
         dateMenu._clockDisplay.format = originalFormatFunction;
     }
     
-    // Restore original position
+    // Don't restore notification sections in disable()
     if (dateMenu.container.get_parent() === Main.panel._rightBox) {
         Main.panel._rightBox.remove_child(dateMenu.container);
         Main.panel._centerBox.insert_child_at_index(dateMenu.container, 0);
     }
     
-    // Restore notification section
-    if (dateMenu.menu._messageList) {
-        dateMenu.menu._calendarSection.add_child(dateMenu.menu._messageList);
-        dateMenu.menu.box.style = '';
-    }
+    // Reset style only
+    dateMenu.menu.box.style = '';
 
     // Restore notification banner position
     if (Main.messageTray._bannerBin) {
