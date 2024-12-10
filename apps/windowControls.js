@@ -69,7 +69,10 @@ class WindowControlsIndicator extends PanelMenu.Button {
         
         this._focusWindowSignal = global.display.connect('notify::focus-window', this._onFocusWindowChanged.bind(this));
         this._overviewShowingId = Main.overview.connect('showing', () => this._updateVisibility());
-        this._overviewHidingId = Main.overview.connect('hiding', () => this._updateVisibility());
+        this._overviewHiddenId = Main.overview.connect('hidden', () => {
+            this._onFocusWindowChanged();
+            this._updateVisibility();
+        });
         
         this._updateVisibility();
     }
@@ -131,7 +134,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         if (this._focusWindowSignal) global.display.disconnect(this._focusWindowSignal);
         if (this._settingsChangedId) settings.disconnect(this._settingsChangedId);
         if (this._overviewShowingId) Main.overview.disconnect(this._overviewShowingId);
-        if (this._overviewHidingId) Main.overview.disconnect(this._overviewHidingId);
+        if (this._overviewHiddenId) Main.overview.disconnect(this._overviewHiddenId);
 
         if (this._focusWindow) {
             if (this._focusWindowMaximizeHorizSignal) this._focusWindow.disconnect(this._focusWindowMaximizeHorizSignal);
