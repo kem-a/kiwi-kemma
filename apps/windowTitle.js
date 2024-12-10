@@ -90,8 +90,17 @@ class WindowTitleIndicator extends PanelMenu.Button {
     _updateWindowTitle() {
         if (!this._focusWindow) return;
 
-        const app = Shell.WindowTracker.get_default().get_window_app(this._focusWindow);
         let windowTitle = this._focusWindow.get_title();
+
+        // Exclude window titles that start with "com." or " gjs"
+        if (windowTitle.startsWith('com.') || windowTitle.includes('@!0,0')) {
+            this._label.text = '';
+            this._icon.gicon = null;
+            this.hide();
+            return;
+        }
+
+        const app = Shell.WindowTracker.get_default().get_window_app(this._focusWindow);
         const dashIndex = Math.max(windowTitle.lastIndexOf(' - '), windowTitle.lastIndexOf(' — '));
         if (dashIndex !== -1) {
             windowTitle = windowTitle.substring(0, dashIndex);
