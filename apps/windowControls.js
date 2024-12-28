@@ -126,6 +126,15 @@ class WindowControlsIndicator extends PanelMenu.Button {
         const isMaximized = focusWindow && focusWindow.maximized_horizontally && focusWindow.maximized_vertically;
         const isFullscreen = focusWindow && focusWindow.is_fullscreen();
         
+        // Add window exclusion logic
+        if (focusWindow) {
+            const windowTitle = focusWindow.get_title();
+            if (windowTitle.startsWith('com.') || windowTitle.includes('@!0,0')) {
+                this.hide();
+                return;
+            }
+        }
+
         this.visible = !Main.overview.visible && focusWindow && 
             ((settings.get_boolean('show-controls-on-maximize') && isMaximized) || isFullscreen);
     }
