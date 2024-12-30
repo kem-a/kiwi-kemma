@@ -126,10 +126,10 @@ class WindowControlsIndicator extends PanelMenu.Button {
         const isMaximized = focusWindow && focusWindow.maximized_horizontally && focusWindow.maximized_vertically;
         const isFullscreen = focusWindow && focusWindow.is_fullscreen();
         
-        // Add window exclusion logic
+        // Add window exclusion logic with null check for window title
         if (focusWindow) {
             const windowTitle = focusWindow.get_title();
-            if (windowTitle.startsWith('com.') || windowTitle.includes('@!0,0')) {
+            if (windowTitle && (windowTitle.startsWith('com.') || windowTitle.includes('@!0,0'))) {
                 this.hide();
                 return;
             }

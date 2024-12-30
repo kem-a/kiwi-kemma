@@ -91,6 +91,14 @@ class WindowTitleIndicator extends PanelMenu.Button {
         if (!this._focusWindow) return;
 
         let windowTitle = this._focusWindow.get_title();
+        
+        // Handle null window title
+        if (!windowTitle) {
+            this._label.text = '';
+            this._icon.gicon = null;
+            this.hide();
+            return;
+        }
 
         // Exclude window titles that start with "com." or " gjs"
         if (windowTitle.startsWith('com.') || windowTitle.includes('@!0,0')) {
