@@ -38,9 +38,6 @@ class LockIcon extends PanelMenu.Button {
 
         // Delay the state initialization to ensure the keymap is fully ready
         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-            //this._capsLockEnabled = this.keymap.get_caps_lock_state();
-            //this._numLockEnabled = this.keymap.get_num_lock_state();
-
             this._updateLockState();
 
             // Connect to keymap state change after initial state has been set
@@ -56,85 +53,46 @@ class LockIcon extends PanelMenu.Button {
         const capsLockEnabled = this.keymap.get_caps_lock_state();
         const numLockEnabled = this.keymap.get_num_lock_state();
         
-        log(`Caps Lock is ${capsLockEnabled ? 'enabled' : 'disabled'}`);
-        log(`Num Lock is ${numLockEnabled ? 'enabled' : 'disabled'}`);
         if (capsLockEnabled !== this._capsLockEnabled) {
             this._capsLockEnabled = capsLockEnabled;
-            this._capsLockIcon.visible = capsLockEnabled;
-            this._animateIcon(this._lockKeysLayout, this._capsLockIcon, capsLockEnabled);
-            this._capsLockIcon.visible = capsLockEnabled;
+            this._animateIcon(this._capsLockIcon, capsLockEnabled);
         }
         if (numLockEnabled !== this._numLockEnabled) {
             this._numLockEnabled = numLockEnabled;
-            this._numLockIcon.visible = numLockEnabled;
-            this._animateIcon(this._lockKeysLayout, this._numLockIcon, numLockEnabled);
-            this._numLockIcon.visible = numLockEnabled;
+            this._animateIcon(this._numLockIcon, numLockEnabled);
         }
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
-            //this._numLockIcon.visible = numLockEnabled;
-            //this._capsLockIcon.visible = capsLockEnabled;
-        });
     }
 
-    _animateIcon(container, icon, show) {
+    _animateIcon(icon, show) {
         icon.remove_all_transitions();
-        container.remove_all_transitions();
 
-        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-            let [, naturalWidth] = icon.get_preferred_width(-1);
-            let totalWidth = naturalWidth;
+        let [, naturalWidth] = icon.get_preferred_width(-1);
 
-            if (this._capsLockEnabled && this._numLockEnabled) {
-                totalWidth = 2 * naturalWidth;
-            }
+        if (show) {
+            icon.visible = true;
+            icon.opacity = 0;
+            icon.translation_x = naturalWidth;
 
-            this.visible = true;
-            if (show) {
-                container.visible = true;
-                container.ease({
-                    width: totalWidth,
-                    duration: 250,
-                    mode: Clutter.AnimationMode.LINEAR,
-                    onComplete: () => {
-                        container.translation_x = 0;
-                    },
-                });
+            icon.ease({
+                opacity: 255,
+                translation_x: 0,
+                duration: 200,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+            });
+        } else {
+            icon.opacity = 255;
+            icon.translation_x = 0;
 
-                icon.translation_x = naturalWidth;
-                log(`Icon width: ${naturalWidth}`);
-                icon.ease({
-                    translation_x: 0,
-                    duration: 250,
-                    mode: Clutter.AnimationMode.LINEAR,
-                    onComplete: () => {
-                        icon.translation_x = 0;
-                    },
-                });
-            } else {
-                container.ease({
-                    width: this._capsLockEnabled || this._numLockEnabled ? naturalWidth : 0,
-                    duration: 250,
-                    mode: Clutter.AnimationMode.LINEAR,
-                    onComplete: () => {
-                        container.visible = this._capsLockEnabled || this._numLockEnabled;
-                        if (!this._capsLockEnabled && !this._numLockEnabled) {
-                            this.visible = false;
-                        }
-                    },
-                });
-                
-                icon.ease({
-                    translation_x: naturalWidth,
-                    duration: 250,
-                    mode: Clutter.AnimationMode.LINEAR,
-                    onComplete: () => {
-                        icon.translation_x = naturalWidth;
-                        log(`Icon width on complete: ${naturalWidth}`);
-                    },
-                });
-            }
-            return GLib.SOURCE_REMOVE;
-        });
+            icon.ease({
+                opacity: 0,
+                translation_x: naturalWidth,
+                duration: 200,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+                onComplete: () => {
+                    icon.visible = false;
+                },
+            });
+        }
     }
 
     destroy() {
