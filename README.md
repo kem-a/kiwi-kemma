@@ -21,7 +21,7 @@ You can install the extension from the GNOME Extensions website:
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/kem-a/kiwi.git
+    git clone https://github.com/kem-a/kiwi-kemma.git
     ```
 
 2. Copy the extension to the GNOME Shell extensions directory:
