@@ -1,4 +1,4 @@
-# Kiwi is not an Apple
+# Kiwi is not Apple
 
 Kiwi is a GNOME Shell extension that mimics various macOS features. This extension provides a collections of small quality of life functionalities such as moving windows to new workspaces, adding the username to the quick menu, focusing launched windows, and more.
 
