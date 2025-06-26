@@ -24,19 +24,14 @@ You can install the extension from the GNOME Extensions website:
     git clone https://github.com/kem-a/kiwi.git
     ```
 
-2. Navigate to the cloned directory:
+2. Copy the extension to the GNOME Shell extensions directory:
     ```sh
-    cd kiwi-kemma
+    cp -r kiwi-kemma ~/.local/share/gnome-shell/extensions/kiwi@kemma
     ```
 
-3. Copy the extension to the GNOME Shell extensions directory:
-    ```sh
-    cp -r kiwi@kemma ~/.local/share/gnome-shell/extensions/
-    ```
+3. Restart GNOME Shell (press `Alt+F2`, type `r`, and press `Enter`).
 
-4. Restart GNOME Shell (press `Alt+F2`, type `r`, and press `Enter`).
-
-5. Enable the extension using GNOME Tweaks or Extensions app.
+4. Enable the extension using GNOME Tweaks or Extensions app.
 
 ### Building
 
