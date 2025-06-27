@@ -18,7 +18,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
         this._settingsChangedId = settings.connect('changed', (_, key) => {
             if (key === 'button-type') this._updateIcons();
-            else if (key === 'show-controls-on-maximize') this._updateVisibility();
+            else if (key === 'show-window-controls' || key === 'enable-app-window-buttons') this._updateVisibility();
         });
 
         this._iconPath = Extension.lookupByUUID('kiwi@kemma').path;
@@ -136,7 +136,9 @@ class WindowControlsIndicator extends PanelMenu.Button {
         }
 
         this.visible = !Main.overview.visible && focusWindow && 
-            ((settings.get_boolean('show-controls-on-maximize') && isMaximized) || isFullscreen);
+            settings.get_boolean('enable-app-window-buttons') && 
+            settings.get_boolean('show-window-controls') && 
+            (isMaximized || isFullscreen);
     }
 
     destroy() {

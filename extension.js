@@ -12,6 +12,7 @@ import { enable as windowControlsEnable, disable as windowControlsDisable } from
 import { enable as panelHoverEnable, disable as panelHoverDisable } from './apps/panelHover.js';
 import { enable as panelTransparencyEnable, disable as panelTransparencyDisable } from './apps/panelTransparency.js';
 import { enable as hideMinimizedWindowsEnable, disable as hideMinimizedWindowsDisable } from './apps/hideMinimizedWindows.js';
+import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } from './apps/gtkThemeManager.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -23,6 +24,9 @@ export default class KiwiExtension extends Extension {
             windowControlsDisable();
             windowControlsEnable();
         }
+
+        // GTK theme updates are handled by gtkThemeManager module
+        // No need to handle 'enable-app-window-buttons' or 'button-type' here for GTK updates
 
         if (this._settings.get_boolean('move-window-to-new-workspace')) {
             moveFullscreenEnable();
@@ -72,7 +76,7 @@ export default class KiwiExtension extends Extension {
             windowTitleDisable();
         }
 
-        if (this._settings.get_boolean('show-window-controls')) {
+        if (this._settings.get_boolean('show-window-controls') && this._settings.get_boolean('enable-app-window-buttons')) {
             windowControlsEnable();
         } else {
             windowControlsDisable();
@@ -100,6 +104,10 @@ export default class KiwiExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._settingsChangedId = this._settings.connect('changed', (settings, key) => this._on_settings_changed(key));
+        
+        // Enable GTK theme manager
+        gtkThemeManagerEnable();
+        
         this._on_settings_changed(null);
     }
 
@@ -121,5 +129,6 @@ export default class KiwiExtension extends Extension {
         panelHoverDisable();
         panelTransparencyDisable();
         hideMinimizedWindowsDisable();
+        gtkThemeManagerDisable();
     }
 }

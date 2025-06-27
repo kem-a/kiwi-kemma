@@ -1,0 +1,17 @@
+/* Hide tilebar and buttons when maximized */
+
+/* Completely hide the titlebar when maximized */
+.maximized .titlebar {
+  opacity: 0;
+  margin-top: -100px;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Hide only the window control buttons inside headerbar when maximized */
+.maximized headerbar windowcontrols {
+  min-width: 0;
+  min-height: 0;
+  opacity: 0;
+  margin-left: -100px;
+}

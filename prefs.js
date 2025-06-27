@@ -104,44 +104,50 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         settingsPage.add(buttonTypeGroup);
 
-        // Add window controls switch to button style group
-        const windowControlsSwitch = new Adw.SwitchRow({
-            title: _("Show Window Controls"),
-            subtitle: _("Display window control buttons in the top panel"),
-            active: settings.get_boolean('show-window-controls'),
+        // Add primary enable application window buttons switch (first option)
+        const appWindowButtonsSwitch = new Adw.SwitchRow({
+            title: _("Enable Application Window Buttons"),
+            subtitle: _("Show window control buttons in application windows"),
+            active: settings.get_boolean('enable-app-window-buttons'),
         });
-        buttonTypeGroup.add(windowControlsSwitch);
-        settings.bind('show-window-controls', windowControlsSwitch, 'active', 
+        buttonTypeGroup.add(appWindowButtonsSwitch);
+        settings.bind('enable-app-window-buttons', appWindowButtonsSwitch, 'active',
             Gio.SettingsBindFlags.DEFAULT);
 
-        // Add show on maximize switch
-        const showOnMaxSwitch = new Adw.SwitchRow({
-            title: _("Show Controls on Maximize"),
-            subtitle: _("Show window controls when window is maximized"),
-            active: settings.get_boolean('show-controls-on-maximize'),
-            sensitive: settings.get_boolean('show-window-controls'),
+        // Add merged window controls switch for panel
+        const windowControlsPanelSwitch = new Adw.SwitchRow({
+            title: _("Show Window Controls on Panel"),
+            subtitle: _("Display window control buttons in the top panel when window is maximized"),
+            active: settings.get_boolean('show-window-controls'),
+            sensitive: settings.get_boolean('enable-app-window-buttons'),
         });
-        buttonTypeGroup.add(showOnMaxSwitch);
-        settings.bind('show-controls-on-maximize', showOnMaxSwitch, 'active',
+        buttonTypeGroup.add(windowControlsPanelSwitch);
+        settings.bind('show-window-controls', windowControlsPanelSwitch, 'active', 
             Gio.SettingsBindFlags.DEFAULT);
-        settings.bind('show-window-controls', showOnMaxSwitch, 'sensitive',
+        settings.bind('enable-app-window-buttons', windowControlsPanelSwitch, 'sensitive',
             Gio.SettingsBindFlags.GET);
 
         const buttonTypeModel = new Gtk.StringList();
         buttonTypeModel.append('titlebuttons');
         buttonTypeModel.append('titlebuttons-alt');
+        buttonTypeModel.append('titlebuttons-png');
+
+        let selectedIndex = 0;
+        const currentButtonType = settings.get_string('button-type');
+        if (currentButtonType === 'titlebuttons-alt') selectedIndex = 1;
+        else if (currentButtonType === 'titlebuttons-png') selectedIndex = 2;
 
         const buttonTypeCombo = new Adw.ComboRow({
             title: _('Button Type'),
             subtitle: _('Choose the button icon set'),
             model: buttonTypeModel,
-            selected: settings.get_string('button-type') === 'titlebuttons' ? 0 : 1,
-            sensitive: settings.get_boolean('show-window-controls'),
+            selected: selectedIndex,
+            sensitive: settings.get_boolean('enable-app-window-buttons'),
         });
         buttonTypeGroup.add(buttonTypeCombo);
 
-        // Bind combo sensitivity to switch state
-        settings.bind('show-window-controls', buttonTypeCombo, 'sensitive',
+        // Bind combo sensitivity to primary app buttons switch
+        settings.bind('enable-app-window-buttons', buttonTypeCombo, 'sensitive',
             Gio.SettingsBindFlags.GET);
 
         buttonTypeCombo.connect('notify::selected', (combo) => {

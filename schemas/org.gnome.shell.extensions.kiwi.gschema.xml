@@ -65,18 +65,13 @@
       </key>
       <key name="show-window-controls" type="b">
         <default>false</default>
-        <summary>Show Window Controls</summary>
-        <description>Display window control buttons in the top panel.</description>
+        <summary>Show Window Controls on Panel</summary>
+        <description>Display window control buttons in the top panel when window is maximized.</description>
       </key>
       <key name="button-type" type="s">
         <default>'titlebuttons'</default>
         <summary>Button icon set</summary>
         <description>Determines which set of icons to use for window control buttons.</description>
-      </key>
-      <key name="show-controls-on-maximize" type="b">
-        <default>true</default>
-        <summary>Show Controls on Maximize</summary>
-        <description>Show window controls in panel when window is maximized.</description>
       </key>
       <key name="panel-hover-fullscreen" type="b">
         <default>true</default>
@@ -103,6 +98,11 @@
         <default>false</default>
         <summary>Hide minimized windows</summary>
         <description>Hide minimized windows in the overview</description>
+      </key>
+      <key name="enable-app-window-buttons" type="b">
+        <default>true</default>
+        <summary>Enable Application Window Buttons</summary>
+        <description>Enable or disable window control buttons in application windows (affects GTK theming).</description>
       </key>
     </schema>
 </schemalist>
