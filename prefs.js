@@ -82,7 +82,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'lock-icon', title: _("Caps Lock and Num Lock"), subtitle: _("Show Caps Lock and Num Lock icon") },
             { key: 'transparent-move', title: _("Transparent Move"), subtitle: _("Move window with transparency") },
             { key: 'battery-percentage', title: _("Battery Percentage"), subtitle: _("Show battery percentage in the top bar when below 25%") },
-            { key: 'move-calendar-right', title: _("Move Calendar to Right"), subtitle: _("Move calendar to right side and hide notifications") },
+            { key: 'move-calendar-right', title: _("Move Calendar to Right (BUGGED)"), subtitle: _("Move calendar to right side and hide notifications") },
             { key: 'show-window-title', title: _("Show Window Title"), subtitle: _("Display current window title in the top panel") },
             { key: 'panel-hover-fullscreen', title: _("Show Panel on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
@@ -100,7 +100,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const buttonTypeGroup = new Adw.PreferencesGroup({
             title: _('Window Control Button Style'),
-            description: _('Select the style of window control buttons'),
+            description: _('Select the style of window control buttons. NEED TO LOGOUT for effect to apply to all apps.'),
         });
         settingsPage.add(buttonTypeGroup);
 
@@ -172,18 +172,18 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
 
         aboutBox.append(new Gtk.Label({
-            label: '<b>Kiwi is not an Apple</b>',
+            label: '<b>Kiwi is not Apple</b>',
             use_markup: true,
             halign: Gtk.Align.START,
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: 'Version: v0-alpha',
+            label: 'Version: v0.1-beta',
             halign: Gtk.Align.START,
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: 'Kiwi is not an Apple is a collection of MacOS like features for GNOME',
+            label: 'Kiwi is not Apple is a collection of MacOS like features for GNOME',
             halign: Gtk.Align.START,
         }));
 
