@@ -22,7 +22,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const group = new Adw.PreferencesGroup({
             title: _('Kiwi'),
-            description: _('Kiwi is not an Apple is a collection of MacOS like features for GNOME'),
+            description: _('Kiwi is not Apple is a collection of MacOS like features for GNOME'),
         });
         settingsPage.add(group);
 
