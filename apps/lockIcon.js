@@ -37,7 +37,7 @@ class LockIcon extends PanelMenu.Button {
         this.add_child(this._lockKeysLayout);
 
         // Delay the state initialization to ensure the keymap is fully ready
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+        this._timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
             this._updateLockState();
 
             // Connect to keymap state change after initial state has been set
@@ -45,6 +45,7 @@ class LockIcon extends PanelMenu.Button {
                 this._updateLockState();
             });
 
+            this._timeoutId = null;
             return GLib.SOURCE_REMOVE;
         });
     }
@@ -96,6 +97,10 @@ class LockIcon extends PanelMenu.Button {
     }
 
     destroy() {
+        if (this._timeoutId) {
+            GLib.source_remove(this._timeoutId);
+            this._timeoutId = null;
+        }
         if (this._keymapChangedId) {
             this.keymap.disconnect(this._keymapChangedId);
             this._keymapChangedId = null;
@@ -105,6 +110,7 @@ class LockIcon extends PanelMenu.Button {
 });
 
 let lockIcon;
+let timeoutId;
 
 export function enable() {
     if (!lockIcon) {

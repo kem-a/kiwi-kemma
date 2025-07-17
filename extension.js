@@ -1,4 +1,3 @@
-import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { enable as addUsernameEnable, disable as addUsernameDisable } from './apps/addUsernameToQuickMenu.js';
 import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from './apps/moveFullscreenWindow.js';
@@ -130,5 +129,6 @@ export default class KiwiExtension extends Extension {
         panelTransparencyDisable();
         hideMinimizedWindowsDisable();
         gtkThemeManagerDisable();
+        this._settings = null;
     }
 }

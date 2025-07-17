@@ -12,6 +12,7 @@ let interfaceSettings;
 let originalStyle;
 let isUpdatingStyle = false;
 let interfaceSettingsSignal;
+let timeoutId;
 
 function updatePanelStyle(alpha = null) {
     const panel = Main.panel;
@@ -248,13 +249,19 @@ export function enable(_settings) {
     updatePanelStyle();
     forceThemeUpdate();
 
-    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+    timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         checkWindowTouchingPanel();
+        timeoutId = null;
         return GLib.SOURCE_REMOVE;
     });
 }
 
 export function disable() {
+    if (timeoutId) {
+        GLib.source_remove(timeoutId);
+        timeoutId = null;
+    }
+    
     settingsSignals.forEach(signal => {
         try {
             settings.disconnect(signal);
