@@ -7,14 +7,15 @@ import Gio from 'gi://Gio';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 
-const extensionObject = Main.extensionManager.lookup('kiwi@kemma');
-
 export const LockIcon = GObject.registerClass(
 class LockIcon extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'Lock Indicator', false);
 
         this.keymap = Clutter.get_default_backend().get_default_seat().get_keymap();
+
+        // Get extension object for accessing icons
+        const extensionObject = Main.extensionManager.lookup('kiwi@kemma');
 
         // Create icons
         this._numLockIcon = new St.Icon({
