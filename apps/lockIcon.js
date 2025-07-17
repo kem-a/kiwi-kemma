@@ -110,8 +110,7 @@ class LockIcon extends PanelMenu.Button {
     }
 });
 
-let lockIcon;
-let timeoutId;
+let lockIcon = null;
 
 export function enable() {
     if (!lockIcon) {

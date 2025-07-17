@@ -3,14 +3,19 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
-let settings = null;
-let settingsChangedId = null;
+let gtkThemeManager = null;
 
-async function updateGtkCss() {
-    const extension = Extension.lookupByUUID('kiwi@kemma');
-    const enableAppButtons = settings.get_boolean('enable-app-window-buttons');
-    const showControlsOnPanel = settings.get_boolean('show-window-controls');
-    const buttonType = settings.get_string('button-type');
+class GtkThemeManager {
+    constructor() {
+        this._settings = null;
+        this._settingsChangedId = null;
+    }
+
+    async updateGtkCss() {
+        const extension = Extension.lookupByUUID('kiwi@kemma');
+        const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
+        const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
+        const buttonType = this._settings.get_string('button-type');
     
     // Define GTK 3 and GTK 4 specific content
     let gtk3Content = '';
@@ -55,7 +60,7 @@ async function updateGtkCss() {
         gtk4File.replace_contents(gtk4Content, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
         
         // Update user GTK config files with imports
-        await createUserGtkConfig();
+        await this.createUserGtkConfig();
         
         console.log(`[Kiwi] Updated GTK CSS files. App buttons: ${enableAppButtons}, Button type: ${buttonType}, Panel controls: ${showControlsOnPanel}`);
     } catch (error) {
@@ -63,7 +68,7 @@ async function updateGtkCss() {
     }
 }
 
-async function createUserGtkConfig() {
+    async createUserGtkConfig() {
     try {
         const extension = Extension.lookupByUUID('kiwi@kemma');
         const homeDir = GLib.get_home_dir();
@@ -84,10 +89,10 @@ async function createUserGtkConfig() {
         const gtk4UserPath = `${gtk4ConfigDir}/gtk.css`;
         
         // Process GTK 3 config
-        await processUserGtkFile(gtk3UserPath, gtk3ImportLine);
+        await this.processUserGtkFile(gtk3UserPath, gtk3ImportLine);
         
         // Process GTK 4 config
-        await processUserGtkFile(gtk4UserPath, gtk4ImportLine);
+        await this.processUserGtkFile(gtk4UserPath, gtk4ImportLine);
         
         console.log('[Kiwi] Added imports to user GTK config files');
         
@@ -96,7 +101,7 @@ async function createUserGtkConfig() {
     }
 }
 
-async function processUserGtkFile(filePath, importLine) {
+    async processUserGtkFile(filePath, importLine) {
     try {
         const file = Gio.File.new_for_path(filePath);
         let existingContent = '';
@@ -136,7 +141,7 @@ async function processUserGtkFile(filePath, importLine) {
     }
 }
 
-async function removeUserGtkConfig() {
+    async removeUserGtkConfig() {
     try {
         const homeDir = GLib.get_home_dir();
         const gtk3UserPath = `${homeDir}/.config/gtk-3.0/gtk.css`;
@@ -186,33 +191,48 @@ async function removeUserGtkConfig() {
     }
 }
 
-export function enable() {
-    if (!settings) {
-        settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
-        settingsChangedId = settings.connect('changed', (settings, key) => {
-            if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'show-window-controls') {
-                updateGtkCss().catch(error => {
-                    console.error(`[Kiwi] Error in settings changed handler: ${error}`);
-                });
-            }
-        });
+    enable() {
+        if (!this._settings) {
+            this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
+            this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
+                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'show-window-controls') {
+                    this.updateGtkCss().catch(error => {
+                        console.error(`[Kiwi] Error in settings changed handler: ${error}`);
+                    });
+                }
+            });
+            
+            // Initial update
+            this.updateGtkCss().catch(error => {
+                console.error(`[Kiwi] Error in initial update: ${error}`);
+            });
+        }
+    }
+
+    disable() {
+        if (this._settingsChangedId && this._settings) {
+            this._settings.disconnect(this._settingsChangedId);
+            this._settingsChangedId = null;
+            this._settings = null;
+        }
         
-        // Initial update
-        updateGtkCss().catch(error => {
-            console.error(`[Kiwi] Error in initial update: ${error}`);
+        // Remove our imports from user GTK config files
+        this.removeUserGtkConfig().catch(error => {
+            console.error(`[Kiwi] Error in disable cleanup: ${error}`);
         });
     }
 }
 
-export function disable() {
-    if (settingsChangedId && settings) {
-        settings.disconnect(settingsChangedId);
-        settingsChangedId = null;
-        settings = null;
+export function enable() {
+    if (!gtkThemeManager) {
+        gtkThemeManager = new GtkThemeManager();
+        gtkThemeManager.enable();
     }
-    
-    // Remove our imports from user GTK config files
-    removeUserGtkConfig().catch(error => {
-        console.error(`[Kiwi] Error in disable cleanup: ${error}`);
-    });
+}
+
+export function disable() {
+    if (gtkThemeManager) {
+        gtkThemeManager.disable();
+        gtkThemeManager = null;
+    }
 }

@@ -8,15 +8,14 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 let controlsIndicator = null;
-let settings = null;
 
 const WindowControlsIndicator = GObject.registerClass(
 class WindowControlsIndicator extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'window-controls', false);
 
-        settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
-        this._settingsChangedId = settings.connect('changed', (_, key) => {
+        this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
+        this._settingsChangedId = this._settings.connect('changed', (_, key) => {
             if (key === 'button-type') this._updateIcons();
             else if (key === 'show-window-controls' || key === 'enable-app-window-buttons') this._updateVisibility();
         });
@@ -112,7 +111,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         const iconName = `button-${buttonName}${state}.svg`;
         
         button.child = new St.Icon({
-            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this._iconPath}/icons/${settings.get_string('button-type')}/${iconName}`) }),
+            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this._iconPath}/icons/${this._settings.get_string('button-type')}/${iconName}`) }),
             icon_size: 16
         });
     }
@@ -136,14 +135,14 @@ class WindowControlsIndicator extends PanelMenu.Button {
         }
 
         this.visible = !Main.overview.visible && focusWindow && 
-            settings.get_boolean('enable-app-window-buttons') && 
-            settings.get_boolean('show-window-controls') && 
+            this._settings.get_boolean('enable-app-window-buttons') && 
+            this._settings.get_boolean('show-window-controls') && 
             (isMaximized || isFullscreen);
     }
 
     destroy() {
         if (this._focusWindowSignal) global.display.disconnect(this._focusWindowSignal);
-        if (this._settingsChangedId) settings.disconnect(this._settingsChangedId);
+        if (this._settingsChangedId) this._settings.disconnect(this._settingsChangedId);
         if (this._overviewShowingId) Main.overview.disconnect(this._overviewShowingId);
         if (this._overviewHiddenId) Main.overview.disconnect(this._overviewHiddenId);
 
