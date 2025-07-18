@@ -2,6 +2,7 @@
 
 Kiwi is a GNOME Shell extension that mimics various macOS features. This extension provides a collections of small quality of life functionalities such as moving windows to new workspaces, adding the username to the quick menu, focusing launched windows, and more.
 
+
 ## Features
 
 - **Move Window to New Workspace**: Automatically move fullscreen app to new workspaces.
@@ -15,7 +16,7 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 
 You can install the extension from the GNOME Extensions website:
 
-[Kiwi is not Apple on GNOME Extensions](https://extensions.gnome.org/extension/kiwi-is-not-apple/)
+[Kiwi is not Apple on GNOME Extensions](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
 
 ## Installing from Source
 
