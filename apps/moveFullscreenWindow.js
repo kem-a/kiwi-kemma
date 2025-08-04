@@ -37,7 +37,7 @@ class MoveFullscreenWindow {
         }
 
         // Check initial fullscreen state
-        if (window.fullscreen) {
+        if (window.is_fullscreen()) {
             this._onWindowFullscreenChanged(window);
         }
     }
@@ -52,7 +52,7 @@ class MoveFullscreenWindow {
     }
 
     _onWindowFullscreenChanged(window) {
-        if (window.fullscreen) {
+        if (window.is_fullscreen()) {
             // Move window to new workspace
             this._moveWindowToNewWorkspace(window);
         } else {
