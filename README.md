@@ -16,7 +16,7 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 
 You can install the extension from the GNOME Extensions website:
 
-[Kiwi is not Apple on GNOME Extensions](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
+[Kiwi on GNOME Extensions](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
 
 ## Installing from Source
 
