@@ -1,7 +1,7 @@
 {
   "uuid": "kiwi@kemma",
   "name": "Kiwi is not Apple",
-  "description": "Collection of various scripts that mimic MacOS features",
+  "description": "Collection of various scripts that mimic macOS features",
   "shell-version": ["45", "46", "47", "48"],
   "version": 0.1,
   "url": "https://github.com/kem-a/kiwi-kemma",
