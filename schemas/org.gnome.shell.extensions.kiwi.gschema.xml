@@ -35,7 +35,7 @@
       <key name="move-calendar-right" type="b">
         <default>false</default>
         <summary>Move Calendar to Right</summary>
-        <description>Move calendar to the right side of the top panel and hide notifications panel.</description>
+        <description>Move the calendar to the right side of the top panel and hide the notifications panel.</description>
       </key>
 
       <key name="transparent-on-moving" type="b">
@@ -61,7 +61,7 @@
       <key name="show-window-title" type="b">
         <default>true</default>
         <summary>Show window title in panel</summary>
-        <description>Display current window title in the top panel</description>
+        <description>Display the current window title in the top panel.</description>
       </key>
       <key name="show-window-controls" type="b">
         <default>false</default>
@@ -97,7 +97,7 @@
       <key name="hide-minimized-windows" type="b">
         <default>false</default>
         <summary>Hide minimized windows</summary>
-        <description>Hide minimized windows in the overview</description>
+        <description>Hide minimized windows in the overview.</description>
       </key>
       <key name="enable-app-window-buttons" type="b">
         <default>true</default>

@@ -4,7 +4,7 @@ import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 
-import {AppMenu} from 'resource:///org/gnome/shell/ui/appMenu.js';
+import { AppMenu } from 'resource:///org/gnome/shell/ui/appMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 
@@ -100,7 +100,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
             return;
         }
 
-        // Exclude window titles that start with "com." or " gjs"
+        // Exclude window titles that start with "com." or "gjs"
         if (windowTitle.startsWith('com.') || windowTitle.includes('@!0,0')) {
             this._label.text = '';
             this._icon.gicon = null;

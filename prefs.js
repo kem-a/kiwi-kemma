@@ -11,7 +11,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         window._settings = settings;
-        window.title = 'Kiwi is not an Apple';
+        window.title = 'Kiwi is not Apple';
 
         // Settings Page
         const settingsPage = new Adw.PreferencesPage({
@@ -22,7 +22,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const group = new Adw.PreferencesGroup({
             title: _('Kiwi'),
-            description: _('Kiwi is not Apple is a collection of MacOS like features for GNOME'),
+            description: _('Kiwi is not Apple is a collection of macOS-like features for GNOME'),
         });
         settingsPage.add(group);
 
@@ -100,7 +100,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const buttonTypeGroup = new Adw.PreferencesGroup({
             title: _('Window Control Button Style'),
-            description: _('Select the style of window control buttons. NEED TO LOGOUT for effect to apply to all apps.'),
+            description: _('Select the style of window control buttons. You need to log out for the effect to apply to all apps.'),
         });
         settingsPage.add(buttonTypeGroup);
 
@@ -183,7 +183,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: 'Kiwi is not Apple is a collection of MacOS like features for GNOME',
+            label: 'Kiwi is not Apple is a collection of macOS-like features for GNOME',
             halign: Gtk.Align.START,
         }));
 
