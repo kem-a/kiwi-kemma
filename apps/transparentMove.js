@@ -56,12 +56,16 @@ export class TransparentMove {
     }
 
     set_opacity(window_surfaces, target_opacity, on_complete) {
-        const complete_func = function() {
-            if (on_complete) {
+        const complete_func = () => {
+            if (on_complete)
                 on_complete();
-            }
         };
-    
+
+        if (window_surfaces.length === 0) {
+            complete_func();
+            return;
+        }
+
         if (TRANSITION_TIME < 0.001) {
             window_surfaces.forEach(surface => {
                 surface.opacity = target_opacity;
@@ -73,7 +77,7 @@ export class TransparentMove {
                     duration: TRANSITION_TIME * 1000,
                     mode: Clutter.AnimationMode.EASE_OUT_QUAD,
                     opacity: target_opacity,
-                    onComplete: complete_func
+                    onComplete: complete_func,
                 });
             });
         }
@@ -81,11 +85,13 @@ export class TransparentMove {
 
     get_window_surfaces(meta_window) {
         const window_actor = meta_window.get_compositor_private();
+        if (!window_actor)
+            return [];
+
         const surfaces = this.find_meta_surface_actors(window_actor);
-        if (surfaces.length > 0) {
+        if (surfaces.length > 0)
             return surfaces;
-        }
-    
+
         return [window_actor];
     }
 
@@ -111,11 +117,13 @@ export class TransparentMove {
         }
     
         const window_surfaces = this.get_window_surfaces(meta_window);
+        if (window_surfaces.length === 0)
+            return;
+
         const pid = meta_window.get_pid();
-        if (!this._window_opacity[pid]) {
+        if (!this._window_opacity[pid])
             this._window_opacity[pid] = window_surfaces[0].opacity;
-        }
-    
+
         this.set_opacity(window_surfaces, WINDOW_OPACITY);
     }
 
@@ -125,12 +133,14 @@ export class TransparentMove {
         }
     
         const window_surfaces = this.get_window_surfaces(meta_window);
-        const pid = meta_window.get_pid();
+        if (window_surfaces.length === 0)
+            return;
 
+        const pid = meta_window.get_pid();
         const complete_func = function() {
             delete this._window_opacity[pid];
         };
-    
+
         this.set_opacity(window_surfaces, this._window_opacity[pid], complete_func.bind(this));
     }
 
