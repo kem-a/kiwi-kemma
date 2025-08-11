@@ -6,12 +6,16 @@ headerbar button.titlebutton,
 .titlebar button.titlebutton {
   min-width: 16px;
   min-height: 16px;
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  padding: 1px;
   background-repeat: no-repeat;
   background-size: 16px 16px;
   background-position: center;
   border-radius: 8px;
+}
+
+headerbar button > image {
+  padding: 0 1px;
 }
 
 /* Reset default theming on these buttons for all interactive states */
