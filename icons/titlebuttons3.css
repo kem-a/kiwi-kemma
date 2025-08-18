@@ -1,6 +1,6 @@
 /* Custom theme GTK3 - Window Controls Mac-like Behavior */
 
-/* Window Controls base states*/
+/* Window Controls base states */
 
 headerbar button.titlebutton,
 .titlebar button.titlebutton {
@@ -16,6 +16,10 @@ headerbar button.titlebutton,
 
 headerbar button > image {
   padding: 0 1px;
+}
+
+headerbar.titlebar {
+  padding-left: 12px;
 }
 
 /* Reset default theming on these buttons for all interactive states */
@@ -131,54 +135,66 @@ headerbar button.titlebutton.restore:backdrop:hover,
   background-image: url("titlebuttons/button-restore-hover.svg");
 }
 
-/* --- GROUP HOVER (Mac-like: reveal all three on headerbar hover) --- */
-headerbar:hover button.titlebutton.close,
-.titlebar:hover button.titlebutton.close {
+/* --- GROUP HOVER (GTK3 helper adds .titlebuttons-hover either on box OR directly on headerbar) --- */
+headerbar.titlebuttons-hover button.titlebutton.close,
+.titlebar.titlebuttons-hover button.titlebutton.close,
+headerbar box.titlebuttons-hover button.titlebutton.close,
+.titlebar  box.titlebuttons-hover button.titlebutton.close {
   background-image: url("titlebuttons/button-close-hover.svg");
 }
-headerbar:hover button.titlebutton.minimize,
-.titlebar:hover button.titlebutton.minimize {
+headerbar.titlebuttons-hover button.titlebutton.minimize,
+.titlebar.titlebuttons-hover button.titlebutton.minimize,
+headerbar box.titlebuttons-hover button.titlebutton.minimize,
+.titlebar  box.titlebuttons-hover button.titlebutton.minimize {
   background-image: url("titlebuttons/button-minimize-hover.svg");
 }
-headerbar:hover button.titlebutton.maximize,
-.titlebar:hover button.titlebutton.maximize {
+headerbar.titlebuttons-hover button.titlebutton.maximize,
+.titlebar.titlebuttons-hover button.titlebutton.maximize,
+headerbar box.titlebuttons-hover button.titlebutton.maximize,
+.titlebar  box.titlebuttons-hover button.titlebutton.maximize {
   background-image: url("titlebuttons/button-maximize-hover.svg");
 }
-/* when the button is in restore mode and headerbar is hovered */
-headerbar:hover button.titlebutton.restore,
-.titlebar:hover button.titlebutton.restore {
+/* when the button is in restore mode and the box is hovered */
+headerbar.titlebuttons-hover button.titlebutton.restore,
+.titlebar.titlebuttons-hover button.titlebutton.restore,
+headerbar box.titlebuttons-hover button.titlebutton.restore,
+.titlebar  box.titlebuttons-hover button.titlebutton.restore {
   background-image: url("titlebuttons/button-restore-hover.svg");
 }
 
 /* --- ACTIVE STATES LAST (so they win over group-hover) --- */
-/* Close active */
 headerbar button.titlebutton.close:active,
 .titlebar button.titlebutton.close:active,
-headerbar:hover button.titlebutton.close:active,
-.titlebar:hover button.titlebutton.close:active {
+headerbar.titlebuttons-hover button.titlebutton.close:active,
+.titlebar.titlebuttons-hover button.titlebutton.close:active,
+headerbar box.titlebuttons-hover button.titlebutton.close:active,
+.titlebar  box.titlebuttons-hover button.titlebutton.close:active {
   background-image: url("titlebuttons/button-close-active.svg");
 }
 
-/* Minimize active */
 headerbar button.titlebutton.minimize:active,
 .titlebar button.titlebutton.minimize:active,
-headerbar:hover button.titlebutton.minimize:active,
-.titlebar:hover button.titlebutton.minimize:active {
+headerbar.titlebuttons-hover button.titlebutton.minimize:active,
+.titlebar.titlebuttons-hover button.titlebutton.minimize:active,
+headerbar box.titlebuttons-hover button.titlebutton.minimize:active,
+.titlebar  box.titlebuttons-hover button.titlebutton.minimize:active {
   background-image: url("titlebuttons/button-minimize-active.svg");
 }
 
-/* Maximize active (unmaximized) */
 headerbar button.titlebutton.maximize:active,
 .titlebar button.titlebutton.maximize:active,
-headerbar:hover button.titlebutton.maximize:active,
-.titlebar:hover button.titlebutton.maximize:active {
+headerbar.titlebuttons-hover button.titlebutton.maximize:active,
+.titlebar.titlebuttons-hover button.titlebutton.maximize:active,
+headerbar box.titlebuttons-hover button.titlebutton.maximize:active,
+.titlebar  box.titlebuttons-hover button.titlebutton.maximize:active {
   background-image: url("titlebuttons/button-maximize-active.svg");
 }
 
-/* Restore active (window maximized) */
 headerbar button.titlebutton.restore:active,
 .titlebar button.titlebutton.restore:active,
-headerbar:hover button.titlebutton.restore:active,
-.titlebar:hover button.titlebutton.restore:active {
+headerbar.titlebuttons-hover button.titlebutton.restore:active,
+.titlebar.titlebuttons-hover button.titlebutton.restore:active,
+headerbar box.titlebuttons-hover button.titlebutton.restore:active,
+.titlebar  box.titlebuttons-hover button.titlebutton.restore:active {
   background-image: url("titlebuttons/button-restore-active.svg");
 }

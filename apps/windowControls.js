@@ -1,6 +1,7 @@
 // windowControls.js - Adds window controls to the top panel
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -8,6 +9,93 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 let controlsIndicator = null;
+
+// Title buttons hover module management
+class TitleButtonsHoverManager {
+    constructor() {
+        this._originalGtkModules = null;
+        this._envFileWritten = false;
+    }
+
+    _envDir() {
+        const home = GLib.get_home_dir();
+        return `${home}/.config/environment.d`;
+    }
+
+    _envFile() {
+        return `${this._envDir()}/10-gtk3.conf`;
+    }
+
+    _writeEnvironmentFile(modulePath) {
+        try {
+            const dir = this._envDir();
+            GLib.mkdir_with_parents(dir, 0o755);
+
+            const file = this._envFile();
+            const content = `GTK_MODULES="${modulePath}"\n`;
+
+            const [ok, bytesWritten] = GLib.file_set_contents(file, content);
+            if (!ok) return false;
+
+            GLib.chmod(file, 0o644);
+            this._envFileWritten = true;
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    _removeEnvironmentFile() {
+        try {
+            const file = this._envFile();
+            if (!GLib.file_test(file, GLib.FileTest.EXISTS)) return;
+            try {
+                GLib.unlink(file);
+            } catch (e) {
+                // ignore
+            }
+            this._envFileWritten = false;
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    enable() {
+        try {
+            const extension = Extension.lookupByUUID('kiwi@kemma');
+            const modulePath = `${extension.path}/icons/libtitlebuttons_hover.so`;
+
+            if (!GLib.file_test(modulePath, GLib.FileTest.EXISTS)) {
+                return;
+            } else {
+                this._writeEnvironmentFile(modulePath);
+            }
+
+            this._originalGtkModules = GLib.getenv('GTK_MODULES');
+            GLib.setenv('GTK_MODULES', modulePath, true);
+        } catch (error) {
+            // ignore
+        }
+    }
+
+    disable() {
+        try {
+            if (this._originalGtkModules !== null) {
+                if (this._originalGtkModules === '') {
+                    GLib.unsetenv('GTK_MODULES');
+                } else {
+                    GLib.setenv('GTK_MODULES', this._originalGtkModules, true);
+                }
+            } else {
+                GLib.unsetenv('GTK_MODULES');
+            }
+
+            this._removeEnvironmentFile();
+        } catch (error) {
+            // ignore
+        }
+    }
+}
 
 const WindowControlsIndicator = GObject.registerClass(
 class WindowControlsIndicator extends PanelMenu.Button {
@@ -156,16 +244,29 @@ class WindowControlsIndicator extends PanelMenu.Button {
     }
 });
 
+let titleButtonsHoverManager = null;
+
 export function enable() {
     if (!controlsIndicator) {
         controlsIndicator = new WindowControlsIndicator();
         Main.panel.addToStatusArea('window-controls', controlsIndicator, 1, 'left');
     }
+
+    // Enable title buttons hover effect
+    if (!titleButtonsHoverManager) {
+        titleButtonsHoverManager = new TitleButtonsHoverManager();
+    }
+    titleButtonsHoverManager.enable();
 }
 
 export function disable() {
     if (controlsIndicator) {
         controlsIndicator.destroy();
         controlsIndicator = null;
+    }
+
+    // Disable title buttons hover effect
+    if (titleButtonsHoverManager) {
+        titleButtonsHoverManager.disable();
     }
 }
