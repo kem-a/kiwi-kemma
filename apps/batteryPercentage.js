@@ -20,35 +20,104 @@ class BatteryPercentage {
         Main.panel.statusArea.quickSettings._indicators.add_child(this._batteryLabel);
         this._batteryLabel.visible = false;
         
-        // Initialize the battery proxy to interact with UPower
-        this._initBatteryProxy();
+    // Initialize the battery proxy to interact with UPower
+    this._propertiesChangedId = null;
+    this._initBatteryProxy();
         // Track the last battery state and percentage to avoid redundant animations
         this._lastPercentage = null;
         this._lastState = null;
     }
 
     _initBatteryProxy() {
-        // Set up a D-Bus proxy to communicate with UPower for battery status
-        this._batteryProxy = new Gio.DBusProxy({
+        // Try to detect the correct battery object path dynamically using UPower.
+        // This avoids hardcoding BAT1 which can be BAT0 on some machines.
+        const upowerProxy = new Gio.DBusProxy({
             g_connection: Gio.DBus.system,
-            g_interface_name: 'org.freedesktop.UPower.Device',
-            g_object_path: '/org/freedesktop/UPower/devices/battery_BAT1',
+            g_interface_name: 'org.freedesktop.UPower',
+            g_object_path: '/org/freedesktop/UPower',
             g_name: 'org.freedesktop.UPower',
             g_flags: Gio.DBusProxyFlags.NONE,
         });
 
-        // Initialize the proxy asynchronously
-        this._batteryProxy.init_async(GLib.PRIORITY_DEFAULT, null, (proxy, result) => {
+        upowerProxy.init_async(GLib.PRIORITY_DEFAULT, null, (proxy, res) => {
             try {
-                proxy.init_finish(result);
-                // Update the battery percentage after initialization
-                this._updateBatteryPercentage();
-                // Connect to the properties-changed signal to update on changes
-                this._batteryProxy.connect('g-properties-changed', () => {
-                    this._updateBatteryPercentage();
+                proxy.init_finish(res);
+
+                // Enumerate devices and look for battery device paths
+                let variant = null;
+                try {
+                    variant = proxy.call_sync('EnumerateDevices', null, Gio.DBusCallFlags.NONE, -1, null);
+                } catch (e) {
+                    variant = null;
+                }
+
+                let devices = [];
+                if (variant) {
+                    try {
+                        devices = variant.deep_unpack ? variant.deep_unpack() : variant.unpack();
+                    } catch (e) {
+                        devices = [];
+                    }
+                }
+
+                // Prefer a device path matching battery_BAT\d+, otherwise any path containing 'battery'.
+                let batteryPath = null;
+                if (Array.isArray(devices)) {
+                    batteryPath = devices.find(p => /battery_BAT\d+/i.test(p) || /battery/i.test(p));
+                }
+
+                // Fallback to common defaults if enumeration failed or returned nothing
+                if (!batteryPath) {
+                    // Try BAT0 then BAT1 as sensible fallbacks
+                    const fallback0 = '/org/freedesktop/UPower/devices/battery_BAT0';
+                    const fallback1 = '/org/freedesktop/UPower/devices/battery_BAT1';
+                    batteryPath = devices && devices.indexOf(fallback0) !== -1 ? fallback0 : (devices && devices.indexOf(fallback1) !== -1 ? fallback1 : fallback0);
+                }
+
+                // Create the device proxy with the detected path
+                this._batteryProxy = new Gio.DBusProxy({
+                    g_connection: Gio.DBus.system,
+                    g_interface_name: 'org.freedesktop.UPower.Device',
+                    g_object_path: batteryPath,
+                    g_name: 'org.freedesktop.UPower',
+                    g_flags: Gio.DBusProxyFlags.NONE,
+                });
+
+                this._batteryProxy.init_async(GLib.PRIORITY_DEFAULT, null, (deviceProxy, deviceRes) => {
+                    try {
+                        deviceProxy.init_finish(deviceRes);
+                        // Update the battery percentage after initialization
+                        this._updateBatteryPercentage();
+                        // Connect to the properties-changed signal to update on changes
+                        this._propertiesChangedId = this._batteryProxy.connect('g-properties-changed', () => {
+                            this._updateBatteryPercentage();
+                        });
+                    } catch (e) {
+                        // Device proxy initialization failed; nothing more we can do here.
+                    }
                 });
             } catch (e) {
-                // Handle initialization error
+                // If anything goes wrong enumerating devices, fall back to the original hardcoded path
+                const fallbackPath = '/org/freedesktop/UPower/devices/battery_BAT0';
+                this._batteryProxy = new Gio.DBusProxy({
+                    g_connection: Gio.DBus.system,
+                    g_interface_name: 'org.freedesktop.UPower.Device',
+                    g_object_path: fallbackPath,
+                    g_name: 'org.freedesktop.UPower',
+                    g_flags: Gio.DBusProxyFlags.NONE,
+                });
+
+                this._batteryProxy.init_async(GLib.PRIORITY_DEFAULT, null, (proxy2, result2) => {
+                    try {
+                        proxy2.init_finish(result2);
+                        this._updateBatteryPercentage();
+                        this._propertiesChangedId = this._batteryProxy.connect('g-properties-changed', () => {
+                            this._updateBatteryPercentage();
+                        });
+                    } catch (e2) {
+                        // Give up if fallback also fails
+                    }
+                });
             }
         });
     }
@@ -137,6 +206,15 @@ export const disable = () => {
     // Disable the battery percentage indicator and remove it from the panel
     if (batteryPercentageInstance) {
         Main.panel.statusArea.quickSettings._indicators.remove_child(batteryPercentageInstance._batteryLabel);
+        // Disconnect properties-changed signal if connected
+        try {
+            if (batteryPercentageInstance._propertiesChangedId && batteryPercentageInstance._batteryProxy) {
+                batteryPercentageInstance._batteryProxy.disconnect(batteryPercentageInstance._propertiesChangedId);
+            }
+        } catch (e) {
+            // ignore
+        }
+        batteryPercentageInstance._batteryProxy = null;
         batteryPercentageInstance = null;
     }
 };
