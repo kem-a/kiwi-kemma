@@ -86,6 +86,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'show-window-title', title: _("Show Window Title"), subtitle: _("Display current window title in the top panel") },
             { key: 'panel-hover-fullscreen', title: _("Show Panel on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
+            { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
         ];
 
         switchList.forEach((item) => {

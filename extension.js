@@ -12,6 +12,7 @@ import { enable as panelHoverEnable, disable as panelHoverDisable } from './apps
 import { enable as panelTransparencyEnable, disable as panelTransparencyDisable } from './apps/panelTransparency.js';
 import { enable as hideMinimizedWindowsEnable, disable as hideMinimizedWindowsDisable } from './apps/hideMinimizedWindows.js';
 import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } from './apps/gtkThemeManager.js';
+import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -98,6 +99,12 @@ export default class KiwiExtension extends Extension {
         } else {
             hideMinimizedWindowsDisable();
         }
+
+        if (this._settings.get_boolean('hide-activities-button')) {
+            hideActivitiesButtonEnable();
+        } else {
+            hideActivitiesButtonDisable();
+        }
     }
 
     enable() {
@@ -128,6 +135,7 @@ export default class KiwiExtension extends Extension {
         panelHoverDisable();
         panelTransparencyDisable();
         hideMinimizedWindowsDisable();
+    hideActivitiesButtonDisable();
         gtkThemeManagerDisable();
         this._settings = null;
     }

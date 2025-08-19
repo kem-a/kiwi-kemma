@@ -104,5 +104,10 @@
         <summary>Enable Application Window Buttons</summary>
         <description>Enable or disable window control buttons in application windows (affects GTK theming).</description>
       </key>
+      <key name="hide-activities-button" type="b">
+        <default>false</default>
+        <summary>Hide Activities Button</summary>
+        <description>Hide the Activities button in the top panel.</description>
+      </key>
     </schema>
 </schemalist>
