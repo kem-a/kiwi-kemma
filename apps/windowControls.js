@@ -111,6 +111,9 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._iconPath = Extension.lookupByUUID('kiwi@kemma').path;
         this._box = new St.BoxLayout({ style_class: 'window-controls-box' });
         this.add_child(this._box);
+        
+        // Track hover state for all-buttons-hover effect
+        this._isContainerHovered = false;
 
         this._closeButton = new St.Button({ style_class: 'window-control-button close', track_hover: true });
         this._minimizeButton = new St.Button({ style_class: 'window-control-button minimize', track_hover: true });
@@ -126,6 +129,15 @@ class WindowControlsIndicator extends PanelMenu.Button {
             button.connect('button-release-event', () => {
                 button.remove_style_pseudo_class('active');
                 this._updateButtonIcon(buttonType);
+            });
+            // Add enter/leave events for all-buttons-hover effect
+            button.connect('enter-event', () => {
+                this._isContainerHovered = true;
+                this._updateAllIcons();
+            });
+            button.connect('leave-event', () => {
+                this._isContainerHovered = false;
+                this._updateAllIcons();
             });
         });
 
@@ -194,7 +206,10 @@ class WindowControlsIndicator extends PanelMenu.Button {
     _updateButtonIcon(buttonType) {
         const button = this[`_${buttonType}Button`];
         const isMaximized = buttonType === 'maximize' && global.display.focus_window?.get_maximized();
-        const state = button.has_style_pseudo_class('active') ? '-active' : button.hover ? '-hover' : '';
+        
+        // Use hover state if the button is individually hovered OR if the container is hovered
+        const isHovered = button.hover || this._isContainerHovered;
+        const state = button.has_style_pseudo_class('active') ? '-active' : isHovered ? '-hover' : '';
         const buttonName = isMaximized ? 'restore' : buttonType;
         const iconName = `button-${buttonName}${state}.svg`;
         
@@ -204,8 +219,12 @@ class WindowControlsIndicator extends PanelMenu.Button {
         });
     }
 
-    _updateIcons() {
+    _updateAllIcons() {
         ['minimize', 'maximize', 'close'].forEach(buttonType => this._updateButtonIcon(buttonType));
+    }
+
+    _updateIcons() {
+        this._updateAllIcons();
     }
 
     _updateVisibility() {
