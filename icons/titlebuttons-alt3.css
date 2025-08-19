@@ -1,110 +1,58 @@
-/*(((((((((( Custom theme GTK4 ))))))))))*/
+/* Custom theme GTK3 - Window Controls Mac-like Behavior */
 
-/*(((((((((( headerbar and titlebar ))))))))))*/
+/* Window Controls base states */
 
-/*
-headerbar
-{ 
-                  padding: 10px;
-              padding-top: 4px;
-           padding-bottom: 4px;
-   border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-window.titlebar
-{
-                 padding: 16px;
-             padding-top: 4px;
-          padding-bottom: 4px;
-              min-height: 18px;
-  border-top-left-radius: 12px;
- border-top-right-radius: 12px;
-}
-*/
-
-/*(((((((((( Titlebuttons ))))))))))*/
-
-/*
-.normal-icons {
-  -gtk-icon-size: 16px;
-}
-
-.large-icons {
-  -gtk-icon-size: 32px;
-}
-
-window button.titlebutton
-{
-  padding-left: 3px;
-}
-
-button.titlebutton
-{
-  padding: 0px;
-  min-width: 0px;
-}
-
-headerbar {
-  border-spacing: 2px;
-}
-
-
-.titlebutton {
-	padding: 1px;
-}
-
-
-headerbar button:not(.suggested-action):not(.destructive-action) {
-	min-height: 16px;
-	min-width: 16px;
-	padding: 0px;
-}
-
-headerbar {
-  border-spacing: 8px;
-  padding: 0px 6px 0px 9px;
-}
-
-headerbar button:not(.suggested-action):not(.destructive-action) > image {
-  border-radius: 100%;
-  padding: 0;
-  border: none;
-  outline: none;
-  box-shadow: none;
-  background-size: 17px;
-}
-*/
-
-headerbar button.close, headerbar button.maximize, headerbar button.minimize {
+headerbar button.titlebutton,
+.titlebar button.titlebutton {
   min-width: 16px;
   min-height: 16px;
   margin: 0px;
   padding: 1px;
-  background-position: center;
   background-repeat: no-repeat;
   background-size: 16px 16px;
+  background-position: center;
+  border-radius: 8px;
 }
 
-headerbar button.close:backdrop, headerbar button.maximize:backdrop, headerbar button.minimize:backdrop {
-  opacity: 0.75;
+headerbar button > image {
+  padding: 0 1px;
 }
 
-/*
-headerbar box.horizontal.left button {
-    padding: 0px;
-    min-width: 16px;
-    min-height: 16px;
+headerbar.titlebar {
+  padding-left: 12px;
 }
-*/
-/*
-headerbar box {
-	padding-left: 6px;
-}
-*/
-headerbar button.close, headerbar button.close:hover, headerbar button.close:focus, headerbar button.close:active, headerbar button.close:backdrop, 
-headerbar button.maximize, headerbar button.maximize:hover, headerbar button.maximize:focus, headerbar button.maximize:active, headerbar button.maximize:backdrop, 
-headerbar button.minimize, headerbar button.minimize:hover, headerbar button.minimize:focus, headerbar button.minimize:active, headerbar button.minimize:backdrop 
-{
+
+/* Reset default theming on these buttons for all interactive states */
+headerbar button.titlebutton.close,
+headerbar button.titlebutton.close:hover,
+headerbar button.titlebutton.close:focus,
+headerbar button.titlebutton.close:active,
+headerbar button.titlebutton.close:backdrop,
+headerbar button.titlebutton.maximize,
+headerbar button.titlebutton.maximize:hover,
+headerbar button.titlebutton.maximize:focus,
+headerbar button.titlebutton.maximize:active,
+headerbar button.titlebutton.maximize:backdrop,
+headerbar button.titlebutton.minimize,
+headerbar button.titlebutton.minimize:hover,
+headerbar button.titlebutton.minimize:focus,
+headerbar button.titlebutton.minimize:active,
+headerbar button.titlebutton.minimize:backdrop,
+.titlebar button.titlebutton.close,
+.titlebar button.titlebutton.close:hover,
+.titlebar button.titlebutton.close:focus,
+.titlebar button.titlebutton.close:active,
+.titlebar button.titlebutton.close:backdrop,
+.titlebar button.titlebutton.maximize,
+.titlebar button.titlebutton.maximize:hover,
+.titlebar button.titlebutton.maximize:focus,
+.titlebar button.titlebutton.maximize:active,
+.titlebar button.titlebutton.maximize:backdrop,
+.titlebar button.titlebutton.minimize,
+.titlebar button.titlebutton.minimize:hover,
+.titlebar button.titlebutton.minimize:focus,
+.titlebar button.titlebutton.minimize:active,
+.titlebar button.titlebutton.minimize:backdrop {
   border-color: transparent;
   background-color: transparent;
   background-image: none;
@@ -112,102 +60,141 @@ headerbar button.minimize, headerbar button.minimize:hover, headerbar button.min
   color: transparent;
 }
 
+/* Backdrop stays opaque */
+headerbar button.titlebutton.close:backdrop,
+headerbar button.titlebutton.maximize:backdrop,
+headerbar button.titlebutton.minimize:backdrop,
+.titlebar button.titlebutton.close:backdrop,
+.titlebar button.titlebutton.maximize:backdrop,
+.titlebar button.titlebutton.minimize:backdrop {
+  opacity: 1;
+}
+
+/* --- CLOSE --- */
 headerbar button.titlebutton.close,
 .titlebar button.titlebutton.close {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close.svg"), url("titlebuttons-alt/button-close@2.svg"));
+  background-image: url("titlebuttons-alt/button-close.svg");
 }
-
 headerbar button.titlebutton.close:backdrop,
 .titlebar button.titlebutton.close:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-backdrop.svg"), url("titlebuttons-alt/button-close-backdrop@2.svg"));
+  background-image: url("titlebuttons-alt/button-close-backdrop.svg");
 }
-
+/* per-button hover */
+headerbar button.titlebutton.close:hover,
+.titlebar button.titlebutton.close:hover,
 headerbar button.titlebutton.close:backdrop:hover,
 .titlebar button.titlebutton.close:backdrop:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-backdrop-hover.svg"), url("titlebuttons-alt/button-close-backdrop-hover@2.svg"));
+  background-image: url("titlebuttons-alt/button-close-hover.svg");
 }
 
-headerbar button.titlebutton.close:hover,
-.titlebar button.titlebutton.close:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-hover.svg"), url("titlebuttons-alt/button-close-hover@2.svg"));
-}
-
-headerbar button.titlebutton.close:active,
-.titlebar button.titlebutton.close:active {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-active.svg"), url("titlebuttons-alt/button-close-active@2.svg"));
-}
-
-headerbar button.titlebutton.maximize,
-.titlebar button.titlebutton.maximize {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize.svg"), url("titlebuttons-alt/button-maximize@2.svg"));
-}
-
-headerbar button.titlebutton.maximize:backdrop,
-.titlebar button.titlebutton.maximize:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-backdrop.svg"), url("titlebuttons-alt/button-maximize-backdrop@2.svg"));
-}
-
-headerbar button.titlebutton.maximize:backdrop:hover,
-.titlebar button.titlebutton.maximize:backdrop:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-backdrop-hover.svg"), url("titlebuttons-alt/button-maximize-backdrop-hover@2.svg"));
-}
-
-headerbar button.titlebutton.maximize:hover,
-.titlebar button.titlebutton.maximize:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-hover.svg"), url("titlebuttons-alt/button-maximize-hover@2.svg"));
-}
-
-headerbar button.titlebutton.maximize:active,
-.titlebar button.titlebutton.maximize:active {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-active.svg"), url("titlebuttons-alt/button-maximize-active@2.svg"));
-}
-
+/* --- MINIMIZE --- */
 headerbar button.titlebutton.minimize,
 .titlebar button.titlebutton.minimize {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize.svg"), url("titlebuttons-alt/button-minimize@2.svg"));
+  background-image: url("titlebuttons-alt/button-minimize.svg");
 }
-
 headerbar button.titlebutton.minimize:backdrop,
 .titlebar button.titlebutton.minimize:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-backdrop.svg"), url("titlebuttons-alt/button-minimize-backdrop@2.svg"));
+  background-image: url("titlebuttons-alt/button-minimize-backdrop.svg");
 }
-
+headerbar button.titlebutton.minimize:hover,
+.titlebar button.titlebutton.minimize:hover,
 headerbar button.titlebutton.minimize:backdrop:hover,
 .titlebar button.titlebutton.minimize:backdrop:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-backdrop-hover.svg"), url("titlebuttons-alt/button-minimize-backdrop-hover@2.svg"));
+  background-image: url("titlebuttons-alt/button-minimize-hover.svg");
 }
 
-headerbar button.titlebutton.minimize:hover,
-.titlebar button.titlebutton.minimize:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-hover.svg"), url("titlebuttons-alt/button-minimize-hover@2.svg"));
+/* --- MAXIMIZE (window not maximized) --- */
+headerbar button.titlebutton.maximize,
+.titlebar button.titlebutton.maximize {
+  background-image: url("titlebuttons-alt/button-maximize.svg");
+}
+headerbar button.titlebutton.maximize:backdrop,
+.titlebar button.titlebutton.maximize:backdrop {
+  background-image: url("titlebuttons-alt/button-maximize-backdrop.svg");
+}
+headerbar button.titlebutton.maximize:hover,
+.titlebar button.titlebutton.maximize:hover,
+headerbar button.titlebutton.maximize:backdrop:hover,
+.titlebar button.titlebutton.maximize:backdrop:hover {
+  background-image: url("titlebuttons-alt/button-maximize-hover.svg");
+}
+
+/* --- RESTORE (when window is maximized) --- */
+headerbar button.titlebutton.restore,
+.titlebar button.titlebutton.restore {
+  background-image: url("titlebuttons-alt/button-restore.svg");
+}
+headerbar button.titlebutton.restore:backdrop,
+.titlebar button.titlebutton.restore:backdrop {
+  background-image: url("titlebuttons-alt/button-restore-backdrop.svg");
+}
+headerbar button.titlebutton.restore:hover,
+.titlebar button.titlebutton.restore:hover,
+headerbar button.titlebutton.restore:backdrop:hover,
+.titlebar button.titlebutton.restore:backdrop:hover {
+  background-image: url("titlebuttons-alt/button-restore-hover.svg");
+}
+
+/* --- GROUP HOVER (GTK3 helper adds .titlebuttons-hover either on box OR directly on headerbar) --- */
+headerbar.titlebuttons-hover button.titlebutton.close,
+.titlebar.titlebuttons-hover button.titlebutton.close,
+headerbar box.titlebuttons-hover button.titlebutton.close,
+.titlebar  box.titlebuttons-hover button.titlebutton.close {
+  background-image: url("titlebuttons-alt/button-close-hover.svg");
+}
+headerbar.titlebuttons-hover button.titlebutton.minimize,
+.titlebar.titlebuttons-hover button.titlebutton.minimize,
+headerbar box.titlebuttons-hover button.titlebutton.minimize,
+.titlebar  box.titlebuttons-hover button.titlebutton.minimize {
+  background-image: url("titlebuttons-alt/button-minimize-hover.svg");
+}
+headerbar.titlebuttons-hover button.titlebutton.maximize,
+.titlebar.titlebuttons-hover button.titlebutton.maximize,
+headerbar box.titlebuttons-hover button.titlebutton.maximize,
+.titlebar  box.titlebuttons-hover button.titlebutton.maximize {
+  background-image: url("titlebuttons-alt/button-maximize-hover.svg");
+}
+/* when the button is in restore mode and the box is hovered */
+headerbar.titlebuttons-hover button.titlebutton.restore,
+.titlebar.titlebuttons-hover button.titlebutton.restore,
+headerbar box.titlebuttons-hover button.titlebutton.restore,
+.titlebar  box.titlebuttons-hover button.titlebutton.restore {
+  background-image: url("titlebuttons-alt/button-restore-hover.svg");
+}
+
+/* --- ACTIVE STATES LAST (so they win over group-hover) --- */
+headerbar button.titlebutton.close:active,
+.titlebar button.titlebutton.close:active,
+headerbar.titlebuttons-hover button.titlebutton.close:active,
+.titlebar.titlebuttons-hover button.titlebutton.close:active,
+headerbar box.titlebuttons-hover button.titlebutton.close:active,
+.titlebar  box.titlebuttons-hover button.titlebutton.close:active {
+  background-image: url("titlebuttons-alt/button-close-active.svg");
 }
 
 headerbar button.titlebutton.minimize:active,
-.titlebar button.titlebutton.minimize:active {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-active.svg"), url("titlebuttons-alt/button-minimize-active@2.svg"));
+.titlebar button.titlebutton.minimize:active,
+headerbar.titlebuttons-hover button.titlebutton.minimize:active,
+.titlebar.titlebuttons-hover button.titlebutton.minimize:active,
+headerbar box.titlebuttons-hover button.titlebutton.minimize:active,
+.titlebar  box.titlebuttons-hover button.titlebutton.minimize:active {
+  background-image: url("titlebuttons-alt/button-minimize-active.svg");
 }
 
-headerbar button.titlebutton.restore,
-.titlebar button.titlebutton.restore {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore.svg"), url("titlebuttons-alt/button-restore@2.svg"));
-}
-
-headerbar button.titlebutton.restore:backdrop,
-.titlebar button.titlebutton.restore:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-backdrop.svg"), url("titlebuttons-alt/button-restore-backdrop@2.svg"));
-}
-
-headerbar button.titlebutton.restore:backdrop:hover,
-.titlebar button.titlebutton.restore:backdrop:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-backdrop-hover.svg"), url("titlebuttons-alt/button-restore-backdrop-hover@2.svg"));
-}
-
-headerbar button.titlebutton.restore:hover,
-.titlebar button.titlebutton.restore:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-hover.svg"), url("titlebuttons-alt/button-restore-hover@2.svg"));
+headerbar button.titlebutton.maximize:active,
+.titlebar button.titlebutton.maximize:active,
+headerbar.titlebuttons-hover button.titlebutton.maximize:active,
+.titlebar.titlebuttons-hover button.titlebutton.maximize:active,
+headerbar box.titlebuttons-hover button.titlebutton.maximize:active,
+.titlebar  box.titlebuttons-hover button.titlebutton.maximize:active {
+  background-image: url("titlebuttons-alt/button-maximize-active.svg");
 }
 
 headerbar button.titlebutton.restore:active,
-.titlebar button.titlebutton.restore:active {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-active.svg"), url("titlebuttons-alt/button-restore-active@2.svg"));
+.titlebar button.titlebutton.restore:active,
+headerbar.titlebuttons-hover button.titlebutton.restore:active,
+.titlebar.titlebuttons-hover button.titlebutton.restore:active,
+headerbar box.titlebuttons-hover button.titlebutton.restore:active,
+.titlebar  box.titlebuttons-hover button.titlebutton.restore:active {
+  background-image: url("titlebuttons-alt/button-restore-active.svg");
 }

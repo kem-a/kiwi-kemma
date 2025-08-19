@@ -70,7 +70,7 @@ headerbar windowcontrols button:not(.suggested-action):not(.destructive-action) 
   border: none;
   outline: none;
   box-shadow: none;
-  background-size: 17px;
+  background-size: 16px;
 }
 
 /*
