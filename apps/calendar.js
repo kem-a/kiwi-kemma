@@ -99,7 +99,30 @@ export function enable() {
         dateMenu._shouldShowNotificationSection = () => false;
         dateMenu._shouldShowMediaSection = () => false;
 
-        dateMenu.menu.box.style = 'width: 330px;';
+        // Dynamically size width so week numbers (if enabled) are not truncated.
+        try {
+            const baseWidth = 330; // previous fixed width
+            let width = baseWidth;
+            // Obtain a more accurate preferred width for the calendar actor if present
+            if (calendarActorRef && calendarActorRef.get_preferred_width) {
+                const [_minW, natW] = calendarActorRef.get_preferred_width(-1);
+                // Add padding allowance
+                width = Math.max(width, natW + 20);
+            }
+            // Heuristic bump if week numbers enabled but preferred width not accessible yet
+            const weekNumbersEnabled = Boolean(
+                dateMenu._calendar?.get_show_week_numbers?.() ||
+                dateMenu._calendar?._showWeekNumbers
+            );
+            if (weekNumbersEnabled)
+                width = Math.max(width, baseWidth + 24); // allocate extra column space
+
+            // Use min-width to allow natural growth if theme wants larger
+            dateMenu.menu.box.style = `min-width: ${width}px;`;
+        } catch (_e) {
+            // Fallback to original fixed width if something fails
+            dateMenu.menu.box.style = 'width: 330px;';
+        }
 
         // Ensure calendar actor is present (some GNOME versions may move it around)
         if (calendarActorRef && !calendarActorRef.get_parent()) {
