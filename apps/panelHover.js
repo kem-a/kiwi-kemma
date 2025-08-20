@@ -10,6 +10,33 @@ let windowSignals = new Map();
 let windowCreatedHandler = null;
 let panelHideTimeoutId = null;
 let hotCorner = null;
+let panelContainer = null;
+
+function _getPanelContainer() {
+    if (!panelContainer) {
+        panelContainer = Main.panelManager?.primaryPanel?.widget ?? Main.layoutManager.panelBox;
+    }
+    return panelContainer;
+}
+
+function showPanel() {
+    let container = _getPanelContainer();
+    container.get_parent().set_child_above_sibling(container, null);
+    container.ease({
+        translation_y: 0,
+        duration: 200,
+        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+    });
+}
+
+function hidePanel() {
+    let container = _getPanelContainer();
+    container.ease({
+        translation_y: -Main.panel.height,
+        duration: 200,
+        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+    });
+}
 
 const PanelEdge = GObject.registerClass(
 class PanelEdge extends Clutter.Actor {
@@ -37,8 +64,11 @@ class PanelEdge extends Clutter.Actor {
             directions: Meta.BarrierDirection.POSITIVE_Y
         });
 
-        // Keep actor at top
-        global.window_group.set_child_below_sibling(this, null);
+        // Listen for pressure based trigger
+        this._barrier.connect('triggered', this._onTrigger.bind(this));
+
+        // Keep actor above fullscreen windows
+        global.window_group.set_child_above_sibling(this, null);
 
         // Add hover detection
         this.connect('enter-event', this._onEnter.bind(this));
@@ -86,20 +116,12 @@ class PanelEdge extends Clutter.Actor {
 
     _showPanel() {
         log('[PanelHover] Showing panel');
-        Main.panel.ease({
-            margin_top: 0,
-            duration: 200,
-            mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-        });
+        showPanel();
     }
 
     _hidePanel() {
         log('[PanelHover] Hiding panel');
-        Main.panel.ease({
-            margin_top: -Main.panel.height,
-            duration: 200,
-            mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-        });
+        hidePanel();
     }
 });
 
@@ -146,21 +168,13 @@ function _onWindowFullscreenChanged(window) {
     if (window.is_fullscreen()) {
         fullscreenWindows.add(window);
         log(`[PanelHover] Window entered fullscreen. Count: ${fullscreenWindows.size}`);
-        Main.panel.ease({
-            margin_top: -Main.panel.height,
-            duration: 200,
-            mode: Clutter.AnimationMode.EASE_OUT_QUAD
-        });
+        hidePanel();
     } else {
         fullscreenWindows.delete(window);
         log(`[PanelHover] Window exited fullscreen. Count: ${fullscreenWindows.size}`);
         if (fullscreenWindows.size === 0) {
             log('[PanelHover] No fullscreen windows, resetting panel');
-            Main.panel.ease({
-                margin_top: 0,
-                duration: 200,
-                mode: Clutter.AnimationMode.EASE_OUT_QUAD
-            });
+            showPanel();
         }
     }
 }
@@ -212,9 +226,6 @@ export function disable() {
     fullscreenWindows.clear();
 
     // Ensure panel is restored
-    Main.panel.ease({
-        margin_top: 0,
-        duration: 200,
-        mode: Clutter.AnimationMode.EASE_OUT_QUAD
-    });
+    showPanel();
+    panelContainer = null;
 }
