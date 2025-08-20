@@ -101,7 +101,7 @@ export function enable() {
 
         // Dynamically size width so week numbers (if enabled) are not truncated.
         try {
-            const baseWidth = 330; // previous fixed width
+            const baseWidth = 300; // previous fixed width
             let width = baseWidth;
             // Obtain a more accurate preferred width for the calendar actor if present
             if (calendarActorRef && calendarActorRef.get_preferred_width) {
