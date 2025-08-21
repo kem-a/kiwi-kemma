@@ -44,9 +44,13 @@ class WindowTitleIndicator extends PanelMenu.Button {
         
         this._onFocusedWindowChanged();
 
-        this.connect('button-press-event', () => {
-            this._syncMenuAlignment();
-            return Clutter.EVENT_PROPAGATE;
+        this._menu.connect('open-state-changed', (menu, isOpen) => {
+            if (isOpen) {
+                GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+                    this._syncMenuAlignment();
+                    return GLib.SOURCE_REMOVE;
+                });
+            }
         });
 
         this._overviewHiddenId = Main.overview.connect('hidden',
@@ -141,14 +145,24 @@ class WindowTitleIndicator extends PanelMenu.Button {
     _syncMenuAlignment() {
         const buttonBox = this.get_allocation_box();
         const labelBox = this._label.get_allocation_box();
-        const buttonWidth = buttonBox.x2 - buttonBox.x1;
+        const labelLeft = labelBox.x1 - buttonBox.x1;
 
-        if (buttonWidth <= 0)
+        let menuWidth = this._menu.actor.get_width();
+        if (menuWidth <= 0) {
+            const [, natWidth] = this._menu.actor.get_preferred_width(-1);
+            menuWidth = natWidth;
+        }
+
+        if (menuWidth <= 0)
             return;
 
-        const labelLeft = labelBox.x1 - buttonBox.x1;
-        const alignment = Math.max(0, Math.min(1, labelLeft / buttonWidth));
-        this._menu._arrowAlignment = alignment;
+        const alignment = Math.max(0, Math.min(1, labelLeft / menuWidth));
+        if (this._menu.actor.setSourceAlignment)
+            this._menu.actor.setSourceAlignment(alignment);
+        if (this._menu.actor.setArrowAlignment)
+            this._menu.actor.setArrowAlignment(alignment);
+        else
+            this._menu._arrowAlignment = alignment;
     }
 
     destroy() {
