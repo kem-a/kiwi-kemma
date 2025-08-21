@@ -145,6 +145,9 @@ class WindowControlsIndicator extends PanelMenu.Button {
             });
             // Add enter/leave events for all-buttons-hover effect
             button.connect('enter-event', () => {
+                if (this._suppressHoverUntilPointerMove) {
+                    this._suppressHoverUntilPointerMove = false;
+                }
                 this._isContainerHovered = true;
                 this._updateAllIcons();
             });

@@ -35,6 +35,21 @@ class MoveFullscreenWindow {
 
         // Handle when the window is unmanaged (closed)
         let unmanagedId = window.connect('unmanaged', () => {
+            try {
+                // If the window is closing while still fullscreen, attempt restoration step
+                // (This ensures original workspace is re-focused if the user closes from fullscreen.)
+                if (window._originalWorkspaceIndex !== undefined && window._originalWorkspaceIndex !== null) {
+                    const wm = global.workspace_manager;
+                    if (wm) {
+                        const idx = Math.min(window._originalWorkspaceIndex, wm.n_workspaces - 1);
+                        if (idx >= 0) {
+                            const ws = wm.get_workspace_by_index(idx);
+                            if (ws)
+                                ws.activate(global.get_current_time());
+                        }
+                    }
+                }
+            } catch (_) {}
             this._disconnectWindowSignals(window);
         });
 
