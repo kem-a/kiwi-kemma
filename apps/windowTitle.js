@@ -3,6 +3,7 @@ import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
+import GLib from 'gi://GLib';
 
 import { AppMenu } from 'resource:///org/gnome/shell/ui/appMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -43,7 +44,14 @@ class WindowTitleIndicator extends PanelMenu.Button {
         
         this._onFocusedWindowChanged();
 
-        this.menu._arrowAlignment = 1.0;
+        this._menu.connect('open-state-changed', (menu, isOpen) => {
+            if (isOpen) {
+                GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+                    this._syncMenuAlignment();
+                    return GLib.SOURCE_REMOVE;
+                });
+            }
+        });
 
         this._overviewHiddenId = Main.overview.connect('hidden',
             () => this._onOverviewHidden());
@@ -127,6 +135,34 @@ class WindowTitleIndicator extends PanelMenu.Button {
         if (!Main.overview.visible) {
             this.show();
         }
+
+        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            this._syncMenuAlignment();
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    _syncMenuAlignment() {
+        const buttonBox = this.get_allocation_box();
+        const labelBox = this._label.get_allocation_box();
+        const labelLeft = labelBox.x1 - buttonBox.x1;
+
+        let menuWidth = this._menu.actor.get_width();
+        if (menuWidth <= 0) {
+            const [, natWidth] = this._menu.actor.get_preferred_width(-1);
+            menuWidth = natWidth;
+        }
+
+        if (menuWidth <= 0)
+            return;
+
+        const alignment = Math.max(0, Math.min(1, labelLeft / menuWidth));
+        if (this._menu.actor.setSourceAlignment)
+            this._menu.actor.setSourceAlignment(alignment);
+        if (this._menu.actor.setArrowAlignment)
+            this._menu.actor.setArrowAlignment(alignment);
+        else
+            this._menu._arrowAlignment = alignment;
     }
 
     destroy() {
