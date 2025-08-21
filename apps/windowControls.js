@@ -122,6 +122,10 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
         // Suppress initial hover visuals when entering fullscreen until actual pointer motion
         this._suppressHoverUntilPointerMove = false;
+    this._closeButtonDelayActive = false; // hidden delay after entering fullscreen
+    this._closeDelayTimeoutId = null;
+    this._lastIsFullscreen = false;
+    this._fullscreenWindowSerial = 0; // increment when fullscreen window context changes
         try {
             this._box.connect('motion-event', () => {
                 if (this._suppressHoverUntilPointerMove) {
@@ -290,6 +294,23 @@ class WindowControlsIndicator extends PanelMenu.Button {
             }
         }
 
+        // Hidden delay logic for close button after entering fullscreen
+        if (this.visible && isFullscreen) {
+            if (!this._lastIsFullscreen) {
+                // Transitioned into fullscreen
+                this._applyCloseButtonDelay();
+            } else if (this._closeButtonDelayActive) {
+                // keep disabled until timeout completes
+                this._closeButton.reactive = false;
+            }
+        } else {
+            // Leaving fullscreen or hidden
+            this._clearCloseButtonDelay();
+            this._closeButton.reactive = true;
+        }
+
+        this._lastIsFullscreen = isFullscreen;
+
         // When becoming visible in fullscreen, suppress hover visuals until pointer moves
         if (this.visible && isFullscreen) {
             if (!this._suppressHoverUntilPointerMove) {
@@ -299,6 +320,39 @@ class WindowControlsIndicator extends PanelMenu.Button {
         } else if (!isFullscreen && this._suppressHoverUntilPointerMove) {
             this._suppressHoverUntilPointerMove = false;
             this._updateAllIcons();
+        }
+    }
+
+    _applyCloseButtonDelay() {
+        // Clear any existing
+        this._clearCloseButtonDelay();
+        // Activate delay
+        this._closeButtonDelayActive = true;
+        this._closeButton.reactive = false;
+        const serial = ++this._fullscreenWindowSerial;
+        // 3000 ms hidden delay
+        this._closeDelayTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
+            // Only lift delay if still same fullscreen context and still fullscreen
+            if (this._closeDelayTimeoutId) {
+                this._closeDelayTimeoutId = null;
+            }
+            if (this._closeButtonDelayActive && this._lastIsFullscreen && serial === this._fullscreenWindowSerial) {
+                this._closeButtonDelayActive = false;
+                this._closeButton.reactive = true;
+            }
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    _clearCloseButtonDelay() {
+        if (this._closeDelayTimeoutId) {
+            try { GLib.source_remove(this._closeDelayTimeoutId); } catch (_) {}
+            this._closeDelayTimeoutId = null;
+        }
+        if (this._closeButtonDelayActive) {
+            this._closeButtonDelayActive = false;
+            if (this._closeButton)
+                this._closeButton.reactive = true;
         }
     }
 
@@ -313,6 +367,8 @@ class WindowControlsIndicator extends PanelMenu.Button {
             if (this._focusWindowMaximizeVertSignal) this._focusWindow.disconnect(this._focusWindowMaximizeVertSignal);
             if (this._focusWindowFullscreenSignal) this._focusWindow.disconnect(this._focusWindowFullscreenSignal);
         }
+
+    this._clearCloseButtonDelay();
 
         super.destroy();
     }

@@ -16,6 +16,7 @@ class MoveFullscreenWindow {
     constructor() {
         this._windowSignals = new Map();
         this._windowAddedId = null;
+    this._pendingIsolation = new Map(); // window -> timeout id
     }
 
     _onWindowCreated(display, window) {
@@ -35,21 +36,36 @@ class MoveFullscreenWindow {
 
         // Handle when the window is unmanaged (closed)
         let unmanagedId = window.connect('unmanaged', () => {
-            try {
-                // If the window is closing while still fullscreen, attempt restoration step
-                // (This ensures original workspace is re-focused if the user closes from fullscreen.)
-                if (window._originalWorkspaceIndex !== undefined && window._originalWorkspaceIndex !== null) {
+            // Defer all workspace manipulations; doing them synchronously during
+            // the unmanaged emission can race with Mutter internals and cause
+            // panel / layout corruption.
+            const origIndex = window._originalWorkspaceIndex;
+            const tempIndex = window._fullscreenTempWorkspaceIndex;
+            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+                try {
                     const wm = global.workspace_manager;
                     if (wm) {
-                        const idx = Math.min(window._originalWorkspaceIndex, wm.n_workspaces - 1);
-                        if (idx >= 0) {
-                            const ws = wm.get_workspace_by_index(idx);
-                            if (ws)
-                                ws.activate(global.get_current_time());
+                        if (origIndex !== undefined && origIndex !== null && origIndex >= 0 && origIndex < wm.n_workspaces) {
+                            const ws = wm.get_workspace_by_index(origIndex);
+                            if (ws) {
+                                // Only activate if different from current to avoid redundant layout passes
+                                if (!ws.active)
+                                    ws.activate(global.get_current_time());
+                            }
+                        }
+                        // Safe removal of temporary workspace if it still exists, is empty, not index 0 and not active
+                        if (tempIndex !== undefined && tempIndex !== null && tempIndex >= 0 && tempIndex < wm.n_workspaces) {
+                            try {
+                                const tws = wm.get_workspace_by_index(tempIndex);
+                                if (tws && !tws.active && tws.index() !== 0 && tws.list_windows().length === 0) {
+                                    wm.remove_workspace(tws, global.get_current_time());
+                                }
+                            } catch (_) {}
                         }
                     }
-                }
-            } catch (_) {}
+                } catch (_) {}
+                return GLib.SOURCE_REMOVE;
+            });
             this._disconnectWindowSignals(window);
         });
 
@@ -85,8 +101,9 @@ class MoveFullscreenWindow {
     _onWindowFullscreenChanged(window) {
         try {
             if (window.is_fullscreen()) {
-                this._moveWindowToNewWorkspace(window);
+                this._scheduleIsolation(window);
             } else {
+                this._cancelPendingIsolation(window);
                 this._restoreWindowToOriginalWorkspace(window);
             }
         } catch (e) {
@@ -95,9 +112,42 @@ class MoveFullscreenWindow {
         }
     }
 
+    _scheduleIsolation(window) {
+        // Already isolated or already pending -> do nothing
+        if (window._isolated || this._pendingIsolation.has(window))
+            return;
+
+        // Ensure original workspace index captured early
+        if (window._originalWorkspaceIndex === undefined || window._originalWorkspaceIndex === null) {
+            try { window._originalWorkspaceIndex = window.get_workspace()?.index?.(); } catch (_) { window._originalWorkspaceIndex = null; }
+        }
+
+        const DELAY_MS = 650; // debounce: if user closes quickly, we skip isolation
+        const sourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, DELAY_MS, () => {
+            this._pendingIsolation.delete(window);
+            if (!window.is_fullscreen()) {
+                return GLib.SOURCE_REMOVE; // user exited before delay elapsed
+            }
+            try { this._moveWindowToNewWorkspace(window); } catch (e) { try { log(`[MoveFullscreen] isolation failed: ${e}`); } catch (_) {} }
+            return GLib.SOURCE_REMOVE;
+        });
+        this._pendingIsolation.set(window, sourceId);
+    }
+
+    _cancelPendingIsolation(window) {
+        const id = this._pendingIsolation.get(window);
+        if (id) {
+            try { GLib.source_remove(id); } catch (_) {}
+            this._pendingIsolation.delete(window);
+        }
+    }
+
     _moveWindowToNewWorkspace(window) {
         const wm = global.workspace_manager;
         if (!wm)
+            return;
+
+        if (window._isolated) // already done
             return;
 
         // If the window is already alone on its workspace, skip creating a new one
@@ -121,12 +171,19 @@ class MoveFullscreenWindow {
 
         try { window.change_workspace(newWorkspace); } catch (_) {}
         try { newWorkspace.activate(global.get_current_time()); } catch (_) {}
+        window._isolated = true;
     }
 
     _restoreWindowToOriginalWorkspace(window) {
         const wm = global.workspace_manager;
         if (!wm)
             return;
+
+        // If window was never isolated (debounced or skipped), nothing to do.
+        if (!window._isolated) {
+            window._fullscreenTempWorkspaceIndex = null;
+            return;
+        }
 
         const origIndex = window._originalWorkspaceIndex;
         if (origIndex !== undefined && origIndex !== null && origIndex >= 0) {
@@ -163,6 +220,7 @@ class MoveFullscreenWindow {
                 return GLib.SOURCE_REMOVE;
             });
         }
+    window._isolated = false;
     }
 
     _removeEmptyWorkspaces() {
