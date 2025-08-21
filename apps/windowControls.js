@@ -4,6 +4,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import St from 'gi://St';
+import Clutter from 'gi://Clutter';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -119,6 +120,18 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._minimizeButton = new St.Button({ style_class: 'window-control-button minimize', track_hover: true });
         this._maximizeButton = new St.Button({ style_class: 'window-control-button maximize', track_hover: true });
 
+        // Suppress initial hover visuals when entering fullscreen until actual pointer motion
+        this._suppressHoverUntilPointerMove = false;
+        try {
+            this._box.connect('motion-event', () => {
+                if (this._suppressHoverUntilPointerMove) {
+                    this._suppressHoverUntilPointerMove = false;
+                    this._updateAllIcons();
+                }
+                return Clutter.EVENT_PROPAGATE;
+            });
+        } catch (_) {}
+
         ['minimize', 'maximize', 'close'].forEach(buttonType => {
             const button = this[`_${buttonType}Button`];
             button.connect('notify::hover', () => this._updateButtonIcon(buttonType));
@@ -212,7 +225,8 @@ class WindowControlsIndicator extends PanelMenu.Button {
             // Force base icon, ignore hover/active state
             button.reactive = false; // makes it "insensitive" visually via St
             button.remove_style_pseudo_class('active');
-            const iconName = 'button-minimize.svg';
+            // Use backdrop variant to visually indicate disabled state
+            const iconName = 'button-minimize-backdrop.svg';
             button.child = new St.Icon({
                 gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this._iconPath}/icons/${this._settings.get_string('button-type')}/${iconName}`) }),
                 icon_size: 16
@@ -224,7 +238,9 @@ class WindowControlsIndicator extends PanelMenu.Button {
         }
         
         // Use hover state if the button is individually hovered OR if the container is hovered
-        const isHovered = button.hover || this._isContainerHovered;
+        let isHovered = button.hover || this._isContainerHovered;
+        if (this._suppressHoverUntilPointerMove)
+            isHovered = false; // force neutral until user actually moves pointer
         const state = button.has_style_pseudo_class('active') ? '-active' : isHovered ? '-hover' : '';
         const buttonName = isMaximized ? 'restore' : buttonType;
         const iconName = `button-${buttonName}${state}.svg`;
@@ -269,6 +285,17 @@ class WindowControlsIndicator extends PanelMenu.Button {
             } else {
                 this._minimizeButton.reactive = true;
             }
+        }
+
+        // When becoming visible in fullscreen, suppress hover visuals until pointer moves
+        if (this.visible && isFullscreen) {
+            if (!this._suppressHoverUntilPointerMove) {
+                this._suppressHoverUntilPointerMove = true;
+                this._updateAllIcons();
+            }
+        } else if (!isFullscreen && this._suppressHoverUntilPointerMove) {
+            this._suppressHoverUntilPointerMove = false;
+            this._updateAllIcons();
         }
     }
 

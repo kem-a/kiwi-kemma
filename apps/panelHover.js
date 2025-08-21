@@ -246,6 +246,17 @@ function _disconnectWindowSignals(window) {
     try { window.disconnect(signalIds.fullscreen); } catch (_) {}
     try { window.disconnect(signalIds.unmanaged); } catch (_) {}
     windowSignals.delete(window);
+
+    // If the window we tracked was fullscreen, ensure we recompute state so the panel is restored.
+    try {
+        if (fullscreenWindows.has(window)) {
+            fullscreenWindows.delete(window);
+            _recomputeFullscreenState();
+        } else {
+            // Even if not in set (race), schedule a recompute to be safe.
+            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => { if (_enabled) _recomputeFullscreenState(); return GLib.SOURCE_REMOVE; });
+        }
+    } catch (_) {}
 }
 
 function _onWindowCreated(display, window) {
