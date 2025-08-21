@@ -1,7 +1,10 @@
-/* Hide only the window control buttons when maximized */
+/* Hide window control buttons (and left box) when maximized or fullscreen */
 .maximized headerbar .titlebutton,
 .maximized headerbar > box.horizontal.left,
-.maximized headerbar.default-decoration.titlebar {
+.maximized headerbar.default-decoration.titlebar,
+.fullscreen headerbar .titlebutton,
+.fullscreen headerbar > box.horizontal.left,
+.fullscreen headerbar.default-decoration.titlebar {
   opacity: 0;
   margin-left: -100px;
   margin-top: -100px;
