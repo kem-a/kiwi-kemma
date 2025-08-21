@@ -4,17 +4,6 @@ import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import GObject from 'gi://GObject';
 
-// NOTE: This module previously crashed GNOME Shell for some users when
-// exiting fullscreen. The most likely reasons are (a) mutating internal
-// layoutManager structures synchronously while Shell is performing a
-// visibility/layout update, or (b) operating on already-destroyed actors
-// (panel / barrier) during the rapid sequence of signals fired on leaving
-// fullscreen. The changes below add defensive guards, an enable flag,
-// idle deferrals, and robust try/catch wrapping to reduce the surface area
-// for crashes. If problems persist, gather logs via:
-//   journalctl --user -f /usr/bin/gnome-shell
-// and share extension related traces.
-
 let fullscreenWindows = new Set(); // Track fullscreen windows only on active workspace now
 let windowSignals = new Map();
 let windowCreatedHandler = null;

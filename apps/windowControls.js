@@ -206,6 +206,22 @@ class WindowControlsIndicator extends PanelMenu.Button {
     _updateButtonIcon(buttonType) {
         const button = this[`_${buttonType}Button`];
         const isMaximized = buttonType === 'maximize' && global.display.focus_window?.get_maximized();
+        const isFullscreen = global.display.focus_window?.is_fullscreen();
+        // When in fullscreen, the minimize button should be disabled (non-reactive) and not show hover/active variants
+        if (buttonType === 'minimize' && isFullscreen && this._settings.get_boolean('enable-app-window-buttons') && this._settings.get_boolean('show-window-controls')) {
+            // Force base icon, ignore hover/active state
+            button.reactive = false; // makes it "insensitive" visually via St
+            button.remove_style_pseudo_class('active');
+            const iconName = 'button-minimize.svg';
+            button.child = new St.Icon({
+                gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this._iconPath}/icons/${this._settings.get_string('button-type')}/${iconName}`) }),
+                icon_size: 16
+            });
+            return;
+        } else if (buttonType === 'minimize') {
+            // Restore reactivity when leaving fullscreen
+            button.reactive = true;
+        }
         
         // Use hover state if the button is individually hovered OR if the container is hovered
         const isHovered = button.hover || this._isContainerHovered;
@@ -245,6 +261,15 @@ class WindowControlsIndicator extends PanelMenu.Button {
             this._settings.get_boolean('enable-app-window-buttons') && 
             this._settings.get_boolean('show-window-controls') && 
             (isMaximized || isFullscreen);
+
+        // Update minimize button sensitivity depending on fullscreen state
+        if (this._minimizeButton) {
+            if (this.visible && isFullscreen) {
+                this._minimizeButton.reactive = false;
+            } else {
+                this._minimizeButton.reactive = true;
+            }
+        }
     }
 
     destroy() {
