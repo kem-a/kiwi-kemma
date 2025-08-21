@@ -13,6 +13,49 @@ let originalStyle;
 let isUpdatingStyle = false;
 let interfaceSettingsSignal;
 let timeoutId;
+let safetyIntervalId;
+let lastForcedAlpha = null; // remember last alpha decided by logic (touch/fullscreen)
+
+function setOpaqueImmediately() {
+    const panel = Main.panel;
+    if (!panel) return;
+    try {
+        // Remove transparency-related inline style & refresh style class to force theme re-evaluation
+        panel.set_style('');
+        panel.remove_style_class_name('panel');
+        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            try {
+                panel.add_style_class_name('panel');
+                const themeNode = panel.get_theme_node();
+                const bg = themeNode.get_background_color();
+                const r = Math.floor(bg.red * 255);
+                const g = Math.floor(bg.green * 255);
+                const b = Math.floor(bg.blue * 255);
+                panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
+                panel.queue_redraw();
+            } catch (_) {
+                if (originalStyle) panel.set_style(originalStyle);
+            }
+            return GLib.SOURCE_REMOVE;
+        });
+    } catch (e) {
+        if (originalStyle) panel.set_style(originalStyle);
+    }
+}
+
+function _isFullscreenActive() {
+    try {
+        return global.workspace_manager
+            .get_active_workspace()
+            .list_windows()
+            .some(win =>
+                win.showing_on_its_workspace() &&
+                !win.is_hidden() &&
+                typeof win.is_fullscreen === 'function' && win.is_fullscreen());
+    } catch (_e) {
+        return false;
+    }
+}
 
 function updatePanelStyle(alpha = null) {
     const panel = Main.panel;
@@ -20,6 +63,8 @@ function updatePanelStyle(alpha = null) {
     isUpdatingStyle = true;
     
     try {
+    // NOTE: A pure CSS alternative could add style classes (e.g., 'fullscreen-has-window')
+    // and define them in stylesheet.css. Current approach sets inline style for dynamic RGBA.
         const themeNode = panel.get_theme_node();
         const backgroundColor = themeNode.get_background_color();
         const [r, g, b] = [
@@ -30,22 +75,36 @@ function updatePanelStyle(alpha = null) {
 
         if (Main.overview.visible) {
             panel.set_style('background-color: transparent !important;');
+            panel.queue_redraw();
+            return;
+        }
+
+        // Force opaque when any fullscreen window is active regardless of other transparency logic
+        if (_isFullscreenActive()) {
+            lastForcedAlpha = 1.0;
+            panel.set_style(`background-color: rgb(${r}, ${g}, ${b});`);
+            panel.queue_redraw();
             return;
         }
 
         if (!settings?.get_boolean('panel-transparency')) {
-            panel.set_style(`background-color: rgb(${r}, ${g}, ${b})`);
+                panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
+            panel.queue_redraw();
             return;
         }
 
-        const opacity = alpha ?? settings.get_int('panel-transparency-level') / 100;
+        if (alpha !== null) {
+            lastForcedAlpha = alpha;
+        }
+        const opacity = (alpha !== null ? alpha : (lastForcedAlpha !== null ? lastForcedAlpha : settings.get_int('panel-transparency-level') / 100));
         const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important;`;
         
         if (panel.get_style() !== newStyle) {
             panel.set_style(newStyle);
+            panel.queue_redraw();
         }
     } catch (error) {
-        panel.set_style(originalStyle || '');
+    panel.set_style(originalStyle || '');
     } finally {
         isUpdatingStyle = false;
     }
@@ -54,7 +113,16 @@ function updatePanelStyle(alpha = null) {
 function checkWindowTouchingPanel() {
     if (!settings?.get_boolean('panel-transparency') || 
         !settings.get_boolean('panel-opaque-on-window')) {
-        updatePanelStyle(null);
+        // Even if opaque-on-window is disabled, fullscreen should force opaque
+        if (_isFullscreenActive()) {
+            updatePanelStyle(1.0);
+        } else {
+            // Clear any stale forced alpha (e.g., from prior fullscreen)
+            if (lastForcedAlpha !== null) {
+                lastForcedAlpha = null;
+            }
+            updatePanelStyle(null);
+        }
         return;
     }
 
@@ -74,8 +142,15 @@ function checkWindowTouchingPanel() {
             !win.skip_taskbar &&
             win.get_frame_rect().y <= (panelTop + panel.height + threshold)
         );
-
-    updatePanelStyle(windowTouching ? 1.0 : null);
+    if (_isFullscreenActive()) {
+        updatePanelStyle(1.0);
+    } else {
+        updatePanelStyle(windowTouching ? 1.0 : null);
+        if (!windowTouching && lastForcedAlpha !== null) {
+            // Clear forced alpha when no condition applies
+            lastForcedAlpha = null;
+        }
+    }
 }
 
 function handleWindowSignals(connect = true) {
@@ -118,6 +193,17 @@ function connectWindowSignals(metaWindow) {
         checkWindowTouchingPanel();
     }));
 
+    // Track state changes (fullscreen, maximized, etc.)
+    actorSignals.push(metaWindow.connect('notify::fullscreened', () => {
+        checkWindowTouchingPanel();
+    }));
+    actorSignals.push(metaWindow.connect('notify::maximized-horizontally', () => {
+        checkWindowTouchingPanel();
+    }));
+    actorSignals.push(metaWindow.connect('notify::maximized-vertically', () => {
+        checkWindowTouchingPanel();
+    }));
+
     actorSignals.push(metaWindow.connect('unmanaged', () => {
         disconnectWindowSignals(metaWindow);
         checkWindowTouchingPanel();
@@ -148,13 +234,24 @@ function setupSignals() {
     settingsSignals = [];
 
     settingsSignals = [
-        settings.connect('changed::panel-transparency', () => {
+    settings.connect('changed::panel-transparency', () => {
             handleWindowSignals(false);
             if (settings.get_boolean('panel-transparency')) {
                 handleWindowSignals(true);
                 checkWindowTouchingPanel();
             } else {
-                updatePanelStyle(null);
+        lastForcedAlpha = null;
+                // Stop periodic checks before applying opaque style
+                if (safetyIntervalId) {
+                    GLib.source_remove(safetyIntervalId);
+                    safetyIntervalId = null;
+                }
+                setOpaqueImmediately();
+                // Force an additional idle update to lock in opaque style
+                GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+                    updatePanelStyle(1.0); // will early path due to transparency disabled
+                    return GLib.SOURCE_REMOVE;
+                });
             }
         }),
         settings.connect('changed::panel-transparency-level', () => {
@@ -184,7 +281,20 @@ function setupSignals() {
             }),
             global.display.connect('window-left-monitor', () => {
                 checkWindowTouchingPanel();
-            })
+            }),
+            // Fullscreen enter/leave signals (GNOME Shell provides these on display)
+            // Fallback: if signals are not available, they just won't fire.
+            (() => { try { return global.display.connect('window-entered-fullscreen', () => { updatePanelStyle(); }); } catch(_e) { return 0; } })(),
+                (() => { try { return global.display.connect('window-left-fullscreen', () => { 
+                    // Fullscreen exited: if opaque-on-window disabled, restore configured transparency.
+                    if (!settings.get_boolean('panel-opaque-on-window')) {
+                        lastForcedAlpha = null; // allow normal transparency level
+                        updatePanelStyle(null);
+                    } else {
+                        checkWindowTouchingPanel();
+                    }
+                 }); } catch(_e) { return 0; } })(),
+            (() => { try { return global.display.connect('in-fullscreen-changed', () => { checkWindowTouchingPanel(); }); } catch(_e) { return 0; } })()
         ]
     });
 
@@ -246,7 +356,11 @@ export function enable(_settings) {
 
     setupSignals();
 
-    updatePanelStyle();
+    if (settings.get_boolean('panel-transparency')) {
+        updatePanelStyle();
+    } else {
+        setOpaqueImmediately();
+    }
     forceThemeUpdate();
 
     timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
@@ -254,12 +368,23 @@ export function enable(_settings) {
         timeoutId = null;
         return GLib.SOURCE_REMOVE;
     });
+
+    // Lightweight periodic safety check (every 2s) to catch missed transitions (uses full logic)
+    safetyIntervalId = GLib.timeout_add(GLib.PRIORITY_LOW, 2000, () => {
+        if (!settings) return GLib.SOURCE_REMOVE;
+        checkWindowTouchingPanel();
+        return GLib.SOURCE_CONTINUE;
+    });
 }
 
 export function disable() {
     if (timeoutId) {
         GLib.source_remove(timeoutId);
         timeoutId = null;
+    }
+    if (safetyIntervalId) {
+        GLib.source_remove(safetyIntervalId);
+        safetyIntervalId = null;
     }
     
     settingsSignals.forEach(signal => {
@@ -277,9 +402,15 @@ export function disable() {
     }
     interfaceSettings = null;
 
-    if (originalStyle) {
-        Main.panel.set_style(originalStyle);
-    }
+    // Force opaque restore using captured original style (or recomputed) before dropping references
+    try {
+        if (originalStyle) {
+            Main.panel.set_style(originalStyle);
+        } else {
+            setOpaqueImmediately();
+        }
+    } catch (_) {}
 
     settings = null;
+    lastForcedAlpha = null;
 }
