@@ -1,4 +1,5 @@
 import Adw from 'gi://Adw';
+import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
 import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
@@ -13,12 +14,11 @@ export default class KiwiPreferences extends ExtensionPreferences {
         window._settings = settings;
         window.title = 'Kiwi is not Apple';
 
-        // Settings Page
+        // Settings Page (added after About page to change order)
         const settingsPage = new Adw.PreferencesPage({
             title: 'Settings',
             icon_name: 'preferences-system-symbolic',
         });
-        window.add(settingsPage);
 
         const group = new Adw.PreferencesGroup({
             title: _('Kiwi'),
@@ -161,6 +161,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
             icon_name: 'help-about-symbolic',
         });
         window.add(aboutPage);
+        // Now add Settings page
+        window.add(settingsPage);
 
         const aboutGroup = new Adw.PreferencesGroup();
         const aboutBox = new Gtk.Box({
@@ -179,12 +181,12 @@ export default class KiwiPreferences extends ExtensionPreferences {
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: 'Version: v0.6.1-beta',
+            label: 'Version: v0.7.0-beta',
             halign: Gtk.Align.START,
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: 'Kiwi is not Apple is a collection of macOS-like features for GNOME',
+            label: 'Kiwi is not Apple, but it is a collection of macOS-like features for GNOME',
             halign: Gtk.Align.START,
         }));
 
@@ -193,19 +195,113 @@ export default class KiwiPreferences extends ExtensionPreferences {
             halign: Gtk.Align.START,
         }));
 
+        // Create GitHub link with icon and text
+        const githubBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 6,
+            halign: Gtk.Align.START,
+        });
+        githubBox.append(new Gtk.Image({
+            file: `${this.path}/icons/github-symbolic.svg`,
+            icon_size: Gtk.IconSize.NORMAL,
+        }));
         const websiteLink = new Gtk.LinkButton({
-            label: 'GitHub: https://github.com/kem-a/kiwi-kemma',
+            label: 'Follow me on Github',
             uri: 'https://github.com/kem-a/kiwi-kemma',
         });
-        aboutBox.append(websiteLink);
+        githubBox.append(websiteLink);
+        aboutBox.append(githubBox);
 
+        // Create bug report link with icon and text
+        const bugBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 6,
+            halign: Gtk.Align.START,
+        });
+        bugBox.append(new Gtk.Image({
+            file: `${this.path}/icons/bug-symbolic.svg`,
+            icon_size: Gtk.IconSize.NORMAL,
+        }));
+        const bugLink = new Gtk.LinkButton({
+            label: 'Report a Bug',
+            uri: 'https://github.com/kem-a/kiwi-kemma/issues',
+        });
+        bugBox.append(bugLink);
+        aboutBox.append(bugBox);
+
+        // Create license link with icon and text
+        const licenseBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 6,
+            halign: Gtk.Align.START,
+        });
+        licenseBox.append(new Gtk.Image({
+            file: `${this.path}/icons/text-symbolic.svg`,
+            icon_size: Gtk.IconSize.NORMAL,
+        }));
         const licenseLink = new Gtk.LinkButton({
             label: 'MIT License',
             uri: 'https://github.com/kem-a/kiwi-kemma?tab=MIT-1-ov-file#readme',
         });
-        aboutBox.append(licenseLink);
+        licenseBox.append(licenseLink);
+        licenseBox.append(licenseLink);
+        aboutBox.append(licenseBox);
 
-        aboutGroup.add(aboutBox);
+        // Create a container for the main content and coffee button
+        const aboutMainContainer = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 20,
+            margin_top: 10,
+            margin_bottom: 10,
+            margin_start: 10,
+            margin_end: 10,
+        });
+
+        // Add the main about content
+        aboutMainContainer.append(aboutBox);
+
+        // Create bottom row with coffee button on the right
+        const bottomRow = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            halign: Gtk.Align.FILL,
+            hexpand: true,
+        });
+
+        // Spacer to push button to the right
+        const spacer = new Gtk.Box({
+            hexpand: true,
+        });
+        bottomRow.append(spacer);
+
+        // Create coffee button with icon and text
+        const coffeeButton = new Gtk.Button({
+            css_classes: ['suggested-action'],
+            halign: Gtk.Align.END,
+        });
+
+        const coffeeBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 6,
+        });
+
+        coffeeBox.append(new Gtk.Image({
+            file: `${this.path}/icons/coffee-icon-symbolic.svg`,
+            icon_size: Gtk.IconSize.NORMAL,
+        }));
+
+        coffeeBox.append(new Gtk.Label({
+            label: 'Buy Me a Coffee',
+        }));
+
+        coffeeButton.set_child(coffeeBox);
+        coffeeButton.connect('clicked', () => {
+            Gtk.show_uri(null, 'https://revolut.me/r/VD0Q6SxGWP', Gdk.CURRENT_TIME);
+        });
+
+        bottomRow.append(coffeeButton);
+        aboutMainContainer.append(bottomRow);
+
+        aboutGroup.add(aboutMainContainer);
         aboutPage.add(aboutGroup);
 
         // Credits Page
@@ -226,11 +322,63 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
 
         creditsBox.append(new Gtk.Label({
-            label: 'Special thanks to all contributors and the GNOME community.',
+            label: 'Special thanks to all contributors and the GNOME community ♥️♥️♥️',
             halign: Gtk.Align.START,
         }));
 
         creditsGroup.add(creditsBox);
         creditsPage.add(creditsGroup);
+
+        // Recommended Extensions Section
+        const recommendationsGroup = new Adw.PreferencesGroup({
+            title: _('Recommended Extensions'),
+            description: _('Extensions that work great with Kiwi is not Apple'),
+        });
+        creditsPage.add(recommendationsGroup);
+
+        const recommendationsBox = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 10,
+            margin_top: 10,
+            margin_bottom: 10,
+            margin_start: 10,
+            margin_end: 10,
+        });
+
+        const recommendations = [
+            { title: 'Dash2Dock Animated', author: 'by icedman', url: 'https://extensions.gnome.org/extension/4994/dash2dock-lite/' },
+            { title: 'AppIndicator Support', author: 'by 3v1n0', url: 'https://extensions.gnome.org/extension/615/appindicator-support/' },
+            { title: 'Compiz alike magic lamp effect', author: 'by hermes83', url: 'https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/' },
+            { title: 'Quick Settings Tweaks', author: 'by qwreey', url: 'https://extensions.gnome.org/extension/5446/quick-settings-tweaker/' },
+            { title: 'Gtk4 Desktop Icons NG (DING)', author: 'by smedius', url: 'https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/' },
+            { title: 'Clipboard Indicator', author: 'by Tudmotu', url: 'https://extensions.gnome.org/extension/779/clipboard-indicator/' },
+        ];
+
+        recommendations.forEach((rec) => {
+            const extBox = new Gtk.Box({
+                orientation: Gtk.Orientation.HORIZONTAL,
+                spacing: 6,
+                halign: Gtk.Align.START,
+            });
+
+            const linkButton = new Gtk.LinkButton({
+                label: rec.title,
+                uri: rec.url,
+                halign: Gtk.Align.START,
+            });
+            extBox.append(linkButton);
+
+            const authorLabel = new Gtk.Label({
+                label: rec.author,
+                halign: Gtk.Align.START,
+                css_classes: ['dim-label'],
+            });
+            authorLabel.add_css_class('caption');
+            extBox.append(authorLabel);
+
+            recommendationsBox.append(extBox);
+        });
+
+        recommendationsGroup.add(recommendationsBox);
     }
 }
