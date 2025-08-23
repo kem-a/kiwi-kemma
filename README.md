@@ -1,4 +1,4 @@
-# Kiwi
+# <img width="64" height="64" alt="Kiwi_logo (Edited)" src="https://github.com/user-attachments/assets/c321e6d1-a1b1-4a11-b7c2-c374c84d449b" /> Kiwi
 <img width="600" height="490" alt="Kiwi_thumbnail" src="https://github.com/user-attachments/assets/982ee8f2-a05f-4099-bd46-4bacdf06edea" align="right" />
 Kiwi is a GNOME Shell extension that mimics various macOS features. This extension provides a collection of small quality-of-life functionalities such as moving windows to new workspaces, adding the username to the quick menu, focusing launched windows, and more.
 
