@@ -1,6 +1,7 @@
 # Kiwi
-
+<img width="600" height="490" alt="Kiwi_thumbnail" src="https://github.com/user-attachments/assets/982ee8f2-a05f-4099-bd46-4bacdf06edea" align="right" />
 Kiwi is a GNOME Shell extension that mimics various macOS features. This extension provides a collection of small quality-of-life functionalities such as moving windows to new workspaces, adding the username to the quick menu, focusing launched windows, and more.
+
 
 
 ## Features
@@ -30,6 +31,10 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **[Gtk4 Desktop Icons NG (DING)](https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/)** by smedius
 - **[Clipboard Indicator](https://extensions.gnome.org/extension/779/clipboard-indicator/)** by Tudmotu
 </details>
+
+## Visual experience
+<img width="3072" height="1920" alt="Screenshot From 2025-08-23 23-29-58" src="https://github.com/user-attachments/assets/99ddf567-2002-454d-92dd-b7460631ae44" />
+
 
 ## Installation
 
