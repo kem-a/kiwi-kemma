@@ -5,12 +5,31 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 
 ## Features
 
-- **Move Window to New Workspace**: Automatically move fullscreen app to new workspaces.
+- **Move Window to New Workspace**: Automatically move fullscreen app to new workspace.
 - **Add Username to Quick Menu**: Display the username in the quick settings menu.
 - **Focus Launched Window**: Focus on newly launched windows. Removes the annoying window-ready notification.
 - **Lock Icon**: Display Caps Lock or Num Lock icon in the GNOME top panel.
 - **Transparent Move**: Make windows slightly transparent when moving.
 - **Battery Percentage**: Show battery percentage in the system menu when below 25%.
+- **Move calendar to the right**: Move calendar to right side and hide notifications. **Note**: Notification pane is hidden. To see notification install [Quick Settings Tweaks](https://extensions.gnome.org/extension/5446/quick-settings-tweaker/) and enable notifications in quick settings.
+- **Show Window title**: Display current window title in the top panel
+- **Show Panel on Hover**: Show panel when mouse is near top edge in fullscreen
+- **Hide Minimized Windows**: Hide minimized windows in the overview
+- **Hide Activities Button**: Hide the Activities button in the top panel
+- **Set Panel Transparnecy**: Make the top panel transparent or opaque when window touches it
+- **Window Control Button Style**: Set macOS window control button styles. Move to top panel for maximized windows and remove window titlebars for maximum space.
+
+## Recommended Extensions for better experience
+
+<details> <summary> Details <b>(click to open)</b> </summary>
+
+- **[Dash2Dock Animated](https://extensions.gnome.org/extension/4994/dash2dock-lite/)** by icedman
+- **[AppIndicator Support](https://extensions.gnome.org/extension/615/appindicator-support/)** by 3v1n0
+- **[Compiz alike magic lamp effect](https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/)** by hermes83
+- **[Quick Settings Tweaks](https://extensions.gnome.org/extension/5446/quick-settings-tweaker/)** by qwreey
+- **[Gtk4 Desktop Icons NG (DING)](https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/)** by smedius
+- **[Clipboard Indicator](https://extensions.gnome.org/extension/779/clipboard-indicator/)** by Tudmotu
+</details>
 
 ## Installation
 
