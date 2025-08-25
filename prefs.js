@@ -181,7 +181,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: 'Version: v0.7.0-beta',
+            label: 'Version: v0.7.1-beta',
             halign: Gtk.Align.START,
         }));
 
