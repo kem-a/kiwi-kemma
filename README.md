@@ -35,6 +35,14 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 ## Visual experience
 <img width="3072" height="1920" alt="Screenshot From 2025-08-23 23-29-58" src="https://github.com/user-attachments/assets/99ddf567-2002-454d-92dd-b7460631ae44" />
 
+## Flatpak theming
+
+Run this command to override `xdg-config` and theme window control buttons for Flatpak apps:
+
+```sh
+flatpak override --user --filesystem=xdg-config/gtk-3.0:ro
+flatpak override --user --filesystem=xdg-config/gtk-4.0:ro
+```
 
 ## Installation
 
