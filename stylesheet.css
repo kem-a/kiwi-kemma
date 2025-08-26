@@ -255,6 +255,30 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   box-shadow: none !important;
 }
 
+/* Popup menu accent styling - use GNOME system accent color */
+.popup-menu .popup-menu-item {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.popup-menu .popup-menu-item:hover,
+.popup-menu .popup-menu-item:focus,
+.popup-menu .popup-menu-item.selected {
+  background-color: -st-accent-color;
+  color: -st-accent-fg-color;
+}
+
+.popup-menu .popup-menu-item:active {
+  background-color: -st-accent-color;
+  color: -st-accent-fg-color;
+}
+
+.popup-menu .popup-menu-item:checked {
+  background-color: -st-accent-color;
+  color: -st-accent-fg-color;
+  font-weight: bold;
+}
+
 /* Hide window decorations for maximized windows */
 .maximized headerbar.titlebar,
 .fullscreen headerbar.titlebar {
@@ -280,9 +304,3 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   margin-top: 0;
   border-radius: 0;
 }
-/*
-Gjs_ui_panel_Panel  {
-  transition: background-color 200ms ease-out, margin-top 200ms ease-out;
-  margin-top: 0;
-}
-  */

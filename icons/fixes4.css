@@ -1,10 +1,4 @@
-/* fix oversized buttons */
-
-button.pill {
-	padding-top: 5px;
-	padding-bottom: 5px;
-	border-radius: 12px;
-}
+/*(((((((((( Other fixes  ))))))))))))*/
 
 /* Nautilus list view fix to reduce padding */
 .nautilus-window .nautilus-list-view listview.view > row.activatable > cell > widget#NautilusViewCell {
