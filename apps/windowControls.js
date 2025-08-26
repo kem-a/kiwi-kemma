@@ -122,16 +122,24 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
         // Suppress initial hover visuals when entering fullscreen until actual pointer motion
         this._suppressHoverUntilPointerMove = false;
-    this._closeButtonDelayActive = false; // hidden delay after entering fullscreen
-    this._closeDelayTimeoutId = null;
-    this._lastIsFullscreen = false;
-    this._fullscreenWindowSerial = 0; // increment when fullscreen window context changes
+        this._closeButtonDelayActive = false; // hidden delay after entering fullscreen
+        this._closeDelayTimeoutId = null;
+        this._lastIsFullscreen = false;
+        this._lastIsMaximized = false; // track maximized state changes
+        this._fullscreenWindowSerial = 0; // increment when fullscreen window context changes
         try {
             this._box.connect('motion-event', () => {
                 if (this._suppressHoverUntilPointerMove) {
                     this._suppressHoverUntilPointerMove = false;
                     this._updateAllIcons();
                 }
+                return Clutter.EVENT_PROPAGATE;
+            });
+            
+            // Add leave event for the main container to reset hover state
+            this._box.connect('leave-event', () => {
+                this._isContainerHovered = false;
+                this._updateAllIcons();
                 return Clutter.EVENT_PROPAGATE;
             });
         } catch (_) {}
@@ -249,7 +257,9 @@ class WindowControlsIndicator extends PanelMenu.Button {
         if (this._suppressHoverUntilPointerMove)
             isHovered = false; // force neutral until user actually moves pointer
         const state = button.has_style_pseudo_class('active') ? '-active' : isHovered ? '-hover' : '';
-        const buttonName = isMaximized ? 'restore' : buttonType;
+        
+        // For maximize button: show restore icon when window is maximized OR fullscreen
+        const buttonName = (buttonType === 'maximize' && (isMaximized || isFullscreen)) ? 'restore' : buttonType;
         const iconName = `button-${buttonName}${state}.svg`;
         
         button.child = new St.Icon({
@@ -271,6 +281,10 @@ class WindowControlsIndicator extends PanelMenu.Button {
         const isMaximized = focusWindow && focusWindow.maximized_horizontally && focusWindow.maximized_vertically;
         const isFullscreen = focusWindow && focusWindow.is_fullscreen();
         
+        // Store previous state for transition detection
+        const wasVisible = this.visible;
+        const wasMaximized = this._lastIsMaximized || false;
+        
         // Add window exclusion logic with null check for window title
         if (focusWindow) {
             const windowTitle = focusWindow.get_title();
@@ -284,6 +298,18 @@ class WindowControlsIndicator extends PanelMenu.Button {
             this._settings.get_boolean('enable-app-window-buttons') && 
             this._settings.get_boolean('show-window-controls') && 
             (isMaximized || isFullscreen);
+
+        // Reset hover state when window state changes or when becoming visible/hidden
+        if (this.visible !== wasVisible || isMaximized !== wasMaximized) {
+            this._isContainerHovered = false;
+            // Force all buttons to lose hover state
+            ['minimize', 'maximize', 'close'].forEach(buttonType => {
+                const button = this[`_${buttonType}Button`];
+                if (button) {
+                    button.hover = false;
+                }
+            });
+        }
 
         // Update minimize button sensitivity depending on fullscreen state
         if (this._minimizeButton) {
@@ -310,6 +336,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         }
 
         this._lastIsFullscreen = isFullscreen;
+        this._lastIsMaximized = isMaximized;
 
         // When becoming visible in fullscreen, suppress hover visuals until pointer moves
         if (this.visible && isFullscreen) {
@@ -321,6 +348,9 @@ class WindowControlsIndicator extends PanelMenu.Button {
             this._suppressHoverUntilPointerMove = false;
             this._updateAllIcons();
         }
+        
+        // Update all icons after state changes
+        this._updateAllIcons();
     }
 
     _applyCloseButtonDelay() {
