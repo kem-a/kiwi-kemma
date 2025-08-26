@@ -2,220 +2,126 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
-import GObject from 'gi://GObject';
 
-let fullscreenWindows = new Set(); // Track fullscreen windows only on active workspace now
+let fullscreenWindows = new Set();
 let windowSignals = new Map();
 let windowCreatedHandler = null;
 let workspaceChangedHandler = null;
+let overviewShowingHandler = null;
+let overviewHiddenHandler = null;
 let activeWorkspaceHasFullscreen = false;
-let _panelTrackingOverridden = false;
-let _originalTrackFullscreen = null;
-let panelHideTimeoutId = null;
 let hotCorner = null;
-let panelContainer = null;
-let panelLeaveSignalId = null;
-let _enabled = false; // hard guard so stale async callbacks bail out
+let _enabled = false;
 
 function _debug(msg) {
     try { log(`[PanelHover] ${msg}`); } catch (_) {}
 }
 
-function _getPanelContainer() {
-    if (!panelContainer) {
-        panelContainer = Main.panel ?? Main.panelManager?.primaryPanel?.widget ?? Main.layoutManager.panelBox;
-    }
-    return panelContainer;
-}
-
-function _applyPanelTranslation(y, animate = true) {
-    if (!_enabled)
-        return;
-    const actors = new Set();
-    const container = _getPanelContainer();
-    if (container)
-        actors.add(container);
-    if (Main.layoutManager?.panelBox)
-        actors.add(Main.layoutManager.panelBox);
-    if (Main.panelManager?.primaryPanel?.widget)
-        actors.add(Main.panelManager.primaryPanel.widget);
-    for (let actor of actors) {
-        try {
-            if (!actor || actor.get_stage?.() == null)
-                continue; // actor already destroyed / unmapped
-            actor.remove_all_transitions?.();
-            if (!animate) {
-                actor.translation_y = y;
-            } else {
-                actor.ease?.({
-                    translation_y: y,
-                    duration: 200,
-                    mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-                });
-            }
-        } catch (e) {
-            _debug(`Translation error: ${e}`);
-        }
-    }
-}
-
-function showPanel() {
-    if (!_enabled)
-        return;
-    const container = _getPanelContainer();
-    if (!container) return;
-    try { container.show?.(); } catch (_) {}
+// Instead of manipulating panel translation, we work with GNOME Shell's
+// built-in panel visibility system by temporarily modifying trackFullscreen
+function _setPanelAutoHide(enable) {
+    if (!_enabled) return;
+    
     try {
-        const uiGroup = Main.layoutManager?.uiGroup;
-        const windowGroup = global.window_group;
-        if (uiGroup && windowGroup && container.get_parent()) {
-            let top = container;
-            while (top.get_parent() && top.get_parent() !== uiGroup)
-                top = top.get_parent();
-            uiGroup.set_child_above_sibling(top, windowGroup);
+        const lm = Main.layoutManager;
+        const panelBox = lm?.panelBox;
+        if (!lm || !panelBox) return;
+        
+        const tracked = lm._trackedActors;
+        if (!Array.isArray(tracked)) return;
+        
+        const record = tracked.find(a => a && a.actor === panelBox);
+        if (!record || typeof record.trackFullscreen !== 'boolean') return;
+
+        if (enable) {
+            // Enable auto-hide: let GNOME Shell hide panel in fullscreen
+            record.trackFullscreen = true;
+        } else {
+            // Disable auto-hide: keep panel visible even in fullscreen
+            record.trackFullscreen = false;
+            // Force panel to be visible
+            panelBox.visible = true;
         }
-    } catch (e) { _debug(`showPanel stacking error: ${e}`); }
-    _applyPanelTranslation(0);
-    if (!panelLeaveSignalId && container) {
-        try {
-            panelLeaveSignalId = container.connect('leave-event', () => {
-                _maybeScheduleHideAfterPanelLeave();
-                return Clutter.EVENT_PROPAGATE;
-            });
-        } catch (e) { _debug(`leave-event connect failed: ${e}`); }
+        
+        // Trigger visibility update
+        lm._updateVisibility?.();
+    } catch (e) {
+        _debug(`setPanelAutoHide error: ${e}`);
     }
 }
 
-function hidePanel() {
-    if (!_enabled)
-        return;
-    const container = _getPanelContainer();
-    if (!container) return;
-    const panelHeight = Main.panel?.height || container.height || 40;
-    _applyPanelTranslation(-panelHeight);
-}
-
-function _maybeScheduleHideAfterPanelLeave() {
-    if (!activeWorkspaceHasFullscreen)
-        return;
-    if (panelHideTimeoutId) {
-        GLib.source_remove(panelHideTimeoutId);
-        panelHideTimeoutId = null;
-    }
-    // Delay slightly to allow entering menus beneath panel edge
-    panelHideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 450, () => {
-        if (!_enabled) {
-            panelHideTimeoutId = null;
-            return GLib.SOURCE_REMOVE;
-        }
-        const [, y] = global.get_pointer();
-        const ph = Main.panel?.height || _getPanelContainer()?.height || 40;
-        if (y > ph + 4) {
-            hidePanel();
-        }
-        panelHideTimeoutId = null;
-        return GLib.SOURCE_REMOVE;
+function _createHoverArea() {
+    if (!_enabled) return null;
+    
+    const stageWidth = global.stage?.width ?? 1920;
+    
+    const hoverArea = new Clutter.Actor({
+        name: 'panel-hover-area',
+        reactive: true,
+        x: 0,
+        y: 0,
+        width: stageWidth,
+        height: 8, // Small hover area at top of screen
+        opacity: 0,
     });
-}
 
-const PanelEdge = GObject.registerClass(
-class PanelEdge extends Clutter.Actor {
-    _init() {
-        const stageWidth = global.stage?.width ?? global.display?.get_monitor_geometry(global.display.get_primary_monitor())?.width ?? 1920;
-        super._init({
-            name: 'panel-edge-detector',
-            reactive: true,
-            x: 0,
-            y: 0,
-            width: stageWidth,
-            height: 12,
-            opacity: 0,
-        });
+    // Create pressure barrier for reveal
+    let primaryMonitor = global.display.get_primary_monitor();
+    let geometry = global.display.get_monitor_geometry(primaryMonitor);
 
-        // Monitor geometry for placing the pointer barrier
-        let primaryMonitor = global.display.get_primary_monitor();
-        let geometry = global.display.get_monitor_geometry(primaryMonitor);
+    const barrier = new Meta.Barrier({
+        backend: global.backend,
+        x1: geometry.x,
+        x2: geometry.x + geometry.width,
+        y1: geometry.y,
+        y2: geometry.y,
+        directions: Meta.BarrierDirection.POSITIVE_Y,
+    });
 
-        // Create a pointer barrier for pressure-based reveal
-        // In newer GNOME Shell versions, Meta.Barrier constructor has changed
-        this._barrier = new Meta.Barrier({
-            backend: global.backend,
-            x1: geometry.x,
-            x2: geometry.x + geometry.width,
-            y1: geometry.y,
-            y2: geometry.y,
-            directions: Meta.BarrierDirection.POSITIVE_Y,
-        });
-
-        try {
-            this._barrierSignalId = this._barrier.connect('hit', () => this._onTrigger());
-        } catch (e) {}
-
-        // Keep actor above fullscreen windows
-        global.window_group.set_child_above_sibling(this, null);
-
-        // Hover detection (simple enter/leave)
-        this.connect('enter-event', this._onEnter.bind(this));
-        this.connect('leave-event', this._onLeave.bind(this));
-    }
-
-    destroy() {
-        if (this._barrier) {
-            if (this._barrierSignalId) {
-                try { this._barrier.disconnect(this._barrierSignalId); } catch (_) {}
-                this._barrierSignalId = null;
+    hoverArea._barrier = barrier;
+    
+    try {
+        hoverArea._barrierSignalId = barrier.connect('hit', () => {
+            if (activeWorkspaceHasFullscreen) {
+                _setPanelAutoHide(false); // Show panel
             }
-            try { this._barrier.destroy(); } catch (_) {}
-            this._barrier = null;
-        }
-        super.destroy();
-    }
+        });
+    } catch (e) {}
 
-    _onTrigger() {
-        if (!_enabled) return;
+    hoverArea.connect('enter-event', () => {
         if (activeWorkspaceHasFullscreen) {
-            this._showPanel();
+            _setPanelAutoHide(false); // Show panel
         }
-    }
+    });
 
-    _onEnter() {
-        if (!_enabled) return;
+    hoverArea.connect('leave-event', () => {
         if (activeWorkspaceHasFullscreen) {
-            this._showPanel();
-        }
-    }
-
-    _onLeave() {
-        if (!_enabled) return;
-        if (activeWorkspaceHasFullscreen) {
-            if (panelHideTimeoutId) {
-                GLib.source_remove(panelHideTimeoutId);
-            }
-            panelHideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-                if (!_enabled) {
-                    panelHideTimeoutId = null;
-                    return GLib.SOURCE_REMOVE;
-                }
+            // Delay hiding to allow interaction with panel
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+                if (!_enabled) return GLib.SOURCE_REMOVE;
+                
                 const [, mouseY] = global.get_pointer();
-                try {
-                    if (mouseY > (Main.panel?.height ?? 0)) {
-                        this._hidePanel();
-                    }
-                } catch (e) { _debug(`leave hidePanel error: ${e}`); }
-                panelHideTimeoutId = null;
+                const panelHeight = Main.panel?.height || 40;
+                
+                if (mouseY > panelHeight + 4) {
+                    _setPanelAutoHide(true); // Hide panel
+                }
                 return GLib.SOURCE_REMOVE;
             });
         }
-    }
+    });
 
-    _showPanel() {
-        showPanel();
-    }
+    hoverArea.connect('destroy', () => {
+        if (hoverArea._barrier) {
+            if (hoverArea._barrierSignalId) {
+                try { hoverArea._barrier.disconnect(hoverArea._barrierSignalId); } catch (_) {}
+            }
+            try { hoverArea._barrier.destroy(); } catch (_) {}
+        }
+    });
 
-    _hidePanel() {
-        hidePanel();
-    }
-});
+    return hoverArea;
+}
 
 function _connectWindowSignals(window) {
     if (windowSignals.has(window))
@@ -247,21 +153,14 @@ function _disconnectWindowSignals(window) {
     try { window.disconnect(signalIds.unmanaged); } catch (_) {}
     windowSignals.delete(window);
 
-    // If the window we tracked was fullscreen, ensure we recompute state so the panel is restored.
-    try {
-        if (fullscreenWindows.has(window)) {
-            fullscreenWindows.delete(window);
-            _recomputeFullscreenState();
-        } else {
-            // Even if not in set (race), schedule a recompute to be safe.
-            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => { if (_enabled) _recomputeFullscreenState(); return GLib.SOURCE_REMOVE; });
-        }
-    } catch (_) {}
+    if (fullscreenWindows.has(window)) {
+        fullscreenWindows.delete(window);
+        _recomputeFullscreenState();
+    }
 }
 
 function _onWindowCreated(display, window) {
-    if (!window)
-        return;
+    if (!window) return;
     _connectWindowSignals(window);
 }
 
@@ -276,10 +175,8 @@ function _onWindowFullscreenChanged(window) {
 }
 
 function _recomputeFullscreenState() {
-    if (!_enabled)
-        return;
-    // Rebuild fullscreenWindows IN-PLACE to avoid replacing the Set object while
-    // signals referencing the old object may still be firing.
+    if (!_enabled) return;
+    
     fullscreenWindows.clear();
     try {
         const ws = global.workspace_manager.get_active_workspace();
@@ -299,19 +196,24 @@ function _recomputeFullscreenState() {
         return; // no change
 
     activeWorkspaceHasFullscreen = hasFS;
-    // Defer UI manipulations to idle to avoid running inside Shell layout cycles
+    
+    // Update panel behavior based on fullscreen state and overview visibility
     GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-        if (!_enabled)
-            return GLib.SOURCE_REMOVE;
+        if (!_enabled) return GLib.SOURCE_REMOVE;
+        
         try {
-            if (activeWorkspaceHasFullscreen) {
-                _overridePanelTracking(true);
-                hidePanel();
-                _ensureHotCornerVisible();
+            if (Main.overview.visible) {
+                // In overview, always show panel regardless of fullscreen
+                _setPanelAutoHide(false);
+                if (hotCorner) hotCorner.hide();
+            } else if (activeWorkspaceHasFullscreen) {
+                // In fullscreen, enable auto-hide and show hover area
+                _setPanelAutoHide(true);
+                if (hotCorner) hotCorner.show();
             } else {
-                _overridePanelTracking(false);
-                showPanel();
-                _hideHotCorner();
+                // Normal mode, panel always visible
+                _setPanelAutoHide(false);
+                if (hotCorner) hotCorner.hide();
             }
         } catch (e) {
             _debug(`Idle fullscreen state error: ${e}`);
@@ -320,71 +222,39 @@ function _recomputeFullscreenState() {
     });
 }
 
-function _overridePanelTracking(disableTracking) {
-    if (!_enabled)
-        return;
-    // Access private Shell internals carefully; abort on mismatch.
-    try {
-        const lm = Main.layoutManager;
-        const panelBox = lm?.panelBox;
-        if (!lm || !panelBox)
-            return;
-        const tracked = lm._trackedActors; // private
-        if (!Array.isArray(tracked))
-            return;
-        const record = tracked.find(a => a && a.actor === panelBox);
-        if (!record || typeof record.trackFullscreen !== 'boolean')
-            return;
-
-        if (disableTracking) {
-            if (_panelTrackingOverridden)
-                return;
-            _originalTrackFullscreen = record.trackFullscreen;
-            record.trackFullscreen = false;
-            try { panelBox.show?.(); } catch (_) {}
-            _panelTrackingOverridden = true;
-        } else {
-            if (!_panelTrackingOverridden)
-                return;
-            record.trackFullscreen = _originalTrackFullscreen ?? true;
-            _panelTrackingOverridden = false;
-            _originalTrackFullscreen = null;
-            try { lm._updateVisibility?.(); } catch (e) { _debug(`_updateVisibility failed: ${e}`); }
-        }
-    } catch (e) {
-        _debug(`overridePanelTracking error: ${e}`);
-        _panelTrackingOverridden = false;
-        _originalTrackFullscreen = null;
-    }
-}
-
 function _onWorkspaceChanged() {
     _recomputeFullscreenState();
 }
 
-function _ensureHotCornerVisible() {
-    if (hotCorner)
-        hotCorner.show();
+function _onOverviewShowing() {
+    if (!_enabled) return;
+    // In overview, always show panel
+    _setPanelAutoHide(false);
+    if (hotCorner) hotCorner.hide();
 }
 
-function _hideHotCorner() {
-    if (hotCorner)
-        hotCorner.hide();
+function _onOverviewHidden() {
+    if (!_enabled) return;
+    // When overview hides, recompute fullscreen state
+    _recomputeFullscreenState();
 }
 
 export function enable() {
     _debug('Enabling');
-    disable(); // hard reset any prior state (defensive)
+    disable(); // Clean reset
     _enabled = true;
+    
     try {
-        hotCorner = new PanelEdge();
-        Main.layoutManager.addChrome(hotCorner, {
-            trackFullscreen: true,
-            affectsStruts: false,
-            affectsInputRegion: true,
-        });
+        hotCorner = _createHoverArea();
+        if (hotCorner) {
+            Main.layoutManager.addChrome(hotCorner, {
+                trackFullscreen: false, // We manage visibility ourselves
+                affectsStruts: false,
+                affectsInputRegion: true,
+            });
+        }
     } catch (e) {
-        _debug(`Failed to construct edge actor: ${e}`);
+        _debug(`Failed to construct hover area: ${e}`);
     }
 
     // Connect to existing windows
@@ -395,8 +265,12 @@ export function enable() {
         });
     } catch (e) { _debug(`Enumerating windows failed: ${e}`); }
 
+    // Connect to events
     try { windowCreatedHandler = global.display.connect('window-created', _onWindowCreated); } catch (e) { _debug(`window-created connect failed: ${e}`); }
     try { workspaceChangedHandler = global.workspace_manager.connect('active-workspace-changed', _onWorkspaceChanged); } catch (e) { _debug(`workspace change connect failed: ${e}`); }
+    try { overviewShowingHandler = Main.overview.connect('showing', _onOverviewShowing); } catch (e) { _debug(`overview showing connect failed: ${e}`); }
+    try { overviewHiddenHandler = Main.overview.connect('hidden', _onOverviewHidden); } catch (e) { _debug(`overview hidden connect failed: ${e}`); }
+    
     _recomputeFullscreenState();
 }
 
@@ -404,6 +278,7 @@ export function disable() {
     _enabled = false;
     _debug('Disabling');
 
+    // Destroy hover area
     try {
         if (hotCorner) {
             hotCorner.destroy();
@@ -411,11 +286,7 @@ export function disable() {
         }
     } catch (e) { _debug(`Destroy hotCorner failed: ${e}`); }
 
-    if (panelLeaveSignalId && panelContainer) {
-        try { panelContainer.disconnect(panelLeaveSignalId); } catch (_) {}
-        panelLeaveSignalId = null;
-    }
-
+    // Disconnect event handlers
     if (windowCreatedHandler) {
         try { global.display.disconnect(windowCreatedHandler); } catch (_) {}
         windowCreatedHandler = null;
@@ -424,10 +295,13 @@ export function disable() {
         try { global.workspace_manager.disconnect(workspaceChangedHandler); } catch (_) {}
         workspaceChangedHandler = null;
     }
-
-    if (panelHideTimeoutId) {
-        try { GLib.source_remove(panelHideTimeoutId); } catch (_) {}
-        panelHideTimeoutId = null;
+    if (overviewShowingHandler) {
+        try { Main.overview.disconnect(overviewShowingHandler); } catch (_) {}
+        overviewShowingHandler = null;
+    }
+    if (overviewHiddenHandler) {
+        try { Main.overview.disconnect(overviewHiddenHandler); } catch (_) {}
+        overviewHiddenHandler = null;
     }
 
     // Disconnect window signals
@@ -437,12 +311,11 @@ export function disable() {
             try { window.disconnect(signalIds.unmanaged); } catch (_) {}
         });
     } catch (e) { _debug(`Disconnect window signals failed: ${e}`); }
+    
     windowSignals.clear();
     fullscreenWindows.clear();
     activeWorkspaceHasFullscreen = false;
-    _overridePanelTracking(false);
 
-    // Restore panel (force translation reset without animation)
-    try { showPanel(); } catch (_) {}
-    panelContainer = null;
+    // Restore default panel behavior
+    _setPanelAutoHide(false);
 }
