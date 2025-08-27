@@ -257,6 +257,14 @@ export function disable() {
             moveFullscreenWindowInstance._windowAddedId = null;
         }
 
+        // Clean up pending isolation timeouts
+        for (let [window, timeoutId] of moveFullscreenWindowInstance._pendingIsolation) {
+            try {
+                GLib.source_remove(timeoutId);
+            } catch (_) {}
+        }
+        moveFullscreenWindowInstance._pendingIsolation.clear();
+
         // Disconnect signals for each window
         for (let [window, signalIds] of moveFullscreenWindowInstance._windowSignals) {
             window.disconnect(signalIds.fullscreen);

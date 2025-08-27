@@ -175,9 +175,6 @@ export function enable() {
 }
 
 export function disable() {
-    if (!enabled || !dateMenu)
-        return;
-
     // Restore clock format
     if (dateMenu._clockDisplay && originalFormatFunction) {
         dateMenu._clockDisplay.format = originalFormatFunction;
