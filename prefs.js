@@ -161,8 +161,94 @@ export default class KiwiPreferences extends ExtensionPreferences {
             icon_name: 'help-about-symbolic',
         });
         window.add(aboutPage);
+
         // Now add Settings page
         window.add(settingsPage);
+
+        // Extras Page
+        const extrasPage = new Adw.PreferencesPage({
+            title: 'Extras',
+            icon_name: 'application-x-addon-symbolic',
+        });
+        window.add(extrasPage);
+
+        // Extras Page Content
+        const extrasGroup = new Adw.PreferencesGroup({
+            title: _('Optional Native Modules'),
+            description: _('Enhanced features that require manual installation due to GNOME Extensions platform limitations'),
+        });
+        extrasPage.add(extrasGroup);
+
+        const extrasInfoBox = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 15,
+            margin_top: 15,
+            margin_bottom: 15,
+            margin_start: 15,
+            margin_end: 15,
+        });
+
+        // Warning icon and title
+        const warningHeaderBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 10,
+            halign: Gtk.Align.START,
+        });
+
+        warningHeaderBox.append(new Gtk.Image({
+            icon_name: 'dialog-information-symbolic',
+            icon_size: Gtk.IconSize.LARGE,
+        }));
+
+        warningHeaderBox.append(new Gtk.Label({
+            label: '<b>Titlebuttons Hover Effect for GTK3 apps</b>',
+            use_markup: true,
+            halign: Gtk.Align.START,
+        }));
+
+        extrasInfoBox.append(warningHeaderBox);
+
+        // Explanation text
+        const explanationLabel = new Gtk.Label({
+            label: 'The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this additional module to achieve the desired behavior. This module cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries.',
+            wrap: true,
+            halign: Gtk.Align.START,
+            xalign: 0,
+        });
+        extrasInfoBox.append(explanationLabel);
+
+        // Installation instructions
+        const installLabel = new Gtk.Label({
+            label: '<b>Manual Installation Available:</b>\nIf you want this enhanced feature, you can compile and install it manually from the source code.',
+            use_markup: true,
+            wrap: true,
+            halign: Gtk.Align.START,
+            xalign: 0,
+        });
+        extrasInfoBox.append(installLabel);
+
+        // GitHub link button
+        const githubLinkBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 10,
+            halign: Gtk.Align.START,
+        });
+
+        const githubButton = new Gtk.LinkButton({
+            label: 'View Installation Guide on GitHub',
+            uri: 'https://github.com/kem-a/kiwi-kemma/tree/main/extras',
+        });
+        githubButton.add_css_class('suggested-action');
+
+        githubLinkBox.append(new Gtk.Image({
+            icon_name: 'folder-download-symbolic',
+            icon_size: Gtk.IconSize.NORMAL,
+        }));
+        githubLinkBox.append(githubButton);
+
+        extrasInfoBox.append(githubLinkBox);
+
+        extrasGroup.add(extrasInfoBox);
 
         const aboutGroup = new Adw.PreferencesGroup();
         const aboutBox = new Gtk.Box({
@@ -181,7 +267,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: 'Version: v0.7.1-beta',
+            label: 'Version: v0.8.0-beta',
             halign: Gtk.Align.START,
         }));
 
@@ -347,6 +433,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const recommendations = [
             { title: 'Dash2Dock Animated', author: 'by icedman', url: 'https://extensions.gnome.org/extension/4994/dash2dock-lite/' },
+            { title: 'Logo Menu', author: 'Aryan Kaushik', url: 'https://extensions.gnome.org/extension/4451/logo-menu/' },
             { title: 'AppIndicator Support', author: 'by 3v1n0', url: 'https://extensions.gnome.org/extension/615/appindicator-support/' },
             { title: 'Compiz alike magic lamp effect', author: 'by hermes83', url: 'https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/' },
             { title: 'Quick Settings Tweaks', author: 'by qwreey', url: 'https://extensions.gnome.org/extension/5446/quick-settings-tweaker/' },
