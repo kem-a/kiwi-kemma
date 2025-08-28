@@ -33,3 +33,9 @@ headerbar windowcontrols button > image {
   min-width: 16px;
   min-height: 16px;
 }
+
+/* Remove checkered alpha channel drawing around thumbnails and icons. Creates more cleaner look */
+.thumbnail, .icon .thumbnail, .grid-view .thumbnail {
+  background: none;
+  box-shadow: none;
+}
