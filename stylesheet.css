@@ -305,6 +305,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   border-radius: 0;
 }
 
+/* Notification Badge Styling */
 .notification-badge {
     color: #e74c3c;
     icon-size: 12px;

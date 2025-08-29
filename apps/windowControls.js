@@ -320,7 +320,15 @@ class WindowControlsIndicator extends PanelMenu.Button {
 export function enable() {
     if (!controlsIndicator) {
         controlsIndicator = new WindowControlsIndicator();
-        Main.panel.addToStatusArea('window-controls', controlsIndicator, 1, 'left');
+        
+        // Count total elements in the left side of the panel
+        const leftBoxChildren = Main.panel._leftBox.get_children();
+        const totalElements = leftBoxChildren.length;
+        
+        // Place window controls at second-to-last position (since window title is last)
+        const position = Math.max(0, totalElements - 1);
+        
+        Main.panel.addToStatusArea('window-controls', controlsIndicator, position, 'left');
     }
 }
 
