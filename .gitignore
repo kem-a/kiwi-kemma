@@ -1,0 +1,9 @@
+# samples folder of knowledge
+.samples
+# Object files
+extras/*.o
+extras/*.obj
+
+# Temporary files
+extras/*~
+extras/.DS_Store

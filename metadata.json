@@ -3,7 +3,7 @@
   "name": "Kiwi is not Apple",
   "description": "Collection of various scripts that mimic macOS features",
   "shell-version": ["45", "46", "47", "48"],
-  "version": "0.8.0-beta",
+  "version": "0.8.1-beta",
   "url": "https://github.com/kem-a/kiwi-kemma",
   "settings-schema": "org.gnome.shell.extensions.kiwi"
 }

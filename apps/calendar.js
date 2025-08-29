@@ -1,5 +1,6 @@
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Clutter from 'gi://Clutter';
+import St from 'gi://St';
 
 // State holders so we can fully restore on disable
 let dateMenu;
@@ -13,6 +14,93 @@ let originalShouldShowMediaSection;
 let removedSections = null; // { notification:{actor,index}, media:{actor,index}, messages:{actor,index} }
 let originalBannerBinProps; // { x_align, y_align, x_expand }
 let calendarActorRef; // preserved calendar actor to ensure visibility
+
+// Notification indicator state
+let notificationIndicator = null;
+let notificationSignals = [];
+let quickSettings = null;
+
+function setupNotificationIndicator() {
+    if (notificationIndicator) return;
+    quickSettings = Main.panel.statusArea.quickSettings;
+    if (!quickSettings) return;
+
+    // Create a simple widget like the username example
+    notificationIndicator = new St.Icon({
+        icon_name: 'media-record-symbolic',
+        style_class: 'notification-badge',
+        visible: false,
+    });
+    
+    // Add small delay to ensure all other indicators are added first
+    setTimeout(() => {
+        const indicatorsContainer = quickSettings._indicators;
+        const lastIndex = indicatorsContainer.get_n_children();
+        indicatorsContainer.insert_child_at_index(notificationIndicator, lastIndex);
+    }, 500);
+
+    // Connect to notification signals and update visibility
+    connectNotificationSignals();
+    updateNotificationIndicator();
+}
+
+function cleanupNotificationIndicator() {
+    // Disconnect signals and clear intervals
+    notificationSignals.forEach(signal => {
+        try {
+            if (signal.obj === 'interval') {
+                clearInterval(signal.id);
+            } else if (signal.obj && signal.id) {
+                signal.obj.disconnect(signal.id);
+            }
+        } catch (e) {
+            // Signal may already be disconnected
+        }
+    });
+    notificationSignals = [];
+
+    if (notificationIndicator && quickSettings) {
+        const indicatorsContainer = quickSettings._indicators;
+        if (indicatorsContainer) {
+            indicatorsContainer.remove_child(notificationIndicator);
+        }
+        notificationIndicator.destroy();
+        notificationIndicator = null;
+    }
+    quickSettings = null;
+}
+
+function connectNotificationSignals() {
+    notificationSignals = [];
+    // Monitor message tray sources for new notifications
+    if (Main.messageTray) {
+        const sourceAddedId = Main.messageTray.connect('source-added', () => updateNotificationIndicator());
+        notificationSignals.push({ obj: Main.messageTray, id: sourceAddedId });
+
+        const sourceRemovedId = Main.messageTray.connect('source-removed', () => updateNotificationIndicator());
+        notificationSignals.push({ obj: Main.messageTray, id: sourceRemovedId });
+
+        for (let source of Main.messageTray._sources.values()) {
+            const notificationAddedId = source.connect('notification-added', () => updateNotificationIndicator());
+            notificationSignals.push({ obj: source, id: notificationAddedId });
+            const notificationRemovedId = source.connect('notification-removed', () => updateNotificationIndicator());
+            notificationSignals.push({ obj: source, id: notificationRemovedId });
+        }
+    }
+
+    // Fallback periodic check
+    const checkInterval = setInterval(() => updateNotificationIndicator(), 5000);
+    notificationSignals.push({ obj: 'interval', id: checkInterval });
+}
+
+function updateNotificationIndicator() {
+    if (!notificationIndicator) return;
+
+    const hasNotifications = checkForNotifications();
+    if (hasNotifications !== notificationIndicator.visible) {
+        notificationIndicator.visible = hasNotifications;
+    }
+}
 
 export function enable() {
     if (enabled)
@@ -63,7 +151,7 @@ export function enable() {
         const parentBox = dateMenu.menu.box;
         // Attempt to preserve a reference to calendar actor for safety
         if (!calendarActorRef) {
-            calendarActorRef = dateMenu._calendar?.actor || dateMenu._calendar || dateMenu._calendarSection?.actor || null;
+            calendarActorRef = dateMenu._calendar || dateMenu._calendarSection || null;
         }
 
         function detachOrHideSection(key, actorRefName) {
@@ -171,6 +259,9 @@ export function enable() {
         }
     }
 
+    // Set up notification indicator on QuickSettings
+    setupNotificationIndicator();
+
     enabled = true;
 }
 
@@ -249,5 +340,49 @@ export function disable() {
         originalBannerBinProps = null;
     }
 
+    // Clean up notification indicator
+    cleanupNotificationIndicator();
+
     enabled = false;
 }
+
+function checkForNotifications() {
+    // Check the message tray's notification sources directly
+    if (Main.messageTray && Main.messageTray._sources) {
+        for (let source of Main.messageTray._sources.values()) {
+            if (source && source.notifications && source.notifications.length > 0) {
+                // Count notifications that are still present (not necessarily unacknowledged)
+                // since acknowledged notifications can still be in the notification panel
+                const activeNotifications = source.notifications.filter(notification => {
+                    // Check if notification is not destroyed and still relevant
+                    return notification && !notification.destroyed && !notification.isDestroyed;
+                });
+                
+                if (activeNotifications.length > 0) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    // Check if there are any notification actors still visible in the system
+    // This catches notifications that are in the notification panel
+    if (Main.messageTray && Main.messageTray._notificationQueue && 
+        Main.messageTray._notificationQueue.length > 0) {
+        return true;
+    }
+
+    // Also check if the original notification section would be visible
+    // (this is the state before our calendar module hides it)
+    if (originalShouldShowNotificationSection && 
+        typeof originalShouldShowNotificationSection === 'function') {
+        try {
+            return originalShouldShowNotificationSection.call(dateMenu);
+        } catch (e) {
+            // If there's an error, assume no notifications
+        }
+    }
+
+    return false;
+}
+

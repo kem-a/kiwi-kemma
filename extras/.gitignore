@@ -1,7 +1,0 @@
-# Object files
-*.o
-*.obj
-
-# Temporary files
-*~
-.DS_Store
