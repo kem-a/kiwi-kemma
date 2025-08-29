@@ -114,6 +114,21 @@ class WindowControlsIndicator extends PanelMenu.Button {
             this._updateVisibility();
         });
         
+        // Handle screen shield (lock screen) events
+        this._screenShield = Main.screenShield;
+        if (this._screenShield) {
+            this._screenShieldActiveId = this._screenShield.connect('active-changed', () => {
+                // When screen is unlocked, re-evaluate window state
+                if (!this._screenShield.active) {
+                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+                        this._onFocusWindowChanged();
+                        this._updateVisibility();
+                        return GLib.SOURCE_REMOVE;
+                    });
+                }
+            });
+        }
+        
         this._updateVisibility();
     }
 
@@ -304,6 +319,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         if (this._settingsChangedId) this._settings.disconnect(this._settingsChangedId);
         if (this._overviewShowingId) Main.overview.disconnect(this._overviewShowingId);
         if (this._overviewHiddenId) Main.overview.disconnect(this._overviewHiddenId);
+        if (this._screenShieldActiveId && this._screenShield) this._screenShield.disconnect(this._screenShieldActiveId);
 
         if (this._focusWindow) {
             if (this._focusWindowMaximizeHorizSignal) this._focusWindow.disconnect(this._focusWindowMaximizeHorizSignal);
