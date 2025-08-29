@@ -175,6 +175,7 @@ export function enable() {
 }
 
 export function disable() {
+    dateMenu = Main.panel.statusArea.dateMenu;
     // Restore clock format
     if (dateMenu._clockDisplay && originalFormatFunction) {
         dateMenu._clockDisplay.format = originalFormatFunction;
