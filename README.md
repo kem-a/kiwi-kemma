@@ -24,12 +24,13 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 
 <details> <summary> Details <b>(click to open)</b> </summary>
 
-- **[Dash2Dock Animated](https://extensions.gnome.org/extension/4994/dash2dock-lite/)** by icedman
+- **[Dash to Dock](https://extensions.gnome.org/extension/307/dash-to-dock/)** by michele_g
 - **[AppIndicator Support](https://extensions.gnome.org/extension/615/appindicator-support/)** by 3v1n0
 - **[Compiz alike magic lamp effect](https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/)** by hermes83
 - **[Quick Settings Tweaks](https://extensions.gnome.org/extension/5446/quick-settings-tweaker/)** by qwreey
 - **[Gtk4 Desktop Icons NG (DING)](https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/)** by smedius
 - **[Clipboard Indicator](https://extensions.gnome.org/extension/779/clipboard-indicator/)** by Tudmotu
+- **[Logo Menu](https://extensions.gnome.org/extension/4451/logo-menu/)** by Aryan Kaushik
 </details>
 
 ## Visual experience
