@@ -1,5 +1,6 @@
 import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
+import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
 import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
@@ -260,11 +261,43 @@ export default class KiwiPreferences extends ExtensionPreferences {
             margin_end: 10,
         });
 
-        aboutBox.append(new Gtk.Label({
-            label: '<b>Kiwi is not Apple</b>',
-            use_markup: true,
+        // Create horizontal box for logo and title
+        const titleBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 15,
             halign: Gtk.Align.START,
-        }));
+        });
+
+        // Add Kiwi logo in front of title
+        try {
+            const logoPath = this.path + '/icons/kiwi_logo.png';
+            const logoFile = Gio.File.new_for_path(logoPath);
+            if (logoFile.query_exists(null)) {
+                const pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(logoPath, 128, 128, true);
+                const texture = Gdk.Texture.new_for_pixbuf(pixbuf);
+                
+                const logoImage = new Gtk.Image({
+                    gicon: texture,
+                    valign: Gtk.Align.CENTER,
+                    halign: Gtk.Align.CENTER,
+                    pixel_size: 64,
+                });
+                
+                titleBox.append(logoImage);
+            }
+        } catch (e) {
+            console.error('Failed to load Kiwi logo:', e);
+        }
+
+        // Add title label after the logo
+        const titleLabel = new Gtk.Label({
+            label: '<span size="large" weight="bold">Kiwi</span>',
+            use_markup: true,
+            valign: Gtk.Align.CENTER,
+        });
+        titleBox.append(titleLabel);
+
+        aboutBox.append(titleBox);
 
         aboutBox.append(new Gtk.Label({
             label: 'Version: v0.8.1-beta',
@@ -432,7 +465,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
 
         const recommendations = [
-            { title: 'Dash2Dock Animated', author: 'by icedman', url: 'https://extensions.gnome.org/extension/4994/dash2dock-lite/' },
+            { title: 'Dash to Dock', author: 'by michele_g', url: 'https://extensions.gnome.org/extension/307/dash-to-dock/' },
             { title: 'Logo Menu', author: 'Aryan Kaushik', url: 'https://extensions.gnome.org/extension/4451/logo-menu/' },
             { title: 'AppIndicator Support', author: 'by 3v1n0', url: 'https://extensions.gnome.org/extension/615/appindicator-support/' },
             { title: 'Compiz alike magic lamp effect', author: 'by hermes83', url: 'https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/' },
