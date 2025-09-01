@@ -242,7 +242,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         githubButton.add_css_class('suggested-action');
 
         githubLinkBox.append(new Gtk.Image({
-            icon_name: 'folder-download-symbolic',
+            icon_name: 'software-update-available-symbolic',
             icon_size: Gtk.IconSize.NORMAL,
         }));
         githubLinkBox.append(githubButton);

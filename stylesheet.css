@@ -311,3 +311,47 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
     icon-size: 12px;
     padding: 0px;
 }
+
+/* Dash-to-Dock: Reduce spacing and padding for tighter icon layout */
+
+/* Bottom dock - normal mode: reduce margins between icon containers */
+#dashtodockContainer.bottom #dash .dash-item-container {
+    margin: 0 1px !important; /* Reduced from 0 2px */
+}
+
+/* Bottom dock - normal mode: reduce padding around individual icons */
+#dashtodockContainer.bottom #dash .dash-item-container .app-well-app,
+#dashtodockContainer.bottom #dash .dash-item-container .show-apps,
+#dashtodockContainer.bottom #dash .dash-item-container .overview-tile {
+    padding: 1px 1px !important; /* Reduced from 2px 2px */
+    padding-bottom: 12px !important; /* Reduced from 14px */
+    padding-top: 8px !important; /* Reduced from 10px */
+}
+
+/* Bottom dock - shrink mode: even tighter spacing */
+#dashtodockContainer.bottom.shrink #dash .dash-item-container {
+    margin: 0 0px !important; /* Reduced from 0 2px */
+}
+
+#dashtodockContainer.bottom.shrink #dash .dash-item-container .app-well-app,
+#dashtodockContainer.bottom.shrink #dash .dash-item-container .show-apps,
+#dashtodockContainer.bottom.shrink #dash .dash-item-container .overview-tile {
+    padding: 0px 0px !important; /* Reduced from 1px 1px */
+    padding-bottom: 5px !important; /* Reduced from 7px */
+    padding-top: 2px !important; /* Reduced from 3px */
+}
+
+/* Reduce overall dash container padding */
+#dashtodockContainer.bottom #dash #dashtodockDashContainer {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+#dashtodockContainer.bottom.shrink #dash #dashtodockDashContainer {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
