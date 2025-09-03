@@ -300,7 +300,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         aboutBox.append(titleBox);
 
         aboutBox.append(new Gtk.Label({
-            label: 'Version: v0.8.1-beta',
+            label: 'Version: v0.8.2-beta',
             halign: Gtk.Align.START,
         }));
 
@@ -414,7 +414,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         coffeeButton.set_child(coffeeBox);
         coffeeButton.connect('clicked', () => {
-            Gtk.show_uri(null, 'https://revolut.me/r/VD0Q6SxGWP', Gdk.CURRENT_TIME);
+            Gtk.show_uri(null, 'https://revolut.me/arnisk', Gdk.CURRENT_TIME);
         });
 
         bottomRow.append(coffeeButton);

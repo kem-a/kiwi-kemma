@@ -12,6 +12,7 @@ let overviewHiddenHandler = null;
 let activeWorkspaceHasFullscreen = false;
 let hotCorner = null;
 let _enabled = false;
+let _hideTimeoutId = null;
 
 function _debug(msg) {
     try { log(`[PanelHover] ${msg}`); } catch (_) {}
@@ -96,8 +97,15 @@ function _createHoverArea() {
 
     hoverArea.connect('leave-event', () => {
         if (activeWorkspaceHasFullscreen) {
+            // Clear any existing timeout
+            if (_hideTimeoutId) {
+                GLib.Source.remove(_hideTimeoutId);
+                _hideTimeoutId = null;
+            }
+            
             // Delay hiding to allow interaction with panel
-            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+            _hideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+                _hideTimeoutId = null; // Clear the ID when timeout executes
                 if (!_enabled) return GLib.SOURCE_REMOVE;
                 
                 const [, mouseY] = global.get_pointer();
@@ -112,6 +120,12 @@ function _createHoverArea() {
     });
 
     hoverArea.connect('destroy', () => {
+        // Clear any pending timeout
+        if (_hideTimeoutId) {
+            GLib.Source.remove(_hideTimeoutId);
+            _hideTimeoutId = null;
+        }
+        
         if (hoverArea._barrier) {
             if (hoverArea._barrierSignalId) {
                 try { hoverArea._barrier.disconnect(hoverArea._barrierSignalId); } catch (_) {}
@@ -240,7 +254,6 @@ function _onOverviewHidden() {
 }
 
 export function enable() {
-    _debug('Enabling');
     disable(); // Clean reset
     _enabled = true;
     
@@ -276,7 +289,12 @@ export function enable() {
 
 export function disable() {
     _enabled = false;
-    _debug('Disabling');
+
+    // Clear any pending timeout
+    if (_hideTimeoutId) {
+        GLib.Source.remove(_hideTimeoutId);
+        _hideTimeoutId = null;
+    }
 
     // Destroy hover area
     try {
