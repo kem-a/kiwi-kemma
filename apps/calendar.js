@@ -1,6 +1,7 @@
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
+import GLib from 'gi://GLib';
 
 // State holders so we can fully restore on disable
 let dateMenu;
@@ -33,11 +34,12 @@ function setupNotificationIndicator() {
     });
     
     // Add small delay to ensure all other indicators are added first
-    setTimeout(() => {
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
         const indicatorsContainer = quickSettings._indicators;
         const lastIndex = indicatorsContainer.get_n_children();
         indicatorsContainer.insert_child_at_index(notificationIndicator, lastIndex);
-    }, 500);
+        return GLib.SOURCE_REMOVE;
+    });
 
     // Connect to notification signals and update visibility
     connectNotificationSignals();
@@ -49,7 +51,7 @@ function cleanupNotificationIndicator() {
     notificationSignals.forEach(signal => {
         try {
             if (signal.obj === 'interval') {
-                clearInterval(signal.id);
+                GLib.Source.remove(signal.id);
             } else if (signal.obj && signal.id) {
                 signal.obj.disconnect(signal.id);
             }
@@ -89,7 +91,10 @@ function connectNotificationSignals() {
     }
 
     // Fallback periodic check
-    const checkInterval = setInterval(() => updateNotificationIndicator(), 5000);
+    const checkInterval = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
+        updateNotificationIndicator();
+        return GLib.SOURCE_CONTINUE; // Keep the timeout running
+    });
     notificationSignals.push({ obj: 'interval', id: checkInterval });
 }
 

@@ -7,3 +7,7 @@ extras/*.obj
 # Temporary files
 extras/*~
 extras/.DS_Store
+
+# Review logs and files for publishing to Gnome Shell extensions
+REVIEW_GUIDELINES_NOTES.md
+COMPLIANCE_REVIEW_REPORT.md

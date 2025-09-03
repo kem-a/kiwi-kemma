@@ -206,15 +206,26 @@ export const disable = () => {
     // Disable the battery percentage indicator and remove it from the panel
     if (batteryPercentageInstance) {
         Main.panel.statusArea.quickSettings._indicators.remove_child(batteryPercentageInstance._batteryLabel);
+        
+        // Properly destroy the label
+        batteryPercentageInstance._batteryLabel.destroy();
+        
         // Disconnect properties-changed signal if connected
-        try {
-            if (batteryPercentageInstance._propertiesChangedId && batteryPercentageInstance._batteryProxy) {
-                batteryPercentageInstance._batteryProxy.disconnect(batteryPercentageInstance._propertiesChangedId);
-            }
-        } catch (e) {
-            // ignore
+        if (batteryPercentageInstance._propertiesChangedId && batteryPercentageInstance._batteryProxy) {
+            batteryPercentageInstance._batteryProxy.disconnect(batteryPercentageInstance._propertiesChangedId);
+            batteryPercentageInstance._propertiesChangedId = null;
         }
-        batteryPercentageInstance._batteryProxy = null;
+        
+        // Properly dispose of the proxy
+        if (batteryPercentageInstance._batteryProxy) {
+            try {
+                batteryPercentageInstance._batteryProxy.run_dispose();
+            } catch (e) {
+                // Ignore disposal errors
+            }
+            batteryPercentageInstance._batteryProxy = null;
+        }
+        
         batteryPercentageInstance = null;
     }
 };

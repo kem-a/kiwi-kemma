@@ -350,6 +350,11 @@ export function enable() {
 
 export function disable() {
     if (controlsIndicator) {
+        // Disconnect settings signal before destroying
+        if (controlsIndicator._settingsChangedId && controlsIndicator._settings) {
+            controlsIndicator._settings.disconnect(controlsIndicator._settingsChangedId);
+            controlsIndicator._settingsChangedId = null;
+        }
         controlsIndicator.destroy();
         controlsIndicator = null;
     }
