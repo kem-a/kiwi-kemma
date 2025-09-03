@@ -1,5 +1,5 @@
 # samples folder of knowledge
-.samples
+samples
 # Object files
 extras/*.o
 extras/*.obj
