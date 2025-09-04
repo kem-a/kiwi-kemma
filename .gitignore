@@ -1,5 +1,6 @@
 # samples folder of knowledge
 samples
+change.log
 # Object files
 extras/*.o
 extras/*.obj
