@@ -109,5 +109,10 @@
         <summary>Hide Activities Button</summary>
         <description>Hide the Activities button in the top panel.</description>
       </key>
+      <key name="overview-wallpaper-background" type="b">
+        <default>false</default>
+        <summary>Overview Wallpaper Background</summary>
+        <description>Use the current desktop wallpaper as a blurred background in the overview.</description>
+      </key>
     </schema>
 </schemalist>

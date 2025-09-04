@@ -13,6 +13,7 @@ import { enable as panelTransparencyEnable, disable as panelTransparencyDisable 
 import { enable as hideMinimizedWindowsEnable, disable as hideMinimizedWindowsDisable } from './apps/hideMinimizedWindows.js';
 import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } from './apps/gtkThemeManager.js';
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
+import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -105,6 +106,12 @@ export default class KiwiExtension extends Extension {
         } else {
             hideActivitiesButtonDisable();
         }
+
+        if (this._settings.get_boolean('overview-wallpaper-background')) {
+            overviewWallpaperEnable(this._settings);
+        } else {
+            overviewWallpaperDisable();
+        }
     }
 
     enable() {
@@ -115,6 +122,8 @@ export default class KiwiExtension extends Extension {
         gtkThemeManagerEnable();
         
         this._on_settings_changed(null);
+    // Generate wallpaper background if enabled
+    overviewWallpaperRefresh();
     }
 
     disable() {
@@ -136,6 +145,7 @@ export default class KiwiExtension extends Extension {
         panelTransparencyDisable();
         hideMinimizedWindowsDisable();
     hideActivitiesButtonDisable();
+    overviewWallpaperDisable();
         gtkThemeManagerDisable();
         this._settings = null;
     }

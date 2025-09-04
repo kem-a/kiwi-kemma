@@ -3,6 +3,7 @@ import Gdk from 'gi://Gdk';
 import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk';
+import GLib from 'gi://GLib';
 import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 export default class KiwiPreferences extends ExtensionPreferences {
@@ -86,6 +87,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'move-calendar-right', title: _("Move Calendar to Right"), subtitle: _("Move calendar to right side and hide notifications") },
             { key: 'show-window-title', title: _("Show Window Title"), subtitle: _("Display current window title in the top panel") },
             { key: 'panel-hover-fullscreen', title: _("Show Panel on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen") },
+            { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Background"), subtitle: _("Use blurred current wallpaper as overview background (requires ImageMagick)") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
             { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
         ];
@@ -96,6 +98,14 @@ export default class KiwiPreferences extends ExtensionPreferences {
                 subtitle: item.subtitle,
                 active: settings.get_boolean(item.key),
             });
+            if (item.key === 'overview-wallpaper-background') {
+                // Disable toggle if ImageMagick (convert) is not available
+                const convertPath = GLib.find_program_in_path('convert');
+                if (!convertPath) {
+                    switchRow.set_subtitle(_('ImageMagick not installed (install package "imagemagick" to enable)'));
+                    switchRow.set_sensitive(false);
+                }
+            }
             group.add(switchRow);
             window._settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
         });
@@ -300,7 +310,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         aboutBox.append(titleBox);
 
         aboutBox.append(new Gtk.Label({
-            label: 'Version: v0.8.2-beta',
+            label: 'Version: v0.8.3-beta',
             halign: Gtk.Align.START,
         }));
 
