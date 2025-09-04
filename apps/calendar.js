@@ -20,6 +20,7 @@ let calendarActorRef; // preserved calendar actor to ensure visibility
 let notificationIndicator = null;
 let notificationSignals = [];
 let quickSettings = null;
+let indicatorInsertTimeoutId = null; // timeout id for delayed indicator insertion
 
 function setupNotificationIndicator() {
     if (notificationIndicator) return;
@@ -34,7 +35,8 @@ function setupNotificationIndicator() {
     });
     
     // Add small delay to ensure all other indicators are added first
-    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+    indicatorInsertTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+        indicatorInsertTimeoutId = null; // clear reference on fire
         const indicatorsContainer = quickSettings._indicators;
         const lastIndex = indicatorsContainer.get_n_children();
         indicatorsContainer.insert_child_at_index(notificationIndicator, lastIndex);
@@ -48,6 +50,10 @@ function setupNotificationIndicator() {
 
 function cleanupNotificationIndicator() {
     // Disconnect signals and clear intervals
+    if (indicatorInsertTimeoutId) {
+        try { GLib.source_remove(indicatorInsertTimeoutId); } catch (_) {}
+        indicatorInsertTimeoutId = null;
+    }
     notificationSignals.forEach(signal => {
         try {
             if (signal.obj === 'interval') {

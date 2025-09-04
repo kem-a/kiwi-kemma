@@ -310,7 +310,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         aboutBox.append(titleBox);
 
         aboutBox.append(new Gtk.Label({
-            label: 'Version: v0.8.3-beta',
+            label: 'Version: v0.9.0-beta',
             halign: Gtk.Align.START,
         }));
 
