@@ -20,8 +20,7 @@ The `titlebuttons_hover` module provides a macOS-like hover effect for window ti
 Use the pre-compiled module included in this folder:
 
 ```bash
-cd /path/to/kiwi-kemma/extras
-chmod +x install-extra.sh
+git clone https://github.com/kem-a/kiwi-kemma && cd kiwi-kemma/extras
 ./install-extra.sh
 ```
 
@@ -33,8 +32,7 @@ If you prefer to compile from source or the pre-compiled version doesn't work:
 
 1. **Compile the module**:
    ```bash
-   cd /path/to/kiwi-kemma/extras
-   chmod +x compile-extra.sh
+   git clone https://github.com/kem-a/kiwi-kemma && cd kiwi-kemma/extras
    ./compile-extra.sh
    ```
 
