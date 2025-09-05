@@ -1,1 +1,5 @@
-<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="8" fill="#DE9C2D"/><circle cx="8" cy="8" r="7" fill="#FCBB40"/><path d="M3.326 7.335h9.348c.356 0 .656.3.656.656v.018c0 .356-.3.656-.656.656H3.326a.664.664 0 01-.656-.656v-.018c0-.356.281-.656.656-.656z" fill="#975612"/></svg>
+<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+	<circle cx="8" cy="8" r="8" fill="#DE9C2D"/>
+	<circle cx="8" cy="8" r="7" fill="#FCBB40"/>
+	<rect x="3.25" y="7.35" width="9.5" height="1.3" rx="0.65" fill="#975612"/>
+</svg>

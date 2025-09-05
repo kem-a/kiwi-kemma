@@ -2,7 +2,7 @@
 
 /* Window Controls base states*/
 
-headerbar windowcontrols button {
+windowcontrols button {
   min-width: 16px;
   min-height: 16px;
   background-repeat: no-repeat;
@@ -12,18 +12,18 @@ headerbar windowcontrols button {
 }
 
 /* If you actually have image children, keep this; otherwise it's harmless */
-headerbar windowcontrols button > image {
+windowcontrols button > image {
   padding: 0 3px;
 }
 
-headerbar windowcontrols {
+windowcontrols {
   margin-left: 10px;
   margin-right: 10px;
 }
 
-headerbar windowcontrols button.close,
-headerbar windowcontrols button.maximize,
-headerbar windowcontrols button.minimize {
+windowcontrols button.close,
+windowcontrols button.maximize,
+windowcontrols button.minimize {
   border-color: transparent;
   background-color: transparent;
   background-image: none;
@@ -31,120 +31,120 @@ headerbar windowcontrols button.minimize {
   color: transparent;
 }
 
-headerbar windowcontrols button.close:backdrop,
-headerbar windowcontrols button.maximize:backdrop,
-headerbar windowcontrols button.minimize:backdrop {
+windowcontrols button.close:backdrop,
+windowcontrols button.maximize:backdrop,
+windowcontrols button.minimize:backdrop {
   opacity: 1;
 }
 
 /* Close Button */
-headerbar windowcontrols button.close {
-  background-image: url("titlebuttons-alt/button-close.svg");
+windowcontrols button.close {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-close.png"), url("titlebuttons-alt/button-close@2.png"));
 }
-headerbar windowcontrols button.close:backdrop {
-  background-image: url("titlebuttons-alt/button-close-backdrop.svg");
+windowcontrols button.close:backdrop {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-backdrop.png"), url("titlebuttons-alt/button-close-backdrop@2.png"));
 }
-headerbar windowcontrols button.close:hover,
-headerbar windowcontrols:hover button.close,
-headerbar windowcontrols:hover button.close:backdrop {
-  background-image: url("titlebuttons-alt/button-close-hover.svg");
+windowcontrols button.close:hover,
+windowcontrols:hover button.close,
+windowcontrols:hover button.close:backdrop {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-hover.png"), url("titlebuttons-alt/button-close-hover@2.png"));
 }
-headerbar windowcontrols button.close:backdrop:hover {
-  background-image: url("titlebuttons-alt/button-close-hover.svg");
+windowcontrols button.close:backdrop:hover {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-hover.png"), url("titlebuttons-alt/button-close-hover@2.png"));
 }
 
 /* Minimize Button */
-headerbar windowcontrols button.minimize {
-  background-image: url("titlebuttons-alt/button-minimize.svg");
+windowcontrols button.minimize {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize.png"), url("titlebuttons-alt/button-minimize@2.png"));
 }
-headerbar windowcontrols button.minimize:backdrop {
-  background-image: url("titlebuttons-alt/button-minimize-backdrop.svg");
+windowcontrols button.minimize:backdrop {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-backdrop.png"), url("titlebuttons-alt/button-minimize-backdrop@2.png"));
 }
-headerbar windowcontrols button.minimize:hover,
-headerbar windowcontrols:hover button.minimize,
-headerbar windowcontrols:hover button.minimize:backdrop {
-  background-image: url("titlebuttons-alt/button-minimize-hover.svg");
+windowcontrols button.minimize:hover,
+windowcontrols:hover button.minimize,
+windowcontrols:hover button.minimize:backdrop {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-hover.png"), url("titlebuttons-alt/button-minimize-hover@2.png"));
 }
-headerbar windowcontrols button.minimize:backdrop:hover {
-  background-image: url("titlebuttons-alt/button-minimize-hover.svg");
+windowcontrols button.minimize:backdrop:hover {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-hover.png"), url("titlebuttons-alt/button-minimize-hover@2.png"));
 }
 
 /* Maximize Button (unmaximized state) */
-headerbar windowcontrols button.maximize {
-  background-image: url("titlebuttons-alt/button-maximize.svg");
+windowcontrols button.maximize {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize.png"), url("titlebuttons-alt/button-maximize@2.png"));
 }
-headerbar windowcontrols button.maximize:backdrop {
-  background-image: url("titlebuttons-alt/button-maximize-backdrop.svg");
+windowcontrols button.maximize:backdrop {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-backdrop.png"), url("titlebuttons-alt/button-maximize-backdrop@2.png"));
 }
-headerbar windowcontrols button.maximize:hover,
-headerbar windowcontrols:hover button.maximize,
-headerbar windowcontrols:hover button.maximize:backdrop {
-  background-image: url("titlebuttons-alt/button-maximize-hover.svg");
+windowcontrols button.maximize:hover,
+windowcontrols:hover button.maximize,
+windowcontrols:hover button.maximize:backdrop {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-hover.png"), url("titlebuttons-alt/button-maximize-hover@2.png"));
 }
-headerbar windowcontrols button.maximize:backdrop:hover {
-  background-image: url("titlebuttons-alt/button-maximize-hover.svg");
+windowcontrols button.maximize:backdrop:hover {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-hover.png"), url("titlebuttons-alt/button-maximize-hover@2.png"));
 }
 
 /* When maximized or fullscreen, the Maximize button becomes Restore */
-.fullscreen headerbar windowcontrols button.maximize,
-.maximized headerbar windowcontrols button.maximize {
-  background-image: url("titlebuttons-alt/button-restore.svg");
+.fullscreen windowcontrols button.maximize,
+.maximized windowcontrols button.maximize {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore.png"), url("titlebuttons-alt/button-restore@2.png"));
 }
-.fullscreen headerbar windowcontrols button.maximize:backdrop,
-.maximized headerbar windowcontrols button.maximize:backdrop {
-  background-image: url("titlebuttons-alt/button-restore-backdrop.svg");
+.fullscreen windowcontrols button.maximize:backdrop,
+.maximized windowcontrols button.maximize:backdrop {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-backdrop.png"), url("titlebuttons-alt/button-restore-backdrop@2.png"));
 }
-.fullscreen headerbar windowcontrols button.maximize:hover,
-.maximized headerbar windowcontrols button.maximize:hover,
-.fullscreen headerbar windowcontrols:hover button.maximize,
-.maximized headerbar windowcontrols:hover button.maximize,
-.fullscreen headerbar windowcontrols:hover button.maximize:backdrop,
-.maximized headerbar windowcontrols:hover button.maximize:backdrop {
-  background-image: url("titlebuttons-alt/button-restore-hover.svg");
+.fullscreen windowcontrols button.maximize:hover,
+.maximized windowcontrols button.maximize:hover,
+.fullscreen windowcontrols:hover button.maximize,
+.maximized windowcontrols:hover button.maximize,
+.fullscreen windowcontrols:hover button.maximize:backdrop,
+.maximized windowcontrols:hover button.maximize:backdrop {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-hover.png"), url("titlebuttons-alt/button-restore-hover@2.png"));
 }
 
 /* Mac-like: show all 3 when hovering the group */
-headerbar windowcontrols:hover button.close {
-  background-image: url("titlebuttons-alt/button-close-hover.svg");
+windowcontrols:hover button.close {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-hover.png"), url("titlebuttons-alt/button-close-hover@2.png"));
 }
-headerbar windowcontrols:hover button.minimize {
-  background-image: url("titlebuttons-alt/button-minimize-hover.svg");
+windowcontrols:hover button.minimize {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-hover.png"), url("titlebuttons-alt/button-minimize-hover@2.png"));
 }
-headerbar windowcontrols:hover button.maximize {
-  background-image: url("titlebuttons-alt/button-maximize-hover.svg");
+windowcontrols:hover button.maximize {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-hover.png"), url("titlebuttons-alt/button-maximize-hover@2.png"));
 }
-.fullscreen headerbar windowcontrols:hover button.maximize,
-.maximized headerbar windowcontrols:hover button.maximize {
-  background-image: url("titlebuttons-alt/button-restore-hover.svg");
+.fullscreen windowcontrols:hover button.maximize,
+.maximized windowcontrols:hover button.maximize {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-hover.png"), url("titlebuttons-alt/button-restore-hover@2.png"));
 }
 
 /* --- ACTIVE STATES --- */
 /* Place active rules LAST so they win over container :hover rules with equal specificity. */
 
 /* Close active (including when the container is hovered) */
-headerbar windowcontrols button.close:active,
-headerbar windowcontrols:hover button.close:active {
-  background-image: url("titlebuttons-alt/button-close-active.svg");
+windowcontrols button.close:active,
+windowcontrols:hover button.close:active {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-active.png"), url("titlebuttons-alt/button-close-active@2.png"));
 }
 
 /* Minimize active */
-headerbar windowcontrols button.minimize:active,
-headerbar windowcontrols:hover button.minimize:active {
-  background-image: url("titlebuttons-alt/button-minimize-active.svg");
+windowcontrols button.minimize:active,
+windowcontrols:hover button.minimize:active {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-active.png"), url("titlebuttons-alt/button-minimize-active@2.png"));
 }
 
 /* Maximize active (unmaximized) */
-headerbar windowcontrols button.maximize:active,
-headerbar windowcontrols:hover button.maximize:active {
-  background-image: url("titlebuttons-alt/button-maximize-active.svg");
+windowcontrols button.maximize:active,
+windowcontrols:hover button.maximize:active {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-active.png"), url("titlebuttons-alt/button-maximize-active@2.png"));
 }
 
 /* Restore active (window maximized/fullscreen) */
-.fullscreen headerbar windowcontrols button.maximize:active,
-.maximized headerbar windowcontrols button.maximize:active,
-.fullscreen headerbar windowcontrols:hover button.maximize:active,
-.maximized headerbar windowcontrols:hover button.maximize:active {
-  background-image: url("titlebuttons-alt/button-restore-active.svg");
+.fullscreen windowcontrols button.maximize:active,
+.maximized windowcontrols button.maximize:active,
+.fullscreen windowcontrols:hover button.maximize:active,
+.maximized windowcontrols:hover button.maximize:active {
+  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-active.png"), url("titlebuttons-alt/button-restore-active@2.png"));
 }
 
 /* optional: fine tuning for layout */
