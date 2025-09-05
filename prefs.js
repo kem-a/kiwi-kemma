@@ -140,14 +140,12 @@ export default class KiwiPreferences extends ExtensionPreferences {
             Gio.SettingsBindFlags.GET);
 
         const buttonTypeModel = new Gtk.StringList();
-        buttonTypeModel.append('titlebuttons');
-        buttonTypeModel.append('titlebuttons-alt');
-        buttonTypeModel.append('titlebuttons-png');
+    buttonTypeModel.append('titlebuttons');
+    buttonTypeModel.append('titlebuttons-alt');
 
-        let selectedIndex = 0;
-        const currentButtonType = settings.get_string('button-type');
-        if (currentButtonType === 'titlebuttons-alt') selectedIndex = 1;
-        else if (currentButtonType === 'titlebuttons-png') selectedIndex = 2;
+    let selectedIndex = 0;
+    const currentButtonType = settings.get_string('button-type');
+    if (currentButtonType === 'titlebuttons-alt') selectedIndex = 1;
 
         const buttonTypeCombo = new Adw.ComboRow({
             title: _('Button Type'),

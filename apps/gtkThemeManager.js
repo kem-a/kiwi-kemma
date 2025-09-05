@@ -26,9 +26,6 @@ class GtkThemeManager {
         if (buttonType === 'titlebuttons-alt') {
             gtk3Content += `@import 'titlebuttons-alt3.css';\n`;
             gtk4Content += `@import 'titlebuttons-alt4.css';\n`;
-        } else if (buttonType === 'titlebuttons-png') {
-            gtk3Content += `@import 'titlebuttons-png3.css';\n`;
-            gtk4Content += `@import 'titlebuttons-png4.css';\n`;
         } else {
             // Default to titlebuttons
             gtk3Content += `@import 'titlebuttons3.css';\n`;
