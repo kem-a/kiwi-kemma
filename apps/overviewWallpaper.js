@@ -24,6 +24,7 @@ let _generationQueue = [];         // FIFO of [scheme, applyAfter]
 // ============================
 // Constants / Config
 // ============================
+// sigma and darken adjustment at line 194
 const WALLPAPER_SCHEMA = 'org.gnome.desktop.background';
 const WALLPAPER_KEY = 'picture-uri';
 const WALLPAPER_KEY_DARK = 'picture-uri-dark';
@@ -190,8 +191,8 @@ function _generateVariant(scheme, applyAfter = false) {
     _pendingGeneration = true;
 
     const isDark = scheme === 'prefer-dark';
-    const darkenPercent = isDark ? 15 : 35;
-    const blurSigma = isDark ? '0x18' : '0x18'; // adjust for preference
+    const darkenPercent = isDark ? 20 : 35;     // adjust for preference - light/dark
+    const blurSigma = isDark ? '0x25' : '0x20'; // adjust for preference - light/dark
 
     let targetWidth = 1920;
     try {
