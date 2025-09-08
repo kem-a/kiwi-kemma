@@ -90,9 +90,15 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._maximizeButton.connect('clicked', () => {
             const window = global.display.focus_window;
             if (window) {
-                if (window.is_fullscreen()) window.unmake_fullscreen();
-                else if (window.get_maximized()) window.unmaximize(Meta.MaximizeFlags.BOTH);
-                else window.maximize(Meta.MaximizeFlags.BOTH);
+                if (window.is_fullscreen()) {
+                    window.unmake_fullscreen();
+                } else if (window.is_maximized && window.is_maximized()) {
+                    // GNOME 49: unmaximize() no longer takes flags, just call with no args
+                    window.unmaximize();
+                } else if (window.maximize) {
+                    // GNOME 49: maximize() no longer takes flags, just call with no args
+                    window.maximize();
+                }
             }
         });
 
@@ -165,9 +171,9 @@ class WindowControlsIndicator extends PanelMenu.Button {
     }
 
     _updateButtonIcon(buttonType) {
-        const button = this[`_${buttonType}Button`];
-        const isMaximized = buttonType === 'maximize' && global.display.focus_window?.get_maximized();
-        const isFullscreen = global.display.focus_window?.is_fullscreen();
+    const button = this[`_${buttonType}Button`];
+    const isMaximized = buttonType === 'maximize' && global.display.focus_window?.is_maximized && global.display.focus_window.is_maximized();
+    const isFullscreen = global.display.focus_window?.is_fullscreen();
         // When in fullscreen, the minimize button should be disabled (non-reactive) and not show hover/active variants
         if (buttonType === 'minimize' && isFullscreen && this._settings.get_boolean('enable-app-window-buttons') && this._settings.get_boolean('show-window-controls')) {
             // Force base icon, ignore hover/active state
