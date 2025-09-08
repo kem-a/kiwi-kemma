@@ -131,6 +131,82 @@ function _targetInfoForScheme(scheme) {
     };
 }
 
+// XML timed wallpaper resolution helpers
+function _isXmlPath(path) {
+    return path && path.toLowerCase().endsWith('.xml');
+}
+
+function _resolveTimedWallpaper(xmlPath, scheme) {
+    if (!_isXmlPath(xmlPath)) return xmlPath;
+    
+    try {
+        const file = Gio.File.new_for_path(xmlPath);
+        if (!file.query_exists(null)) return null;
+        
+        const [ok, bytes] = file.load_contents(null);
+        if (!ok) return null;
+        
+        const xml = new TextDecoder().decode(bytes);
+        const xmlDir = GLib.path_get_dirname(xmlPath);
+        
+        // Extract image paths from <file>, <from>, <to> tags
+        const imageRe = /<(?:file|from|to)>\s*([^<]+?)\s*<\/(?:file|from|to)>/gi;
+        const images = [];
+        let match;
+        
+        while ((match = imageRe.exec(xml)) !== null) {
+            let imagePath = match[1].trim();
+            if (!imagePath.startsWith('/')) {
+                imagePath = GLib.build_filenamev([xmlDir, imagePath]);
+            }
+            
+            // Verify it's an actual image file that exists
+            if (_isImageFile(imagePath) && Gio.File.new_for_path(imagePath).query_exists(null)) {
+                images.push(imagePath);
+            }
+        }
+        
+        if (images.length === 0) return null;
+        
+        // Score images based on scheme preference and filename
+        const preferDark = scheme === 'prefer-dark';
+        let bestImage = images[0];
+        let bestScore = -999;
+        
+        for (const img of images) {
+            const basename = GLib.path_get_basename(img).toLowerCase();
+            let score = 0;
+            
+            if (preferDark) {
+                if (basename.includes('night') || basename.includes('dark')) score += 20;
+                if (basename.includes('day') || basename.includes('light')) score -= 5;
+            } else {
+                if (basename.includes('day') || basename.includes('light')) score += 20;
+                if (basename.includes('night') || basename.includes('dark')) score -= 5;
+            }
+            
+            if (score > bestScore) {
+                bestScore = score;
+                bestImage = img;
+            }
+        }
+        
+        return bestImage;
+        
+    } catch (e) {
+        logDebug('Failed to resolve timed wallpaper XML: ' + e);
+        return null;
+    }
+}
+
+function _isImageFile(path) {
+    if (!path) return false;
+    const ext = path.toLowerCase();
+    return ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.png') || 
+           ext.endsWith('.webp') || ext.endsWith('.bmp') || ext.endsWith('.tiff') || 
+           ext.endsWith('.tif') || ext.endsWith('.jxl');
+}
+
 function _needsRegenerationVariant(srcPath, scheme) {
     const { target, meta } = _targetInfoForScheme(scheme);
     if (_fileMTime(target) === 0)
@@ -175,8 +251,16 @@ function _processGenerationQueue() {
 
 function _generateVariant(scheme, applyAfter = false) {
     if (!_imagemagickAvailable()) return;
-    const src = _getWallpaperPathForScheme(scheme);
+    let src = _getWallpaperPathForScheme(scheme);
     if (!src) return;
+    
+    // Resolve XML timed wallpapers to actual image files
+    src = _resolveTimedWallpaper(src, scheme);
+    if (!src) {
+        logDebug('Failed to resolve wallpaper path for scheme: ' + scheme);
+        return;
+    }
+    
     if (_pendingGeneration) {
         _generationQueue.push([scheme, applyAfter]);
         return;
@@ -318,9 +402,12 @@ function _queueRegenerateAllVariants() {
     _timeoutAllId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
         _timeoutAllId = 0;
         SCHEMES.forEach(scheme => {
-            const src = _getWallpaperPathForScheme(scheme);
-            if (src && _needsRegenerationVariant(src, scheme))
-                _generateVariant(scheme, scheme === _currentScheme());
+            let src = _getWallpaperPathForScheme(scheme);
+            if (src) {
+                src = _resolveTimedWallpaper(src, scheme);
+                if (src && _needsRegenerationVariant(src, scheme))
+                    _generateVariant(scheme, scheme === _currentScheme());
+            }
         });
         return GLib.SOURCE_REMOVE;
     });
@@ -363,9 +450,12 @@ export function enable(settings) {
     _applyStylesheet();
     // Pre-generate / refresh both variants if needed
     SCHEMES.forEach(scheme => {
-        const src = _getWallpaperPathForScheme(scheme);
-        if (src && _needsRegenerationVariant(src, scheme))
-            _generateVariant(scheme, scheme === _currentScheme());
+        let src = _getWallpaperPathForScheme(scheme);
+        if (src) {
+            src = _resolveTimedWallpaper(src, scheme);
+            if (src && _needsRegenerationVariant(src, scheme))
+                _generateVariant(scheme, scheme === _currentScheme());
+        }
     });
 }
 
@@ -373,11 +463,14 @@ export function refresh() {
     if (!_settings || !_settings.get_boolean('overview-wallpaper-background')) return;
     // Refresh only current scheme variant
     const scheme = _currentScheme();
-    const src = _getWallpaperPathForScheme(scheme);
-    if (src && _needsRegenerationVariant(src, scheme))
-        _generateVariant(scheme, true);
-    else
-        _applyStylesheet();
+    let src = _getWallpaperPathForScheme(scheme);
+    if (src) {
+        src = _resolveTimedWallpaper(src, scheme);
+        if (src && _needsRegenerationVariant(src, scheme))
+            _generateVariant(scheme, true);
+        else
+            _applyStylesheet();
+    }
 }
 
 export function disable() {
