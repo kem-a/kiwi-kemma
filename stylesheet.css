@@ -44,7 +44,104 @@
   padding: 6px;
   /* Optional: Ensure the container doesn't grow indefinitely */
   max-height: 200px;
+  max-width: 200px;
   overflow-y: auto;
+}
+
+/* Kiwi Quick Settings Notifications */
+.kiwi-notifications,
+.kiwi-media {
+  margin: 12px 0;
+  /* Remove padding and background */
+  padding: 0;
+  /* No background color */
+}
+
+.kiwi-notifications-header-box {
+  /* Remove padding from header box */
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.kiwi-notifications-header,
+.kiwi-media-header {
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+  /* Remove padding from headers */
+  padding: 0;
+}
+
+.kiwi-clear-all-button {
+  /* Make clear button pill shaped */
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 12px; /* Pill shape */
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.kiwi-clear-all-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.kiwi-notifications StScrollView {
+  max-height: 300px;
+  /* Remove padding from scroll view */
+  padding: 0;
+}
+
+/* Make notification close buttons smaller and round */
+.kiwi-notifications .message-close-button {
+  -st-icon-style: symbolic;
+  padding: 2px;
+  border-radius: 50%; /* Make it round */
+  min-width: 20px; /* Smaller than default */
+  min-height: 20px; /* Smaller than default */
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.kiwi-notifications .message-close-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.kiwi-notifications .message-close-button StIcon {
+  width: 12px;
+  height: 12px;
+}
+
+/* Make notification expand buttons smaller (same size as close) */
+.kiwi-notifications .message-expand-button {
+  -st-icon-style: symbolic;
+  padding: 2px;
+  border-radius: 50%; /* Make it round */
+  min-width: 20px;
+  min-height: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.kiwi-notifications .message-expand-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.kiwi-notifications .message-expand-button StIcon {
+  width: 12px;
+  height: 12px;
+}
+
+/*
+.kiwi-notifications-placeholder,
+.kiwi-media-placeholder {
+  padding: 16px;
+  text-align: center;
+}
+*/
+.kiwi-notifications-icon,
+.kiwi-media-icon {
+  -st-icon-style: symbolic;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* Top Bar */
@@ -354,4 +451,61 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
     padding-right: 2px !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
+}
+
+/* Kiwi Media Controls */
+.kiwi-media-track-info {
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.kiwi-media-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2px;
+}
+
+.kiwi-media-artist {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.kiwi-media-buttons {
+  margin: 0 8px;
+}
+
+.kiwi-media-button {
+  padding: 6px;
+  border-radius: 50%;
+  min-width: 32px;
+  min-height: 32px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.kiwi-media-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.kiwi-media-button:active {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.kiwi-media-button StIcon {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Remove right padding from notifications */
+.kiwi-notifications .message {
+  padding-right: 0;
+  margin-right: 0;
+}
+
+.kiwi-notifications .message-content {
+  padding-right: 0;
+  margin-right: 0;
 }

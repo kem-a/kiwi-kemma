@@ -59,7 +59,12 @@ function cleanupNotificationIndicator() {
             if (signal.obj === 'interval') {
                 GLib.Source.remove(signal.id);
             } else if (signal.obj && signal.id) {
-                signal.obj.disconnect(signal.id);
+                // Check if object is still valid before disconnecting
+                try {
+                    signal.obj.disconnect(signal.id);
+                } catch (e) {
+                    // Object may have been disposed, ignore
+                }
             }
         } catch (e) {
             // Signal may already be disconnected
@@ -70,9 +75,17 @@ function cleanupNotificationIndicator() {
     if (notificationIndicator && quickSettings) {
         const indicatorsContainer = quickSettings._indicators;
         if (indicatorsContainer) {
-            indicatorsContainer.remove_child(notificationIndicator);
+            try {
+                indicatorsContainer.remove_child(notificationIndicator);
+            } catch (e) {
+                // Indicator may already be removed
+            }
         }
-        notificationIndicator.destroy();
+        try {
+            notificationIndicator.destroy();
+        } catch (e) {
+            // Indicator may already be destroyed
+        }
         notificationIndicator = null;
     }
     quickSettings = null;
@@ -88,11 +101,18 @@ function connectNotificationSignals() {
         const sourceRemovedId = Main.messageTray.connect('source-removed', () => updateNotificationIndicator());
         notificationSignals.push({ obj: Main.messageTray, id: sourceRemovedId });
 
-        for (let source of Main.messageTray._sources.values()) {
-            const notificationAddedId = source.connect('notification-added', () => updateNotificationIndicator());
-            notificationSignals.push({ obj: source, id: notificationAddedId });
-            const notificationRemovedId = source.connect('notification-removed', () => updateNotificationIndicator());
-            notificationSignals.push({ obj: source, id: notificationRemovedId });
+        if (Main.messageTray._sources) {
+            for (let source of Main.messageTray._sources.values()) {
+                try {
+                    const notificationAddedId = source.connect('notification-added', () => updateNotificationIndicator());
+                    notificationSignals.push({ obj: source, id: notificationAddedId });
+                    const notificationRemovedId = source.connect('notification-removed', () => updateNotificationIndicator());
+                    notificationSignals.push({ obj: source, id: notificationRemovedId });
+                } catch (e) {
+                    // Source may be disposed, skip it
+                    console.warn('Failed to connect to notification source:', e);
+                }
+            }
         }
     }
 
@@ -197,37 +217,6 @@ export function enable() {
 
         dateMenu._shouldShowNotificationSection = () => false;
         dateMenu._shouldShowMediaSection = () => false;
-
-        // Dynamically size width so week numbers (if enabled) are not truncated.
-        try {
-            const baseWidth = 300; // previous fixed width
-            let width = baseWidth;
-            // Obtain a more accurate preferred width for the calendar actor if present
-            if (calendarActorRef && calendarActorRef.get_preferred_width) {
-                const [_minW, natW] = calendarActorRef.get_preferred_width(-1);
-                // Add padding allowance
-                width = Math.max(width, natW + 20);
-            }
-            // Heuristic bump if week numbers enabled but preferred width not accessible yet
-            const weekNumbersEnabled = Boolean(
-                dateMenu._calendar?.get_show_week_numbers?.() ||
-                dateMenu._calendar?._showWeekNumbers
-            );
-            if (weekNumbersEnabled)
-                width = Math.max(width, baseWidth + 24); // allocate extra column space
-
-            // Use min-width to allow natural growth if theme wants larger
-            dateMenu.menu.box.style = `min-width: ${width}px;`;
-        } catch (_e) {
-            // Fallback to original fixed width if something fails
-            dateMenu.menu.box.style = 'width: 330px;';
-        }
-
-        // Ensure calendar actor is present (some GNOME versions may move it around)
-        if (calendarActorRef && !calendarActorRef.get_parent()) {
-            // Insert at top for consistency
-            parentBox.insert_child_at_index(calendarActorRef, 0);
-        }
     }
 
     // Adjust notification banner alignment without destroying the actor
@@ -361,19 +350,25 @@ export function disable() {
 function checkForNotifications() {
     // Check the message tray's notification sources directly
     if (Main.messageTray && Main.messageTray._sources) {
-        for (let source of Main.messageTray._sources.values()) {
-            if (source && source.notifications && source.notifications.length > 0) {
-                // Count notifications that are still present (not necessarily unacknowledged)
-                // since acknowledged notifications can still be in the notification panel
-                const activeNotifications = source.notifications.filter(notification => {
-                    // Check if notification is not destroyed and still relevant
-                    return notification && !notification.destroyed && !notification.isDestroyed;
-                });
-                
-                if (activeNotifications.length > 0) {
-                    return true;
+        try {
+            for (let source of Main.messageTray._sources.values()) {
+                if (source && source.notifications && source.notifications.length > 0) {
+                    // Count notifications that are still present (not necessarily unacknowledged)
+                    // since acknowledged notifications can still be in the notification panel
+                    const activeNotifications = source.notifications.filter(notification => {
+                        // Check if notification is not destroyed and still relevant
+                        return notification && !notification.destroyed && !notification.isDestroyed;
+                    });
+                    
+                    if (activeNotifications.length > 0) {
+                        return true;
+                    }
                 }
             }
+        } catch (e) {
+            // Sources may be disposed during shutdown
+            console.warn('Error checking notifications:', e);
+            return false;
         }
     }
 
