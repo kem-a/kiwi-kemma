@@ -47,6 +47,54 @@
   overflow-y: auto;
 }
 
+/* Calendar vertical layout styling */
+.calendar-vertical-layout {
+  spacing: 12px;
+  padding: 12px;
+}
+
+/* Calendar notification section styling */
+.calendar-notification-section {
+  /* Ensure notifications appear above calendar as full-width section */
+  margin-bottom: 12px;
+  padding: 0px;
+  background-color: transparent;
+  border-radius: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  /* Limit height to prevent notification list from being too tall */
+  max-height: 300px;
+  /* Match calendar width */
+  min-width: 350px;
+  max-width: 350px;
+}
+
+/* Custom message list styling */
+.calendar-message-list-section {
+  background-color: transparent;
+  padding: 0px;
+  margin: 0px;
+}
+
+/* Notification list customization */
+.calendar-notification-list {
+  padding-left: 4px;
+  padding-right: 4px;
+  background-color: transparent;
+  /* Match calendar section width */
+  min-width: 350px;
+  max-width: 350px;
+}
+
+/* Hide scrollbars in notification section */
+.calendar-notification-list .scroll-view {
+  padding: 0px;
+}
+
+.calendar-notification-list .scroll-view > StScrollBar {
+  width: 0px;
+  visible: false;
+}
+
 /* Top Bar */
 
 #panel {

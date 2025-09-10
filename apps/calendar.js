@@ -9,12 +9,8 @@ let enabled = false;
 let originalFormatFunction;
 let originalParent;
 let originalParentIndex;
-let originalMenuBoxStyle;
-let originalShouldShowNotificationSection;
-let originalShouldShowMediaSection;
-let removedSections = null; // { notification:{actor,index}, media:{actor,index}, messages:{actor,index} }
+let originalMenuLayout;
 let originalBannerBinProps; // { x_align, y_align, x_expand }
-let calendarActorRef; // preserved calendar actor to ensure visibility
 
 // Notification indicator state
 let notificationIndicator = null;
@@ -54,25 +50,33 @@ function cleanupNotificationIndicator() {
         try { GLib.source_remove(indicatorInsertTimeoutId); } catch (_) {}
         indicatorInsertTimeoutId = null;
     }
+    
+    // Safely disconnect all notification signals
     notificationSignals.forEach(signal => {
         try {
             if (signal.obj === 'interval') {
                 GLib.Source.remove(signal.id);
-            } else if (signal.obj && signal.id) {
+            } else if (signal.obj && signal.id && !signal.obj.is_disposed?.()) {
                 signal.obj.disconnect(signal.id);
             }
         } catch (e) {
-            // Signal may already be disconnected
+            // Signal may already be disconnected or object disposed
         }
     });
     notificationSignals = [];
 
     if (notificationIndicator && quickSettings) {
-        const indicatorsContainer = quickSettings._indicators;
-        if (indicatorsContainer) {
-            indicatorsContainer.remove_child(notificationIndicator);
+        try {
+            const indicatorsContainer = quickSettings._indicators;
+            if (indicatorsContainer && !indicatorsContainer.is_disposed?.()) {
+                indicatorsContainer.remove_child(notificationIndicator);
+            }
+            if (!notificationIndicator.is_disposed?.()) {
+                notificationIndicator.destroy();
+            }
+        } catch (e) {
+            // Objects may already be disposed
         }
-        notificationIndicator.destroy();
         notificationIndicator = null;
     }
     quickSettings = null;
@@ -154,83 +158,101 @@ export function enable() {
         Main.panel._rightBox.insert_child_at_index(dateMenu.container, Main.panel._rightBox.get_children().length);
     }
 
-    // Non-destructively remove other sections & override visibility predicates
-    if (dateMenu.menu?.box) {
-        originalMenuBoxStyle = originalMenuBoxStyle ?? dateMenu.menu.box.style;
-        removedSections = {};
-
-        const parentBox = dateMenu.menu.box;
-        // Attempt to preserve a reference to calendar actor for safety
-        if (!calendarActorRef) {
-            calendarActorRef = dateMenu._calendar || dateMenu._calendarSection || null;
-        }
-
-        function detachOrHideSection(key, actorRefName) {
-            const actor = dateMenu[actorRefName];
-            if (!actor) return;
-            // Skip if this is (somehow) the calendar actor we want to keep
-            if (calendarActorRef && actor === calendarActorRef)
-                return;
-            let idx = -1;
-            let hidden = false;
-            if (actor.get_parent() === parentBox) {
-                idx = parentBox.get_children().indexOf(actor);
-                parentBox.remove_child(actor); // non-destructive
-            } else {
-                // Fallback: just hide it if we cannot safely detach
-                if (actor.show && actor.hide) {
-                    actor.hide();
-                    hidden = true;
+    // Completely restructure the date menu layout to put notifications above calendar
+    if (dateMenu.menu?.box && !originalMenuLayout) {
+        const menuBox = dateMenu.menu.box;
+        
+        // Find the main container (should be a bin with hbox inside)
+        const children = menuBox.get_children();
+        let mainContainer = null;
+        let originalHbox = null;
+        
+        for (let child of children) {
+            // Look for the container that has the horizontal layout
+            if (child.get_children && child.get_children().length > 0) {
+                const possibleHbox = child.get_children()[0];
+                if (possibleHbox && possibleHbox.get_children && possibleHbox.get_children().length === 2) {
+                    mainContainer = child;
+                    originalHbox = possibleHbox;
+                    break;
                 }
             }
-            removedSections[key] = { actor, index: idx, hidden };
         }
-        detachOrHideSection('notification', '_notificationSection');
-        detachOrHideSection('media', '_mediaSection');
-        detachOrHideSection('messages', '_messageList');
-
-        // Preserve originals only once
-        if (!originalShouldShowNotificationSection)
-            originalShouldShowNotificationSection = dateMenu._shouldShowNotificationSection;
-        if (!originalShouldShowMediaSection)
-            originalShouldShowMediaSection = dateMenu._shouldShowMediaSection;
-
-        dateMenu._shouldShowNotificationSection = () => false;
-        dateMenu._shouldShowMediaSection = () => false;
-
-        // Dynamically size width so week numbers (if enabled) are not truncated.
-        try {
-            const baseWidth = 300; // previous fixed width
-            let width = baseWidth;
-            // Obtain a more accurate preferred width for the calendar actor if present
-            if (calendarActorRef && calendarActorRef.get_preferred_width) {
-                const [_minW, natW] = calendarActorRef.get_preferred_width(-1);
-                // Add padding allowance
-                width = Math.max(width, natW + 20);
+        
+        if (originalHbox && originalHbox.get_children) {
+            const hboxChildren = originalHbox.get_children();
+            const messageList = hboxChildren[0]; // notifications
+            const calendarColumn = hboxChildren[1]; // calendar
+            
+            // Store original layout for restoration
+            originalMenuLayout = {
+                menuBox: menuBox,
+                mainContainer: mainContainer,
+                originalHbox: originalHbox,
+                messageList: messageList,
+                calendarColumn: calendarColumn
+            };
+            
+            // Remove the original container from menuBox
+            menuBox.remove_child(mainContainer);
+            
+            // Create a new vertical layout that spans the full width
+            const newVerticalLayout = new St.BoxLayout({
+                orientation: Clutter.Orientation.VERTICAL,
+                style_class: 'calendar-vertical-layout',
+                x_expand: true,
+                y_expand: true
+            });
+            
+            // Remove children from the original horizontal box
+            originalHbox.remove_child(messageList);
+            originalHbox.remove_child(calendarColumn);
+            
+            // Customize the notification section layout
+            customizeNotificationSection(messageList);
+            
+            // Create a container for notifications (top section)
+            const notificationContainer = new St.Widget({
+                style_class: 'calendar-notification-section',
+                layout_manager: new Clutter.BinLayout(),
+                x_expand: true
+            });
+            notificationContainer.add_child(messageList);
+            
+            // Create a container for calendar (bottom section)  
+            const calendarContainer = new St.Widget({
+                layout_manager: new Clutter.BinLayout(),
+                x_expand: true
+            });
+            calendarContainer.add_child(calendarColumn);
+            
+            // Only add notification container if there are notifications
+            const shouldShowNotifications = checkForNotifications();
+            if (shouldShowNotifications) {
+                newVerticalLayout.add_child(notificationContainer);
             }
-            // Heuristic bump if week numbers enabled but preferred width not accessible yet
-            const weekNumbersEnabled = Boolean(
-                dateMenu._calendar?.get_show_week_numbers?.() ||
-                dateMenu._calendar?._showWeekNumbers
-            );
-            if (weekNumbersEnabled)
-                width = Math.max(width, baseWidth + 24); // allocate extra column space
-
-            // Use min-width to allow natural growth if theme wants larger
-            dateMenu.menu.box.style = `min-width: ${width}px;`;
-        } catch (_e) {
-            // Fallback to original fixed width if something fails
-            dateMenu.menu.box.style = 'width: 330px;';
-        }
-
-        // Ensure calendar actor is present (some GNOME versions may move it around)
-        if (calendarActorRef && !calendarActorRef.get_parent()) {
-            // Insert at top for consistency
-            parentBox.insert_child_at_index(calendarActorRef, 0);
+            newVerticalLayout.add_child(calendarContainer);
+            
+            // Store visibility state for updates
+            originalMenuLayout.shouldShowNotifications = shouldShowNotifications;
+            
+            // Add the new vertical layout to the menu
+            menuBox.add_child(newVerticalLayout);
+            
+            // Store references for cleanup
+            originalMenuLayout.newVerticalLayout = newVerticalLayout;
+            originalMenuLayout.notificationContainer = notificationContainer;
+            originalMenuLayout.calendarContainer = calendarContainer;
+            
+            // Set up notification visibility monitoring
+            setupNotificationVisibilityMonitoring(newVerticalLayout, notificationContainer);
         }
     }
 
-    // Adjust notification banner alignment without destroying the actor
+    // Set up notification indicator on QuickSettings
+    setupNotificationIndicator();
+
+    // Adjust notification banner alignment
     if (Main.messageTray?._bannerBin) {
         const bin = Main.messageTray._bannerBin;
         originalBannerBinProps = originalBannerBinProps || {
@@ -252,72 +274,153 @@ export function enable() {
             else
                 bin.y_align = Clutter.ActorAlign.START;
         } catch (_e) {
-            // Fallback: recreate only if mutation methods failed
-            const newBin = new Clutter.Actor({
-                name: 'bannerBin',
-                x_expand: true,
-                x_align: Clutter.ActorAlign.END,
-                y_align: Clutter.ActorAlign.START,
-            });
-            // Transfer children
-            bin.get_children().forEach(c => bin.remove_child(c) && newBin.add_child(c));
-            const parent = bin.get_parent();
-            if (parent) {
-                parent.remove_child(bin);
-                parent.add_child(newBin);
-            }
-            Main.messageTray._bannerBin = newBin;
+            // Continue if banner bin modification fails
         }
     }
-
-    // Set up notification indicator on QuickSettings
-    setupNotificationIndicator();
 
     enabled = true;
 }
 
+function customizeNotificationSection(messageList) {
+    if (!messageList) return;
+    
+    try {
+        // Hide scrollbar by modifying the scroll view
+        const scrollView = messageList._scrollView;
+        if (scrollView) {
+            scrollView.hscrollbar_policy = St.PolicyType.NEVER;
+            scrollView.vscrollbar_policy = St.PolicyType.NEVER;
+            scrollView.overlay_scrollbars = true;
+        }
+        
+        // Remove background from main section
+        messageList.remove_style_class_name('message-list-section');
+        messageList.add_style_class_name('calendar-message-list-section');
+        
+        // Find and hide "Do not disturb" button and "clear" button
+        const messageView = messageList._messageView;
+        if (messageView) {
+            // Hide the header with DND and clear buttons
+            const children = messageList.get_children();
+            children.forEach(child => {
+                if (child.get_children) {
+                    const grandChildren = child.get_children();
+                    grandChildren.forEach(grandChild => {
+                        // Look for buttons (Do not disturb and Clear)
+                        if (grandChild.constructor.name.includes('Button') || 
+                            grandChild.style_class?.includes('message-list-clear-button') ||
+                            grandChild.style_class?.includes('do-not-disturb')) {
+                            grandChild.visible = false;
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Apply custom styling to match calendar width and reduce padding
+        messageList.add_style_class_name('calendar-notification-list');
+        
+        // Hide media players by filtering them out
+        if (messageList._mediaSection) {
+            messageList._mediaSection.visible = false;
+        }
+        
+    } catch (e) {
+        // Ignore errors during customization
+    }
+}
+
+
+function setupNotificationVisibilityMonitoring(verticalLayout, notificationContainer) {
+    if (!verticalLayout || !notificationContainer) return;
+    
+    // Monitor for notification changes and update visibility
+    const updateVisibility = () => {
+        try {
+            const hasNotifications = checkForNotifications();
+            if (hasNotifications && !notificationContainer.get_parent()) {
+                // Add notification container if it has notifications but isn't shown
+                verticalLayout.insert_child_at_index(notificationContainer, 0);
+            } else if (!hasNotifications && notificationContainer.get_parent()) {
+                // Remove notification container if no notifications
+                verticalLayout.remove_child(notificationContainer);
+            }
+        } catch (e) {
+            // Ignore errors during visibility updates
+        }
+    };
+    
+    // Set up periodic monitoring
+    const monitorId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
+        updateVisibility();
+        return GLib.SOURCE_CONTINUE;
+    });
+    
+    // Store for cleanup
+    if (originalMenuLayout) {
+        originalMenuLayout.monitorId = monitorId;
+    }
+}
+
 export function disable() {
     dateMenu = Main.panel.statusArea.dateMenu;
+    
     // Restore clock format
     if (dateMenu._clockDisplay && originalFormatFunction) {
         dateMenu._clockDisplay.format = originalFormatFunction;
         originalFormatFunction = null;
     }
 
-    // Restore other sections if we detached them
-    if (removedSections && dateMenu.menu?.box) {
-        const parentBox = dateMenu.menu.box;
-        // Reinsert in original order based on recorded indices
-        const entries = Object.values(removedSections).filter(Boolean).sort((a, b) => a.index - b.index);
-        entries.forEach(({ actor, index, hidden }) => {
-            if (!actor) return;
-            if (hidden && actor.show) {
-                actor.show();
-                return;
+    // Restore original horizontal layout (notifications beside calendar)
+    if (originalMenuLayout && originalMenuLayout.menuBox) {
+        try {
+            // Remove our new vertical layout
+            if (originalMenuLayout.newVerticalLayout && !originalMenuLayout.newVerticalLayout.is_disposed?.()) {
+                originalMenuLayout.menuBox.remove_child(originalMenuLayout.newVerticalLayout);
+                
+                // Remove children from our containers (check if they exist and aren't disposed)
+                if (originalMenuLayout.notificationContainer && !originalMenuLayout.notificationContainer.is_disposed?.() &&
+                    originalMenuLayout.messageList && !originalMenuLayout.messageList.is_disposed?.()) {
+                    originalMenuLayout.notificationContainer.remove_child(originalMenuLayout.messageList);
+                }
+                
+                if (originalMenuLayout.calendarContainer && !originalMenuLayout.calendarContainer.is_disposed?.() &&
+                    originalMenuLayout.calendarColumn && !originalMenuLayout.calendarColumn.is_disposed?.()) {
+                    originalMenuLayout.calendarContainer.remove_child(originalMenuLayout.calendarColumn);
+                }
+                
+                // Destroy our containers
+                if (!originalMenuLayout.newVerticalLayout.is_disposed?.()) {
+                    originalMenuLayout.newVerticalLayout.destroy();
+                }
+                if (originalMenuLayout.notificationContainer && !originalMenuLayout.notificationContainer.is_disposed?.()) {
+                    originalMenuLayout.notificationContainer.destroy();
+                }
+                if (originalMenuLayout.calendarContainer && !originalMenuLayout.calendarContainer.is_disposed?.()) {
+                    originalMenuLayout.calendarContainer.destroy();
+                }
             }
-            if (index >= 0 && !actor.get_parent()) {
-                const children = parentBox.get_children();
-                const insertIndex = Math.min(index, children.length);
-                parentBox.insert_child_at_index(actor, insertIndex);
+            
+            // Restore children to original horizontal layout (if they still exist)
+            if (originalMenuLayout.originalHbox && !originalMenuLayout.originalHbox.is_disposed?.()) {
+                if (originalMenuLayout.messageList && !originalMenuLayout.messageList.is_disposed?.()) {
+                    originalMenuLayout.originalHbox.add_child(originalMenuLayout.messageList);
+                }
+                if (originalMenuLayout.calendarColumn && !originalMenuLayout.calendarColumn.is_disposed?.()) {
+                    originalMenuLayout.originalHbox.add_child(originalMenuLayout.calendarColumn);
+                }
             }
-        });
-        removedSections = null;
-    }
-
-    // Restore predicate methods
-    if (originalShouldShowNotificationSection) {
-        dateMenu._shouldShowNotificationSection = originalShouldShowNotificationSection;
-        originalShouldShowNotificationSection = null;
-    }
-    if (originalShouldShowMediaSection) {
-        dateMenu._shouldShowMediaSection = originalShouldShowMediaSection;
-        originalShouldShowMediaSection = null;
-    }
-
-    // Restore style
-    if (dateMenu.menu?.box && originalMenuBoxStyle !== undefined) {
-        dateMenu.menu.box.style = originalMenuBoxStyle;
-        originalMenuBoxStyle = undefined;
+            
+            // Restore the original main container to the menu (if it still exists)
+            if (originalMenuLayout.menuBox && !originalMenuLayout.menuBox.is_disposed?.() &&
+                originalMenuLayout.mainContainer && !originalMenuLayout.mainContainer.is_disposed?.()) {
+                originalMenuLayout.menuBox.add_child(originalMenuLayout.mainContainer);
+            }
+        } catch (e) {
+            // Ignore errors during cleanup - objects may already be disposed
+        }
+        
+        originalMenuLayout = null;
     }
 
     // Move back to original parent & position
@@ -352,6 +455,12 @@ export function disable() {
         originalBannerBinProps = null;
     }
 
+    // Clean up monitoring timer if exists
+    if (originalMenuLayout && originalMenuLayout.monitorId) {
+        GLib.source_remove(originalMenuLayout.monitorId);
+        delete originalMenuLayout.monitorId;
+    }
+
     // Clean up notification indicator
     cleanupNotificationIndicator();
 
@@ -384,14 +493,16 @@ function checkForNotifications() {
         return true;
     }
 
-    // Also check if the original notification section would be visible
-    // (this is the state before our calendar module hides it)
-    if (originalShouldShowNotificationSection && 
-        typeof originalShouldShowNotificationSection === 'function') {
+    // Check if there are any visible message groups in the message list
+    if (dateMenu && dateMenu._messageList) {
         try {
-            return originalShouldShowNotificationSection.call(dateMenu);
+            // Check if the message list has any visible content
+            const messageView = dateMenu._messageList._messageView;
+            if (messageView && !messageView.empty) {
+                return true;
+            }
         } catch (e) {
-            // If there's an error, assume no notifications
+            // If there's an error, fall back to other checks
         }
     }
 
