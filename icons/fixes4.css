@@ -4,6 +4,15 @@
 .nautilus-window .nautilus-list-view listview.view > row.activatable > cell > widget#NautilusViewCell {
   padding: 3px 9px;
 }
+/* Nautilus Status Bar Accent Styling */
+/* Floating bar for progress/operation status and selection info */
+.floating-bar,
+.floating-bar.bottom,
+.floating-bar.horizontal,
+.floating-bar.right {
+    background-color: @accent_color;
+    color: white;
+}
 
 /* Filepicker */
 listview.view > row.activatable > cell {

@@ -92,12 +92,22 @@ class WindowControlsIndicator extends PanelMenu.Button {
             if (window) {
                 if (window.is_fullscreen()) {
                     window.unmake_fullscreen();
-                } else if (window.is_maximized && window.is_maximized()) {
-                    // GNOME 49: unmaximize() no longer takes flags, just call with no args
-                    window.unmaximize();
-                } else if (window.maximize) {
-                    // GNOME 49: maximize() no longer takes flags, just call with no args
-                    window.maximize();
+                } else if (window.maximized_horizontally && window.maximized_vertically) {
+                    // Handle both GNOME 48 and 49 - try without args first (GNOME 49), then with flags (GNOME 48)
+                    try {
+                        window.unmaximize();
+                    } catch (e) {
+                        // Fallback for GNOME 48 - unmaximize with flags
+                        window.unmaximize(Meta.MaximizeFlags.BOTH);
+                    }
+                } else {
+                    // Handle both GNOME 48 and 49 - try without args first (GNOME 49), then with flags (GNOME 48)
+                    try {
+                        window.maximize();
+                    } catch (e) {
+                        // Fallback for GNOME 48 - maximize with flags
+                        window.maximize(Meta.MaximizeFlags.BOTH);
+                    }
                 }
             }
         });
