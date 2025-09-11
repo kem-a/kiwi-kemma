@@ -1,7 +1,7 @@
-/*@import 'spacing.css';/**/
+/* Custom GNOME Shell Theme - stylesheet.css */
 
 .window-title {
-  margin-left: 8px;  /* Increased left margin */
+  margin-left: 8px; /* Increased left margin */
   margin-right: 8px;
   font-weight: bold;
   max-width: 150px;
@@ -29,50 +29,48 @@
   margin: 0 4px;
   padding-left: 6px;
 }
-/*
-.panel-button {
-  padding-left: 6px;
-  padding-right: 6px
-}*/
+
 .app-menu-icon {
   padding-left: 0px;
 }
 
 .quick-settings-notifications-container {
   margin-top: 6px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 6px;
   /* Optional: Ensure the container doesn't grow indefinitely */
   max-height: 200px;
   overflow-y: auto;
 }
 
-/* Top Bar */
+/* Top Panel */
 
 #panel {
-font-weight: 500;
-/* Remove transition-duration from here, we'll handle it in overview state */
-box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
-transition-property: background-color;
-transition-timing-function: ease-out;
+  font-weight: 500;
+  /* Remove transition-duration from here, we'll handle it in overview state */
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
+  transition-property: background-color;
+  transition-timing-function: ease-out;
 }
 
 #panel .panel-button.clock-display .clock {
-padding-left: 8px !important;
-padding-right: 8px !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
 }
 
 #panel .panel-button {
--natural-hpadding: 8px; /*default 12*/
--minimum-hpadding: 4px; /*default 12*/
-transition-duration: 150ms;
+  -natural-hpadding: 8px; /*default 12*/
+  -minimum-hpadding: 4px; /*default 12*/
+  transition-duration: 150ms;
 }
 
 #panel Gjs_status_keyboard_InputSourceIndicator.panel-button,
-#panel Gjs_appindicatorsupport_rgcjonas_gmail_com_indicatorStatusIcon_IndicatorStatusIcon.panel-button,
-#panel Gjs_appindicatorsupport_rgcjonas_gmail_com_indicatorStatusIcon_AppIndicatorsIndicatorStatusIcon.panel-button {
--natural-hpadding: 8px !important; /*default 16px*/
--minimum-hpadding: 4px !important; /*default 16px*/
+#panel
+  Gjs_appindicatorsupport_rgcjonas_gmail_com_indicatorStatusIcon_IndicatorStatusIcon.panel-button,
+#panel
+  Gjs_appindicatorsupport_rgcjonas_gmail_com_indicatorStatusIcon_AppIndicatorsIndicatorStatusIcon.panel-button {
+  -natural-hpadding: 8px !important; /*default 16px*/
+  -minimum-hpadding: 4px !important; /*default 16px*/
 }
 
 #panel .panel-button,
@@ -80,7 +78,7 @@ transition-duration: 150ms;
 #panel .panel-button:active,
 #panel .panel-button:focus,
 #panel .panel-button:checked {
-text-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
+  text-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
 }
 
 #panel .panel-button .system-status-icon,
@@ -98,47 +96,47 @@ text-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
 #panel .panel-button:checked .system-status-icon,
 #panel .panel-button:checked .app-menu-icon > StIcon,
 #panel .panel-button:checked .popup-menu-arrow {
-icon-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
+  icon-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
 }
 
 #panel .panel-button StLabel {
-padding: 0;
-margin: 0;
+  padding: 0;
+  margin: 0;
 }
 
 #panel .panel-button .popup-menu-arrow {
-width: 0;
-height: 0;
+  width: 0;
+  height: 0;
 }
 
 #panel .panel-button .system-status-icon {
-icon-size: 16px;
-padding: 4px;
-margin: 0;
+  icon-size: 16px;
+  padding: 4px;
+  margin: 0;
 }
 
 #panel .panel-button .panel-status-menu-box StLabel {
-padding-left: 2px;
+  padding-left: 2px;
 }
 
 #panel .panel-button .appindicator-trayicons-box {
-margin: 0 4px;
+  margin: 0 4px;
 }
 
 #panel .panel-button .app-menu-icon {
--st-icon-style: symbolic;
-padding: 0 4px;
+  -st-icon-style: symbolic;
+  padding: 0 4px;
 }
 
 #panel Gjs_AggregateMenu.panel-button .system-status-icon,
 #panel Gjs_ui_panel_AggregateMenu.panel-button .system-status-icon,
 #panel Gjs_ui_panel_QuickSettings.panel-button .system-status-icon {
-margin: 0 2px !important;
+  margin: 0 2px !important;
 }
 
 #panel Gjs_ui_panel_AppMenuButton.panel-button,
 #panel .desktop-name-label {
-font-weight: bold !important;
+  font-weight: bold !important;
 }
 
 /* Overview mode styles */
@@ -307,51 +305,51 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 
 /* Notification Badge Styling */
 .notification-badge {
-    color: #e74c3c;
-    icon-size: 12px;
-    padding: 0px;
+  color: #e74c3c;
+  icon-size: 12px;
+  padding: 0px;
 }
 
 /* Dash-to-Dock: Reduce spacing and padding for tighter icon layout */
 
 /* Bottom dock - normal mode: reduce margins between icon containers */
 #dashtodockContainer.bottom #dash .dash-item-container {
-    margin: 0 1px !important; /* Reduced from 0 2px */
+  margin: 0 1px !important; /* Reduced from 0 2px */
 }
 
 /* Bottom dock - normal mode: reduce padding around individual icons */
 #dashtodockContainer.bottom #dash .dash-item-container .app-well-app,
 #dashtodockContainer.bottom #dash .dash-item-container .show-apps,
 #dashtodockContainer.bottom #dash .dash-item-container .overview-tile {
-    padding: 1px 1px !important; /* Reduced from 2px 2px */
-    padding-bottom: 12px !important; /* Reduced from 14px */
-    padding-top: 8px !important; /* Reduced from 10px */
+  padding: 1px 1px !important; /* Reduced from 2px 2px */
+  padding-bottom: 12px !important; /* Reduced from 14px */
+  padding-top: 8px !important; /* Reduced from 10px */
 }
 
 /* Bottom dock - shrink mode: even tighter spacing */
 #dashtodockContainer.bottom.shrink #dash .dash-item-container {
-    margin: 0 0px !important; /* Reduced from 0 2px */
+  margin: 0 0px !important; /* Reduced from 0 2px */
 }
 
 #dashtodockContainer.bottom.shrink #dash .dash-item-container .app-well-app,
 #dashtodockContainer.bottom.shrink #dash .dash-item-container .show-apps,
 #dashtodockContainer.bottom.shrink #dash .dash-item-container .overview-tile {
-    padding: 0px 0px !important; /* Reduced from 1px 1px */
-    padding-bottom: 5px !important; /* Reduced from 7px */
-    padding-top: 2px !important; /* Reduced from 3px */
+  padding: 0px 0px !important; /* Reduced from 1px 1px */
+  padding-bottom: 5px !important; /* Reduced from 7px */
+  padding-top: 2px !important; /* Reduced from 3px */
 }
 
 /* Reduce overall dash container padding */
 #dashtodockContainer.bottom #dash #dashtodockDashContainer {
-    padding-left: 4px !important;
-    padding-right: 4px !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 #dashtodockContainer.bottom.shrink #dash #dashtodockDashContainer {
-    padding-left: 2px !important;
-    padding-right: 2px !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }

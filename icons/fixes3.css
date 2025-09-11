@@ -12,35 +12,58 @@ headerbar box.horizontal.left {
 
 /* Geary fixes*/
 
-.geary-main-layout treeview.sidebar
-{
-	padding: 4px;
+.geary-main-layout treeview.sidebar {
+  padding: 4px;
 }
 .geary-main-layout.vertical .titlebar.windowhandle {
- background: transparent;
-	border: none
+  background: transparent;
+  border: none;
 }
 
-components-conversation-actions button.image-button, button.thin-button {
-    background-image: none;
-	border: none;
-    background: transparent;
-}S
-
-button.image-button:hover, button.thin-button:hover, box.horizontal.linked.raised > button:hover {
-    background-color: alpha(currentColor, 0.15);
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
+components-conversation-actions button.image-button,
+button.thin-button {
+  background-image: none;
+  border: none;
+  background: transparent;
 }
-button.image-button:active, button.thin-button:active, box.horizontal.linked.raised > button:active {
-    background-color: alpha(currentColor, 0.2);
-	border: none;
+S button.image-button:hover,
+button.thin-button:hover,
+box.horizontal.linked.raised > button:hover {
+  background-color: alpha(currentColor, 0.15);
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+button.image-button:active,
+button.thin-button:active,
+box.horizontal.linked.raised > button:active {
+  background-color: alpha(currentColor, 0.2);
+  border: none;
 }
 
 box.horizontal.linked.raised > button {
-    background-image: none;
-	border: none;
-    background: transparent;
+  background-image: none;
+  border: none;
+  background: transparent;
+}
+
+/* Popover and Menu accent color fix to use system accent color */
+/* Focus state removed since can't unfocus it on hover in GTK3. Issue double selection*/
+popover.menu > contents > .menu-item:selected,
+popover.menu contents > .menu-item:selected,
+popover.menu modelbutton:selected,
+.menu > .menu-item:selected,
+.context-menu > .menu-item:selected,
+menuitem:selected,
+.menuitem:selected,
+popover.menu > contents > .menu-item:hover,
+popover.menu contents > .menu-item:hover,
+popover.menu modelbutton:hover,
+.menu > .menu-item:hover,
+.context-menu > .menu-item:hover,
+menuitem:hover,
+.menuitem:hover {
+  background-color: @accent_bg_color;
+  color: @accent_fg_color;
 }

@@ -39,60 +39,102 @@ windowcontrols button.minimize:backdrop {
 
 /* Close Button */
 windowcontrols button.close {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close.png"), url("titlebuttons-alt/button-close@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-close.png"),
+    url("titlebuttons-alt/button-close@2.png")
+  );
 }
 windowcontrols button.close:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-backdrop.png"), url("titlebuttons-alt/button-close-backdrop@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-close-backdrop.png"),
+    url("titlebuttons-alt/button-close-backdrop@2.png")
+  );
 }
 windowcontrols button.close:hover,
 windowcontrols:hover button.close,
 windowcontrols:hover button.close:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-hover.png"), url("titlebuttons-alt/button-close-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-close-hover.png"),
+    url("titlebuttons-alt/button-close-hover@2.png")
+  );
 }
 windowcontrols button.close:backdrop:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-hover.png"), url("titlebuttons-alt/button-close-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-close-hover.png"),
+    url("titlebuttons-alt/button-close-hover@2.png")
+  );
 }
 
 /* Minimize Button */
 windowcontrols button.minimize {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize.png"), url("titlebuttons-alt/button-minimize@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-minimize.png"),
+    url("titlebuttons-alt/button-minimize@2.png")
+  );
 }
 windowcontrols button.minimize:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-backdrop.png"), url("titlebuttons-alt/button-minimize-backdrop@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-minimize-backdrop.png"),
+    url("titlebuttons-alt/button-minimize-backdrop@2.png")
+  );
 }
 windowcontrols button.minimize:hover,
 windowcontrols:hover button.minimize,
 windowcontrols:hover button.minimize:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-hover.png"), url("titlebuttons-alt/button-minimize-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-minimize-hover.png"),
+    url("titlebuttons-alt/button-minimize-hover@2.png")
+  );
 }
 windowcontrols button.minimize:backdrop:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-hover.png"), url("titlebuttons-alt/button-minimize-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-minimize-hover.png"),
+    url("titlebuttons-alt/button-minimize-hover@2.png")
+  );
 }
 
 /* Maximize Button (unmaximized state) */
 windowcontrols button.maximize {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize.png"), url("titlebuttons-alt/button-maximize@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-maximize.png"),
+    url("titlebuttons-alt/button-maximize@2.png")
+  );
 }
 windowcontrols button.maximize:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-backdrop.png"), url("titlebuttons-alt/button-maximize-backdrop@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-maximize-backdrop.png"),
+    url("titlebuttons-alt/button-maximize-backdrop@2.png")
+  );
 }
 windowcontrols button.maximize:hover,
 windowcontrols:hover button.maximize,
 windowcontrols:hover button.maximize:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-hover.png"), url("titlebuttons-alt/button-maximize-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-maximize-hover.png"),
+    url("titlebuttons-alt/button-maximize-hover@2.png")
+  );
 }
 windowcontrols button.maximize:backdrop:hover {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-hover.png"), url("titlebuttons-alt/button-maximize-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-maximize-hover.png"),
+    url("titlebuttons-alt/button-maximize-hover@2.png")
+  );
 }
 
 /* When maximized or fullscreen, the Maximize button becomes Restore */
 .fullscreen windowcontrols button.maximize,
 .maximized windowcontrols button.maximize {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore.png"), url("titlebuttons-alt/button-restore@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-restore.png"),
+    url("titlebuttons-alt/button-restore@2.png")
+  );
 }
 .fullscreen windowcontrols button.maximize:backdrop,
 .maximized windowcontrols button.maximize:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-backdrop.png"), url("titlebuttons-alt/button-restore-backdrop@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-restore-backdrop.png"),
+    url("titlebuttons-alt/button-restore-backdrop@2.png")
+  );
 }
 .fullscreen windowcontrols button.maximize:hover,
 .maximized windowcontrols button.maximize:hover,
@@ -100,22 +142,37 @@ windowcontrols button.maximize:backdrop:hover {
 .maximized windowcontrols:hover button.maximize,
 .fullscreen windowcontrols:hover button.maximize:backdrop,
 .maximized windowcontrols:hover button.maximize:backdrop {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-hover.png"), url("titlebuttons-alt/button-restore-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-restore-hover.png"),
+    url("titlebuttons-alt/button-restore-hover@2.png")
+  );
 }
 
 /* Mac-like: show all 3 when hovering the group */
 windowcontrols:hover button.close {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-hover.png"), url("titlebuttons-alt/button-close-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-close-hover.png"),
+    url("titlebuttons-alt/button-close-hover@2.png")
+  );
 }
 windowcontrols:hover button.minimize {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-hover.png"), url("titlebuttons-alt/button-minimize-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-minimize-hover.png"),
+    url("titlebuttons-alt/button-minimize-hover@2.png")
+  );
 }
 windowcontrols:hover button.maximize {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-hover.png"), url("titlebuttons-alt/button-maximize-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-maximize-hover.png"),
+    url("titlebuttons-alt/button-maximize-hover@2.png")
+  );
 }
 .fullscreen windowcontrols:hover button.maximize,
 .maximized windowcontrols:hover button.maximize {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-hover.png"), url("titlebuttons-alt/button-restore-hover@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-restore-hover.png"),
+    url("titlebuttons-alt/button-restore-hover@2.png")
+  );
 }
 
 /* --- ACTIVE STATES --- */
@@ -124,19 +181,28 @@ windowcontrols:hover button.maximize {
 /* Close active (including when the container is hovered) */
 windowcontrols button.close:active,
 windowcontrols:hover button.close:active {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-close-active.png"), url("titlebuttons-alt/button-close-active@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-close-active.png"),
+    url("titlebuttons-alt/button-close-active@2.png")
+  );
 }
 
 /* Minimize active */
 windowcontrols button.minimize:active,
 windowcontrols:hover button.minimize:active {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-minimize-active.png"), url("titlebuttons-alt/button-minimize-active@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-minimize-active.png"),
+    url("titlebuttons-alt/button-minimize-active@2.png")
+  );
 }
 
 /* Maximize active (unmaximized) */
 windowcontrols button.maximize:active,
 windowcontrols:hover button.maximize:active {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-maximize-active.png"), url("titlebuttons-alt/button-maximize-active@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-maximize-active.png"),
+    url("titlebuttons-alt/button-maximize-active@2.png")
+  );
 }
 
 /* Restore active (window maximized/fullscreen) */
@@ -144,7 +210,10 @@ windowcontrols:hover button.maximize:active {
 .maximized windowcontrols button.maximize:active,
 .fullscreen windowcontrols:hover button.maximize:active,
 .maximized windowcontrols:hover button.maximize:active {
-  background-image: -gtk-scaled(url("titlebuttons-alt/button-restore-active.png"), url("titlebuttons-alt/button-restore-active@2.png"));
+  background-image: -gtk-scaled(
+    url("titlebuttons-alt/button-restore-active.png"),
+    url("titlebuttons-alt/button-restore-active@2.png")
+  );
 }
 
 /* optional: fine tuning for layout */
@@ -152,4 +221,3 @@ headerbar .title {
   margin-left: 6px;
   margin-right: 6px;
 }
-

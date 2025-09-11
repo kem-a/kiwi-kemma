@@ -1,22 +1,18 @@
 /*(((((((((( Other fixes  ))))))))))))*/
 
 /* Nautilus list view fix to reduce padding */
-.nautilus-window .nautilus-list-view listview.view > row.activatable > cell > widget#NautilusViewCell {
+.nautilus-window
+  .nautilus-list-view
+  listview.view
+  > row.activatable
+  > cell
+  > widget#NautilusViewCell {
   padding: 3px 9px;
-}
-/* Nautilus Status Bar Accent Styling */
-/* Floating bar for progress/operation status and selection info */
-.floating-bar,
-.floating-bar.bottom,
-.floating-bar.horizontal,
-.floating-bar.right {
-    background-color: @accent_color;
-    color: white;
 }
 
 /* Filepicker */
 listview.view > row.activatable > cell {
-	padding: 0px 9px;
+  padding: 0px 9px;
 }
 
 /* GTK4 Window Controls Fix */
@@ -44,7 +40,45 @@ headerbar windowcontrols button > image {
 }
 
 /* Remove checkered alpha channel drawing around thumbnails and icons. Creates more cleaner look */
-.thumbnail, .icon .thumbnail, .grid-view .thumbnail {
+.thumbnail,
+.icon .thumbnail,
+.grid-view .thumbnail {
   background: none;
   box-shadow: none;
+}
+
+/* Adding accent color to Floating bar */
+.floating-bar,
+.floating-bar.bottom,
+.floating-bar.horizontal,
+.floating-bar.right {
+  background-color: @accent_bg_color;
+  color: @accent_fg_color;
+}
+
+/* Popover and Menu accent color fix to use system accent color */
+/* Issue double selection with focus and hover*/
+popover.menu > contents > .menu-item:hover,
+popover.menu contents > .menu-item:hover,
+popover.menu modelbutton:hover,
+.menu > .menu-item:hover,
+.context-menu > .menu-item:hover,
+menuitem:hover,
+.menuitem:hover,
+popover.menu > contents > .menu-item:selected,
+popover.menu contents > .menu-item:selected,
+popover.menu modelbutton:selected,
+.menu > .menu-item:selected,
+.context-menu > .menu-item:selected,
+menuitem:selected,
+.menuitem:selected,
+popover.menu > contents > .menu-item:focus,
+popover.menu contents > .menu-item:focus,
+popover.menu modelbutton:focus,
+.menu > .menu-item:focus,
+.context-menu > .menu-item:focus,
+menuitem:focus,
+.menuitem:focus {
+  background-color: @accent_bg_color;
+  color: @accent_fg_color;
 }
