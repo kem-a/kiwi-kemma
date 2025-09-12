@@ -329,7 +329,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             halign: Gtk.Align.START,
         });
         githubBox.append(new Gtk.Image({
-            file: `${this.path}/icons/github-symbolic.svg`,
+            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/github-symbolic.svg`) }),
             icon_size: Gtk.IconSize.NORMAL,
         }));
         const websiteLink = new Gtk.LinkButton({
@@ -346,7 +346,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             halign: Gtk.Align.START,
         });
         bugBox.append(new Gtk.Image({
-            file: `${this.path}/icons/bug-symbolic.svg`,
+            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/bug-symbolic.svg`) }),
             icon_size: Gtk.IconSize.NORMAL,
         }));
         const bugLink = new Gtk.LinkButton({
@@ -363,7 +363,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             halign: Gtk.Align.START,
         });
         licenseBox.append(new Gtk.Image({
-            file: `${this.path}/icons/text-symbolic.svg`,
+            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/text-symbolic.svg`) }),
             icon_size: Gtk.IconSize.NORMAL,
         }));
         const licenseLink = new Gtk.LinkButton({
@@ -412,7 +412,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
 
         coffeeBox.append(new Gtk.Image({
-            file: `${this.path}/icons/coffee-icon-symbolic.svg`,
+            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/coffee-icon-symbolic.svg`) }),
             icon_size: Gtk.IconSize.NORMAL,
         }));
 
