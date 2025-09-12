@@ -1,4 +1,4 @@
-# Kiwi Extras - Native Titlebuttons Hover Module
+# Kiwi Advanced - Native Titlebuttons Hover Module
 
 ## Why This Module Is Not Included
 
@@ -20,7 +20,7 @@ The `titlebuttons_hover` module provides a macOS-like hover effect for window ti
 Use the pre-compiled module included in this folder:
 
 ```bash
-git clone https://github.com/kem-a/kiwi-kemma && cd kiwi-kemma/extras
+git clone https://github.com/kem-a/kiwi-kemma && cd kiwi-kemma/advanced
 ./install-extra.sh
 ```
 
@@ -32,7 +32,7 @@ If you prefer to compile from source or the pre-compiled version doesn't work:
 
 1. **Compile the module**:
    ```bash
-   git clone https://github.com/kem-a/kiwi-kemma && cd kiwi-kemma/extras
+   git clone https://github.com/kem-a/kiwi-kemma && cd kiwi-kemma/advanced
    ./compile-extra.sh
    ```
 

@@ -7,7 +7,7 @@
         <description>Enable or disable moving windows to new workspaces.</description>
       </key>
       <key name="add-username-to-quick-menu" type="b">
-        <default>true</default>
+        <default>false</default>
         <summary>Add Username to Quick Menu</summary>
         <description>Enable or disable adding the username to the quick menu.</description>
       </key>
@@ -17,7 +17,7 @@
         <description>Enable or disable focusing launched windows.</description>
       </key>
       <key name="lock-icon" type="b">
-        <default>true</default>
+        <default>false</default>
         <summary>Lock Icon</summary>
         <description>Enable or disable the lock icon.</description>
       </key>
@@ -64,7 +64,7 @@
         <description>Display the current window title in the top panel.</description>
       </key>
       <key name="show-window-controls" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Show Window Controls on Panel</summary>
         <description>Display window control buttons in the top panel when window is maximized.</description>
       </key>
@@ -79,7 +79,7 @@
         <description>Show the top panel when hovering near the top edge in fullscreen mode.</description>
       </key>
       <key name="panel-transparency" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Enable Panel Transparency</summary>
         <description>Make the top panel transparent.</description>
       </key>
@@ -90,12 +90,12 @@
         <description>Set the transparency level of the panel (0-100).</description>
       </key>
       <key name="panel-opaque-on-window" type="b">
-        <default>true</default>
+        <default>false</default>
         <summary>Panel Opaque on Window Touch</summary>
         <description>Make panel opaque when a window touches it.</description>
       </key>
       <key name="hide-minimized-windows" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Hide minimized windows</summary>
         <description>Hide minimized windows in the overview.</description>
       </key>
@@ -110,7 +110,7 @@
         <description>Hide the Activities button in the top panel.</description>
       </key>
       <key name="overview-wallpaper-background" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Overview Wallpaper Background</summary>
         <description>Use the current desktop wallpaper as a blurred background in the overview.</description>
       </key>

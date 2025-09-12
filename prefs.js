@@ -18,8 +18,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         // Settings Page (added after About page to change order)
         const settingsPage = new Adw.PreferencesPage({
-            title: 'Settings',
-            icon_name: 'preferences-system-symbolic',
+            title: 'Options',
+            icon_name: 'preferences-other-symbolic',
         });
 
         const group = new Adw.PreferencesGroup({
@@ -79,9 +79,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const switchList = [
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
-            { key: 'add-username-to-quick-menu', title: _("Add Username"), subtitle: _("Add username to the quick menu") },
             { key: 'focus-launched-window', title: _("Focus Launched Window"), subtitle: _("Focus the window when launched") },
-            { key: 'lock-icon', title: _("Caps Lock and Num Lock"), subtitle: _("Show Caps Lock and Num Lock icon") },
             { key: 'transparent-move', title: _("Transparent Move"), subtitle: _("Move window with transparency") },
             { key: 'battery-percentage', title: _("Battery Percentage"), subtitle: _("Show battery percentage in the top bar when below 25%") },
             { key: 'move-calendar-right', title: _("Move Calendar to Right"), subtitle: _("Move calendar to right side and hide notifications") },
@@ -89,7 +87,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'panel-hover-fullscreen', title: _("Show Panel on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen") },
             { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Background"), subtitle: _("Use blurred current wallpaper as overview background (requires ImageMagick)") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
-            { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
         ];
 
         switchList.forEach((item) => {
@@ -181,14 +178,43 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         window.add(extrasPage);
 
-        // Extras Page Content
         const extrasGroup = new Adw.PreferencesGroup({
-            title: _('Optional Native Modules'),
-            description: _('Enhanced features that require manual installation due to GNOME Extensions platform limitations'),
+            title: _('Extra Features'),
+            description: _('Additional customization options and utilities'),
         });
         extrasPage.add(extrasGroup);
 
-        const extrasInfoBox = new Gtk.Box({
+        const extrasSwitchList = [
+            { key: 'add-username-to-quick-menu', title: _("Add Username"), subtitle: _("Add username to the quick menu") },
+            { key: 'lock-icon', title: _("Caps Lock and Num Lock"), subtitle: _("Show Caps Lock and Num Lock icon") },
+            { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
+        ];
+
+        extrasSwitchList.forEach((item) => {
+            const switchRow = new Adw.SwitchRow({
+                title: item.title,
+                subtitle: item.subtitle,
+                active: settings.get_boolean(item.key),
+            });
+            extrasGroup.add(switchRow);
+            window._settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        });
+
+        // Advanced Page
+        const advancedPage = new Adw.PreferencesPage({
+            title: 'Advanced',
+            icon_name: 'applications-utilities-symbolic',
+        });
+        window.add(advancedPage);
+
+        // Advanced Page Content
+        const advancedGroup = new Adw.PreferencesGroup({
+            title: _('Optional Native Modules'),
+            description: _('Enhanced features that require manual installation due to GNOME Extensions platform limitations'),
+        });
+        advancedPage.add(advancedGroup);
+
+        const advancedInfoBox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 15,
             margin_top: 15,
@@ -215,7 +241,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             halign: Gtk.Align.START,
         }));
 
-        extrasInfoBox.append(warningHeaderBox);
+        advancedInfoBox.append(warningHeaderBox);
 
         // Explanation text
         const explanationLabel = new Gtk.Label({
@@ -224,7 +250,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             halign: Gtk.Align.START,
             xalign: 0,
         });
-        extrasInfoBox.append(explanationLabel);
+        advancedInfoBox.append(explanationLabel);
 
         // Installation instructions
         const installLabel = new Gtk.Label({
@@ -234,7 +260,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             halign: Gtk.Align.START,
             xalign: 0,
         });
-        extrasInfoBox.append(installLabel);
+        advancedInfoBox.append(installLabel);
 
         // GitHub link button
         const githubLinkBox = new Gtk.Box({
@@ -245,7 +271,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const githubButton = new Gtk.LinkButton({
             label: 'View Installation Guide on GitHub',
-            uri: 'https://github.com/kem-a/kiwi-kemma/tree/main/extras',
+            uri: 'https://github.com/kem-a/kiwi-kemma/tree/main/advanced',
         });
         githubButton.add_css_class('suggested-action');
 
@@ -255,9 +281,9 @@ export default class KiwiPreferences extends ExtensionPreferences {
         }));
         githubLinkBox.append(githubButton);
 
-        extrasInfoBox.append(githubLinkBox);
+        advancedInfoBox.append(githubLinkBox);
 
-        extrasGroup.add(extrasInfoBox);
+        advancedGroup.add(advancedInfoBox);
 
         const aboutGroup = new Adw.PreferencesGroup();
         const aboutBox = new Gtk.Box({
