@@ -67,13 +67,13 @@ You can install the extension from the GNOME Extensions website:
 
 4. Enable the extension using GNOME Tweaks or Extensions app.
 
-## Optional Extras
+## Advanced
 
-The `extras/` folder contains additional features that cannot be distributed through the GNOME Extensions platform due to security policies:
+The `advanced/` folder contains additional features that cannot be distributed through the GNOME Extensions platform due to security policies:
 
 - **Titlebuttons Hover Effect**: Provides macOS-like hover effects for window controls
 - Requires manual compilation and installation
-- See [extras/README.md](extras/README.md) for detailed installation instructions
+- See [advanced/README.md](advanced/README.md) for detailed installation instructions
 
 ### Building
 
