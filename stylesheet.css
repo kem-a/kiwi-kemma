@@ -277,28 +277,8 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   font-weight: bold;
 }
 
-/* Hide window decorations for maximized windows */
-.maximized headerbar.titlebar,
-.fullscreen headerbar.titlebar {
-  height: 0;
-  margin: 0;
-  padding: 0;
-  opacity: 0;
-  border: none;
-}
-
-.maximized .titlebar-button,
-.fullscreen .titlebar-button {
-  height: 0;
-  margin: 0;
-  padding: 0;
-  opacity: 0;
-  border: none;
-}
-
 /* Ensure content fills the space */
-.maximized .window-content,
-.fullscreen .window-content {
+.maximized .window-content {
   margin-top: 0;
   border-radius: 0;
 }

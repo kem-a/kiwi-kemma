@@ -45,6 +45,10 @@ flatpak override --user --filesystem=xdg-config/gtk-3.0:ro
 flatpak override --user --filesystem=xdg-config/gtk-4.0:ro
 ```
 
+## Known Issues
+
+- GTK4 apps in fullscreen: the top panel works but may be buggy and can conflict with the app’s own headerbar reveal logic.
+
 ## Installation
 
 You can install the extension from the GNOME Extensions website:

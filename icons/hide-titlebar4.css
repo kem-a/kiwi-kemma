@@ -1,19 +1,13 @@
-/* Hide titlebar and buttons when maximized or fullscreen */
+/* Hide GTK4 app titlebar and buttons when maximized */
 
-/* Completely hide the titlebar when maximized or fullscreen */
+/* Completely hide the titlebar when maximized and in fullscreen*/
 .maximized .titlebar,
 .fullscreen .titlebar {
-  opacity: 0;
   margin-top: -100px;
-  min-height: 0;
-  min-width: 0;
 }
 
-/* Hide only the window control buttons inside headerbar when maximized or fullscreen */
+/* Completely hide window controls when maximized and in fullscreen*/
 .maximized headerbar windowcontrols,
 .fullscreen headerbar windowcontrols {
-  min-width: 0;
-  min-height: 0;
-  opacity: 0;
   margin-left: -100px;
 }
