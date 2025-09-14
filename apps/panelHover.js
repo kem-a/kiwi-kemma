@@ -9,7 +9,8 @@ import Meta from 'gi://Meta';
 const ANIM_IN_MS = 300;
 const ANIM_OUT_MS = 300;
 const TRIGGER_EDGE_PX = 1; // pixels from top edge. Set it to 1px (default: 16) to reveal GTK4 app built in
-// fullscreen headerbar reveal like gnome text editor. Feels bugged so... 
+// fullscreen headerbar like gnome text editor. Feels bugged so... 
+// There is a hacky workaround to draw a tiny popup menu to force top panel stay visible (line 190+)
 const HIDE_DELAY_MS = 300; // delay before hiding after leaving/closing
 
 let fullscreenWindows = new Set();
@@ -24,9 +25,6 @@ let _enabled = false;
 let _hideTimeoutId = null;
 let _panelRevealed = false;
 let _animating = false;
-let _panelMenuOpen = false;
-let _menuOpenSignalId = null;
-let _menuOpenSignalIdAlt = null;
 let _panelBoxEnterId = null;
 let _panelBoxLeaveId = null;
 let _panelBoxButtonReleaseId = null;
@@ -34,6 +32,7 @@ let _stageButtonReleaseId = null;
 let _periodCheckId = null;
 let _recomputeIdleId = null;
 let _ghostMenu = null;
+let _originalTrackFullscreen = null;
 
 function _debug(msg) {
     try { log(`[PanelHover] ${msg}`); } catch (_) {}
@@ -235,6 +234,11 @@ function _setPanelAutoHide(enable) {
         const record = tracked.find(a => a && a.actor === panelBox);
         if (!record || typeof record.trackFullscreen !== 'boolean') return;
 
+        // Store original value on first use
+        if (_originalTrackFullscreen === null) {
+            _originalTrackFullscreen = record.trackFullscreen;
+        }
+
         if (enable) {
             // Enable auto-hide: let GNOME Shell hide panel in fullscreen
             record.trackFullscreen = true;
@@ -409,12 +413,7 @@ function _recomputeFullscreenState() {
                 // In fullscreen, enable auto-hide and show hover area
                 _panelRevealed = false;
                 _animating = false;
-                if (_panelMenuOpen) {
-                    // Keep visible while a panel menu is open
-                    _setPanelAutoHide(false);
-                } else {
-                    _setPanelAutoHide(true);
-                }
+                _setPanelAutoHide(true);
                 if (hotCorner) hotCorner.show();
             } else {
                 // Normal mode, panel always visible
@@ -451,6 +450,7 @@ function _onOverviewHidden() {
 export function enable() {
     disable(); // Clean reset
     _enabled = true;
+    _originalTrackFullscreen = null; // Reset for fresh start
     
     try {
         hotCorner = _createHoverArea();
@@ -478,34 +478,8 @@ export function enable() {
     try { workspaceChangedHandler = global.workspace_manager.connect('active-workspace-changed', _onWorkspaceChanged); } catch (e) { _debug(`workspace change connect failed: ${e}`); }
     try { overviewShowingHandler = Main.overview.connect('showing', _onOverviewShowing); } catch (e) { _debug(`overview showing connect failed: ${e}`); }
     try { overviewHiddenHandler = Main.overview.connect('hidden', _onOverviewHidden); } catch (e) { _debug(`overview hidden connect failed: ${e}`); }
-    // Track panel menu open/close so we can keep panel while open and hide after closing
-    try {
-        const mgr = Main.panel?.menuManager;
-        if (mgr) {
-            const handler = (_mgr, isOpen) => {
-                _panelMenuOpen = !!isOpen;
-                if (_panelMenuOpen) {
-                    _cancelHideTimeout();
-                    _showPanelAnimated();
-                } else if (activeWorkspaceHasFullscreen) {
-                    // Force hide after menus close, even if pointer still over panel
-                    _scheduleHideAfterDelay(true);
-                }
-            };
-            try {
-                _menuOpenSignalId = mgr.connect('menu-open-state-changed', handler);
-            } catch (e1) {
-                _debug(`menuManager primary signal failed: ${e1}`);
-                try {
-                    _menuOpenSignalIdAlt = mgr.connect('open-state-changed', handler);
-                } catch (e2) {
-                    _debug(`menuManager alt signal failed: ${e2}`);
-                }
-            }
-        }
-    } catch (e) { _debug(`menuManager hook failed: ${e}`); }
 
-    // Hide when leaving panel area in fullscreen (after menus close)
+    // Hide when leaving panel area in fullscreen
     try {
         const panelBox = _getPanelBox();
         if (panelBox) {
@@ -513,12 +487,12 @@ export function enable() {
                 _cancelHideTimeout();
             });
             _panelBoxLeaveId = panelBox.connect('leave-event', () => {
-                if (activeWorkspaceHasFullscreen && !_panelMenuOpen)
+                if (activeWorkspaceHasFullscreen)
                     _scheduleHideAfterDelay();
             });
             // If a panel button was clicked but doesn't open a menu, hide after release
             _panelBoxButtonReleaseId = panelBox.connect('button-release-event', () => {
-                if (activeWorkspaceHasFullscreen && !_panelMenuOpen)
+                if (activeWorkspaceHasFullscreen)
                     _scheduleHideAfterDelay(true);
             });
         }
@@ -600,16 +574,6 @@ export function disable() {
         try { Main.overview.disconnect(overviewHiddenHandler); } catch (_) {}
         overviewHiddenHandler = null;
     }
-    if (Main.panel?.menuManager) {
-        if (_menuOpenSignalId) {
-            try { Main.panel.menuManager.disconnect(_menuOpenSignalId); } catch (_) {}
-            _menuOpenSignalId = null;
-        }
-        if (_menuOpenSignalIdAlt) {
-            try { Main.panel.menuManager.disconnect(_menuOpenSignalIdAlt); } catch (_) {}
-            _menuOpenSignalIdAlt = null;
-        }
-    }
     // Disconnect panel box signals
     try {
         const panelBox = _getPanelBox();
@@ -639,8 +603,38 @@ export function disable() {
     activeWorkspaceHasFullscreen = false;
     _panelRevealed = false;
     _animating = false;
-    _panelMenuOpen = false;
 
-    // Restore default panel behavior
-    _setPanelAutoHide(false);
+    // Restore panel to its original state - this must be done BEFORE setting _enabled to false
+    // but we already set it to false above, so we need to do manual restoration
+    try {
+        const panelBox = _getPanelBox();
+        if (panelBox) {
+            // Cancel any ongoing animations
+            _cancelPanelTransitions();
+            
+            // Reset panel position immediately
+            panelBox.translation_y = 0;
+            panelBox.visible = true;
+            
+            // Restore trackFullscreen property to its original value
+            const lm = Main.layoutManager;
+            if (lm) {
+                const tracked = lm._trackedActors;
+                if (Array.isArray(tracked)) {
+                    const record = tracked.find(a => a && a.actor === panelBox);
+                    if (record && typeof record.trackFullscreen === 'boolean') {
+                        // Restore original value, or default to true if not stored
+                        record.trackFullscreen = _originalTrackFullscreen !== null ? _originalTrackFullscreen : true;
+                    }
+                }
+                // Trigger visibility update
+                lm._updateVisibility?.();
+            }
+        }
+    } catch (e) {
+        _debug(`Panel restoration failed: ${e}`);
+    }
+
+    // Reset stored values
+    _originalTrackFullscreen = null;
 }
