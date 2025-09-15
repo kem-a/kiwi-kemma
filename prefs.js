@@ -86,6 +86,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'show-window-title', title: _("Show Window Title"), subtitle: _("Display current window title in the top panel") },
             { key: 'panel-hover-fullscreen', title: _("Show Panel on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
             { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Background"), subtitle: _("Use blurred current wallpaper as overview background (requires ImageMagick)") },
+            { key: 'skip-overview-on-login', title: _("Skip Overview on Login"), subtitle: _("Do not show the overview when logging in; go directly to the desktop") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
         ];
 
@@ -334,7 +335,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         aboutBox.append(titleBox);
 
         aboutBox.append(new Gtk.Label({
-            label: 'Version: v0.9.2-beta',
+            label: 'Version: v0.9.3-beta',
             halign: Gtk.Align.START,
         }));
 

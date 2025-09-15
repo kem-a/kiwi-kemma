@@ -14,6 +14,7 @@ import { enable as hideMinimizedWindowsEnable, disable as hideMinimizedWindowsDi
 import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } from './apps/gtkThemeManager.js';
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
+import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -112,6 +113,12 @@ export default class KiwiExtension extends Extension {
         } else {
             overviewWallpaperDisable();
         }
+
+        if (this._settings.get_boolean('skip-overview-on-login')) {
+            skipOverviewEnable();
+        } else {
+            skipOverviewDisable();
+        }
     }
 
     enable() {
@@ -146,6 +153,7 @@ export default class KiwiExtension extends Extension {
         hideMinimizedWindowsDisable();
     hideActivitiesButtonDisable();
     overviewWallpaperDisable();
+    skipOverviewDisable();
         gtkThemeManagerDisable();
         this._settings = null;
     }

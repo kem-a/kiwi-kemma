@@ -17,6 +17,7 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Show Panel on Hover**: Show panel when mouse is near top edge in fullscreen
 - **Hide Minimized Windows**: Hide minimized windows in the overview
 - **Hide Activities Button**: Hide the Activities button in the top panel
+- **Skip Overview on Login**: Do not show the overview when logging into GNOME; go directly to the desktop.
 - **Set Panel Transparnecy**: Make the top panel transparent or opaque when window touches it
 - **Window Control Button Style**: Set macOS window control button styles. Move to top panel for maximized windows and remove window titlebars for maximum space.
 
