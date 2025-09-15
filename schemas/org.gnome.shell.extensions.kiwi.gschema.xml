@@ -115,9 +115,9 @@
         <description>Use the current desktop wallpaper as a blurred background in the overview.</description>
       </key>
       <key name="skip-overview-on-login" type="b">
-        <default>true</default>
+        <default>false</default>
         <summary>Skip Overview on Login</summary>
-        <description>Do not show the overview when logging into GNOME; go directly to the desktop.</description>
+        <description>Do not show the overview when logging into GNOME. Still shows animation.</description>
       </key>
     </schema>
 </schemalist>
