@@ -15,6 +15,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const settings = this.getSettings();
         window._settings = settings;
         window.title = 'Kiwi is not Apple';
+        //window.set_default_size(750, 600);
 
         //
         // About Page (First Page)
@@ -70,8 +71,15 @@ export default class KiwiPreferences extends ExtensionPreferences {
             valign: Gtk.Align.CENTER,
         });
         titleBox.append(titleLabel);
-
         aboutBox.append(titleBox);
+
+        const description = this.metadata['description'] ?? _('No description available');
+        aboutBox.append(new Gtk.Label({
+            label: description,
+            halign: Gtk.Align.START,
+            wrap: true,
+            xalign: 0,
+        }));
 
         const versionName = this.metadata['version-name'] ?? (this.metadata.version ? `v${this.metadata.version}` : _('Unknown'));
         aboutBox.append(new Gtk.Label({
@@ -80,14 +88,30 @@ export default class KiwiPreferences extends ExtensionPreferences {
         }));
 
         aboutBox.append(new Gtk.Label({
-            label: 'Kiwi is not Apple, but it is a collection of macOS-like features for GNOME',
-            halign: Gtk.Align.START,
-        }));
-
-        aboutBox.append(new Gtk.Label({
             label: 'Authors: Arnis Kemlers (kem-a)',
             halign: Gtk.Align.START,
         }));
+
+        // Add spacer after authors section
+        aboutBox.append(new Gtk.Label({
+            label: '',
+            margin_top: 20,
+        }));
+
+        // Create a horizontal container for links and QR section
+        const linksAndQrContainer = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 40,
+            halign: Gtk.Align.FILL,
+            hexpand: true,
+        });
+
+        // Create container for links
+        const linksContainer = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 10,
+            halign: Gtk.Align.START,
+        });
 
         // Create GitHub link with icon and text
         const githubBox = new Gtk.Box({
@@ -104,7 +128,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             uri: 'https://github.com/kem-a/kiwi-kemma',
         });
         githubBox.append(websiteLink);
-        aboutBox.append(githubBox);
+        linksContainer.append(githubBox);
 
         // Create bug report link with icon and text
         const bugBox = new Gtk.Box({
@@ -121,7 +145,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             uri: 'https://github.com/kem-a/kiwi-kemma/issues',
         });
         bugBox.append(bugLink);
-        aboutBox.append(bugBox);
+        linksContainer.append(bugBox);
 
         // Create license link with icon and text
         const licenseBox = new Gtk.Box({
@@ -138,12 +162,17 @@ export default class KiwiPreferences extends ExtensionPreferences {
             uri: 'https://github.com/kem-a/kiwi-kemma?tab=MIT-1-ov-file#readme',
         });
         licenseBox.append(licenseLink);
-        licenseBox.append(licenseLink);
-        aboutBox.append(licenseBox);
+        linksContainer.append(licenseBox);
 
-        // Create a container for the main content and coffee button
+        // Add links container to the horizontal layout
+        linksAndQrContainer.append(linksContainer);
+
+        // Add the links and QR container to the main aboutBox
+        aboutBox.append(linksAndQrContainer);
+
+        // Create a horizontal container for main content and QR section
         const aboutMainContainer = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
+            orientation: Gtk.Orientation.HORIZONTAL,
             spacing: 20,
             margin_top: 10,
             margin_bottom: 10,
@@ -151,19 +180,24 @@ export default class KiwiPreferences extends ExtensionPreferences {
             margin_end: 10,
         });
 
-        // Add the main about content
-        aboutMainContainer.append(aboutBox);
+        // Create a vertical container for the main about content
+        const aboutContentContainer = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 10,
+            hexpand: true,
+        });
+        aboutContentContainer.append(aboutBox);
 
-        // Add a flexible spacer to push the donation section up from the bottom
-        aboutMainContainer.append(new Gtk.Box({ hexpand: true, vexpand: true }));
+        // Add the main about content
+        aboutMainContainer.append(aboutContentContainer);
 
         // Create support section with QR code above coffee button
         const supportSection = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 10,
             halign: Gtk.Align.END,
-            margin_bottom: 10,
-            margin_end: 10,
+            valign: Gtk.Align.START,
+            hexpand: true,
         });
 
         // Add QR code image
@@ -221,7 +255,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
 
         supportSection.append(coffeeButton);
-        aboutMainContainer.append(supportSection);
+        linksAndQrContainer.append(supportSection);
 
         aboutGroup.add(aboutMainContainer);
         aboutPage.add(aboutGroup);
