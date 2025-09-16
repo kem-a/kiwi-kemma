@@ -15,6 +15,7 @@ import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } fr
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
+import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNotificationsDisable } from './apps/quickSettingsNotifications.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -66,10 +67,12 @@ export default class KiwiExtension extends Extension {
             batteryPercentageDisable();
         }
 
-        if (this._settings.get_boolean('move-calendar-right')) {
+         if (this._settings.get_boolean('move-calendar-right')) {
             calendarEnable();
+            quickSettingsNotificationsEnable();
         } else {
             calendarDisable();
+            quickSettingsNotificationsDisable();
         }
 
         if (this._settings.get_boolean('show-window-title')) {
