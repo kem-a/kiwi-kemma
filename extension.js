@@ -16,6 +16,7 @@ import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDi
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
 import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNotificationsDisable } from './apps/quickSettingsNotifications.js';
+import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -23,6 +24,16 @@ export default class KiwiExtension extends Extension {
     }
 
     _on_settings_changed(key) {
+        // Re-apply keyboard indicator module on any of its keys changing
+        if (key === 'keyboard-indicator' || key === 'hide-keyboard-indicator') {
+            if (this._settings.get_boolean('keyboard-indicator')) {
+                keyboardIndicatorDisable();
+                keyboardIndicatorEnable(this._settings);
+            } else {
+                keyboardIndicatorDisable();
+            }
+        }
+
         if (key === 'button-type' && this._settings.get_boolean('show-window-controls')) {
             windowControlsDisable();
             windowControlsEnable();
@@ -122,6 +133,12 @@ export default class KiwiExtension extends Extension {
         } else {
             skipOverviewDisable();
         }
+
+        // Keyboard indicator module (idempotent apply on general refresh)
+        if (this._settings.get_boolean('keyboard-indicator'))
+            keyboardIndicatorEnable(this._settings);
+        else
+            keyboardIndicatorDisable();
     }
 
     enable() {
@@ -157,6 +174,7 @@ export default class KiwiExtension extends Extension {
     hideActivitiesButtonDisable();
     overviewWallpaperDisable();
     skipOverviewDisable();
+    keyboardIndicatorDisable();
         gtkThemeManagerDisable();
         this._settings = null;
     }

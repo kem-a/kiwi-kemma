@@ -119,5 +119,17 @@
         <summary>Skip Overview on Login</summary>
         <description>Do not show the overview when logging into GNOME. Still shows animation.</description>
       </key>
+      
+      <!-- Keyboard indicator controls -->
+      <key name="keyboard-indicator" type="b">
+        <default>false</default>
+        <summary>Keyboard Indicator Options</summary>
+        <description>Enable additional options for the panel keyboard/input source indicator.</description>
+      </key>
+      <key name="hide-keyboard-indicator" type="b">
+        <default>false</default>
+        <summary>Hide Keyboard Indicator</summary>
+        <description>Completely hide the keyboard/input source indicator from the panel.</description>
+      </key>
     </schema>
 </schemalist>

@@ -442,6 +442,40 @@ export default class KiwiPreferences extends ExtensionPreferences {
             window._settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
         });
 
+        // Keyboard indicator feature with sub-options
+        const kbExpander = new Adw.ExpanderRow({
+            title: _("Keyboard Indicator"),
+            subtitle: _("Extra options for the panel keyboard/input source indicator"),
+            expanded: settings.get_boolean('keyboard-indicator'),
+            show_enable_switch: true,
+            enable_expansion: settings.get_boolean('keyboard-indicator'),
+        });
+
+        // We need individual child rows for toggles
+        const hideRow = new Adw.SwitchRow({
+            title: _("Hide keyboard indicator"),
+            subtitle: _("Completely hide the indicator from the panel"),
+            active: settings.get_boolean('hide-keyboard-indicator'),
+            sensitive: settings.get_boolean('keyboard-indicator'),
+        });
+        kbExpander.add_row(hideRow);
+        extrasGroup.add(kbExpander);
+
+        // Bindings
+        // Keep expander expansion in sync
+        settings.bind('keyboard-indicator', kbExpander, 'expanded', Gio.SettingsBindFlags.GET);
+        // Reflect settings to the enable switch and write back on change
+        kbExpander.enable_expansion = settings.get_boolean('keyboard-indicator');
+        kbExpander.connect('notify::enable-expansion', () => {
+            const enabled = kbExpander.enable_expansion;
+            if (settings.get_boolean('keyboard-indicator') !== enabled)
+                settings.set_boolean('keyboard-indicator', enabled);
+        });
+
+        // Sub-options
+    settings.bind('hide-keyboard-indicator', hideRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+    settings.bind('keyboard-indicator', hideRow, 'sensitive', Gio.SettingsBindFlags.GET);
+
         //
         // Advanced Page
         //

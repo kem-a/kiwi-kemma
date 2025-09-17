@@ -432,3 +432,24 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
     padding: 0;
     margin: 0;
 }
+
+/* Add border around keyboard status indicator */
+/* Keyboard/Input source indicator theming (applies only when module adds .kiwi-input-themed) */
+.kiwi-input-themed {
+  border: 1px solid -st-accent-color;
+  border-radius: 6px;
+  padding: 6px;
+  margin: 6px;
+  box-sizing: border-box;
+}
+
+/* When EN is mapped to A, fill background for emphasis */
+.kiwi-input-en {
+  background-color: alpha(-st-accent-color, 0.2);
+}
+
+/* Slightly smaller text for the indicator when themed */
+.kiwi-input-themed StLabel {
+  font-size: 0.80em;
+  font-weight: 600;
+}
