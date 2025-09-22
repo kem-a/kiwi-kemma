@@ -12,6 +12,7 @@ import { enable as panelHoverEnable, disable as panelHoverDisable } from './apps
 import { enable as panelTransparencyEnable, disable as panelTransparencyDisable } from './apps/panelTransparency.js';
 import { enable as hideMinimizedWindowsEnable, disable as hideMinimizedWindowsDisable } from './apps/hideMinimizedWindows.js';
 import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } from './apps/gtkThemeManager.js';
+import { enable as firefoxThemeManagerEnable, disable as firefoxThemeManagerDisable } from './apps/firefoxThemeManager.js';
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
@@ -147,10 +148,12 @@ export default class KiwiExtension extends Extension {
         
         // Enable GTK theme manager
         gtkThemeManagerEnable();
+        // Enable Firefox theme manager
+        firefoxThemeManagerEnable();
         
         this._on_settings_changed(null);
-    // Generate wallpaper background if enabled
-    overviewWallpaperRefresh();
+        // Generate wallpaper background if enabled
+        overviewWallpaperRefresh();
     }
 
     disable() {
@@ -158,7 +161,6 @@ export default class KiwiExtension extends Extension {
             this._settings.disconnect(this._settingsChangedId);
             this._settingsChangedId = null;
         }
-
         moveFullscreenDisable();
         addUsernameDisable();
         focusLaunchedWindowDisable();
@@ -171,11 +173,12 @@ export default class KiwiExtension extends Extension {
         panelHoverDisable();
         panelTransparencyDisable();
         hideMinimizedWindowsDisable();
-    hideActivitiesButtonDisable();
-    overviewWallpaperDisable();
-    skipOverviewDisable();
-    keyboardIndicatorDisable();
+        hideActivitiesButtonDisable();
+        overviewWallpaperDisable();
+        skipOverviewDisable();
+        keyboardIndicatorDisable();
         gtkThemeManagerDisable();
+        firefoxThemeManagerDisable();
         this._settings = null;
     }
 }

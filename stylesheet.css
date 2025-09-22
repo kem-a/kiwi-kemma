@@ -1,5 +1,9 @@
 /* Custom GNOME Shell Theme - stylesheet.css */
 
+
+/*###############################################*/
+/*           Window Title Styling               */
+/*###############################################*/
 .window-title {
   margin-left: 8px; /* Increased left margin */
   margin-right: 8px;
@@ -34,17 +38,12 @@
   padding-left: 0px;
 }
 
-.quick-settings-notifications-container {
-  margin-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 6px;
-  /* Optional: Ensure the container doesn't grow indefinitely */
-  max-height: 200px;
-  overflow-y: auto;
-}
 
-/* Top Panel */
+/*###############################################*/
+/*                Top Panel                      */
+/*###############################################*/
 
+/* Panel base styles */
 #panel {
   font-weight: 500;
   /* Remove transition-duration from here, we'll handle it in overview state */
@@ -53,24 +52,28 @@
   transition-timing-function: ease-out;
 }
 
-#panel .panel-button.clock-display .clock {
+#panel .panel-button.clock-display .clock-display-box {
+  padding-right: 8px !important;
+  padding-left: 0 !important;
+}
+
+#panel .clock-display-box {
+  /*margin: 0 8px;*/
+  margin-left: 8px !important;
+  margin-right: 8px !important;
+}
+
+#panel .clock-display-box {
   padding-left: 8px !important;
   padding-right: 8px !important;
+  margin-left: 8px !important;
+  margin-right: 8px !important;
 }
 
 #panel .panel-button {
   -natural-hpadding: 8px; /*default 12*/
   -minimum-hpadding: 4px; /*default 12*/
   transition-duration: 150ms;
-}
-
-#panel Gjs_status_keyboard_InputSourceIndicator.panel-button,
-#panel
-  Gjs_appindicatorsupport_rgcjonas_gmail_com_indicatorStatusIcon_IndicatorStatusIcon.panel-button,
-#panel
-  Gjs_appindicatorsupport_rgcjonas_gmail_com_indicatorStatusIcon_AppIndicatorsIndicatorStatusIcon.panel-button {
-  -natural-hpadding: 8px !important; /*default 16px*/
-  -minimum-hpadding: 4px !important; /*default 16px*/
 }
 
 #panel .panel-button,
@@ -100,8 +103,8 @@
 }
 
 #panel .panel-button StLabel {
-  padding: 0;
-  margin: 0;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 #panel .panel-button .popup-menu-arrow {
@@ -170,81 +173,17 @@
   font-weight: normal !important;
 }
 
-/* Window Control Buttons - Complete Override */
-#panel .window-controls.panel-button {
-  -natural-hpadding: 0;
-  -minimum-hpadding: 0;
-  background: transparent;
-}
 
-#panel .window-controls.panel-button:hover,
-#panel .window-controls.panel-button:active,
-#panel .window-controls.panel-button:overview,
-#panel .window-controls.panel-button:focus,
-#panel .window-controls.panel-button:checked {
-  background: transparent !important;
-}
-
+/*################################################*/
+/*          Window Control Buttons Box           */
+/*################################################*/
 .window-controls-box {
   spacing: 11px;
   margin: 0;
   padding: 0;
 }
 
-.window-control-button {
-  padding: 0;
-  margin: 0;
-  background: transparent;
-}
-
-.window-control-button:hover {
-  background: transparent;
-}
-
-/* Remove all remaining styles */
-#panel .window-controls * {
-  box-shadow: none !important;
-  text-shadow: none !important;
-  icon-shadow: none !important;
-  -st-icon-style: none;
-}
-
-/* Remove hover effect from container */
-.window-controls.panel-button:hover {
-  background-color: transparent !important;
-}
-
-/* Keep hover effect only on individual buttons */
-.window-control-button:hover {
-  background-color: none !important;
-  box-shadow: none;
-}
-
-/* Remove any hover effects and shadows */
-.window-control-button,
-.window-control-button:hover,
-.window-control-button:active,
-.window-control-button:focus {
-  box-shadow: none;
-  text-shadow: none;
-}
-
-.window-control-button StIcon,
-.window-control-button:hover StIcon,
-.window-control-button:active StIcon,
-.window-control-button:focus StIcon {
-  icon-shadow: none;
-}
-
-/* Remove any previous button-specific styles */
-.window-control-button.minimize,
-.window-control-button.maximize,
-.window-control-button.close {
-  background-image: none;
-}
-
-/* Fix for window controls container hover effect */
-Gjs_apps_windowControls_WindowControlsIndicator.panel-button,
+/* Remove background on window controls container hover */
 Gjs_apps_windowControls_WindowControlsIndicator.panel-button:hover,
 Gjs_apps_windowControls_WindowControlsIndicator.panel-button:active,
 Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
@@ -253,7 +192,11 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   box-shadow: none !important;
 }
 
-/* Popup menu accent styling - use GNOME system accent color */
+
+/*###############################################*/
+/*          Popup Menu Accent Styling           */
+/*###############################################*/
+
 .popup-menu .popup-menu-item {
   padding-top: 6px;
   padding-bottom: 6px;
@@ -283,14 +226,21 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   border-radius: 0;
 }
 
-/* Notification Badge Styling */
+
+/*###############################################*/
+/*          Notification Badge Styling         */
+/*###############################################*/
+
 .notification-badge {
-  color: #e74c3c;
+  color: rgb(231, 76, 60);
   icon-size: 12px;
   padding: 0px;
 }
 
-/* Dash-to-Dock: Reduce spacing and padding for tighter icon layout */
+
+/*###############################################*/
+/*          Dash-to-Dock Styling                */
+/*###############################################*/
 
 /* Bottom dock - normal mode: reduce margins between icon containers */
 #dashtodockContainer.bottom #dash .dash-item-container {
@@ -338,6 +288,15 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 /*###############################################*/
 /* Quick Settings Notifications and Media Styles */
 /*###############################################*/
+
+.quick-settings-notifications-container {
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px;
+  /* Optional: Ensure the container doesn't grow indefinitely */
+  max-height: 200px;
+  overflow-y: auto;
+}
 
 .kiwi-media,
 .kiwi-notifications {
@@ -433,8 +392,11 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
     margin: 0;
 }
 
-/* Add border around keyboard status indicator */
-/* Keyboard/Input source indicator theming (applies only when module adds .kiwi-input-themed) */
+
+/*###############################################*/
+/*       Keyboard Status Indicator Styling      */
+/*###############################################*/
+
 .kiwi-input-themed {
   border: 1px solid -st-accent-color;
   border-radius: 6px;
