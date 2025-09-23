@@ -40,7 +40,7 @@ export default class KiwiExtension extends Extension {
             windowControlsEnable();
         }
 
-        // GTK theme updates are handled by gtkThemeManager module
+    // GTK theme updates are handled by gtkThemeManager module
         // No need to handle 'enable-app-window-buttons' or 'button-type' here for GTK updates
 
         if (this._settings.get_boolean('move-window-to-new-workspace')) {
@@ -135,6 +135,12 @@ export default class KiwiExtension extends Extension {
             skipOverviewDisable();
         }
 
+        // Firefox styling manager
+        if (this._settings.get_boolean('enable-firefox-styling'))
+            firefoxThemeManagerEnable();
+        else
+            firefoxThemeManagerDisable();
+
         // Keyboard indicator module (idempotent apply on general refresh)
         if (this._settings.get_boolean('keyboard-indicator'))
             keyboardIndicatorEnable(this._settings);
@@ -148,8 +154,9 @@ export default class KiwiExtension extends Extension {
         
         // Enable GTK theme manager
         gtkThemeManagerEnable();
-        // Enable Firefox theme manager
-        firefoxThemeManagerEnable();
+        // Enable Firefox theme manager based on setting
+        if (this._settings.get_boolean('enable-firefox-styling'))
+            firefoxThemeManagerEnable();
         
         this._on_settings_changed(null);
         // Generate wallpaper background if enabled

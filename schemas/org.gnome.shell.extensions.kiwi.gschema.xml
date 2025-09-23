@@ -123,13 +123,20 @@
       <!-- Keyboard indicator controls -->
       <key name="keyboard-indicator" type="b">
         <default>false</default>
-        <summary>Keyboard Indicator Options</summary>
+        <summary>Keyboard Indicator Styling</summary>
         <description>Enable additional options for the panel keyboard/input source indicator.</description>
       </key>
       <key name="hide-keyboard-indicator" type="b">
         <default>false</default>
         <summary>Hide Keyboard Indicator</summary>
         <description>Completely hide the keyboard/input source indicator from the panel.</description>
+      </key>
+
+      <!-- Firefox integration -->
+      <key name="enable-firefox-styling" type="b">
+        <default>false</default>
+        <summary>Enable Firefox Styling</summary>
+        <description>Manage Firefox userChrome.css to apply Kiwi window controls styling and hide Firefox window buttons when panel controls are shown.</description>
       </key>
     </schema>
 </schemalist>
