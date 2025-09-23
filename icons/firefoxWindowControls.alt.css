@@ -4,16 +4,21 @@
 /* Ensure the button box aligns items centrally like other toolbar icons */
 #nav-bar .titlebar-buttonbox-container,
 #titlebar .titlebar-buttonbox-container,
+#TabsToolbar .titlebar-buttonbox-container,
 #nav-bar .titlebar-buttonbox,
-#titlebar .titlebar-buttonbox {
+#titlebar .titlebar-buttonbox,
+#TabsToolbar .titlebar-buttonbox {
 	display: flex !important;
 	align-items: center !important;
 	gap: 11px !important;
+    padding-left: 8px;
 }
 
-/* Add a small left margin to the outer container only for nav-bar layout */
-#nav-bar .titlebar-buttonbox-container {
-	margin-left: 19px !important;
+#nav-bar .titlebar-spacer {
+  width: 6px !important;
+}
+#nav-bar {
+  padding-left: 4px !important;
 }
 
 /* When tabs are in the titlebar (horizontal tabs), prefer the copy inside the TabsToolbar */
