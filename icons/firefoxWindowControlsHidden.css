@@ -1,0 +1,24 @@
+/* Firefox Hide Window Controls when Maximized (Kiwi) */
+@namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+:root[sizemode="maximized"] #nav-bar .titlebar-buttonbox-container .titlebar-buttonbox,
+:root[sizemode="maximized"] #TabsToolbar .titlebar-buttonbox-container .titlebar-buttonbox,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox-container .titlebar-buttonbox {
+  display: none !important;
+}
+:root[sizemode="maximized"] #TabsToolbar .toolbar-items {
+  padding: 0 10px !important;
+}
+
+:root[sizemode="maximized"] #nav-bar .titlebar-buttonbox-container,
+:root[sizemode="maximized"] #TabsToolbar .titlebar-buttonbox-container {
+  padding-left: 0px !important;
+}
+
+:root[sizemode="maximized"] #TabsToolbar .titlebar-spacer {
+  width: 0px !important;
+}
+
+:root[sizemode="maximized"] #nav-bar .titlebar-spacer {
+  width: 0px !important;
+}

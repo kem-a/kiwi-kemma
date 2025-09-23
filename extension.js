@@ -12,9 +12,13 @@ import { enable as panelHoverEnable, disable as panelHoverDisable } from './apps
 import { enable as panelTransparencyEnable, disable as panelTransparencyDisable } from './apps/panelTransparency.js';
 import { enable as hideMinimizedWindowsEnable, disable as hideMinimizedWindowsDisable } from './apps/hideMinimizedWindows.js';
 import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } from './apps/gtkThemeManager.js';
+import { enable as firefoxThemeManagerEnable, disable as firefoxThemeManagerDisable } from './apps/firefoxThemeManager.js';
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
+// near-future feature
+//import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNotificationsDisable } from './apps/quickSettingsNotifications.js';
+import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -22,6 +26,16 @@ export default class KiwiExtension extends Extension {
     }
 
     _on_settings_changed(key) {
+        // Re-apply keyboard indicator module on any of its keys changing
+        if (key === 'keyboard-indicator' || key === 'hide-keyboard-indicator') {
+            if (this._settings.get_boolean('keyboard-indicator')) {
+                keyboardIndicatorDisable();
+                keyboardIndicatorEnable(this._settings);
+            } else {
+                keyboardIndicatorDisable();
+            }
+        }
+
         if (key === 'button-type' && this._settings.get_boolean('show-window-controls')) {
             windowControlsDisable();
             windowControlsEnable();
@@ -66,10 +80,12 @@ export default class KiwiExtension extends Extension {
             batteryPercentageDisable();
         }
 
-        if (this._settings.get_boolean('move-calendar-right')) {
+         if (this._settings.get_boolean('move-calendar-right')) {
             calendarEnable();
+            //quickSettingsNotificationsEnable();
         } else {
             calendarDisable();
+            //quickSettingsNotificationsDisable();
         }
 
         if (this._settings.get_boolean('show-window-title')) {
@@ -119,6 +135,18 @@ export default class KiwiExtension extends Extension {
         } else {
             skipOverviewDisable();
         }
+
+        // Firefox styling manager
+        if (this._settings.get_boolean('enable-firefox-styling'))
+            firefoxThemeManagerEnable();
+        else
+            firefoxThemeManagerDisable();
+
+        // Keyboard indicator module (idempotent apply on general refresh)
+        if (this._settings.get_boolean('keyboard-indicator'))
+            keyboardIndicatorEnable(this._settings);
+        else
+            keyboardIndicatorDisable();
     }
 
     enable() {
@@ -127,10 +155,13 @@ export default class KiwiExtension extends Extension {
         
         // Enable GTK theme manager
         gtkThemeManagerEnable();
+        // Enable Firefox theme manager based on setting
+        if (this._settings.get_boolean('enable-firefox-styling'))
+            firefoxThemeManagerEnable();
         
         this._on_settings_changed(null);
-    // Generate wallpaper background if enabled
-    overviewWallpaperRefresh();
+        // Generate wallpaper background if enabled
+        overviewWallpaperRefresh();
     }
 
     disable() {
@@ -138,7 +169,6 @@ export default class KiwiExtension extends Extension {
             this._settings.disconnect(this._settingsChangedId);
             this._settingsChangedId = null;
         }
-
         moveFullscreenDisable();
         addUsernameDisable();
         focusLaunchedWindowDisable();
@@ -151,10 +181,12 @@ export default class KiwiExtension extends Extension {
         panelHoverDisable();
         panelTransparencyDisable();
         hideMinimizedWindowsDisable();
-    hideActivitiesButtonDisable();
-    overviewWallpaperDisable();
-    skipOverviewDisable();
+        hideActivitiesButtonDisable();
+        overviewWallpaperDisable();
+        skipOverviewDisable();
+        keyboardIndicatorDisable();
         gtkThemeManagerDisable();
+        firefoxThemeManagerDisable();
         this._settings = null;
     }
 }

@@ -270,7 +270,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const group = new Adw.PreferencesGroup({
             title: _('Kiwi'),
-            description: _('Kiwi is not Apple is a collection of macOS-like features for GNOME'),
+            description: _('Kiwi is not Apple but it tries to mimic macOS-like features for GNOME'),
         });
         settingsPage.add(group);
 
@@ -355,32 +355,48 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const buttonTypeGroup = new Adw.PreferencesGroup({
             title: _('Window Control Button Style'),
-            description: _('Select the style of window control buttons. You need to log out for the effect to apply to all apps.'),
+            description: _('Choose the window control button style. Log out to apply it across all apps.'),
         });
         settingsPage.add(buttonTypeGroup);
 
-        // Add primary enable application window buttons switch (first option)
-        const appWindowButtonsSwitch = new Adw.SwitchRow({
-            title: _("Enable Application Window Buttons"),
+        // Main toggle as an expander with sub-options
+        const buttonsExpander = new Adw.ExpanderRow({
+            title: _("Enable macOS Window Buttons"),
             subtitle: _("Show window control buttons in application windows"),
-            active: settings.get_boolean('enable-app-window-buttons'),
+            expanded: settings.get_boolean('enable-app-window-buttons'),
+            show_enable_switch: true,
+            enable_expansion: settings.get_boolean('enable-app-window-buttons'),
         });
-        buttonTypeGroup.add(appWindowButtonsSwitch);
-        settings.bind('enable-app-window-buttons', appWindowButtonsSwitch, 'active',
-            Gio.SettingsBindFlags.DEFAULT);
+        buttonTypeGroup.add(buttonsExpander);
+        // Keep expander in sync with setting
+        settings.bind('enable-app-window-buttons', buttonsExpander, 'expanded', Gio.SettingsBindFlags.GET);
+        buttonsExpander.enable_expansion = settings.get_boolean('enable-app-window-buttons');
+        buttonsExpander.connect('notify::enable-expansion', () => {
+            const enabled = buttonsExpander.enable_expansion;
+            if (settings.get_boolean('enable-app-window-buttons') !== enabled)
+                settings.set_boolean('enable-app-window-buttons', enabled);
+        });
 
         // Add merged window controls switch for panel
         const windowControlsPanelSwitch = new Adw.SwitchRow({
             title: _("Show Window Controls on Panel"),
             subtitle: _("Display window control buttons in the top panel when window is maximized"),
             active: settings.get_boolean('show-window-controls'),
-            sensitive: settings.get_boolean('enable-app-window-buttons'),
         });
-        buttonTypeGroup.add(windowControlsPanelSwitch);
+        buttonsExpander.add_row(windowControlsPanelSwitch);
         settings.bind('show-window-controls', windowControlsPanelSwitch, 'active', 
             Gio.SettingsBindFlags.DEFAULT);
-        settings.bind('enable-app-window-buttons', windowControlsPanelSwitch, 'sensitive',
-            Gio.SettingsBindFlags.GET);
+        // No need to manage visibility; expander controls reveal
+
+        // Firefox styling switch (moved here from Extras)
+        const firefoxStylingSwitch = new Adw.SwitchRow({
+            title: _("Firefox Styling"),
+            subtitle: _("Apply macOS window control styling for Firefox"),
+            active: settings.get_boolean('enable-firefox-styling'),
+        });
+        buttonsExpander.add_row(firefoxStylingSwitch);
+        settings.bind('enable-firefox-styling', firefoxStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
+        // No need to manage visibility; expander controls reveal
 
         const buttonTypeModel = new Gtk.StringList();
         buttonTypeModel.append('titlebuttons');
@@ -395,16 +411,25 @@ export default class KiwiPreferences extends ExtensionPreferences {
             subtitle: _('Choose the button icon set'),
             model: buttonTypeModel,
             selected: selectedIndex,
-            sensitive: settings.get_boolean('enable-app-window-buttons'),
+            // Nested under expander; visibility controlled by expander state
         });
-        buttonTypeGroup.add(buttonTypeCombo);
+        buttonsExpander.add_row(buttonTypeCombo);
 
-        // Bind combo sensitivity to primary app buttons switch
-        settings.bind('enable-app-window-buttons', buttonTypeCombo, 'sensitive',
-            Gio.SettingsBindFlags.GET);
+        // No need to bind visibility; expander controls reveal
 
         buttonTypeCombo.connect('notify::selected', (combo) => {
             settings.set_string('button-type', combo.selected_item.get_string());
+        });
+
+        // When the main switch is turned off, also turn off sub-toggles to avoid complications
+        settings.connect('changed::enable-app-window-buttons', () => {
+            const enabled = settings.get_boolean('enable-app-window-buttons');
+            if (!enabled) {
+                if (settings.get_boolean('show-window-controls'))
+                    settings.set_boolean('show-window-controls', false);
+                if (settings.get_boolean('enable-firefox-styling'))
+                    settings.set_boolean('enable-firefox-styling', false);
+            }
         });
 
         // Add Options page
@@ -429,7 +454,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'add-username-to-quick-menu', title: _("Add Username"), subtitle: _("Add username to the quick menu") },
             { key: 'lock-icon', title: _("Caps Lock and Num Lock"), subtitle: _("Show Caps Lock and Num Lock icon") },
             { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
-            { key: 'skip-overview-on-login', title: _("Skip Overview on Login"), subtitle: _("Do not show the overview when logging in. Still visible animation") },
+            { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
         ];
 
         extrasSwitchList.forEach((item) => {
@@ -441,6 +466,40 @@ export default class KiwiPreferences extends ExtensionPreferences {
             extrasGroup.add(switchRow);
             window._settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
         });
+
+        // Keyboard indicator feature with sub-options
+        const kbExpander = new Adw.ExpanderRow({
+            title: _("Style Keyboard Indicator"),
+            subtitle: _("Slightly style keyboard/input source indicator by converting to uppercase and adding border"),
+            expanded: settings.get_boolean('keyboard-indicator'),
+            show_enable_switch: true,
+            enable_expansion: settings.get_boolean('keyboard-indicator'),
+        });
+
+        // We need individual child rows for toggles
+        const hideRow = new Adw.SwitchRow({
+            title: _("Hide keyboard indicator"),
+            subtitle: _("Completely hide the indicator from the panel"),
+            active: settings.get_boolean('hide-keyboard-indicator'),
+            sensitive: settings.get_boolean('keyboard-indicator'),
+        });
+        kbExpander.add_row(hideRow);
+        extrasGroup.add(kbExpander);
+
+        // Bindings
+        // Keep expander expansion in sync
+        settings.bind('keyboard-indicator', kbExpander, 'expanded', Gio.SettingsBindFlags.GET);
+        // Reflect settings to the enable switch and write back on change
+        kbExpander.enable_expansion = settings.get_boolean('keyboard-indicator');
+        kbExpander.connect('notify::enable-expansion', () => {
+            const enabled = kbExpander.enable_expansion;
+            if (settings.get_boolean('keyboard-indicator') !== enabled)
+                settings.set_boolean('keyboard-indicator', enabled);
+        });
+
+        // Sub-options
+        settings.bind('hide-keyboard-indicator', hideRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('keyboard-indicator', hideRow, 'sensitive', Gio.SettingsBindFlags.GET);
 
         //
         // Advanced Page
@@ -557,7 +616,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Recommended Extensions Section
         const recommendationsGroup = new Adw.PreferencesGroup({
             title: _('Recommended Extensions'),
-            description: _('Extensions that work great with Kiwi is not Apple'),
+            description: _('Extensions that work great with Kiwi'),
         });
         creditsPage.add(recommendationsGroup);
 
