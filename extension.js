@@ -17,6 +17,7 @@ import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDi
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
 import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNotificationsDisable } from './apps/quickSettingsNotifications.js';
+import { enable as quickSettingsMediaEnable, disable as quickSettingsMediaDisable } from './apps/quickSettingsMedia.js';
 import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
 
 export default class KiwiExtension extends Extension {
@@ -82,9 +83,11 @@ export default class KiwiExtension extends Extension {
          if (this._settings.get_boolean('move-calendar-right')) {
             calendarEnable();
             quickSettingsNotificationsEnable();
+            quickSettingsMediaEnable();
         } else {
             calendarDisable();
             quickSettingsNotificationsDisable();
+            quickSettingsMediaDisable();
         }
 
         if (this._settings.get_boolean('show-window-title')) {
@@ -186,6 +189,7 @@ export default class KiwiExtension extends Extension {
         keyboardIndicatorDisable();
         gtkThemeManagerDisable();
         firefoxThemeManagerDisable();
+        quickSettingsMediaDisable();
         this._settings = null;
     }
 }
