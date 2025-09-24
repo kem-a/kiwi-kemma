@@ -14,7 +14,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         window._settings = settings;
-        window.title = 'Kiwi is not Apple';
+        window.title = 'Kiwi is not like Apple';
         //window.set_default_size(750, 600);
 
         //
@@ -270,7 +270,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const group = new Adw.PreferencesGroup({
             title: _('Kiwi'),
-            description: _('Kiwi is not Apple but it tries to mimic macOS-like features for GNOME'),
+            description: _("Kiwi is not like Apple, it's free, open source and it brings macOS-like feel for GNOME"),
         });
         settingsPage.add(group);
 
