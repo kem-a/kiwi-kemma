@@ -86,3 +86,6 @@ To build the extension, compile the GSettings schema:
 ```sh
 glib-compile-schemas schemas/
 ```
+
+## License
+GPL-3.0-or-later. See [LICENSE](./LICENSE).
