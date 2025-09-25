@@ -74,12 +74,6 @@ export default class KiwiExtension extends Extension {
             addUsernameDisable();
         }
 
-        if (this._settings.get_boolean('focus-launched-window')) {
-            focusLaunchedWindowEnable();
-        } else {
-            focusLaunchedWindowDisable();
-        }
-
         if (this._settings.get_boolean('lock-icon')) {
             lockIconEnable();
         } else {
@@ -176,6 +170,8 @@ export default class KiwiExtension extends Extension {
         // Enable Firefox theme manager based on setting
         if (this._settings.get_boolean('enable-firefox-styling'))
             firefoxThemeManagerEnable();
+
+        focusLaunchedWindowEnable();
         
         this._on_settings_changed(null);
         // Generate wallpaper background if enabled
