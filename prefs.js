@@ -73,7 +73,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
         titleBox.append(titleLabel);
         aboutBox.append(titleBox);
 
-        const description = this.metadata['description'] ?? _('No description available');
+        // Add description label from metadata and limit to first line
+        const rawDescription = this.metadata['description'] ?? _('No description available');
+        const idx = rawDescription.indexOf('\n');
+        const description = (idx !== -1 ? rawDescription.slice(0, idx) : rawDescription).trim();
         aboutBox.append(new Gtk.Label({
             label: description,
             halign: Gtk.Align.START,
