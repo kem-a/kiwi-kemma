@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // addUsernameToQuickMenu.js
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';

@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # Check if rsvg-convert is available
 if ! command -v rsvg-convert &> /dev/null; then

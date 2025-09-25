@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // keyboardIndicator.js - Simple control for panel keyboard/input source indicator
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';

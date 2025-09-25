@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // windowControls.js - Adds window controls to the top panel
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // gtkThemeManager.js - Manages GTK CSS imports based on settings
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';

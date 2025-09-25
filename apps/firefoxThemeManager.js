@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // firefoxThemeManager.js - Manages Firefox userChrome.css based on settings
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
