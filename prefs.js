@@ -33,7 +33,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const settings = this.getSettings();
         window._settings = settings;
         window.title = 'Kiwi is not Apple';
-        //window.set_default_size(750, 600);
+        window.set_size_request(-1, 600);
 
         //
         // About Page (First Page)
