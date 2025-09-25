@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Generates GTK CSS imports for window controls and titlebar tweaks based on settings.
 
-// gtkThemeManager.js - Manages GTK CSS imports based on settings
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';

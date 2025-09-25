@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Shows the logged-in user's name in the quick settings indicators.
 
-// addUsernameToQuickMenu.js
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Adds Caps Lock and Num Lock indicators to the top panel.
 
-// lockIcon.js
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';

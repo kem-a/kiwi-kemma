@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Makes windows semi-transparent while being moved or resized for visual feedback.
 
-// transparentMove.js
 import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
 

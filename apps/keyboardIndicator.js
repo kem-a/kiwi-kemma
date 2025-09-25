@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Adjusts the top-panel keyboard indicator to match user preferences.
 
-// keyboardIndicator.js - Simple control for panel keyboard/input source indicator
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Keyboard from 'resource:///org/gnome/shell/ui/status/keyboard.js';

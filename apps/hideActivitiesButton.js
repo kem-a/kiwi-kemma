@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Hides the Activities button in the top panel while the feature is enabled.
 
-// hideActivitiesButton.js - Hide the Activities button in the top panel
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 let _activitiesButton = null;

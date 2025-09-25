@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Dynamically adjusts top panel transparency based on window and overview state.
 
-// panelTransparency.js - Panel Transparency Extension
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import GLib from 'gi://GLib';
 import St from 'gi://St';

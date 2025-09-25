@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Adds macOS-style window control buttons to the GNOME top panel.
 
-// windowControls.js - Adds window controls to the top panel
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
