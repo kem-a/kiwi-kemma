@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // moveFullscreenWindow.js
 // NOTE: Previous implementation stored raw Meta.Workspace objects on windows and
 // removed "empty" workspaces immediately on fullscreen exit. Under certain

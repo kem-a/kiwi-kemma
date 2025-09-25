@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // transparentMove.js
 import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';

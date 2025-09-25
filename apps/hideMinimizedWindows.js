@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import { Workspace } from 'resource:///org/gnome/shell/ui/workspace.js';
 import {
     GroupCyclerPopup,

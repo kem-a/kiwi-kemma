@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // windowTitle.js - Display the title of the focused window in the top panel
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
