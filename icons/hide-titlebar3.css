@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
 /* Hide GTK3 window control buttons (and left box) when maximized or fullscreen */
 
 .maximized headerbar .titlebutton,
