@@ -126,7 +126,7 @@ export function enable() {
         const quickSettings = Main.panel.statusArea.quickSettings;
         if (quickSettings && quickSettings.menu) {
             _monitor = Main.layoutManager.primaryMonitor;
-            _originalMaxHeight = quickSettings.menu.actor.get_style('max-height');
+            _originalMaxHeight = quickSettings.menu.actor.get_style();
             const newHeight = _monitor.height * 0.9;
             quickSettings.menu.actor.set_style(`max-height: ${newHeight}px;`);
         }
@@ -147,7 +147,7 @@ export function disable() {
 
     const quickSettings = Main.panel.statusArea.quickSettings;
     if (quickSettings && quickSettings.menu && _originalMaxHeight) {
-        quickSettings.menu.actor.set_style(`max-height: ${_originalMaxHeight};`);
+        quickSettings.menu.actor.set_style(_originalMaxHeight);
     }
     _originalMaxHeight = null;
     _monitor = null;

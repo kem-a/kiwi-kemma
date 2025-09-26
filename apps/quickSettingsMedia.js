@@ -30,27 +30,72 @@ const DBusIface = loadInterfaceXML('org.freedesktop.DBus');
 const DBusProxy = Gio.DBusProxy.makeProxyWrapper(DBusIface);
 const MPRIS_PLAYER_PREFIX = 'org.mpris.MediaPlayer2.';
 
+const MEDIA_DBUS_XML = `<?xml version="1.0"?>
+<node>
+    <interface name="org.freedesktop.DBus.Properties">
+        <method name="Get">
+            <arg type="s" name="interface_name" direction="in"/>
+            <arg type="s" name="property_name" direction="in"/>
+            <arg type="v" name="value" direction="out"/>
+        </method>
+    </interface>
+    <interface name="org.mpris.MediaPlayer2.Player">
+        <method name="SetPosition">
+            <arg type="o" name="TrackId" direction="in"/>
+            <arg type="x" name="Position" direction="in"/>
+        </method>
+        <method name="PlayPause"/>
+        <method name="Next"/>
+        <method name="Previous"/>
+        <property name="CanGoNext" type="b" access="read"/>
+        <property name="CanGoPrevious" type="b" access="read"/>
+        <property name="CanPlay" type="b" access="read"/>
+        <property name="CanSeek" type="b" access="read"/>
+        <property name="Metadata" type="a{sv}" access="read"/>
+        <property name="PlaybackStatus" type="s" access="read"/>
+    </interface>
+    <interface name="org.mpris.MediaPlayer2">
+        <method name="Raise"/>
+        <property name="CanRaise" type="b" access="read"/>
+        <property name="DesktopEntry" type="s" access="read"/>
+        <property name="Identity" type="s" access="read"/>
+    </interface>
+</node>`;
+
+const MEDIA_NODE_INFO = Gio.DBusNodeInfo.new_for_xml(MEDIA_DBUS_XML);
+
+function _lookupInterface(name) {
+        return MEDIA_NODE_INFO.interfaces.find(iface => iface.name === name);
+}
+
+const PROPERTIES_IFACE = _lookupInterface('org.freedesktop.DBus.Properties');
+const PLAYER_IFACE = _lookupInterface('org.mpris.MediaPlayer2.Player');
+const MPRIS_IFACE = _lookupInterface('org.mpris.MediaPlayer2');
+
 class Player extends GObject.Object {
     constructor(busName) {
         super();
         this._busName = busName;
         this.source = new MessageList.Source();
+        this._canPlay = false;
+        this._canSeek = false;
 
-        const mprisIface = loadInterfaceXML('org.mpris.MediaPlayer2');
-        const playerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
-        const propertiesIface = loadInterfaceXML('org.freedesktop.DBus.Properties');
-
-        const mprisPromise = Gio.DBusProxy.new(Gio.DBus.session, Gio.DBusProxyFlags.NONE, mprisIface, busName, '/org/mpris/MediaPlayer2', mprisIface.name, null)
+        const mprisPromise = Gio.DBusProxy.new(Gio.DBus.session, Gio.DBusProxyFlags.NONE, MPRIS_IFACE, busName, '/org/mpris/MediaPlayer2', MPRIS_IFACE.name, null)
             .then(proxy => this._mprisProxy = proxy)
             .catch(() => {});
 
-        const playerPromise = Gio.DBusProxy.new(Gio.DBus.session, Gio.DBusProxyFlags.NONE, playerIface, busName, '/org/mpris/MediaPlayer2', playerIface.name, null)
+        const playerPromise = Gio.DBusProxy.new(Gio.DBus.session, Gio.DBusProxyFlags.NONE, PLAYER_IFACE, busName, '/org/mpris/MediaPlayer2', PLAYER_IFACE.name, null)
             .then(proxy => this._playerProxy = proxy)
             .catch(() => {});
 
-        const propertiesPromise = Gio.DBusProxy.new(Gio.DBus.session, Gio.DBusProxyFlags.NONE, propertiesIface, busName, '/org/mpris/MediaPlayer2', propertiesIface.name, null)
-            .then(proxy => this._propertiesProxy = proxy)
-            .catch(() => {});
+        let propertiesPromise = Promise.resolve();
+        if (PROPERTIES_IFACE) {
+            propertiesPromise = Gio.DBusProxy.new(Gio.DBus.session, Gio.DBusProxyFlags.NONE, PROPERTIES_IFACE, busName, '/org/mpris/MediaPlayer2', PROPERTIES_IFACE.name, null)
+                .then(proxy => this._propertiesProxy = proxy)
+                .catch(() => {});
+        } else {
+            this._propertiesProxy = null;
+        }
 
         Promise.all([playerPromise, propertiesPromise, mprisPromise])
             .then(this._ready.bind(this))
@@ -77,6 +122,8 @@ class Player extends GObject.Object {
     get canGoNext() { return this._playerProxy?.CanGoNext; }
     get canGoPrevious() { return this._playerProxy?.CanGoPrevious; }
     get status() { return this._playerProxy?.PlaybackStatus; }
+    get canPlay() { return this._canPlay; }
+    get canSeek() { return this._canSeek; }
 
     _parseMetadata(metadata) {
         if (!metadata) {
@@ -118,8 +165,8 @@ class Player extends GObject.Object {
             icon: this._app?.get_icon() ?? null,
         });
 
-        this.canPlay = !!this._playerProxy?.CanPlay;
-        this.canSeek = this._playerProxy?.CanSeek;
+        this._setCanPlay(!!this._playerProxy?.CanPlay);
+        this._setCanSeek(!!this._playerProxy?.CanSeek);
     }
 
     _update() {
@@ -160,28 +207,65 @@ class Player extends GObject.Object {
         this._mprisProxy = null;
         this._playerProxy = null;
         this._propertiesProxy = null;
+        this._setCanPlay(false);
+        this._setCanSeek(false);
+    }
+
+    _setCanPlay(value) {
+        if (this._canPlay === value)
+            return;
+        this._canPlay = value;
+        this.notify('can-play');
+    }
+
+    _setCanSeek(value) {
+        if (this._canSeek === value)
+            return;
+        this._canSeek = value;
+        this.notify('can-seek');
     }
 }
-GObject.registerClass(Player);
+GObject.registerClass({
+    Signals: {
+        'changed': { param_types: [] },
+    },
+    Properties: {
+        'can-play': GObject.ParamSpec.boolean('can-play', 'can-play', 'Whether the player can play', GObject.ParamFlags.READABLE, false),
+        'can-seek': GObject.ParamSpec.boolean('can-seek', 'can-seek', 'Whether the player can seek', GObject.ParamFlags.READABLE, false),
+    },
+}, Player);
 
 class MediaItem extends MessageList.Message {
     constructor(player) {
         super(player.source);
         this.add_style_class_name('media-message');
         this._player = player;
+        this._destroyed = false;
+        this.connect('destroy', () => {
+            this._destroyed = true;
+            this._player?.disconnectObject(this);
+        });
 
         this._createControlButtons();
-        this._player.connectObject('changed', this._update.bind(this));
+        this._player.connectObject('changed', this._update.bind(this), this);
         this._update();
     }
 
     _createControlButtons() {
-        if (this._player.canGoPrevious) this._prevButton = this.addMediaControl('media-skip-backward-symbolic', () => this._player.previous());
-        this._pauseButton = this.addMediaControl('', () => this._player.playPause());
-        if (this._player.canGoNext) this._nextButton = this.addMediaControl('media-skip-forward-symbolic', () => this._player.next());
+        if (!this._prevButton)
+            this._prevButton = this.addMediaControl('media-skip-backward-symbolic', () => this._player.previous());
+
+        if (!this._pauseButton)
+            this._pauseButton = this.addMediaControl('', () => this._player.playPause());
+
+        if (!this._nextButton)
+            this._nextButton = this.addMediaControl('media-skip-forward-symbolic', () => this._player.next());
     }
 
     _update() {
+        if (this._destroyed)
+            return;
+
         let icon;
         if (this._player.trackCoverUrl) {
             const file = Gio.File.new_for_uri(this._player.trackCoverUrl);
@@ -191,6 +275,7 @@ class MediaItem extends MessageList.Message {
         }
 
         const trackArtists = this._player.trackArtists?.join(', ') ?? '';
+
         this.set({ title: this._player.trackTitle, body: trackArtists, icon });
 
         if (this._pauseButton) {
@@ -198,8 +283,10 @@ class MediaItem extends MessageList.Message {
             this._pauseButton.child.icon_name = isPlaying ? 'media-playback-pause-symbolic' : 'media-playback-start-symbolic';
         }
 
-        if (this._prevButton) this._prevButton.reactive = this._player.canGoPrevious;
-        if (this._nextButton) this._nextButton.reactive = this._player.canGoNext;
+        if (this._prevButton)
+            this._prevButton.reactive = !!this._player.canGoPrevious;
+        if (this._nextButton)
+            this._nextButton.reactive = !!this._player.canGoNext;
     }
 
     vfunc_button_press_event() { return Clutter.EVENT_PROPAGATE; }
@@ -343,16 +430,22 @@ class Source extends GObject.Object {
         this._players.set(busName, player);
         player.connectObject('notify::can-play', () => {
             this.emit(player.canPlay ? 'player-added' : 'player-removed', player);
-        });
+        }, this);
+        if (player.canPlay)
+            this.emit('player-added', player);
     }
 
     async _onProxyReady() {
-        const [names] = await this._proxy.ListNamesAsync();
-        for (const name of names) {
-            if (!name.startsWith(MPRIS_PLAYER_PREFIX)) continue;
-            this._addPlayer(name);
+        try {
+            const [names] = await this._proxy.ListNamesAsync();
+            for (const name of names) {
+                if (!name.startsWith(MPRIS_PLAYER_PREFIX)) continue;
+                this._addPlayer(name);
+            }
+            this._proxy.connectSignal('NameOwnerChanged', this._onNameOwnerChanged.bind(this));
+        } catch (e) {
+            log('Failed to enumerate MPRIS players: ' + e);
         }
-        this._proxy.connectSignal('NameOwnerChanged', this._onNameOwnerChanged.bind(this));
     }
 
     _onNameOwnerChanged(proxy, sender, [name, oldOwner, newOwner]) {
@@ -419,7 +512,10 @@ export function enable() {
         if (!grid) return GLib.SOURCE_CONTINUE; // Retry if grid not ready
 
         mediaWidget = new MediaWidget();
-        grid.add_child(mediaWidget);
+        if (grid.insert_child_at_index)
+            grid.insert_child_at_index(mediaWidget, 0);
+        else
+            grid.add_child(mediaWidget);
         grid.layout_manager.child_set_property(grid, mediaWidget, 'column-span', 2);
 
         enabled = true;

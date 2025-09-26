@@ -293,7 +293,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   margin-top: 6px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 6px;
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
 }
 
@@ -365,7 +365,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   min-width: 12px;
   min-height: 12px;
   padding: 6px;
-  border-radius: 50%;
+  border-radius: 999px;
   box-sizing: border-box;
 }
 
@@ -375,7 +375,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   min-width: 16px;
   min-height: 16px;
   padding: 6px;
-  border-radius: 50%;
+  border-radius: 999px;
   box-sizing: border-box;
 }
 
