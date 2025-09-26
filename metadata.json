@@ -1,6 +1,6 @@
 {
-  "description": "Kiwi is free open source project that brings macOS-inspired features for GNOME.",
-  "name": "Kiwi is not like Apple",
+  "description": "Kiwi is free open source project that brings macOS-inspired features for GNOME.\n\n*Disclaimer*: This extension is unofficial and not affiliated with Apple in any way.\n\nFeatures:\n* Move fullscreen windows to new workspaces automatically\n* Add username display to the quick settings menu\n* Focus on newly launched windows (removes window-ready notifications)\n* Show Caps Lock/Num Lock indicators in the top panel\n* Make windows transparent while moving\n* Display battery percentage when below 25%\n* Move calendar to the right side and customize notifications\n* Show current window title in the top panel\n* Show panel on hover in fullscreen mode\n* Hide minimized windows in overview\n* Hide the Activities button\n* Skip overview on login (go directly to desktop)\n* Set panel transparency based on window position\n* macOS-style window control buttons with GTK theming\n* Firefox window control theming\n* Keyboard indicator support\n* Overview wallpaper customization\n* Quick settings media and notifications tweaks\n\nThis extension uses a modular architecture for stability and customization. Some advanced features require native libraries (available in the advanced/ folder).\n\nAlways restart GNOME Shell after installing or updating extensions.",
+  "name": "Kiwi is not Apple",
   "settings-schema": "org.gnome.shell.extensions.kiwi",
   "shell-version": [
     "45",
@@ -11,9 +11,9 @@
   ],
   "url": "https://github.com/kem-a/kiwi-kemma",
   "uuid": "kiwi@kemma",
-  "version": 13,
-  "version-name": "0.10.0-beta",
-  "version-url": "https://github.com/kem-a/kiwi-kemma/releases/tag/v0.9.5-beta",
+  "version": "",
+  "version-name": "0.9.6 beta",
+  "version-url": "https://github.com/kem-a/kiwi-kemma/releases/tag/v0.9.6-beta",
   "donation-url": "https://revolut.me/arnisk",
   "license": "GPL-3.0-or-later",
   "issue-url": "https://github.com/kem-a/kiwi-kemma/issues"

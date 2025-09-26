@@ -1,3 +1,21 @@
+/*
+ * Kiwi is not Apple – macOS-inspired enhancements for GNOME Shell.
+ * Copyright (C) 2025  Arnis Kemlers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { enable as addUsernameEnable, disable as addUsernameDisable } from './apps/addUsernameToQuickMenu.js';
 import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from './apps/moveFullscreenWindow.js';
@@ -12,6 +30,7 @@ import { enable as panelHoverEnable, disable as panelHoverDisable } from './apps
 import { enable as panelTransparencyEnable, disable as panelTransparencyDisable } from './apps/panelTransparency.js';
 import { enable as hideMinimizedWindowsEnable, disable as hideMinimizedWindowsDisable } from './apps/hideMinimizedWindows.js';
 import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } from './apps/gtkThemeManager.js';
+import { enable as firefoxThemeManagerEnable, disable as firefoxThemeManagerDisable } from './apps/firefoxThemeManager.js';
 import { enable as firefoxThemeManagerEnable, disable as firefoxThemeManagerDisable } from './apps/firefoxThemeManager.js';
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
@@ -54,12 +73,6 @@ export default class KiwiExtension extends Extension {
             addUsernameEnable();
         } else {
             addUsernameDisable();
-        }
-
-        if (this._settings.get_boolean('focus-launched-window')) {
-            focusLaunchedWindowEnable();
-        } else {
-            focusLaunchedWindowDisable();
         }
 
         if (this._settings.get_boolean('lock-icon')) {
@@ -160,6 +173,8 @@ export default class KiwiExtension extends Extension {
         // Enable Firefox theme manager based on setting
         if (this._settings.get_boolean('enable-firefox-styling'))
             firefoxThemeManagerEnable();
+
+        focusLaunchedWindowEnable();
         
         this._on_settings_changed(null);
         // Generate wallpaper background if enabled

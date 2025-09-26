@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # compile-extra.sh - Compile the Kiwi titlebuttons hover module from source
 

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Filters minimized windows out of overview and switcher lists.
+
 import { Workspace } from 'resource:///org/gnome/shell/ui/workspace.js';
 import {
     GroupCyclerPopup,

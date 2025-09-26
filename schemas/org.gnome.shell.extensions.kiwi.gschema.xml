@@ -11,11 +11,6 @@
         <summary>Add Username to Quick Menu</summary>
         <description>Enable or disable adding the username to the quick menu.</description>
       </key>
-      <key name="focus-launched-window" type="b">
-        <default>true</default>
-        <summary>Focus Launched Window</summary>
-        <description>Enable or disable focusing launched windows.</description>
-      </key>
       <key name="lock-icon" type="b">
         <default>false</default>
         <summary>Lock Icon</summary>

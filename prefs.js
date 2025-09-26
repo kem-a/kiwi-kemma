@@ -1,3 +1,21 @@
+/*
+ * Kiwi is not Apple – macOS-inspired enhancements for GNOME Shell.
+ * Copyright (C) 2025  Arnis Kemlers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
 import GdkPixbuf from 'gi://GdkPixbuf';
@@ -14,8 +32,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         window._settings = settings;
-        window.title = 'Kiwi is not like Apple';
-        //window.set_default_size(750, 600);
+        window.title = 'Kiwi is not Apple';
+        window.set_size_request(-1, 600);
 
         //
         // About Page (First Page)
@@ -73,7 +91,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
         titleBox.append(titleLabel);
         aboutBox.append(titleBox);
 
-        const description = this.metadata['description'] ?? _('No description available');
+        // Add description label from metadata and limit to first line
+        const rawDescription = this.metadata['description'] ?? _('No description available');
+        const idx = rawDescription.indexOf('\n');
+        const description = (idx !== -1 ? rawDescription.slice(0, idx) : rawDescription).trim();
         aboutBox.append(new Gtk.Label({
             label: description,
             halign: Gtk.Align.START,
@@ -158,8 +179,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
             icon_size: Gtk.IconSize.NORMAL,
         }));
         const licenseLink = new Gtk.LinkButton({
-            label: 'MIT License',
-            uri: 'https://github.com/kem-a/kiwi-kemma?tab=MIT-1-ov-file#readme',
+            label: 'GPLv3 License',
+            uri: 'https://github.com/kem-a/kiwi-kemma?tab=License-1-ov-file#readme',
         });
         licenseBox.append(licenseLink);
         linksContainer.append(licenseBox);
@@ -270,7 +291,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const group = new Adw.PreferencesGroup({
             title: _('Kiwi'),
-            description: _("Kiwi is not like Apple, it's free, open source and it brings macOS-like feel for GNOME"),
+            description: _("Kiwi is not like Apple, it's free open source project that brings macOS-like feel for GNOME"),
         });
         settingsPage.add(group);
 
@@ -325,7 +346,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const switchList = [
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
-            { key: 'focus-launched-window', title: _("Focus Launched Window"), subtitle: _("Focus the window when launched") },
             { key: 'transparent-move', title: _("Transparent Move"), subtitle: _("Move window with transparency") },
             { key: 'battery-percentage', title: _("Battery Percentage"), subtitle: _("Show battery percentage in the top bar when below 25%") },
             { key: 'move-calendar-right', title: _("Move Calendar to Right"), subtitle: _("Move calendar to right side and hide notifications") },

@@ -1,4 +1,6 @@
-// focusLaunchedWindow.js
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Automatically focuses newly launched windows instead of showing alerts.
+
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 export class FocusMyWindow {
