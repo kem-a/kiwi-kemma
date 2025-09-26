@@ -12,9 +12,7 @@
   "url": "https://github.com/kem-a/kiwi-kemma",
   "uuid": "kiwi@kemma",
   "version": "",
-  "version-name": "0.9.6 beta",
-  "version-url": "https://github.com/kem-a/kiwi-kemma/releases/tag/v0.9.6-beta",
-  "donation-url": "https://revolut.me/arnisk",
-  "license": "GPL-3.0-or-later",
-  "issue-url": "https://github.com/kem-a/kiwi-kemma/issues"
+  "donations": {
+    "custom": "https://revolut.me/arnisk"
+  }
 }
