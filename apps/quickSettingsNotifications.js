@@ -52,10 +52,12 @@ class NotificationHeader extends St.BoxLayout {
 
         this._clearButton = new St.Button({
             style_class: 'message-list-clear-button button',
-            icon_name: 'user-trash-symbolic',
+            label: 'Clear all',
             can_focus: true,
             x_align: Clutter.ActorAlign.END,
+            x_expand: false,
         });
+        this._clearButton.set_accessible_name('Clear all notifications');
         this.add_child(this._clearButton);
     }
 }

@@ -325,15 +325,15 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 
 .message-list-clear-button {
   margin: 4px 8px;
-  /* Fixed base size: 16x16 */
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  border-radius: 4px; /* small rounded corners for a squared look */
+  padding: 4px 16px;
+  border-radius: 999px;
   background-color: transparent;
-  border: none;
-  -st-icon-style: symbolic;
-  transition: background-color 150ms ease, box-shadow 150ms ease;
+  border: 1px solid alpha(currentColor, 0.25);
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease,
+              box-shadow 150ms ease;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
 }
 
 .message-list-clear-button:focus {
@@ -345,18 +345,20 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 .message-list-clear-button.disabled:active {
   background-color: transparent;
   box-shadow: none;
-  opacity: 0.6;
+  border-color: alpha(currentColor, 0.15);
+  color: alpha(currentColor, 0.6);
 }
 
 .message-list-clear-button:hover {
-  /* Apply hover to the button background (not just the icon) */
-  background-color: alpha(currentColor, 0.15);
-  box-shadow: inset 0 0 0 1px alpha(currentColor, 0.20);
+  background-color: -st-accent-color;
+  border-color: -st-accent-color;
+  color: -st-accent-fg-color;
 }
 
 .message-list-clear-button:active {
-  background-color: alpha(currentColor, 0.20);
-  box-shadow: inset 0 0 0 1px alpha(currentColor, 0.25);
+  background-color: shade(-st-accent-color, 0.88);
+  border-color: shade(-st-accent-color, 0.88);
+  color: -st-accent-fg-color;
 }
 
 /* Notification group collapse buttons */
