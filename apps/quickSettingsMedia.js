@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Kiwi Extension - Quick Settings Media
+
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as MessageList from 'resource:///org/gnome/shell/ui/messageList.js';
 import St from 'gi://St';
