@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Kiwi Extension - Quick Settings Media
+// Kiwi Extension - Quick Settings Media playback widget
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as MessageList from 'resource:///org/gnome/shell/ui/messageList.js';
@@ -11,6 +11,9 @@ import Gio from 'gi://Gio';
 import Shell from 'gi://Shell';
 import { loadInterfaceXML } from 'resource:///org/gnome/shell/misc/fileUtils.js';
 import { PageIndicators } from 'resource:///org/gnome/shell/ui/pageIndicators.js';
+
+const SCROLL_LOCK_TIMEOUT_MS = 320;
+const SMOOTH_SCROLL_THRESHOLD = 1.5;
 
 // State holders
 let enabled = false;
@@ -195,12 +198,19 @@ class Player extends GObject.Object {
     isPlaying() { return this.status === 'Playing'; }
 
     _ready() {
-        this._mprisProxy?.connectObject('notify::g-name-owner', () => {
-            if (!this._mprisProxy.g_name_owner) this._close();
-        });
-        if (!this._mprisProxy.g_name_owner) this._close();
+        if (!this._mprisProxy || !this._playerProxy)
+            return;
 
-        this._playerProxy?.connectObject('g-properties-changed', this._update.bind(this));
+        const mprisProxy = this._mprisProxy;
+        mprisProxy.connectObject('notify::g-name-owner', () => {
+            if (!this._mprisProxy?.g_name_owner)
+                this._close();
+        }, this);
+
+        if (!mprisProxy.g_name_owner)
+            this._close();
+
+        this._playerProxy.connectObject('g-properties-changed', this._update.bind(this), this);
         this._update();
     }
 
@@ -306,19 +316,19 @@ class MediaList extends St.BoxLayout {
         this._currentMaxPage = 0;
         this._currentPage = 0;
         this._items = new Map();
+        this._scrollLocked = false;
+        this._scrollUnlockId = null;
 
-        this.connect('scroll-event', (_, event) => {
-            const direction = event.get_scroll_direction();
-            if (direction === Clutter.ScrollDirection.UP) this._seekPage(-1);
-            if (direction === Clutter.ScrollDirection.DOWN) this._seekPage(1);
-        });
+        this.connect('scroll-event', this._onScrollEvent.bind(this));
+        this.connect('destroy', this._onDestroy.bind(this));
 
         this._source = new Source();
         this._source.connectObject('player-removed', (_source, player) => {
             const item = this._items.get(player);
             if (!item) return;
-            item.destroy();
             this._items.delete(player);
+            this.remove_child(item);
+            item.destroy();
             this._sync();
         });
         this._source.connectObject('player-added', (_source, player) => {
@@ -333,78 +343,204 @@ class MediaList extends St.BoxLayout {
 
     get _messages() { return this.get_children(); }
 
-    _showFirstPlaying() {
-        const messages = this._messages;
-        this._setPage(messages.find(message => message?._player.isPlaying()) ?? messages[0]);
+    get page() { return this._currentPage; }
+
+    get maxPage() { return this._currentMaxPage; }
+
+    _onScrollEvent(_actor, event) {
+        if (this.empty || this._scrollLocked || this._currentMaxPage <= 1)
+            return Clutter.EVENT_PROPAGATE;
+
+        let offset = 0;
+        const direction = event.get_scroll_direction();
+
+        if (direction === Clutter.ScrollDirection.SMOOTH) {
+            const [dx, dy] = event.get_scroll_delta();
+            if (!Number.isFinite(dx) || Math.abs(dx) < Math.abs(dy) || Math.abs(dx) < SMOOTH_SCROLL_THRESHOLD)
+                return Clutter.EVENT_PROPAGATE;
+            offset = dx > 0 ? 1 : -1;
+        } else if (direction === Clutter.ScrollDirection.LEFT) {
+            offset = -1;
+        } else if (direction === Clutter.ScrollDirection.RIGHT) {
+            offset = 1;
+        } else {
+            return Clutter.EVENT_PROPAGATE;
+        }
+
+        if (offset === 0)
+            return Clutter.EVENT_PROPAGATE;
+
+        if (!this._seekPage(offset))
+            return Clutter.EVENT_STOP;
+
+        this._lockScroll();
+
+        return Clutter.EVENT_STOP;
     }
 
-    _setPage(to) {
-        const current = this._current;
+    _lockScroll() {
+        this._scrollLocked = true;
+        if (this._scrollUnlockId) {
+            GLib.Source.remove(this._scrollUnlockId);
+            this._scrollUnlockId = null;
+        }
+
+        this._scrollUnlockId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, SCROLL_LOCK_TIMEOUT_MS, () => {
+            this._scrollLocked = false;
+            this._scrollUnlockId = null;
+            return GLib.SOURCE_REMOVE;
+        });
+        if (this._scrollUnlockId && GLib.Source.set_name_by_id)
+            GLib.Source.set_name_by_id(this._scrollUnlockId, '[kiwi] MediaList scroll unlock');
+    }
+
+    _onDestroy() {
+        if (this._scrollUnlockId) {
+            GLib.Source.remove(this._scrollUnlockId);
+            this._scrollUnlockId = null;
+        }
+    }
+
+    _showFirstPlaying() {
         const messages = this._messages;
+        if (!messages.length)
+            return;
+
+        const target = messages.find(message => message?._player?.isPlaying()) ?? messages[0];
+        if (target)
+            this._setPage(target, { animate: false });
+    }
+
+    _setPage(to, { animate = true } = {}) {
+        if (!to)
+            return false;
+
+        const messages = this._messages;
+        const toIndex = messages.indexOf(to);
+        if (toIndex === -1)
+            return false;
+
+        const previous = this._current;
+        const hasPrevious = previous && messages.includes(previous);
+
         this._current = to;
-        if (!to || to == current) return;
 
         for (const message of messages) {
-            if (message == current) continue;
+            if (message === to)
+                continue;
             message.hide();
         }
 
-        const toIndex = messages.findIndex(message => message == to);
         this._currentPage = toIndex;
         this.emit('page-updated', toIndex);
 
-        if (!current) {
+        const shouldAnimate = animate && hasPrevious && previous && previous.get_stage();
+        if (!shouldAnimate) {
+            to.opacity = 255;
+            to.translationX = 0;
             to.show();
-            return;
+            return true;
         }
 
-        const currentIndex = messages.findIndex(message => message == current);
-        current.ease({
+        const previousIndex = messages.indexOf(previous);
+        const exitDirection = toIndex > previousIndex ? -120 : 120;
+
+        previous.ease({
             opacity: 0,
-            translationX: (toIndex > currentIndex ? -120 : 120),
+            translationX: exitDirection,
             duration: 100,
             mode: Clutter.AnimationMode.EASE_OUT_QUAD,
             onComplete: () => {
-                current.hide();
+                previous.hide();
                 to.opacity = 0;
-                to.translationX = toIndex > currentIndex ? 120 : -120;
+                to.translationX = -exitDirection;
                 to.show();
                 to.ease({
                     mode: Clutter.AnimationMode.EASE_OUT_EXPO,
                     duration: 280,
                     translationX: 0,
                     opacity: 255,
-                    onStopped: () => { to.opacity = 255; to.translationX = 0; }
+                    onStopped: () => {
+                        to.opacity = 255;
+                        to.translationX = 0;
+                    }
                 });
             },
         });
+        return true;
     }
 
     _seekPage(offset) {
+        if (!offset)
+            return false;
+
         const messages = this._messages;
-        if (this._current === null) return;
+        if (!messages.length)
+            return false;
+
         let currentIndex = messages.findIndex(message => message == this._current);
-        if (currentIndex == -1) currentIndex = 0;
-        const length = messages.length;
-        this._setPage(messages[((currentIndex + offset + length) % length)]);
+        if (currentIndex === -1)
+            currentIndex = 0;
+
+        const targetIndex = Math.max(0, Math.min(currentIndex + offset, messages.length - 1));
+        if (targetIndex === currentIndex)
+            return false;
+
+        return this._setPage(messages[targetIndex]);
+    }
+
+    goToPage(index, { animate = true } = {}) {
+        const messages = this._messages;
+        if (index < 0 || index >= messages.length)
+            return false;
+
+        return this._setPage(messages[index], { animate });
     }
 
     _sync() {
         const messages = this._messages;
-        const empty = messages.length == 0;
+        const empty = messages.length === 0;
 
-        if (this._currentMaxPage != messages.length)
-            this.emit('max-page-updated', this._currentMaxPage = messages.length);
-
-        if (this._current && (empty || !messages.includes(this._current)))
+        if (this._current && !messages.includes(this._current))
             this._current = null;
 
-        for (const message of messages) {
-            if (message == this._current) continue;
-            message.hide();
+        if (this._currentMaxPage !== messages.length) {
+            this._currentMaxPage = messages.length;
+            this.emit('max-page-updated', this._currentMaxPage);
         }
 
-        if (!this._current) this._showFirstPlaying();
+        let selectedViaShowFirst = false;
+        if (!this._current && !empty) {
+            this._showFirstPlaying();
+            selectedViaShowFirst = true;
+        }
+
+        if (!selectedViaShowFirst) {
+            for (const message of messages) {
+                if (message === this._current) {
+                    message.show();
+                    message.opacity = 255;
+                    message.translationX = 0;
+                } else {
+                    message.hide();
+                }
+            }
+        }
+
+        if (this._current) {
+            const index = messages.indexOf(this._current);
+            if (index !== -1 && index !== this._currentPage) {
+                this._currentPage = index;
+                this.emit('page-updated', index);
+            }
+        } else if (empty && this._currentPage !== 0) {
+            this._currentPage = 0;
+            this.emit('page-updated', 0);
+        }
+
+        if (empty)
+            this._current = null;
+
         this.empty = empty;
     }
 }
@@ -473,36 +609,83 @@ GObject.registerClass({
 
 class MediaHeader extends St.BoxLayout {
     constructor() {
-        super({ style_class: 'kiwi-header' });
-        this._headerLabel = new St.Label({ text: 'Media', style_class: 'kiwi-header-label', y_align: Clutter.ActorAlign.CENTER, x_align: Clutter.ActorAlign.START, x_expand: true });
+        super({ style_class: 'kiwi-header', vertical: true });
+        this.spacing = 4;
+        this._headerLabel = new St.Label({
+            text: 'Media',
+            style_class: 'kiwi-header-label',
+            y_align: Clutter.ActorAlign.CENTER,
+            x_align: Clutter.ActorAlign.START,
+            x_expand: true,
+        });
         this.add_child(this._headerLabel);
-        this._pageIndicator = new PageIndicators(Clutter.Orientation.HORIZONTAL);
-        this._pageIndicator.x_align = Clutter.ActorAlign.END;
+    this._pageIndicator = new PageIndicators(Clutter.Orientation.HORIZONTAL);
+        this._pageIndicator.reactive = true;
+        this._pageIndicator.can_focus = true;
+        this._pageIndicator.x_expand = true;
+        this._pageIndicator.x_align = Clutter.ActorAlign.CENTER;
         this._pageIndicator.y_align = Clutter.ActorAlign.CENTER;
+        this._pageIndicator.style = 'margin-top: 6px; margin-bottom: 0px;';
         this.add_child(this._pageIndicator);
     }
-    set maxPage(maxPage) { this._pageIndicator.setNPages(maxPage); }
+    set maxPage(maxPage) {
+        const total = Math.max(1, maxPage);
+        this._pageIndicator.visible = maxPage > 1;
+        this._pageIndicator.setNPages(total);
+    }
     get maxPage() { return this._pageIndicator.nPages; }
-    set page(page) { this._pageIndicator.setCurrentPosition(page); }
-    get page() { return this._pageIndicator._currentPosition; }
+    set page(page) {
+        const nPages = Math.max(1, this._pageIndicator.nPages);
+        const clamped = Math.max(0, Math.min(page ?? 0, nPages - 1));
+        this._pageIndicator.setCurrentPosition(clamped);
+    }
+    get page() { return this._pageIndicator._currentPosition ?? 0; }
+    connectPageActivated(callback, target) {
+        return this._pageIndicator.connectObject('page-activated', callback, target ?? this);
+    }
 }
 GObject.registerClass(MediaHeader);
 
 class MediaWidget extends St.BoxLayout {
     constructor() {
-        super({ orientation: Clutter.Orientation.VERTICAL, x_expand: true, y_expand: true, reactive: true, style_class: 'kiwi-media' });
+        super({ orientation: Clutter.Orientation.VERTICAL, x_expand: true, reactive: true, style_class: 'kiwi-media', y_align: Clutter.ActorAlign.START });
+        this.spacing = 6;
         this._header = new MediaHeader();
         this.add_child(this._header);
+    this._headerSpacer = new St.Widget({ style_class: 'kiwi-media-spacer', x_expand: true });
+    this._headerSpacer.set_style('height: 6px;');
+        this.add_child(this._headerSpacer);
         this._list = new MediaList();
+    this._list.y_expand = false;
+    this._list.y_align = Clutter.ActorAlign.START;
         this.add_child(this._list);
         this._list.connectObject('notify::empty', this._syncEmpty.bind(this));
         this._syncEmpty();
         this._header.page = this._list.page;
         this._header.maxPage = this._list.maxPage;
         this._list.connectObject('page-updated', (_, page) => { if (this._header.page != page) this._header.page = page; });
-        this._list.connectObject('max-page-updated', (_, maxPage) => { if (this._header.maxPage != maxPage) this._header.maxPage = maxPage; });
+        this._list.connectObject('max-page-updated', (_, maxPage) => {
+            if (this._header.maxPage != maxPage) this._header.maxPage = maxPage;
+            this._updateBodySpacing(maxPage);
+        });
+        this._header.connectPageActivated((_, page) => {
+            if (page === this._list.page)
+                return;
+            this._list.goToPage(page);
+        }, this);
+        this._updateBodySpacing(this._list.maxPage);
     }
-    _syncEmpty() { this.visible = !this._list.empty; }
+    _updateBodySpacing(maxPage = this._list.maxPage) {
+        const multiplePages = maxPage > 1;
+        this.spacing = multiplePages ? 0 : 6;
+        this._headerSpacer.visible = !multiplePages;
+    }
+    _syncEmpty() {
+        const isEmpty = this._list.empty;
+        this.visible = !isEmpty;
+        if (isEmpty)
+            this._updateBodySpacing(0);
+    }
 }
 GObject.registerClass(MediaWidget);
 // #endregion Media Classes
@@ -515,11 +698,23 @@ export function enable() {
         if (!grid) return GLib.SOURCE_CONTINUE; // Retry if grid not ready
 
         mediaWidget = new MediaWidget();
-        if (grid.insert_child_at_index)
-            grid.insert_child_at_index(mediaWidget, 0);
-        else
+        const existingChildren = grid.get_children?.() ?? [];
+        const notificationsActor = existingChildren.find(child =>
+            typeof child.has_style_class_name === 'function' && child.has_style_class_name('kiwi-notifications'));
+
+        const targetIndex = notificationsActor ? existingChildren.indexOf(notificationsActor) : existingChildren.length;
+
+        if (typeof grid.insert_child_at_index === 'function') {
+            grid.insert_child_at_index(mediaWidget, targetIndex);
+        } else if (notificationsActor && typeof grid.insert_child_above === 'function') {
+            grid.insert_child_above(mediaWidget, notificationsActor);
+        } else {
             grid.add_child(mediaWidget);
-        grid.layout_manager.child_set_property(grid, mediaWidget, 'column-span', 2);
+        }
+
+        const layout = grid.layout_manager;
+        if (layout && typeof layout.child_set_property === 'function')
+            layout.child_set_property(grid, mediaWidget, 'column-span', 2);
 
         enabled = true;
         _initTimeoutId = null;
