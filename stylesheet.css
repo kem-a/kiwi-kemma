@@ -50,6 +50,7 @@
   box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
   transition-property: background-color;
   transition-timing-function: ease-out;
+  background-color: inherit;
 }
 
 #panel .panel-button {
