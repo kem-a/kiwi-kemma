@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Reveals the top panel on fullscreen hover with fine-grained animation control.
 
+// Known issue: panel changes color with white theme
+// The flicker comes from the ghost PopupMenu you open in _openGhostMenu(). 
+// GNOME keeps flipping Main.panel.menuManager._activeMenu between that hidden menu and null, 
+// and every time it toggles, the shell reapplies the “solid” vs “transparent” panel styles. 
+// Because _startPeriodicCheck() runs once per second, the panel background keeps switching 
+// colors at that cadence, which becomes obvious with a white panel theme. Removing or replacing 
+// the ghost menu hack (or forcing the desired panel style directly) stops the oscillation. 
+
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import St from 'gi://St';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';

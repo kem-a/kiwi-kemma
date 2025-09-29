@@ -5,7 +5,6 @@ import * as MessageList from 'resource:///org/gnome/shell/ui/messageList.js';
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
 import Shell from 'gi://Shell';
-import { loadInterfaceXML } from 'resource:///org/gnome/shell/misc/fileUtils.js';
 
 export const MPRIS_PLAYER_PREFIX = 'org.mpris.MediaPlayer2.';
 
@@ -47,9 +46,9 @@ function _lookupInterface(name) {
     return MEDIA_NODE_INFO.interfaces.find(iface => iface.name === name);
 }
 
-const PROPERTIES_IFACE = _lookupInterface('org.freedesktop.DBus.Properties');
-const PLAYER_IFACE = _lookupInterface('org.mpris.MediaPlayer2.Player');
-const MPRIS_IFACE = _lookupInterface('org.mpris.MediaPlayer2');
+const PROPERTIES_IFACE_NAME = 'org.freedesktop.DBus.Properties';
+const PLAYER_IFACE_NAME = 'org.mpris.MediaPlayer2.Player';
+const MPRIS_IFACE_NAME = 'org.mpris.MediaPlayer2';
 
 export class Player extends GObject.Object {
     constructor(busName) {
@@ -59,40 +58,47 @@ export class Player extends GObject.Object {
         this._canPlay = false;
         this._canSeek = false;
         this._destroyed = false;
+        this._mprisProxy = null;
+        this._playerProxy = null;
+        this._propertiesProxy = null;
 
-        const mprisPromise = Gio.DBusProxy.new(
+        const mprisIface = _lookupInterface(MPRIS_IFACE_NAME);
+        const playerIface = _lookupInterface(PLAYER_IFACE_NAME);
+        const propertiesIface = _lookupInterface(PROPERTIES_IFACE_NAME);
+
+        const mprisPromise = mprisIface ? Gio.DBusProxy.new(
             Gio.DBus.session,
             Gio.DBusProxyFlags.NONE,
-            MPRIS_IFACE,
+            mprisIface,
             busName,
             '/org/mpris/MediaPlayer2',
-            MPRIS_IFACE.name,
+            mprisIface.name,
             null
         )
             .then(proxy => this._mprisProxy = proxy)
-            .catch(() => {});
+            .catch(() => {}) : Promise.resolve();
 
-        const playerPromise = Gio.DBusProxy.new(
+        const playerPromise = playerIface ? Gio.DBusProxy.new(
             Gio.DBus.session,
             Gio.DBusProxyFlags.NONE,
-            PLAYER_IFACE,
+            playerIface,
             busName,
             '/org/mpris/MediaPlayer2',
-            PLAYER_IFACE.name,
+            playerIface.name,
             null
         )
             .then(proxy => this._playerProxy = proxy)
-            .catch(() => {});
+            .catch(() => {}) : Promise.resolve();
 
         let propertiesPromise = Promise.resolve();
-        if (PROPERTIES_IFACE) {
+        if (propertiesIface) {
             propertiesPromise = Gio.DBusProxy.new(
                 Gio.DBus.session,
                 Gio.DBusProxyFlags.NONE,
-                PROPERTIES_IFACE,
+                propertiesIface,
                 busName,
                 '/org/mpris/MediaPlayer2',
-                PROPERTIES_IFACE.name,
+                propertiesIface.name,
                 null
             )
                 .then(proxy => this._propertiesProxy = proxy)

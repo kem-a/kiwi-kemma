@@ -204,6 +204,7 @@ export default class KiwiExtension extends Extension {
         gtkThemeManagerDisable();
         firefoxThemeManagerDisable();
         quickSettingsMediaDisable();
+        quickSettingsNotificationsDisable();
         this._settings = null;
     }
 }
