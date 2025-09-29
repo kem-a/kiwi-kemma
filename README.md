@@ -12,7 +12,7 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Lock Icon**: Display Caps Lock or Num Lock icon in the GNOME top panel.
 - **Transparent Move**: Make windows slightly transparent when moving.
 - **Battery Percentage**: Show battery percentage in the system menu when below 25%.
-- **Move calendar to the right**: Move calendar to right side and hide notifications. **Note**: Notification pane is hidden. To see notification install [Quick Settings Tweaks](https://extensions.gnome.org/extension/5446/quick-settings-tweaker/) and enable notifications in quick settings.
+- **Move calendar to the right**: Move calendar to right side and hide notifications.
 - **Show Window title**: Display current window title in the top panel
 - **Show Panel on Hover**: Show panel when mouse is near top edge in fullscreen
 - **Hide Minimized Windows**: Hide minimized windows in the overview
@@ -28,7 +28,6 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **[Dash to Dock](https://extensions.gnome.org/extension/307/dash-to-dock/)** by michele_g
 - **[AppIndicator Support](https://extensions.gnome.org/extension/615/appindicator-support/)** by 3v1n0
 - **[Compiz alike magic lamp effect](https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/)** by hermes83
-- **[Quick Settings Tweaks](https://extensions.gnome.org/extension/5446/quick-settings-tweaker/)** by qwreey
 - **[Gtk4 Desktop Icons NG (DING)](https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/)** by smedius
 - **[Clipboard Indicator](https://extensions.gnome.org/extension/779/clipboard-indicator/)** by Tudmotu
 - **[Logo Menu](https://extensions.gnome.org/extension/4451/logo-menu/)** by Aryan Kaushik

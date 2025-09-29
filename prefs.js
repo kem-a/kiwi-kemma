@@ -643,18 +643,17 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const recommendationsBox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 10,
-            margin_top: 10,
-            margin_bottom: 10,
+            margin_top: 5,
+            margin_bottom: 5,
             margin_start: 10,
             margin_end: 10,
         });
 
         const recommendations = [
             { title: 'Dash to Dock', author: 'by michele_g', url: 'https://extensions.gnome.org/extension/307/dash-to-dock/' },
+            { title: 'Compiz alike magic lamp effect', author: 'by hermes83', url: 'https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/' },
             { title: 'Logo Menu', author: 'Aryan Kaushik', url: 'https://extensions.gnome.org/extension/4451/logo-menu/' },
             { title: 'AppIndicator Support', author: 'by 3v1n0', url: 'https://extensions.gnome.org/extension/615/appindicator-support/' },
-            { title: 'Compiz alike magic lamp effect', author: 'by hermes83', url: 'https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/' },
-            { title: 'Quick Settings Tweaks', author: 'by qwreey', url: 'https://extensions.gnome.org/extension/5446/quick-settings-tweaker/' },
             { title: 'Gtk4 Desktop Icons NG (DING)', author: 'by smedius', url: 'https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/' },
             { title: 'Clipboard Indicator', author: 'by Tudmotu', url: 'https://extensions.gnome.org/extension/779/clipboard-indicator/' },
         ];
