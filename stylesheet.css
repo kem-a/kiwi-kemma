@@ -52,24 +52,6 @@
   transition-timing-function: ease-out;
 }
 
-#panel .panel-button.clock-display .clock-display-box {
-  padding-right: 8px !important;
-  padding-left: 0 !important;
-}
-
-#panel .clock-display-box {
-  /*margin: 0 8px;*/
-  margin-left: 8px !important;
-  margin-right: 8px !important;
-}
-
-#panel .clock-display-box {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-  margin-left: 8px !important;
-  margin-right: 8px !important;
-}
-
 #panel .panel-button {
   -natural-hpadding: 8px; /*default 12*/
   -minimum-hpadding: 4px; /*default 12*/
@@ -100,11 +82,6 @@
 #panel .panel-button:checked .app-menu-icon > StIcon,
 #panel .panel-button:checked .popup-menu-arrow {
   icon-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
-}
-
-#panel .panel-button StLabel {
-  padding: 0 !important;
-  margin: 0 !important;
 }
 
 #panel .panel-button .popup-menu-arrow {
@@ -141,6 +118,13 @@
 #panel .desktop-name-label {
   font-weight: bold !important;
 }
+
+Gjs_ui_dateMenu_DateMenuButton.panel-button StLabel,
+.clock-display {
+  padding: 0px;
+  margin: 0px;
+}
+
 
 /* Overview mode styles */
 #panel:overview {
@@ -286,10 +270,104 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 
 
 /*###############################################*/
+/* Quick Settings Notifications and Media Styles */
+/*###############################################*/
+
+.quick-settings-notifications-container {
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.kiwi-media,
+.kiwi-notifications {
+  margin: 0;
+  padding: 0;
+  border-radius: 12px;
+  max-width: 360px; /* Default quicksettings width */
+  box-sizing: border-box;
+}
+
+.kiwi-notifications {
+  max-height: 600px;
+}
+
+.media-message {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.media-message:last-child {
+  border-bottom: none;
+}
+
+.media-message:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.message-list-clear-button {
+  margin: 4px 8px;
+  padding: 4px 16px;
+  border-radius: 999px;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease,
+              box-shadow 150ms ease;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.message-list-clear-button:focus {
+  box-shadow: inset 0 0 0 2px alpha(-st-focus-ring-color, 0.45);
+}
+
+.message-list-clear-button.disabled,
+.message-list-clear-button.disabled:hover,
+.message-list-clear-button.disabled:active {
+  opacity: -st-disabled-opacity;
+  box-shadow: none;
+}
+
+/* Notification group collapse buttons */
+.message-group-header .message-collapse-button {
+  -st-icon-style: symbolic;
+  min-width: 12px;
+  min-height: 12px;
+  padding: 6px;
+  border-radius: 999px;
+  box-sizing: border-box;
+}
+
+/* Notification expand buttons and close button */
+.message .message-expand-button, .message .message-close-button {
+  -st-icon-style: symbolic;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 6px;
+  border-radius: 999px;
+  box-sizing: border-box;
+}
+
+/* Notification and grouped notifications titles - make normal size */
+.message-title, .message-group-title {
+  font-size: 1em;
+  font-weight: normal;
+}
+
+/* Hide the vertical scrollbar for the notification widget */
+.kiwi-notification-scroll .v-scrollbar {
+    width: 0;
+    padding: 0;
+    margin: 0;
+}
+
+
+/*###############################################*/
 /*       Keyboard Status Indicator Styling      */
 /*###############################################*/
 
-.kiwi-input-themed {
+#panel .kiwi-input-themed {
   border: 1px solid -st-accent-color;
   border-radius: 6px;
   padding: 6px;
@@ -298,12 +376,12 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 }
 
 /* When EN is mapped to A, fill background for emphasis */
-.kiwi-input-en {
+#panel .kiwi-input-en {
   background-color: alpha(-st-accent-color, 0.2);
 }
 
 /* Slightly smaller text for the indicator when themed */
-.kiwi-input-themed StLabel {
+#panel .kiwi-input-themed StLabel {
   font-size: 0.80em;
   font-weight: 600;
 }

@@ -34,8 +34,8 @@ import { enable as firefoxThemeManagerEnable, disable as firefoxThemeManagerDisa
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
-// near-future feature
-//import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNotificationsDisable } from './apps/quickSettingsNotifications.js';
+import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNotificationsDisable } from './apps/quickSettingsNotifications.js';
+import { enable as quickSettingsMediaEnable, disable as quickSettingsMediaDisable } from './apps/quickSettingsMedia.js';
 import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
 
 export default class KiwiExtension extends Extension {
@@ -59,7 +59,7 @@ export default class KiwiExtension extends Extension {
             windowControlsEnable();
         }
 
-        // GTK theme updates are handled by gtkThemeManager module
+    // GTK theme updates are handled by gtkThemeManager module
         // No need to handle 'enable-app-window-buttons' or 'button-type' here for GTK updates
 
         if (this._settings.get_boolean('move-window-to-new-workspace')) {
@@ -94,10 +94,12 @@ export default class KiwiExtension extends Extension {
 
          if (this._settings.get_boolean('move-calendar-right')) {
             calendarEnable();
-            //quickSettingsNotificationsEnable();
+            quickSettingsNotificationsEnable();
+            quickSettingsMediaEnable();
         } else {
             calendarDisable();
-            //quickSettingsNotificationsDisable();
+            quickSettingsNotificationsDisable();
+            quickSettingsMediaDisable();
         }
 
         if (this._settings.get_boolean('show-window-title')) {
@@ -201,6 +203,7 @@ export default class KiwiExtension extends Extension {
         keyboardIndicatorDisable();
         gtkThemeManagerDisable();
         firefoxThemeManagerDisable();
+        quickSettingsMediaDisable();
         this._settings = null;
     }
 }
