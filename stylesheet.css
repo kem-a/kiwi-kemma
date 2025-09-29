@@ -52,24 +52,6 @@
   transition-timing-function: ease-out;
 }
 
-#panel .panel-button.clock-display .clock-display-box {
-  padding-right: 8px !important;
-  padding-left: 0 !important;
-}
-
-#panel .clock-display-box {
-  /*margin: 0 8px;*/
-  margin-left: 8px !important;
-  margin-right: 8px !important;
-}
-
-#panel .clock-display-box {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-  margin-left: 8px !important;
-  margin-right: 8px !important;
-}
-
 #panel .panel-button {
   -natural-hpadding: 8px; /*default 12*/
   -minimum-hpadding: 4px; /*default 12*/
@@ -100,11 +82,6 @@
 #panel .panel-button:checked .app-menu-icon > StIcon,
 #panel .panel-button:checked .popup-menu-arrow {
   icon-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
-}
-
-#panel .panel-button StLabel {
-  padding: 0 !important;
-  margin: 0 !important;
 }
 
 #panel .panel-button .popup-menu-arrow {
@@ -141,6 +118,13 @@
 #panel .desktop-name-label {
   font-weight: bold !important;
 }
+
+Gjs_ui_dateMenu_DateMenuButton.panel-button StLabel,
+.clock-display {
+  padding: 0px;
+  margin: 0px;
+}
+
 
 /* Overview mode styles */
 #panel:overview {
@@ -383,7 +367,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 /*       Keyboard Status Indicator Styling      */
 /*###############################################*/
 
-.kiwi-input-themed {
+#panel .kiwi-input-themed {
   border: 1px solid -st-accent-color;
   border-radius: 6px;
   padding: 6px;
@@ -392,12 +376,12 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 }
 
 /* When EN is mapped to A, fill background for emphasis */
-.kiwi-input-en {
+#panel .kiwi-input-en {
   background-color: alpha(-st-accent-color, 0.2);
 }
 
 /* Slightly smaller text for the indicator when themed */
-.kiwi-input-themed StLabel {
+#panel .kiwi-input-themed StLabel {
   font-size: 0.80em;
   font-weight: 600;
 }
