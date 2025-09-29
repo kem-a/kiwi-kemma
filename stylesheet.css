@@ -327,8 +327,6 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   margin: 4px 8px;
   padding: 4px 16px;
   border-radius: 999px;
-  background-color: transparent;
-  border: 1px solid alpha(currentColor, 0.25);
   transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease,
               box-shadow 150ms ease;
   font-weight: 500;
@@ -337,28 +335,14 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 }
 
 .message-list-clear-button:focus {
-  box-shadow: inset 0 0 0 2px alpha(currentColor, 0.25);
+  box-shadow: inset 0 0 0 2px alpha(-st-focus-ring-color, 0.45);
 }
 
 .message-list-clear-button.disabled,
 .message-list-clear-button.disabled:hover,
 .message-list-clear-button.disabled:active {
-  background-color: transparent;
+  opacity: -st-disabled-opacity;
   box-shadow: none;
-  border-color: alpha(currentColor, 0.15);
-  color: alpha(currentColor, 0.6);
-}
-
-.message-list-clear-button:hover {
-  background-color: -st-accent-color;
-  border-color: -st-accent-color;
-  color: -st-accent-fg-color;
-}
-
-.message-list-clear-button:active {
-  background-color: shade(-st-accent-color, 0.88);
-  border-color: shade(-st-accent-color, 0.88);
-  color: -st-accent-fg-color;
 }
 
 /* Notification group collapse buttons */
