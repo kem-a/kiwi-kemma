@@ -216,9 +216,15 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 /*###############################################*/
 
 .notification-badge {
-  color: rgb(231, 76, 60);
+  /*color: rgb(231, 76, 60);*/
+  color: red;
   icon-size: 12px;
   padding: 0px;
+}
+
+.kiwi-dnd-indicator {
+  margin-left: 6px;
+  opacity: 0.85;
 }
 
 
@@ -360,6 +366,21 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
     width: 0;
     padding: 0;
     margin: 0;
+}
+
+.kiwi-dnd-button {
+  min-width: 24px;
+  min-height: 24px;
+  width: 24px;
+  height: 24px;
+  padding: 8px;
+  border-radius: 999px !important;
+  border-width: 0;
+  transition: background-color 150ms ease;
+}
+
+.kiwi-dnd-button:checked {
+  background-color: -st-accent-color;
 }
 
 

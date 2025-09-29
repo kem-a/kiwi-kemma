@@ -7,6 +7,10 @@ import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
+
+const DND_ICON_NAME = 'weather-clear-night-symbolic';
+const DND_ICON_SIZE = 16;
 
 // State holders
 let enabled = false;
@@ -15,6 +19,16 @@ let quickSettingsGrid = null;
 let _monitor = null;
 let _originalMaxHeight = null;
 let _initTimeoutId = null;
+let _dndButton = null;
+let _dndIcon = null;
+let _notificationSettings = null;
+let _notificationSettingsChangedId = null;
+let _dndEnsureTimeoutId = null;
+let _dateMenuIndicator = null;
+let _dateMenuIndicatorState = null;
+let _panelMoonIcon = null;
+let _panelMoonInserted = false;
+let _dateMenuIndicatorSignals = null;
 
 // Get QuickSettings grid
 function getQuickSettingsGrid() {
@@ -27,9 +41,245 @@ function getQuickSettingsGrid() {
     return quickSettingsGrid;
 }
 
-// Media-related code removed to quickSettingsMedia.js
+function getSystemItemContainer() {
+    const quickSettings = Main.panel.statusArea.quickSettings;
+    if (!quickSettings || !quickSettings._system)
+        return null;
 
-// #region Notification Classes (adapted from samples)
+    const systemItem = quickSettings._system._systemItem;
+    if (!systemItem)
+        return null;
+
+    return systemItem.child ?? null;
+}
+
+function ensureNotificationSettings() {
+    if (!_notificationSettings) {
+        try {
+            _notificationSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.notifications' });
+        } catch (error) {
+            logError(error, '[kiwi] Failed to load notification settings for DND button');
+            _notificationSettings = null;
+        }
+    }
+    return _notificationSettings;
+}
+
+function syncDndButtonState() {
+    if (!_notificationSettings || !_dndButton || !_dndIcon)
+        return;
+
+    const dndActive = !_notificationSettings.get_boolean('show-banners');
+    if (_dndButton.checked !== dndActive)
+        _dndButton.checked = dndActive;
+
+    _dndIcon.icon_name = DND_ICON_NAME;
+    _dndButton.set_tooltip_text?.(dndActive ? 'Disable Do Not Disturb' : 'Enable Do Not Disturb');
+
+    hideDateMenuIndicator();
+    ensurePanelMoonIcon(dndActive);
+}
+
+function toggleDnd() {
+    if (!_notificationSettings)
+        return;
+
+    const showBanners = _notificationSettings.get_boolean('show-banners');
+    _notificationSettings.set_boolean('show-banners', !showBanners);
+}
+
+function ensureDndButton() {
+    const container = getSystemItemContainer();
+    const settings = ensureNotificationSettings();
+    if (!container || !settings)
+        return false;
+
+    if (!_dndButton) {
+        // Attempt to inherit styling from an existing button for consistency
+        const existingButtons = container.get_children();
+        const templateButton = existingButtons.find(button => button && button.style_class) ?? null;
+        const templateStyle = templateButton?.style_class ?? 'system-menu-action';
+        let iconStyle = 'system-status-icon';
+        if (templateButton) {
+            const templateIcon = templateButton.get_children().find(child => child instanceof St.Icon);
+            if (templateIcon?.style_class)
+                iconStyle = templateIcon.style_class;
+        }
+
+        _dndIcon = new St.Icon({
+            icon_name: DND_ICON_NAME,
+            icon_size: DND_ICON_SIZE,
+            style_class: `${iconStyle} kiwi-dnd-icon`,
+        });
+
+        _dndButton = new St.Button({
+            style_class: `${templateStyle} kiwi-dnd-button`,
+            can_focus: true,
+            reactive: true,
+            track_hover: true,
+            toggle_mode: true,
+            accessible_name: 'Do Not Disturb',
+        });
+        _dndButton.set_child(_dndIcon);
+        _dndButton.connect('clicked', toggleDnd);
+        _dndButton.set_tooltip_text?.('Enable Do Not Disturb');
+    }
+
+    const currentParent = _dndButton.get_parent();
+    if (currentParent !== container) {
+        if (currentParent)
+            currentParent.remove_child(_dndButton);
+
+        const lockButton = container.get_children().find(child => child?.constructor?.name === 'LockItem');
+        if (lockButton) {
+            const index = container.get_children().indexOf(lockButton);
+            container.insert_child_at_index(_dndButton, Math.max(0, index));
+        } else {
+            container.add_child(_dndButton);
+        }
+    }
+
+    if (!_notificationSettingsChangedId) {
+        _notificationSettingsChangedId = settings.connect('changed::show-banners', syncDndButtonState);
+    }
+
+    syncDndButtonState();
+    return true;
+}
+
+function ensureDndButtonWithRetry() {
+    if (ensureDndButton())
+        return;
+
+    if (_dndEnsureTimeoutId)
+        return;
+
+    _dndEnsureTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+        if (ensureDndButton()) {
+            _dndEnsureTimeoutId = null;
+            return GLib.SOURCE_REMOVE;
+        }
+        return GLib.SOURCE_CONTINUE;
+    });
+    if (_dndEnsureTimeoutId && GLib.Source.set_name_by_id)
+        GLib.Source.set_name_by_id(_dndEnsureTimeoutId, '[kiwi] Ensure DND button');
+}
+
+function destroyDndButton() {
+    if (_dndEnsureTimeoutId) {
+        GLib.Source.remove(_dndEnsureTimeoutId);
+        _dndEnsureTimeoutId = null;
+    }
+    if (_notificationSettings && _notificationSettingsChangedId) {
+        try {
+            _notificationSettings.disconnect(_notificationSettingsChangedId);
+        } catch (error) {
+            logError(error, '[kiwi] Failed to disconnect DND settings listener');
+        }
+        _notificationSettingsChangedId = null;
+    }
+
+    if (_dndButton) {
+        const parent = _dndButton.get_parent();
+        if (parent)
+            parent.remove_child(_dndButton);
+        _dndButton.destroy();
+        _dndButton = null;
+    }
+
+    _dndIcon = null;
+    _notificationSettings = null;
+
+    restoreDateMenuIndicator();
+    removePanelMoonIcon();
+}
+
+function getDateMenuIndicator() {
+    if (_dateMenuIndicator)
+        return _dateMenuIndicator;
+
+    const dateMenu = Main.panel.statusArea?.dateMenu;
+    if (!dateMenu)
+        return null;
+
+    const indicator = dateMenu._indicator ?? null;
+    if (indicator)
+        _dateMenuIndicator = indicator;
+
+    return _dateMenuIndicator;
+}
+
+function hideDateMenuIndicator() {
+    const indicator = getDateMenuIndicator();
+    if (!indicator)
+        return;
+
+    if (!_dateMenuIndicatorState) {
+        _dateMenuIndicatorState = {
+            visible: indicator.visible,
+            reactive: indicator.reactive,
+            opacity: indicator.opacity,
+        };
+    }
+
+    enforceDateMenuIndicatorHidden(indicator);
+
+    if (!_dateMenuIndicatorSignals) {
+        _dateMenuIndicatorSignals = [];
+        _dateMenuIndicatorSignals.push(indicator.connect('notify::visible', () => enforceDateMenuIndicatorHidden(indicator)));
+        _dateMenuIndicatorSignals.push(indicator.connect('notify::opacity', () => enforceDateMenuIndicatorHidden(indicator)));
+        _dateMenuIndicatorSignals.push(indicator.connect('show', () => enforceDateMenuIndicatorHidden(indicator)));
+    }
+}
+
+function restoreDateMenuIndicator() {
+    const indicator = getDateMenuIndicator();
+    if (!indicator || !_dateMenuIndicatorState)
+        return;
+
+    if (_dateMenuIndicatorSignals) {
+        for (const id of _dateMenuIndicatorSignals) {
+            try {
+                indicator.disconnect(id);
+            } catch (error) {
+                logError(error, '[kiwi] Failed to disconnect date menu indicator signal');
+            }
+        }
+        _dateMenuIndicatorSignals = null;
+    }
+
+    if (_dateMenuIndicatorState.opacity !== undefined && indicator.opacity !== undefined)
+        indicator.opacity = _dateMenuIndicatorState.opacity;
+
+    indicator.reactive = _dateMenuIndicatorState.reactive ?? true;
+
+    if (_dateMenuIndicatorState.visible) {
+        if (indicator.show)
+            indicator.show();
+        indicator.visible = true;
+    } else {
+        if (indicator.hide)
+            indicator.hide();
+        indicator.visible = false;
+    }
+
+    _dateMenuIndicatorState = null;
+    _dateMenuIndicator = null;
+}
+
+function enforceDateMenuIndicatorHidden(indicator) {
+    if (!indicator)
+        return;
+
+    indicator.reactive = false;
+    if (indicator.hide)
+        indicator.hide();
+    indicator.visible = false;
+    if (indicator.opacity !== undefined)
+        indicator.opacity = 0;
+}
+
+// #region Notification Classes
 class NotificationList extends MessageList.MessageView {
     // Do not setup mpris
     _setupMpris() {}
@@ -126,7 +376,8 @@ export function enable() {
     // Delay to ensure quicksettings is fully loaded
     _initTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         const grid = getQuickSettingsGrid();
-        if (!grid) return GLib.SOURCE_CONTINUE; // Retry if grid not ready
+        if (!grid)
+            return GLib.SOURCE_CONTINUE; // Retry if grid not ready
 
         const quickSettings = Main.panel.statusArea.quickSettings;
         if (quickSettings && quickSettings.menu) {
@@ -137,9 +388,13 @@ export function enable() {
         }
 
         // Create notification widget
-        notificationWidget = new NotificationWidget();
-        grid.add_child(notificationWidget);
-        grid.layout_manager.child_set_property(grid, notificationWidget, 'column-span', 2);
+        if (!notificationWidget) {
+            notificationWidget = new NotificationWidget();
+            grid.add_child(notificationWidget);
+            grid.layout_manager.child_set_property(grid, notificationWidget, 'column-span', 2);
+        }
+
+        ensureDndButtonWithRetry();
 
         enabled = true;
         _initTimeoutId = null;
@@ -161,6 +416,9 @@ export function disable() {
         _initTimeoutId = null;
     }
 
+    destroyDndButton();
+    removePanelMoonIcon();
+
     const grid = getQuickSettingsGrid();
     if (grid) {
         if (notificationWidget) {
@@ -171,4 +429,48 @@ export function disable() {
     }
 
     enabled = false;
+}
+
+function ensurePanelMoonIcon(isActive = false) {
+    const quickSettings = Main.panel.statusArea.quickSettings;
+    const indicatorsContainer = quickSettings?._indicators;
+    if (!indicatorsContainer)
+        return;
+
+    if (!_panelMoonIcon) {
+        _panelMoonIcon = new St.Icon({
+            icon_name: DND_ICON_NAME,
+            style_class: 'system-status-icon kiwi-dnd-indicator',
+            visible: false,
+            reactive: false,
+            accessible_name: 'Do Not Disturb Indicator',
+        });
+    }
+
+    if (_panelMoonIcon.get_parent() !== indicatorsContainer) {
+        if (_panelMoonIcon.get_parent())
+            _panelMoonIcon.get_parent().remove_child(_panelMoonIcon);
+
+        indicatorsContainer.add_child(_panelMoonIcon);
+        _panelMoonInserted = true;
+    }
+
+    if (!_panelMoonInserted)
+        return;
+
+    _panelMoonIcon.visible = isActive;
+    if (_panelMoonIcon.opacity !== undefined)
+        _panelMoonIcon.opacity = isActive ? 255 : 0;
+    _panelMoonIcon.reactive = false;
+}
+
+function removePanelMoonIcon() {
+    if (!_panelMoonIcon)
+        return;
+
+    const parent = _panelMoonIcon.get_parent();
+    if (parent)
+        parent.remove_child(_panelMoonIcon);
+
+    _panelMoonInserted = false;
 }
