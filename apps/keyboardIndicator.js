@@ -7,6 +7,14 @@ import * as Keyboard from 'resource:///org/gnome/shell/ui/status/keyboard.js';
 
 let _state = null;
 
+function _syncIndicatorState() {
+    if (!_state?.indicator)
+        return;
+    const isVisible = _applyVisibility();
+    _applyTheme(isVisible);
+    _updateLabel();
+}
+
 function _normalizeSourceId(id) {
     if (!id)
         return null;
@@ -75,19 +83,32 @@ function _ensureLabelRef() {
 
 function _applyVisibility() {
     if (!_state?.indicator)
-        return;
+        return false;
     const hidden = _state.settings.get_boolean('hide-keyboard-indicator');
+    const shellVisible = _state.shellVisible ?? _state.indicator.visible;
     if (_state.indicator._kiwiOriginalVisible === undefined)
-        _state.indicator._kiwiOriginalVisible = _state.indicator.visible;
-    _state.indicator.visible = !hidden;
+        _state.indicator._kiwiOriginalVisible = shellVisible;
+    const shouldBeVisible = !hidden && shellVisible;
+    if (_state.indicator.visible === shouldBeVisible)
+        return shouldBeVisible;
+    _state.updatingVisibility = true;
+    try {
+        _state.indicator.visible = shouldBeVisible;
+    } finally {
+        _state.updatingVisibility = false;
+    }
+    return shouldBeVisible;
 }
 
-function _applyTheme() {
+function _applyTheme(isVisible = _state?.indicator?.visible ?? false) {
     if (!_state?.indicator)
         return;
-    // Theme is always applied when the keyboard indicator module is enabled
+    if (!isVisible) {
+        _state.indicator.remove_style_class_name('kiwi-input-themed');
+        _state.indicator.remove_style_class_name('kiwi-input-en');
+        return;
+    }
     _state.indicator.add_style_class_name('kiwi-input-themed');
-    _updateLabel();
 }
 
 function _updateLabel() {
@@ -161,6 +182,14 @@ function _connect() {
         return;
     // Ensure we are connected to the current label actor
     _ensureLabelRef();
+    if (!_state.visibilityChangedId)
+        _state.visibilityChangedId = _state.indicator.connect('notify::visible', actor => {
+            if (!_state || _state.updatingVisibility)
+                return;
+            _state.shellVisible = actor.visible;
+            actor._kiwiOriginalVisible = actor.visible;
+            _syncIndicatorState();
+        });
     // Connect to InputSourceManager for proper input source change detection
     const inputSourceManager = Keyboard.getInputSourceManager();
     if (inputSourceManager && !_state.inputManagerChangedId) {
@@ -180,6 +209,10 @@ function _disconnect() {
         }
         _state.inputManagerChangedId = 0;
     }
+    if (_state?.visibilityChangedId && _state.indicator) {
+        try { _state.indicator.disconnect(_state.visibilityChangedId); } catch (_e) {}
+        _state.visibilityChangedId = 0;
+    }
 }
 
 export function enable(settings) {
@@ -188,11 +221,19 @@ export function enable(settings) {
     const indicator = _getIndicator();
     if (!indicator)
         return;
-    _state = { indicator, label: null, settings, labelChangedId: 0, inputManagerChangedId: 0, originalVisible: undefined };
+    _state = {
+        indicator,
+        label: null,
+        settings,
+        labelChangedId: 0,
+        inputManagerChangedId: 0,
+        visibilityChangedId: 0,
+        shellVisible: indicator.visible,
+        updatingVisibility: false,
+    };
     _ensureLabelRef();
-    _applyVisibility();
-    _applyTheme();
     _connect();
+    _syncIndicatorState();
 }
 
 export function disable() {
@@ -220,9 +261,11 @@ export function disable() {
             } catch (_e) {}
         }
     } catch (_e) {}
-    if (_state.indicator && _state.indicator._kiwiOriginalVisible !== undefined) {
-        _state.indicator.visible = _state.indicator._kiwiOriginalVisible;
-        _state.indicator._kiwiOriginalVisible = undefined;
+    if (_state.indicator) {
+        if (_state.shellVisible !== undefined)
+            _state.indicator.visible = _state.shellVisible;
+        if (_state.indicator._kiwiOriginalVisible !== undefined)
+            _state.indicator._kiwiOriginalVisible = undefined;
     }
     _state.indicator.remove_style_class_name('kiwi-input-themed');
     _state.indicator.remove_style_class_name('kiwi-input-en');
