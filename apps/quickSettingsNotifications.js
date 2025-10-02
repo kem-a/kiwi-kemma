@@ -302,7 +302,7 @@ class NotificationHeader extends St.BoxLayout {
 
         this._clearButton = new St.Button({
             style_class: 'message-list-clear-button button destructive-action',
-            label: 'Clear all',
+            label: 'Clear',
             can_focus: true,
             x_align: Clutter.ActorAlign.END,
             x_expand: false,
