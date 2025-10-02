@@ -11,6 +11,14 @@ import Gio from 'gi://Gio';
 
 const DND_ICON_NAME = 'weather-clear-night-symbolic';
 const DND_ICON_SIZE = 16;
+const DND_ICON_NAMES = new Set([
+    'weather-clear-night-symbolic',
+    'weather-clear-night',
+    'notifications-disabled-symbolic',
+    'notifications-disabled',
+    'notifications-none-symbolic',
+    'notifications-none',
+].map(name => name.toLowerCase()));
 
 // State holders
 let enabled = false;
@@ -29,6 +37,245 @@ let _dateMenuIndicatorState = null;
 let _panelMoonIcon = null;
 let _panelMoonInserted = false;
 let _dateMenuIndicatorSignals = null;
+const _suppressedActors = {
+    toggle: null,
+    indicator: null,
+};
+
+function matchesDndIconName(iconName) {
+    if (!iconName)
+        return false;
+
+    return DND_ICON_NAMES.has(`${iconName}`.toLowerCase());
+}
+
+function actorContainsDndIcon(actor, depth = 0) {
+    if (!actor || depth > 4)
+        return false;
+
+    const iconName = actor.icon_name ?? actor.get_icon_name?.();
+    if (matchesDndIconName(iconName))
+        return true;
+
+    if (typeof actor.get_children === 'function') {
+        const children = actor.get_children();
+        if (children) {
+            for (const child of children) {
+                if (actorContainsDndIcon(child, depth + 1))
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+function resolveClutterActor(candidate) {
+    if (!candidate)
+        return null;
+
+    if (candidate instanceof Clutter.Actor)
+        return candidate;
+
+    if (candidate.actor instanceof Clutter.Actor)
+        return candidate.actor;
+
+    if (candidate._actor instanceof Clutter.Actor)
+        return candidate._actor;
+
+    if (typeof candidate.get_actor === 'function') {
+        const actor = candidate.get_actor();
+        if (actor instanceof Clutter.Actor)
+            return actor;
+    }
+
+    if (typeof candidate.get_child === 'function') {
+        try {
+            const child = candidate.get_child();
+            if (child instanceof Clutter.Actor)
+                return child;
+        } catch (error) {
+            // Ignore failures resolving nested actors
+        }
+    }
+
+    return null;
+}
+
+function isDoNotDisturbToggle(actor) {
+    if (!actor)
+        return false;
+
+    const accessibleName = actor.accessible_name?.toLowerCase?.() ?? '';
+    if (accessibleName.includes('do not disturb'))
+        return true;
+
+    const title = actor.title ?? actor.get_title?.() ?? actor.text ?? '';
+    const titleLower = title.toLowerCase?.() ?? `${title}`.toLowerCase();
+    if (titleLower.includes('do not disturb'))
+        return true;
+
+    if (actorContainsDndIcon(actor))
+        return true;
+
+    const styleClass = actor.get_style_class_name?.() ?? actor.style_class ?? '';
+    if (styleClass.includes('dnd') || styleClass.includes('do-not-disturb'))
+        return true;
+
+    const ctorName = actor.constructor?.name?.toLowerCase?.() ?? '';
+    if (ctorName.includes('disturb'))
+        return true;
+
+    return false;
+}
+
+function isKiwiIndicator(actor) {
+    if (!actor)
+        return false;
+
+    if (actor === _panelMoonIcon)
+        return true;
+
+    if (actor.has_style_class_name?.('kiwi-dnd-indicator'))
+        return true;
+
+    const styleClass = actor.get_style_class_name?.() ?? actor.style_class ?? '';
+    return styleClass.includes('kiwi-dnd-indicator');
+}
+
+function suppressActor(key, actor, { preserveVisibility = false } = {}) {
+    if (!actor || _suppressedActors[key])
+        return false;
+
+    const parent = actor.get_parent?.();
+    if (!parent || typeof parent.get_children !== 'function')
+        return false;
+
+    const children = parent.get_children();
+    const index = children.indexOf(actor);
+
+    _suppressedActors[key] = {
+        actor,
+        parent,
+        index,
+        state: preserveVisibility ? {
+            visible: actor.visible,
+            reactive: actor.reactive,
+            opacity: actor.opacity,
+        } : null,
+    };
+
+    parent.remove_child(actor);
+    actor.hide?.();
+    actor.visible = false;
+
+    return true;
+}
+
+function restoreActor(key, fallbackParent) {
+    const suppressed = _suppressedActors[key];
+    if (!suppressed)
+        return false;
+
+    let { actor, parent, index, state } = suppressed;
+    if (!parent || typeof parent.get_children !== 'function')
+        parent = fallbackParent?.() ?? null;
+
+    if (parent) {
+        const children = parent.get_children?.() ?? [];
+        const insertIndex = index >= 0 ? Math.min(index, children.length) : children.length;
+        if (typeof parent.insert_child_at_index === 'function')
+            parent.insert_child_at_index(actor, insertIndex);
+        else
+            parent.add_child?.(actor);
+
+        if (state) {
+            if (state.reactive !== undefined)
+                actor.reactive = state.reactive;
+            if (state.opacity !== undefined && actor.opacity !== undefined)
+                actor.opacity = state.opacity;
+            if (state.visible)
+                actor.show?.();
+            else
+                actor.hide?.();
+            actor.visible = state.visible;
+        } else {
+            actor.show?.();
+            actor.visible = true;
+        }
+    }
+
+    _suppressedActors[key] = null;
+    return true;
+}
+
+function suppressBuiltinDndToggle() {
+    if (_suppressedActors.toggle)
+        return true;
+
+    const quickSettings = Main.panel.statusArea.quickSettings;
+    const menu = quickSettings?.menu;
+    if (!quickSettings || !menu)
+        return false;
+
+    let toggle = resolveClutterActor(menu._dndToggle ?? quickSettings._dndToggle);
+    if (!toggle) {
+        const grid = getQuickSettingsGrid();
+        const candidates = grid?.get_children?.() ?? [];
+        const match = candidates.find(child => isDoNotDisturbToggle(child)) ?? null;
+        toggle = resolveClutterActor(match);
+    }
+
+    if (!toggle)
+        return true;
+
+    return suppressActor('toggle', toggle);
+}
+
+function restoreBuiltinDndToggle() {
+    restoreActor('toggle', () => {
+        const quickSettings = Main.panel.statusArea.quickSettings;
+        return quickSettings?.menu?._grid ?? quickSettings?._grid ?? null;
+    });
+}
+
+function suppressBuiltinDndIndicator() {
+    if (_suppressedActors.indicator)
+        return true;
+
+    const quickSettings = Main.panel.statusArea.quickSettings;
+    if (!quickSettings)
+        return false;
+
+    const indicators = quickSettings._indicators;
+    if (!indicators)
+        return true;
+
+    let indicator = resolveClutterActor(quickSettings._dndIndicator ?? quickSettings.menu?._dndIndicator);
+
+    if (!indicator) {
+        const children = indicators.get_children?.() ?? [];
+        indicator = children.find(child => {
+            if (!child || isKiwiIndicator(child))
+                return false;
+
+            if (actorContainsDndIcon(child))
+                return true;
+
+            const styleClass = child.get_style_class_name?.() ?? child.style_class ?? '';
+            return styleClass.includes('dnd');
+        }) ?? null;
+    }
+
+    if (!indicator)
+        return true;
+
+    return suppressActor('indicator', indicator, { preserveVisibility: true });
+}
+
+function restoreBuiltinDndIndicator() {
+    restoreActor('indicator', () => Main.panel.statusArea.quickSettings?._indicators ?? null);
+}
 
 // Get QuickSettings grid
 function getQuickSettingsGrid() {
@@ -94,6 +341,9 @@ function ensureDndButton() {
     if (!container || !settings)
         return false;
 
+    const toggleSuppressed = suppressBuiltinDndToggle();
+    const indicatorSuppressed = suppressBuiltinDndIndicator();
+
     if (!_dndButton) {
         // Attempt to inherit styling from an existing button for consistency
         const existingButtons = container.get_children();
@@ -144,7 +394,7 @@ function ensureDndButton() {
     }
 
     syncDndButtonState();
-    return true;
+    return _dndButton.get_parent() === container && toggleSuppressed && indicatorSuppressed;
 }
 
 function ensureDndButtonWithRetry() {
@@ -302,7 +552,7 @@ class NotificationHeader extends St.BoxLayout {
 
         this._clearButton = new St.Button({
             style_class: 'message-list-clear-button button destructive-action',
-            label: 'Clear all',
+            label: 'Clear',
             can_focus: true,
             x_align: Clutter.ActorAlign.END,
             x_expand: false,
@@ -394,6 +644,8 @@ export function enable() {
             grid.layout_manager.child_set_property(grid, notificationWidget, 'column-span', 2);
         }
 
+        suppressBuiltinDndToggle();
+        suppressBuiltinDndIndicator();
         ensureDndButtonWithRetry();
 
         enabled = true;
@@ -417,7 +669,8 @@ export function disable() {
     }
 
     destroyDndButton();
-    removePanelMoonIcon();
+    restoreBuiltinDndIndicator();
+    restoreBuiltinDndToggle();
 
     const grid = getQuickSettingsGrid();
     if (grid) {
@@ -432,6 +685,8 @@ export function disable() {
 }
 
 function ensurePanelMoonIcon(isActive = false) {
+    suppressBuiltinDndIndicator();
+
     const quickSettings = Main.panel.statusArea.quickSettings;
     const indicatorsContainer = quickSettings?._indicators;
     if (!indicatorsContainer)
