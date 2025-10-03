@@ -328,18 +328,10 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   box-shadow: none;
 }
 
-/* Notification group collapse buttons */
-.message-group-header .message-collapse-button {
-  -st-icon-style: symbolic;
-  min-width: 12px;
-  min-height: 12px;
-  padding: 3px;
-  border-radius: 999px;
-  box-sizing: border-box;
-}
-
 /* Notification expand buttons and close button */
-.message .message-expand-button, .message .message-close-button {
+.message .message-expand-button, 
+.message .message-close-button,
+.message-group-header .message-collapse-button  {
   -st-icon-style: symbolic;
   min-width: 16px;
   min-height: 16px;
