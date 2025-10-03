@@ -335,7 +335,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   -st-icon-style: symbolic;
   min-width: 16px;
   min-height: 16px;
-  padding: 3px;
+  padding: 4px;
   border-radius: 999px;
   box-sizing: border-box;
 }
