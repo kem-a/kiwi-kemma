@@ -33,7 +33,39 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const settings = this.getSettings();
         window._settings = settings;
         window.title = 'Kiwi is not Apple';
-        window.set_size_request(-1, 600);
+        window.set_default_size(550, 600);
+        window.set_size_request(550, 600);
+
+        // Ensure custom CSS for version pill is loaded once per display
+        if (!window._kiwiVersionCssProvider) {
+            const cssProvider = new Gtk.CssProvider();
+            const cssData = `
+.kiwi-version-button {
+    padding: 6px 14px;
+    min-height: 0;
+    border-radius: 999px;
+    border: none;
+    background-color: alpha(@accent_bg_color, 0.18);
+    color: @accent_color;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.kiwi-version-button:hover {
+    background-color: alpha(@accent_bg_color, 0.26);
+}
+
+.kiwi-version-button:active {
+    background-color: alpha(@accent_bg_color, 0.34);
+}
+`;
+            cssProvider.load_from_data(cssData, -1);
+            const display = Gdk.Display.get_default();
+            if (display)
+                Gtk.StyleContext.add_provider_for_display(display, cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            window._kiwiVersionCssProvider = cssProvider;
+        }
 
         //
         // About Page (First Page)
@@ -44,242 +76,177 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         window.add(aboutPage);
 
-        const aboutGroup = new Adw.PreferencesGroup();
-        const aboutBox = new Gtk.Box({
+        // Header group with centered logo, title, author, and version
+        const headerGroup = new Adw.PreferencesGroup();
+        const headerBox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
-            spacing: 10,
-            margin_top: 10,
-            margin_bottom: 10,
-            margin_start: 10,
-            margin_end: 10,
+            spacing: 12,
+            margin_top: 16,
+            margin_bottom: 8,
+            margin_start: 16,
+            margin_end: 16,
+            halign: Gtk.Align.CENTER,
         });
 
-        // Create horizontal box for logo and title
-        const titleBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 15,
-            halign: Gtk.Align.START,
-        });
-
-        // Add Kiwi logo in front of title
+        // Logo centered
         try {
             const logoPath = this.path + '/icons/kiwi_logo.png';
             const logoFile = Gio.File.new_for_path(logoPath);
             if (logoFile.query_exists(null)) {
                 const pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(logoPath, 128, 128, true);
                 const texture = Gdk.Texture.new_for_pixbuf(pixbuf);
-                
                 const logoImage = new Gtk.Image({
-                    gicon: texture,
-                    valign: Gtk.Align.CENTER,
+                    // Gtk4: use paintable for Gdk.Texture
+                    paintable: texture,
+                    pixel_size: 128,
                     halign: Gtk.Align.CENTER,
-                    pixel_size: 64,
                 });
-                
-                titleBox.append(logoImage);
+                headerBox.append(logoImage);
             }
         } catch (e) {
             console.error('Failed to load Kiwi logo:', e);
         }
 
-        // Add title label after the logo
+        // Title
         const titleLabel = new Gtk.Label({
-            label: '<span size="large" weight="bold">Kiwi</span>',
+            label: '<span size="xx-large" weight="bold">Kiwi is not Apple</span>',
             use_markup: true,
-            valign: Gtk.Align.CENTER,
+            halign: Gtk.Align.CENTER,
         });
-        titleBox.append(titleLabel);
-        aboutBox.append(titleBox);
+        headerBox.append(titleLabel);
 
-        // Add description label from metadata and limit to first line
-        const rawDescription = this.metadata['description'] ?? _('No description available');
-        const idx = rawDescription.indexOf('\n');
-        const description = (idx !== -1 ? rawDescription.slice(0, idx) : rawDescription).trim();
-        aboutBox.append(new Gtk.Label({
-            label: description,
-            halign: Gtk.Align.START,
-            wrap: true,
-            xalign: 0,
-        }));
+        // Author
+        const authorLabel = new Gtk.Label({
+            label: 'Arnis Kemlers (kem-a)',
+            halign: Gtk.Align.CENTER,
+        });
+        headerBox.append(authorLabel);
 
-        const versionName = this.metadata['version-name'] ?? (this.metadata.version ? `v${this.metadata.version}` : _('Unknown'));
-        aboutBox.append(new Gtk.Label({
-            label: `Version: ${versionName}`,
-            halign: Gtk.Align.START,
-        }));
+        // Version pill
+        const versionName = this.metadata['version-name'] ?? (this.metadata.version ? `${this.metadata.version}` : _('Unknown'));
+        const versionButton = new Gtk.Button({
+            label: versionName,
+            halign: Gtk.Align.CENTER,
+            margin_top: 4,
+        });
+        versionButton.add_css_class('pill');
+        versionButton.add_css_class('kiwi-version-button');
+        versionButton.connect('clicked', () => {
+            const display = Gdk.Display.get_default();
+            const clipboard = display?.get_clipboard?.();
+            clipboard?.set_text?.(versionName);
+        });
+        headerBox.append(versionButton);
 
-        aboutBox.append(new Gtk.Label({
-            label: 'Authors: Arnis Kemlers (kem-a)',
-            halign: Gtk.Align.START,
-        }));
+        headerGroup.add(headerBox);
+        aboutPage.add(headerGroup);
 
-        // Add spacer after authors section
-        aboutBox.append(new Gtk.Label({
-            label: '',
-            margin_top: 20,
-        }));
+        // Content group with two columns: links (left) and QR + coffee (right)
+        const contentGroup = new Adw.PreferencesGroup();
+        const contentGrid = new Gtk.Grid({
+            column_spacing: 24,
+            row_spacing: 12,
+            margin_top: 8,
+            margin_bottom: 16,
+            margin_start: 16,
+            margin_end: 16,
+            hexpand: true,
+        });
 
-        // Create a horizontal container for links and QR section
-        const linksAndQrContainer = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 40,
+        // Left column: link groups styled with ActionRows
+        const leftColumn = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 12,
+            hexpand: true,
             halign: Gtk.Align.FILL,
-            hexpand: true,
         });
 
-        // Create container for links
-        const linksContainer = new Gtk.Box({
+        // First card: Website and Report an Issue
+        const linksCard = new Adw.PreferencesGroup();
+        const websiteRow = new Adw.ActionRow({
+            title: _('Website'),
+            activatable: true,
+        });
+        websiteRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+        websiteRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma', Gdk.CURRENT_TIME));
+        linksCard.add(websiteRow);
+
+        const issueRow = new Adw.ActionRow({
+            title: _('Report an Issue'),
+            activatable: true,
+        });
+        issueRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+        issueRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma/issues', Gdk.CURRENT_TIME));
+        linksCard.add(issueRow);
+        leftColumn.append(linksCard);
+
+        // Second card: Legal
+        const legalCard = new Adw.PreferencesGroup();
+        const legalRow = new Adw.ActionRow({
+            title: _('Legal'),
+            activatable: true,
+        });
+        legalRow.add_suffix(new Gtk.Image({ icon_name: 'go-next-symbolic' }));
+        legalRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma?tab=License-1-ov-file#readme', Gdk.CURRENT_TIME));
+        legalCard.add(legalRow);
+        leftColumn.append(legalCard);
+
+        contentGrid.attach(leftColumn, 0, 0, 1, 1);
+
+        // Right column: QR + coffee button
+        const rightColumn = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
-            spacing: 10,
-            halign: Gtk.Align.START,
-        });
-
-        // Create GitHub link with icon and text
-        const githubBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 6,
-            halign: Gtk.Align.START,
-        });
-        githubBox.append(new Gtk.Image({
-            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/github-symbolic.svg`) }),
-            icon_size: Gtk.IconSize.NORMAL,
-        }));
-        const websiteLink = new Gtk.LinkButton({
-            label: 'Follow me on Github',
-            uri: 'https://github.com/kem-a/kiwi-kemma',
-        });
-        githubBox.append(websiteLink);
-        linksContainer.append(githubBox);
-
-        // Create bug report link with icon and text
-        const bugBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 6,
-            halign: Gtk.Align.START,
-        });
-        bugBox.append(new Gtk.Image({
-            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/bug-symbolic.svg`) }),
-            icon_size: Gtk.IconSize.NORMAL,
-        }));
-        const bugLink = new Gtk.LinkButton({
-            label: 'Report a Bug',
-            uri: 'https://github.com/kem-a/kiwi-kemma/issues',
-        });
-        bugBox.append(bugLink);
-        linksContainer.append(bugBox);
-
-        // Create license link with icon and text
-        const licenseBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 6,
-            halign: Gtk.Align.START,
-        });
-        licenseBox.append(new Gtk.Image({
-            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/text-symbolic.svg`) }),
-            icon_size: Gtk.IconSize.NORMAL,
-        }));
-        const licenseLink = new Gtk.LinkButton({
-            label: 'GPLv3 License',
-            uri: 'https://github.com/kem-a/kiwi-kemma?tab=License-1-ov-file#readme',
-        });
-        licenseBox.append(licenseLink);
-        linksContainer.append(licenseBox);
-
-        // Add links container to the horizontal layout
-        linksAndQrContainer.append(linksContainer);
-
-        // Add the links and QR container to the main aboutBox
-        aboutBox.append(linksAndQrContainer);
-
-        // Create a horizontal container for main content and QR section
-        const aboutMainContainer = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 20,
-            margin_top: 10,
-            margin_bottom: 10,
-            margin_start: 10,
-            margin_end: 10,
-        });
-
-        // Create a vertical container for the main about content
-        const aboutContentContainer = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 10,
-            hexpand: true,
-        });
-        aboutContentContainer.append(aboutBox);
-
-        // Add the main about content
-        aboutMainContainer.append(aboutContentContainer);
-
-        // Create support section with QR code above coffee button
-        const supportSection = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 10,
-            halign: Gtk.Align.END,
+            spacing: 12,
+            halign: Gtk.Align.CENTER,
             valign: Gtk.Align.START,
-            hexpand: true,
         });
 
-        // Add QR code image
         try {
             const qrPath = this.path + '/icons/qr.png';
             const qrFile = Gio.File.new_for_path(qrPath);
             if (qrFile.query_exists(null)) {
                 const qrPixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(qrPath, 128, 128, true);
                 const qrTexture = Gdk.Texture.new_for_pixbuf(qrPixbuf);
-                
                 const qrImage = new Gtk.Image({
-                    gicon: qrTexture,
-                    halign: Gtk.Align.CENTER,
+                    paintable: qrTexture,
                     pixel_size: 128,
-                });
-                
-                // Create a container to ensure proper sizing
-                const qrContainer = new Gtk.Box({
-                    orientation: Gtk.Orientation.VERTICAL,
-                    width_request: 128,
-                    height_request: 128,
                     halign: Gtk.Align.CENTER,
                 });
-                qrContainer.append(qrImage);
-                
-                supportSection.append(qrContainer);
+                rightColumn.append(qrImage);
             }
         } catch (e) {
             console.error('Failed to load QR code image:', e);
         }
 
-        // Create coffee button with icon and text
         const coffeeButton = new Gtk.Button({
-            css_classes: ['suggested-action'],
             halign: Gtk.Align.CENTER,
         });
-
-        const coffeeBox = new Gtk.Box({
+        const coffeeHBox = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
             spacing: 6,
+            halign: Gtk.Align.CENTER,
+            valign: Gtk.Align.CENTER,
         });
-
-        coffeeBox.append(new Gtk.Image({
+        coffeeHBox.append(new Gtk.Image({
             gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/coffee-icon-symbolic.svg`) }),
             icon_size: Gtk.IconSize.NORMAL,
         }));
-
-        coffeeBox.append(new Gtk.Label({
-            label: 'Buy Me a Coffee',
+        coffeeHBox.append(new Gtk.Label({
+            label: _('Buy Me a Coffee'),
+            halign: Gtk.Align.CENTER,
         }));
-
-        coffeeButton.set_child(coffeeBox);
+        coffeeButton.set_child(coffeeHBox);
+        coffeeButton.add_css_class('suggested-action');
+        coffeeButton.add_css_class('pill');
         coffeeButton.connect('clicked', () => {
             Gtk.show_uri(null, 'https://revolut.me/arnisk', Gdk.CURRENT_TIME);
         });
+        rightColumn.append(coffeeButton);
 
-        supportSection.append(coffeeButton);
-        linksAndQrContainer.append(supportSection);
+        contentGrid.attach(rightColumn, 1, 0, 1, 1);
 
-        aboutGroup.add(aboutMainContainer);
-        aboutPage.add(aboutGroup);
+        contentGroup.add(contentGrid);
+        aboutPage.add(contentGroup);
 
         //
         // Options Page
@@ -531,10 +498,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         window.add(advancedPage);
 
         // Advanced Page Content
-        const advancedGroup = new Adw.PreferencesGroup({
-            title: _('Optional Native Modules'),
-            description: _('Enhanced features that require manual installation due to GNOME Extensions platform limitations'),
-        });
+        const advancedGroup = new Adw.PreferencesGroup();
         advancedPage.add(advancedGroup);
 
         const advancedInfoBox = new Gtk.Box({
@@ -568,43 +532,30 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         // Explanation text
         const explanationLabel = new Gtk.Label({
-            label: 'The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this additional module to achieve the desired behavior. This module cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries.',
+            label: 'The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n\nThis binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible.',
             wrap: true,
             halign: Gtk.Align.START,
             xalign: 0,
         });
         advancedInfoBox.append(explanationLabel);
+        advancedGroup.add(advancedInfoBox);
 
         // Installation instructions
-        const installLabel = new Gtk.Label({
-            label: '<b>Manual Installation Available:</b>\nIf you want this enhanced feature, you can compile and install it manually from the source code.',
-            use_markup: true,
-            wrap: true,
-            halign: Gtk.Align.START,
-            xalign: 0,
+        // Link row in libadwaita style (like GTK4 "Website" row)
+        const advancedLinksGroup = new Adw.PreferencesGroup();
+        const guideRow = new Adw.ActionRow({
+            title: _('Installation Guide on GitHub'),
+            subtitle: _('Open the advanced module build instructions'),
+            activatable: true,
         });
-        advancedInfoBox.append(installLabel);
-
-        // GitHub link button
-        const githubLinkBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 10,
-            halign: Gtk.Align.START,
-        });
-
-        const githubButton = new Gtk.LinkButton({
-            label: 'View Installation Guide on GitHub',
-            uri: 'https://github.com/kem-a/kiwi-kemma/tree/main/advanced',
-        });
-        githubButton.add_css_class('suggested-action');
-
-        githubLinkBox.append(new Gtk.Image({
-            icon_name: 'software-update-available-symbolic',
-            icon_size: Gtk.IconSize.NORMAL,
+        guideRow.add_suffix(new Gtk.Image({
+            icon_name: 'external-link-symbolic',
         }));
-        githubLinkBox.append(githubButton);
-        advancedInfoBox.append(githubLinkBox);
-        advancedGroup.add(advancedInfoBox);
+        guideRow.connect('activated', () => {
+            Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma/tree/main/advanced', Gdk.CURRENT_TIME);
+        });
+        advancedLinksGroup.add(guideRow);
+        advancedPage.add(advancedLinksGroup);
 
         //
         // Credits Page
