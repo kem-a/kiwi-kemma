@@ -290,7 +290,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   padding: 0;
   border-radius: 12px;
   max-width: 360px; /* Default quicksettings width */
-  max-height: 300px;
+  max-height: 600px;
   box-sizing: border-box;
 }
 

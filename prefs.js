@@ -33,33 +33,44 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const settings = this.getSettings();
         window._settings = settings;
         window.title = 'Kiwi is not Apple';
-        window.set_default_size(550, 600);
-        window.set_size_request(550, 600);
+        window.set_default_size(500, 710);
+        window.set_size_request(420, 550);
+        // Enable built-in libadwaita search (adds search button automatically)
+        if (window.set_search_enabled)
+            window.set_search_enabled(true);
 
         // Ensure custom CSS for version pill is loaded once per display
         if (!window._kiwiVersionCssProvider) {
             const cssProvider = new Gtk.CssProvider();
             const cssData = `
-.kiwi-version-button {
-    padding: 6px 14px;
-    min-height: 0;
-    border-radius: 999px;
-    border: none;
-    background-color: alpha(@accent_bg_color, 0.18);
-    color: @accent_color;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-}
+                .kiwi-version-button {
+                    padding: 6px 14px;
+                    min-height: 0;
+                    border-radius: 999px;
+                    border: none;
+                    background-color: alpha(@accent_bg_color, 0.18);
+                    color: @accent_color;
+                    font-weight: 600;
+                    letter-spacing: 0.05em;
+                    text-transform: uppercase;
+                }
 
-.kiwi-version-button:hover {
-    background-color: alpha(@accent_bg_color, 0.26);
-}
+                .kiwi-version-button:hover, .kiwi-coffee-button:hover  {
+                    background-color: alpha(@accent_bg_color, 0.26);
+                }
 
-.kiwi-version-button:active {
-    background-color: alpha(@accent_bg_color, 0.34);
-}
-`;
+                .kiwi-version-button:active, .kiwi-coffee-button:active  {
+                    background-color: alpha(@accent_bg_color, 0.34);
+                }
+
+                .kiwi-coffee-button {
+                    background-color: alpha(@accent_bg_color, 0.18);
+                    color: @accent_color;
+                    font-weight: 600;
+                    padding: 0;
+                    margin: 0;
+                }
+                `;
             cssProvider.load_from_data(cssData, -1);
             const display = Gdk.Display.get_default();
             if (display)
@@ -128,13 +139,17 @@ export default class KiwiPreferences extends ExtensionPreferences {
             label: versionName,
             halign: Gtk.Align.CENTER,
             margin_top: 4,
+            tooltip_text: _('Change log'),
         });
         versionButton.add_css_class('pill');
         versionButton.add_css_class('kiwi-version-button');
+        const releasesBaseUrl = 'https://github.com/kem-a/kiwi-kemma/releases';
         versionButton.connect('clicked', () => {
-            const display = Gdk.Display.get_default();
-            const clipboard = display?.get_clipboard?.();
-            clipboard?.set_text?.(versionName);
+            let targetUrl = releasesBaseUrl;
+            if (versionName && versionName !== _('Unknown'))
+                targetUrl = `${releasesBaseUrl}/tag/v${encodeURIComponent(versionName)}`;
+
+            Gtk.show_uri(null, targetUrl, Gdk.CURRENT_TIME);
         });
         headerBox.append(versionButton);
 
@@ -161,35 +176,167 @@ export default class KiwiPreferences extends ExtensionPreferences {
             halign: Gtk.Align.FILL,
         });
 
-        // First card: Website and Report an Issue
-        const linksCard = new Adw.PreferencesGroup();
+        // Separate cards: Website and Report an Issue
+        const websiteCard = new Adw.PreferencesGroup();
         const websiteRow = new Adw.ActionRow({
             title: _('Website'),
             activatable: true,
         });
         websiteRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
         websiteRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma', Gdk.CURRENT_TIME));
-        linksCard.add(websiteRow);
+        websiteCard.add(websiteRow);
+        leftColumn.append(websiteCard);
 
+        const issueCard = new Adw.PreferencesGroup();
         const issueRow = new Adw.ActionRow({
             title: _('Report an Issue'),
             activatable: true,
         });
         issueRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
         issueRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma/issues', Gdk.CURRENT_TIME));
-        linksCard.add(issueRow);
-        leftColumn.append(linksCard);
+        issueCard.add(issueRow);
+        leftColumn.append(issueCard);
 
-        // Second card: Legal
-        const legalCard = new Adw.PreferencesGroup();
+        // Combined Credits & Legal group
+        const infoGroup = new Adw.PreferencesGroup();
+
+        const creditsRow = new Adw.ActionRow({
+            title: _('Credits'),
+            activatable: true,
+        });
+        creditsRow.add_suffix(new Gtk.Image({ icon_name: 'go-up-symbolic' }));
+        creditsRow.connect('activated', () => {
+            // Create a dialog with slide-up presentation
+            const creditsDialog = new Adw.Dialog({
+                content_width: 450,
+                content_height: 600,
+                presentation_mode: Adw.DialogPresentationMode.BOTTOM_SHEET,
+            });
+
+            const creditsToolbar = new Adw.ToolbarView();
+            const creditsHeader = new Adw.HeaderBar({
+                show_title: true,
+                title_widget: new Adw.WindowTitle({ title: _('Credits') }),
+            });
+            creditsToolbar.add_top_bar(creditsHeader);
+
+            const creditsContent = new Adw.PreferencesPage();
+
+            // Thanks section
+            const thanksGroup = new Adw.PreferencesGroup({
+                title: _(''),
+                description: _('Special thanks to all contributors, developers and the GNOME community ♥️♥️♥️'),
+            });
+            
+            // Contributors link
+            const contributorsRow = new Adw.ActionRow({
+                title: _('Contributors'),
+                subtitle: _('View all project contributors on GitHub'),
+                activatable: true,
+            });
+            contributorsRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+            contributorsRow.connect('activated', () => Gtk.show_uri(window, 'https://github.com/kem-a/kiwi-kemma/graphs/contributors', Gdk.CURRENT_TIME));
+            thanksGroup.add(contributorsRow);
+            
+            creditsContent.add(thanksGroup);
+
+            // Recommended Extensions section
+            const extGroup = new Adw.PreferencesGroup({
+                title: _('Recommended Extensions'),
+                description: _('Extensions that are compatible with Kiwi'),
+            });
+            
+            const recommendations = [
+                { title: 'Dash to Dock', author: 'michele_g', url: 'https://extensions.gnome.org/extension/307/dash-to-dock/' },
+                { title: 'Compiz alike magic lamp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/' },
+                { title: 'Logo Menu', author: 'Aryan Kaushik', url: 'https://extensions.gnome.org/extension/4451/logo-menu/' },
+                { title: 'AppIndicator Support', author: '3v1n0', url: 'https://extensions.gnome.org/extension/615/appindicator-support/' },
+                { title: 'Gtk4 Desktop Icons NG (DING)', author: 'smedius', url: 'https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/' },
+                { title: 'Clipboard Indicator', author: 'Tudmotu', url: 'https://extensions.gnome.org/extension/779/clipboard-indicator/' },
+                { title: 'Weather or Not', author: 'somepaulo', url: 'https://extensions.gnome.org/extension/5660/weather-or-not/' },
+            ];
+
+            recommendations.forEach((rec) => {
+                const extRow = new Adw.ActionRow({
+                    title: rec.title,
+                    subtitle: `by ${rec.author}`,
+                    activatable: true,
+                });
+                extRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+                extRow.connect('activated', () => Gtk.show_uri(window, rec.url, Gdk.CURRENT_TIME));
+                extGroup.add(extRow);
+            });
+
+            creditsContent.add(extGroup);
+
+            const scroller = new Gtk.ScrolledWindow({ vexpand: true, hexpand: true });
+            scroller.set_child(creditsContent);
+            creditsToolbar.set_content(scroller);
+            creditsDialog.set_child(creditsToolbar);
+
+            // Present the dialog (slides in from right on wide screens, bottom on mobile)
+            creditsDialog.present(window);
+        });
+        infoGroup.add(creditsRow);
+
         const legalRow = new Adw.ActionRow({
             title: _('Legal'),
             activatable: true,
         });
-        legalRow.add_suffix(new Gtk.Image({ icon_name: 'go-next-symbolic' }));
-        legalRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma?tab=License-1-ov-file#readme', Gdk.CURRENT_TIME));
-        legalCard.add(legalRow);
-        leftColumn.append(legalCard);
+        legalRow.add_suffix(new Gtk.Image({ icon_name: 'go-up-symbolic' }));
+        legalRow.connect('activated', () => {
+            // Create a dialog with slide-up presentation
+            const legalDialog = new Adw.Dialog({
+                content_width: 450,
+                content_height: 600,
+                presentation_mode: Adw.DialogPresentationMode.BOTTOM_SHEET,
+            });
+
+            const legalToolbar = new Adw.ToolbarView();
+            const legalHeader = new Adw.HeaderBar({
+                show_title: true,
+                title_widget: new Adw.WindowTitle({ title: _('Legal') }),
+            });
+            legalToolbar.add_top_bar(legalHeader);
+
+            const legalContent = new Adw.PreferencesPage();
+
+            // License section
+            const licenseGroup = new Adw.PreferencesGroup({
+                title: _('License'),
+                description: _('Kiwi is not Apple is free and open source software'),
+            });
+            
+            // GPL License link
+            const gplRow = new Adw.ActionRow({
+                title: _('GNU General Public License v3.0'),
+                subtitle: _('View the full license text on GitHub'),
+                activatable: true,
+            });
+            gplRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+            gplRow.connect('activated', () => Gtk.show_uri(window, 'https://github.com/kem-a/kiwi-kemma?tab=GPL-3.0-1-ov-file', Gdk.CURRENT_TIME));
+            licenseGroup.add(gplRow);
+            
+            legalContent.add(licenseGroup);
+
+            // Copyright section
+            const copyrightGroup = new Adw.PreferencesGroup({
+                title: _('Copyright'),
+                description: _('Copyright © 2025 Arnis Kemlers\n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.'),
+            });
+            legalContent.add(copyrightGroup);
+
+            const scroller = new Gtk.ScrolledWindow({ vexpand: true, hexpand: true });
+            scroller.set_child(legalContent);
+            legalToolbar.set_content(scroller);
+            legalDialog.set_child(legalToolbar);
+
+            // Present the dialog
+            legalDialog.present(window);
+        });
+        infoGroup.add(legalRow);
+
+        leftColumn.append(infoGroup);
 
         contentGrid.attach(leftColumn, 0, 0, 1, 1);
 
@@ -197,8 +344,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const rightColumn = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 12,
-            halign: Gtk.Align.CENTER,
+            halign: Gtk.Align.FILL,
             valign: Gtk.Align.START,
+            margin_top: 35,
+            hexpand: true,
         });
 
         try {
@@ -212,36 +361,33 @@ export default class KiwiPreferences extends ExtensionPreferences {
                     pixel_size: 128,
                     halign: Gtk.Align.CENTER,
                 });
-                rightColumn.append(qrImage);
+                const qrBox = new Gtk.Box({
+                    halign: Gtk.Align.CENTER,
+                    valign: Gtk.Align.CENTER,
+                    margin_bottom: 12,
+                });
+                qrBox.append(qrImage);
+                rightColumn.append(qrBox);
             }
         } catch (e) {
             console.error('Failed to load QR code image:', e);
         }
 
-        const coffeeButton = new Gtk.Button({
-            halign: Gtk.Align.CENTER,
+        const coffeeGroup = new Adw.PreferencesGroup();
+        const coffeeRow = new Adw.ActionRow({
+            title: _('Buy Me a Coffee'),
+            activatable: true,
         });
-        const coffeeHBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 6,
-            halign: Gtk.Align.CENTER,
-            valign: Gtk.Align.CENTER,
-        });
-        coffeeHBox.append(new Gtk.Image({
+        coffeeRow.add_css_class('kiwi-coffee-button');
+        coffeeRow.add_prefix(new Gtk.Image({
             gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/coffee-icon-symbolic.svg`) }),
             icon_size: Gtk.IconSize.NORMAL,
         }));
-        coffeeHBox.append(new Gtk.Label({
-            label: _('Buy Me a Coffee'),
-            halign: Gtk.Align.CENTER,
-        }));
-        coffeeButton.set_child(coffeeHBox);
-        coffeeButton.add_css_class('suggested-action');
-        coffeeButton.add_css_class('pill');
-        coffeeButton.connect('clicked', () => {
+        coffeeRow.connect('activated', () => {
             Gtk.show_uri(null, 'https://revolut.me/arnisk', Gdk.CURRENT_TIME);
         });
-        rightColumn.append(coffeeButton);
+        coffeeGroup.add(coffeeRow);
+        rightColumn.append(coffeeGroup);
 
         contentGrid.attach(rightColumn, 1, 0, 1, 1);
 
@@ -543,6 +689,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Installation instructions
         // Link row in libadwaita style (like GTK4 "Website" row)
         const advancedLinksGroup = new Adw.PreferencesGroup();
+        advancedLinksGroup.set_margin_start(15);
+        advancedLinksGroup.set_margin_end(70);
         const guideRow = new Adw.ActionRow({
             title: _('Installation Guide on GitHub'),
             subtitle: _('Open the advanced module build instructions'),
@@ -556,84 +704,5 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         advancedLinksGroup.add(guideRow);
         advancedPage.add(advancedLinksGroup);
-
-        //
-        // Credits Page
-        //
-        const creditsPage = new Adw.PreferencesPage({
-            title: 'Credits',
-            icon_name: 'emblem-favorite-symbolic',
-        });
-        window.add(creditsPage);
-
-        const creditsGroup = new Adw.PreferencesGroup();
-        const creditsBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 10,
-            margin_top: 10,
-            margin_bottom: 10,
-            margin_start: 10,
-            margin_end: 10,
-        });
-
-        creditsBox.append(new Gtk.Label({
-            label: 'Special thanks to all contributors and the GNOME community ♥️♥️♥️',
-            halign: Gtk.Align.START,
-        }));
-
-        creditsGroup.add(creditsBox);
-        creditsPage.add(creditsGroup);
-
-        // Recommended Extensions Section
-        const recommendationsGroup = new Adw.PreferencesGroup({
-            title: _('Recommended Extensions'),
-            description: _('Extensions that work great with Kiwi'),
-        });
-        creditsPage.add(recommendationsGroup);
-
-        const recommendationsBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 10,
-            margin_top: 5,
-            margin_bottom: 5,
-            margin_start: 10,
-            margin_end: 10,
-        });
-
-        const recommendations = [
-            { title: 'Dash to Dock', author: 'by michele_g', url: 'https://extensions.gnome.org/extension/307/dash-to-dock/' },
-            { title: 'Compiz alike magic lamp effect', author: 'by hermes83', url: 'https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/' },
-            { title: 'Logo Menu', author: 'Aryan Kaushik', url: 'https://extensions.gnome.org/extension/4451/logo-menu/' },
-            { title: 'AppIndicator Support', author: 'by 3v1n0', url: 'https://extensions.gnome.org/extension/615/appindicator-support/' },
-            { title: 'Gtk4 Desktop Icons NG (DING)', author: 'by smedius', url: 'https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/' },
-            { title: 'Clipboard Indicator', author: 'by Tudmotu', url: 'https://extensions.gnome.org/extension/779/clipboard-indicator/' },
-        ];
-
-        recommendations.forEach((rec) => {
-            const extBox = new Gtk.Box({
-                orientation: Gtk.Orientation.HORIZONTAL,
-                spacing: 6,
-                halign: Gtk.Align.START,
-            });
-
-            const linkButton = new Gtk.LinkButton({
-                label: rec.title,
-                uri: rec.url,
-                halign: Gtk.Align.START,
-            });
-            extBox.append(linkButton);
-
-            const authorLabel = new Gtk.Label({
-                label: rec.author,
-                halign: Gtk.Align.START,
-                css_classes: ['dim-label'],
-            });
-            authorLabel.add_css_class('caption');
-            extBox.append(authorLabel);
-
-            recommendationsBox.append(extBox);
-        });
-
-        recommendationsGroup.add(recommendationsBox);
     }
 }

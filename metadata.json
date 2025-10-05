@@ -11,7 +11,8 @@
   ],
   "url": "https://github.com/kem-a/kiwi-kemma",
   "uuid": "kiwi@kemma",
-  "version": "0.10.1-beta",
+  "version": "",
+  "version-name": "1.0.0",
   "donations": {
     "custom": "https://revolut.me/arnisk"
   }
