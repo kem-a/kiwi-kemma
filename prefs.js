@@ -33,7 +33,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const settings = this.getSettings();
         window._settings = settings;
         window.title = 'Kiwi is not Apple';
-        window.set_default_size(500, 710);
+        window.set_default_size(500, 680);
         window.set_size_request(420, 550);
         // Enable built-in libadwaita search (adds search button automatically)
         if (window.set_search_enabled)
@@ -67,7 +67,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
                     background-color: alpha(@accent_bg_color, 0.18);
                     color: @accent_color;
                     font-weight: 600;
-                    padding: 0;
+                    padding: 6px 14px;
                     margin: 0;
                 }
                 `;
@@ -373,21 +373,28 @@ export default class KiwiPreferences extends ExtensionPreferences {
             console.error('Failed to load QR code image:', e);
         }
 
-        const coffeeGroup = new Adw.PreferencesGroup();
-        const coffeeRow = new Adw.ActionRow({
-            title: _('Buy Me a Coffee'),
-            activatable: true,
+        const coffeeButton = new Gtk.Button({
+            halign: Gtk.Align.CENTER,
+            tooltip_text: _('Support the project'),
         });
-        coffeeRow.add_css_class('kiwi-coffee-button');
-        coffeeRow.add_prefix(new Gtk.Image({
+        coffeeButton.add_css_class('pill');
+        coffeeButton.add_css_class('kiwi-coffee-button');
+
+        const coffeeContent = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 8,
+        });
+        coffeeContent.append(new Gtk.Image({
             gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/coffee-icon-symbolic.svg`) }),
-            icon_size: Gtk.IconSize.NORMAL,
         }));
-        coffeeRow.connect('activated', () => {
+        coffeeContent.append(new Gtk.Label({
+            label: _('Buy Me a Coffee'),
+        }));
+        coffeeButton.set_child(coffeeContent);
+        coffeeButton.connect('clicked', () => {
             Gtk.show_uri(null, 'https://revolut.me/arnisk', Gdk.CURRENT_TIME);
         });
-        coffeeGroup.add(coffeeRow);
-        rightColumn.append(coffeeGroup);
+        rightColumn.append(coffeeButton);
 
         contentGrid.attach(rightColumn, 1, 0, 1, 1);
 
