@@ -184,8 +184,27 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
     _updateButtonIcon(buttonType) {
     const button = this[`_${buttonType}Button`];
-    const isMaximized = buttonType === 'maximize' && global.display.focus_window?.is_maximized && global.display.focus_window.is_maximized();
-    const isFullscreen = global.display.focus_window?.is_fullscreen();
+    const win = global.display.focus_window;
+
+    // Robust maximized detection across GNOME versions
+    let isMaximized = false;
+    if (buttonType === 'maximize' && win) {
+        // Common properties on many GNOME versions
+        if (win.maximized_horizontally && win.maximized_vertically) {
+            isMaximized = true;
+        } else if (typeof win.get_maximized === 'function') {
+            // Fallback to flags when available
+            try {
+                const flags = win.get_maximized();
+                if ((flags & Meta.MaximizeFlags.HORIZONTAL) && (flags & Meta.MaximizeFlags.VERTICAL))
+                    isMaximized = true;
+            } catch (_) {}
+        } else if (typeof win.is_maximized === 'function') {
+            // Older API fallback
+            try { isMaximized = !!win.is_maximized(); } catch (_) {}
+        }
+    }
+    const isFullscreen = !!win && typeof win.is_fullscreen === 'function' && win.is_fullscreen();
         // When in fullscreen, the minimize button should be disabled (non-reactive) and not show hover/active variants
         if (buttonType === 'minimize' && isFullscreen && this._settings.get_boolean('enable-app-window-buttons') && this._settings.get_boolean('show-window-controls')) {
             // Force base icon, ignore hover/active state
@@ -229,8 +248,22 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
     _updateVisibility() {
         const focusWindow = this._focusWindow;
-        const isMaximized = focusWindow && focusWindow.maximized_horizontally && focusWindow.maximized_vertically;
-        const isFullscreen = focusWindow && focusWindow.is_fullscreen();
+        // Use robust maximized detection (match _updateButtonIcon)
+        let isMaximized = false;
+        if (focusWindow) {
+            if (focusWindow.maximized_horizontally && focusWindow.maximized_vertically) {
+                isMaximized = true;
+            } else if (typeof focusWindow.get_maximized === 'function') {
+                try {
+                    const flags = focusWindow.get_maximized();
+                    if ((flags & Meta.MaximizeFlags.HORIZONTAL) && (flags & Meta.MaximizeFlags.VERTICAL))
+                        isMaximized = true;
+                } catch (_) {}
+            } else if (typeof focusWindow.is_maximized === 'function') {
+                try { isMaximized = !!focusWindow.is_maximized(); } catch (_) {}
+            }
+        }
+        const isFullscreen = !!focusWindow && typeof focusWindow.is_fullscreen === 'function' && focusWindow.is_fullscreen();
         
         // Store previous state for transition detection
         const wasVisible = this.visible;

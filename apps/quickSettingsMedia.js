@@ -424,7 +424,7 @@ class MediaHeader extends St.BoxLayout {
         this._pageIndicator.x_expand = true;
         this._pageIndicator.x_align = Clutter.ActorAlign.CENTER;
         this._pageIndicator.y_align = Clutter.ActorAlign.CENTER;
-        this._pageIndicator.style = 'margin-top: 6px; margin-bottom: 0px;';
+        this._pageIndicator.add_style_class_name('kiwi-page-indicators');
         this.add_child(this._pageIndicator);
     }
 
