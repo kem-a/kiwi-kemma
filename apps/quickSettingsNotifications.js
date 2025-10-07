@@ -8,6 +8,15 @@ import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import {
+    SHELL_HAS_SYSTEM_DND,
+    suppressBuiltinDndIndicator,
+    suppressBuiltinDndToggle,
+    restoreBuiltinDndIndicator,
+    restoreBuiltinDndToggle,
+    hideDateMenuIndicator,
+    restoreDateMenuIndicator,
+} from './quickSettingsDnDRemoval.js';
 
 const DND_ICON_NAME = 'weather-clear-night-symbolic';
 const DND_ICON_SIZE = 16;
@@ -24,11 +33,9 @@ let _dndIcon = null;
 let _notificationSettings = null;
 let _notificationSettingsChangedId = null;
 let _dndEnsureTimeoutId = null;
-let _dateMenuIndicator = null;
-let _dateMenuIndicatorState = null;
 let _panelMoonIcon = null;
 let _panelMoonInserted = false;
-let _dateMenuIndicatorSignals = null;
+
 
 // Get QuickSettings grid
 function getQuickSettingsGrid() {
@@ -76,7 +83,8 @@ function syncDndButtonState() {
     _dndIcon.icon_name = DND_ICON_NAME;
     _dndButton.set_tooltip_text?.(dndActive ? 'Disable Do Not Disturb' : 'Enable Do Not Disturb');
 
-    hideDateMenuIndicator();
+    if (SHELL_HAS_SYSTEM_DND)
+        hideDateMenuIndicator();
     ensurePanelMoonIcon(dndActive);
 }
 
@@ -93,6 +101,9 @@ function ensureDndButton() {
     const settings = ensureNotificationSettings();
     if (!container || !settings)
         return false;
+
+    const toggleSuppressed = SHELL_HAS_SYSTEM_DND ? suppressBuiltinDndToggle() : true;
+    const indicatorSuppressed = SHELL_HAS_SYSTEM_DND ? suppressBuiltinDndIndicator() : true;
 
     if (!_dndButton) {
         // Attempt to inherit styling from an existing button for consistency
@@ -144,7 +155,7 @@ function ensureDndButton() {
     }
 
     syncDndButtonState();
-    return true;
+    return _dndButton.get_parent() === container && toggleSuppressed && indicatorSuppressed;
 }
 
 function ensureDndButtonWithRetry() {
@@ -190,93 +201,9 @@ function destroyDndButton() {
     _dndIcon = null;
     _notificationSettings = null;
 
-    restoreDateMenuIndicator();
+    if (SHELL_HAS_SYSTEM_DND)
+        restoreDateMenuIndicator();
     removePanelMoonIcon();
-}
-
-function getDateMenuIndicator() {
-    if (_dateMenuIndicator)
-        return _dateMenuIndicator;
-
-    const dateMenu = Main.panel.statusArea?.dateMenu;
-    if (!dateMenu)
-        return null;
-
-    const indicator = dateMenu._indicator ?? null;
-    if (indicator)
-        _dateMenuIndicator = indicator;
-
-    return _dateMenuIndicator;
-}
-
-function hideDateMenuIndicator() {
-    const indicator = getDateMenuIndicator();
-    if (!indicator)
-        return;
-
-    if (!_dateMenuIndicatorState) {
-        _dateMenuIndicatorState = {
-            visible: indicator.visible,
-            reactive: indicator.reactive,
-            opacity: indicator.opacity,
-        };
-    }
-
-    enforceDateMenuIndicatorHidden(indicator);
-
-    if (!_dateMenuIndicatorSignals) {
-        _dateMenuIndicatorSignals = [];
-        _dateMenuIndicatorSignals.push(indicator.connect('notify::visible', () => enforceDateMenuIndicatorHidden(indicator)));
-        _dateMenuIndicatorSignals.push(indicator.connect('notify::opacity', () => enforceDateMenuIndicatorHidden(indicator)));
-        _dateMenuIndicatorSignals.push(indicator.connect('show', () => enforceDateMenuIndicatorHidden(indicator)));
-    }
-}
-
-function restoreDateMenuIndicator() {
-    const indicator = getDateMenuIndicator();
-    if (!indicator || !_dateMenuIndicatorState)
-        return;
-
-    if (_dateMenuIndicatorSignals) {
-        for (const id of _dateMenuIndicatorSignals) {
-            try {
-                indicator.disconnect(id);
-            } catch (error) {
-                logError(error, '[kiwi] Failed to disconnect date menu indicator signal');
-            }
-        }
-        _dateMenuIndicatorSignals = null;
-    }
-
-    if (_dateMenuIndicatorState.opacity !== undefined && indicator.opacity !== undefined)
-        indicator.opacity = _dateMenuIndicatorState.opacity;
-
-    indicator.reactive = _dateMenuIndicatorState.reactive ?? true;
-
-    if (_dateMenuIndicatorState.visible) {
-        if (indicator.show)
-            indicator.show();
-        indicator.visible = true;
-    } else {
-        if (indicator.hide)
-            indicator.hide();
-        indicator.visible = false;
-    }
-
-    _dateMenuIndicatorState = null;
-    _dateMenuIndicator = null;
-}
-
-function enforceDateMenuIndicatorHidden(indicator) {
-    if (!indicator)
-        return;
-
-    indicator.reactive = false;
-    if (indicator.hide)
-        indicator.hide();
-    indicator.visible = false;
-    if (indicator.opacity !== undefined)
-        indicator.opacity = 0;
 }
 
 // #region Notification Classes
@@ -394,6 +321,10 @@ export function enable() {
             grid.layout_manager.child_set_property(grid, notificationWidget, 'column-span', 2);
         }
 
+        if (SHELL_HAS_SYSTEM_DND) {
+            suppressBuiltinDndToggle();
+            suppressBuiltinDndIndicator();
+        }
         ensureDndButtonWithRetry();
 
         enabled = true;
@@ -417,7 +348,10 @@ export function disable() {
     }
 
     destroyDndButton();
-    removePanelMoonIcon();
+    if (SHELL_HAS_SYSTEM_DND) {
+        restoreBuiltinDndIndicator();
+        restoreBuiltinDndToggle();
+    }
 
     const grid = getQuickSettingsGrid();
     if (grid) {
@@ -432,6 +366,9 @@ export function disable() {
 }
 
 function ensurePanelMoonIcon(isActive = false) {
+    if (SHELL_HAS_SYSTEM_DND)
+        suppressBuiltinDndIndicator();
+
     const quickSettings = Main.panel.statusArea.quickSettings;
     const indicatorsContainer = quickSettings?._indicators;
     if (!indicatorsContainer)
