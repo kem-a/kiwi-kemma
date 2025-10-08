@@ -52,6 +52,13 @@
   transition-timing-function: ease-out;
 }
 
+/* Force opaque background when fullscreen window is active (not in overview) */
+#panel.kiwi-panel-fullscreen:not(.overview) {
+  background-color: inherit !important;
+  /* Inherit theme color, ensure no transparency */
+  opacity: 1.0 !important;
+}
+
 #panel .panel-button {
   -natural-hpadding: 8px; /*default 12*/
   -minimum-hpadding: 4px; /*default 12*/

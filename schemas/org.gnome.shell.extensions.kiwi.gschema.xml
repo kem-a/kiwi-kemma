@@ -28,7 +28,7 @@
       </key>
 
       <key name="move-calendar-right" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Move Calendar to Right</summary>
         <description>Move the calendar to the right side of the top panel and hide the notifications panel.</description>
       </key>

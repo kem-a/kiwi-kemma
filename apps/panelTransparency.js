@@ -17,6 +17,7 @@ let interfaceSettingsSignal;
 let timeoutId;
 let safetyIntervalId;
 let lastForcedAlpha = null; // remember last alpha decided by logic (touch/fullscreen)
+let lastFullscreenState = false; // edge-detect fullscreen state changes
 
 function setOpaqueImmediately() {
     const panel = Main.panel;
@@ -65,8 +66,40 @@ function updatePanelStyle(alpha = null) {
     isUpdatingStyle = true;
     
     try {
-    // NOTE: A pure CSS alternative could add style classes (e.g., 'fullscreen-has-window')
-    // and define them in stylesheet.css. Current approach sets inline style for dynamic RGBA.
+        // Use CSS class-based approach for fullscreen state to avoid oscillation
+        const fullscreenNow = _isFullscreenActive();
+        
+        // Edge-detect fullscreen state changes
+        if (fullscreenNow !== lastFullscreenState) {
+            lastFullscreenState = fullscreenNow;
+            
+            if (fullscreenNow) {
+                // Add CSS class for fullscreen - stylesheet.css handles opaque background
+                panel.add_style_class_name('kiwi-panel-fullscreen');
+                lastForcedAlpha = 1.0;
+            } else {
+                // Remove fullscreen class, restore transparency handling
+                panel.remove_style_class_name('kiwi-panel-fullscreen');
+                lastForcedAlpha = null;
+            }
+        }
+        
+        // In overview, always transparent
+        if (Main.overview.visible) {
+            panel.set_style('background-color: transparent !important;');
+            panel.queue_redraw();
+            return;
+        }
+
+        // If fullscreen is active, CSS class handles it - skip inline style
+        if (fullscreenNow) {
+            // Clear any inline style to let CSS rule take effect
+            panel.set_style('');
+            panel.queue_redraw();
+            return;
+        }
+
+        // Get theme colors for non-fullscreen states
         const themeNode = panel.get_theme_node();
         const backgroundColor = themeNode.get_background_color();
         const [r, g, b] = [
@@ -75,22 +108,8 @@ function updatePanelStyle(alpha = null) {
             Math.floor(backgroundColor.blue * 255)
         ];
 
-        if (Main.overview.visible) {
-            panel.set_style('background-color: transparent !important;');
-            panel.queue_redraw();
-            return;
-        }
-
-        // Force opaque when any fullscreen window is active regardless of other transparency logic
-        if (_isFullscreenActive()) {
-            lastForcedAlpha = 1.0;
-            panel.set_style(`background-color: rgb(${r}, ${g}, ${b});`);
-            panel.queue_redraw();
-            return;
-        }
-
         if (!settings?.get_boolean('panel-transparency')) {
-                panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
+            panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
             panel.queue_redraw();
             return;
         }
@@ -106,7 +125,7 @@ function updatePanelStyle(alpha = null) {
             panel.queue_redraw();
         }
     } catch (error) {
-    panel.set_style(originalStyle || '');
+        panel.set_style(originalStyle || '');
     } finally {
         isUpdatingStyle = false;
     }
@@ -404,10 +423,12 @@ export function disable() {
     }
     interfaceSettings = null;
 
-    // Force opaque restore using captured original style (or recomputed) before dropping references
+    // Remove CSS class and force opaque restore
     try {
+        const panel = Main.panel;
+        panel.remove_style_class_name('kiwi-panel-fullscreen');
         if (originalStyle) {
-            Main.panel.set_style(originalStyle);
+            panel.set_style(originalStyle);
         } else {
             setOpaqueImmediately();
         }
@@ -415,4 +436,5 @@ export function disable() {
 
     settings = null;
     lastForcedAlpha = null;
+    lastFullscreenState = false;
 }

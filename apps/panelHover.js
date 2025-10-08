@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Reveals the top panel on fullscreen hover with fine-grained animation control.
 
-// Known issue: panel changes color with white theme
-// The flicker comes from the ghost PopupMenu you open in _openGhostMenu(). 
-// GNOME keeps flipping Main.panel.menuManager._activeMenu between that hidden menu and null, 
-// and every time it toggles, the shell reapplies the “solid” vs “transparent” panel styles. 
-// Because _startPeriodicCheck() runs once per second, the panel background keeps switching 
-// colors at that cadence, which becomes obvious with a white panel theme. Removing or replacing 
-// the ghost menu hack (or forcing the desired panel style directly) stops the oscillation. 
+// DONT remove _ghostMenu hack - it is needed to keep panel visible for GTK4 apps
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import St from 'gi://St';
@@ -201,14 +195,22 @@ function _openGhostMenu() {
     try {
         const panelBox = _getPanelBox();
         if (!panelBox) return;
-    // Anchor at stage top-left; keep tiny but valid; add to uiGroup to avoid panel layout constraints
-    let anchor = new St.Widget({ width: 2, height: 2, opacity: 0 });
-    anchor.set_position(0, 0);
+    // Anchor far off-screen so it doesn't interfere with hover/clicks
+    // but still registers as an "open menu" with panel menu manager
+    let anchor = new St.Widget({ 
+        width: 1, 
+        height: 1, 
+        opacity: 0,
+        reactive: false  // Don't intercept any input events
+    });
+    // Position off-screen to the right
+    anchor.set_position(global.stage.width + 100, 0);
     Main.uiGroup.add_child(anchor);
     _ghostMenu = new PopupMenu.PopupMenu(anchor, 0.5, St.Side.TOP);
     // Register with panel menu manager so Shell treats it as an open menu
     try { Main.panel?.menuManager?.addMenu?.(_ghostMenu); } catch (_) {}
     _ghostMenu.actor.opacity = 0;
+    _ghostMenu.actor.reactive = false;
     Main.uiGroup.add_child(_ghostMenu.actor);
     _ghostMenu.open();
     _ghostMenu._ghostAnchor = anchor;
