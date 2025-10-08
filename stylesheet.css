@@ -52,6 +52,15 @@
   transition-timing-function: ease-out;
 }
 
+#panel,
+#panel .panel-button,
+#panel .panel-button StLabel,
+#panel .panel-button .system-status-icon,
+#panel .panel-button .app-menu-icon > StIcon,
+#panel .panel-button .popup-menu-arrow {
+  color: inherit;
+}
+
 #panel .panel-button {
   -natural-hpadding: 8px; /*default 12*/
   -minimum-hpadding: 4px; /*default 12*/

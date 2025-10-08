@@ -18,6 +18,75 @@ let timeoutId;
 let safetyIntervalId;
 let lastForcedAlpha = null; // remember last alpha decided by logic (touch/fullscreen)
 
+const DARK_PANEL_FALLBACK_RGB = [18, 18, 18];
+const LUMINANCE_DARK_THRESHOLD = 0.38;
+const LUMINANCE_TEXT_THRESHOLD = 0.45;
+
+function _srgbToLinear(component) {
+    const value = component / 255;
+    return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+}
+
+function _calculateRelativeLuminance(r, g, b) {
+    const lr = _srgbToLinear(r);
+    const lg = _srgbToLinear(g);
+    const lb = _srgbToLinear(b);
+    return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb;
+}
+
+function _shouldPreferDarkColors() {
+    if (!interfaceSettings) return false;
+    try {
+        const scheme = interfaceSettings.get_string('color-scheme');
+        return scheme === 'prefer-dark' || scheme === 'force-dark';
+    } catch (_e) {
+        return false;
+    }
+}
+
+function _getTextColorForBackground(r, g, b) {
+    const luminance = _calculateRelativeLuminance(r, g, b);
+    return luminance > LUMINANCE_TEXT_THRESHOLD ? 'rgba(0, 0, 0, 0.87)' : 'rgba(255, 255, 255, 0.94)';
+}
+
+function _getPanelBaseColor({ strictTheme = false } = {}) {
+    const panel = Main.panel;
+    const themeNode = panel?.get_theme_node();
+    if (!themeNode) {
+        return {
+            rgb: DARK_PANEL_FALLBACK_RGB,
+            textColor: _getTextColorForBackground(...DARK_PANEL_FALLBACK_RGB)
+        };
+    }
+
+    let r = Math.floor(themeNode.get_background_color().red * 255);
+    let g = Math.floor(themeNode.get_background_color().green * 255);
+    let b = Math.floor(themeNode.get_background_color().blue * 255);
+
+    const luminance = _calculateRelativeLuminance(r, g, b);
+    if (!strictTheme && _shouldPreferDarkColors() && luminance > LUMINANCE_DARK_THRESHOLD) {
+        [r, g, b] = DARK_PANEL_FALLBACK_RGB;
+    }
+
+    return {
+        rgb: [r, g, b],
+        textColor: _getTextColorForBackground(r, g, b)
+    };
+}
+
+function _applyPanelStyle(panel, r, g, b, alpha, textColor) {
+    if (!panel) return '';
+    const clampedAlpha = typeof alpha === 'number' ? Math.min(Math.max(alpha, 0), 1) : 1;
+    const backgroundColor = clampedAlpha >= 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${clampedAlpha})`;
+    const newStyle = `background-color: ${backgroundColor} !important; color: ${textColor} !important;`;
+
+    if (panel.get_style() !== newStyle) {
+        panel.set_style(newStyle);
+    }
+    panel.queue_redraw();
+    return newStyle;
+}
+
 function setOpaqueImmediately() {
     const panel = Main.panel;
     if (!panel) return;
@@ -28,13 +97,8 @@ function setOpaqueImmediately() {
         GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
             try {
                 panel.add_style_class_name('panel');
-                const themeNode = panel.get_theme_node();
-                const bg = themeNode.get_background_color();
-                const r = Math.floor(bg.red * 255);
-                const g = Math.floor(bg.green * 255);
-                const b = Math.floor(bg.blue * 255);
-                panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
-                panel.queue_redraw();
+                const { rgb: [r, g, b], textColor } = _getPanelBaseColor({ strictTheme: true });
+                _applyPanelStyle(panel, r, g, b, 1, textColor);
             } catch (_) {
                 if (originalStyle) panel.set_style(originalStyle);
             }
@@ -67,46 +131,35 @@ function updatePanelStyle(alpha = null) {
     try {
     // NOTE: A pure CSS alternative could add style classes (e.g., 'fullscreen-has-window')
     // and define them in stylesheet.css. Current approach sets inline style for dynamic RGBA.
-        const themeNode = panel.get_theme_node();
-        const backgroundColor = themeNode.get_background_color();
-        const [r, g, b] = [
-            Math.floor(backgroundColor.red * 255),
-            Math.floor(backgroundColor.green * 255),
-            Math.floor(backgroundColor.blue * 255)
-        ];
+        const { rgb: [r, g, b], textColor } = _getPanelBaseColor();
 
         if (Main.overview.visible) {
-            panel.set_style('background-color: transparent !important;');
-            panel.queue_redraw();
+            _applyPanelStyle(panel, r, g, b, 0, textColor);
             return;
         }
 
         // Force opaque when any fullscreen window is active regardless of other transparency logic
         if (_isFullscreenActive()) {
             lastForcedAlpha = 1.0;
-            panel.set_style(`background-color: rgb(${r}, ${g}, ${b});`);
-            panel.queue_redraw();
+            _applyPanelStyle(panel, r, g, b, 1, textColor);
             return;
         }
 
         if (!settings?.get_boolean('panel-transparency')) {
-                panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
-            panel.queue_redraw();
+            _applyPanelStyle(panel, r, g, b, 1, textColor);
             return;
         }
 
         if (alpha !== null) {
             lastForcedAlpha = alpha;
         }
-        const opacity = (alpha !== null ? alpha : (lastForcedAlpha !== null ? lastForcedAlpha : settings.get_int('panel-transparency-level') / 100));
-        const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important;`;
-        
-        if (panel.get_style() !== newStyle) {
-            panel.set_style(newStyle);
-            panel.queue_redraw();
-        }
+        const opacity = alpha !== null
+            ? alpha
+            : (lastForcedAlpha !== null ? lastForcedAlpha : settings.get_int('panel-transparency-level') / 100);
+
+        _applyPanelStyle(panel, r, g, b, opacity, textColor);
     } catch (error) {
-    panel.set_style(originalStyle || '');
+        panel.set_style(originalStyle || '');
     } finally {
         isUpdatingStyle = false;
     }
@@ -308,14 +361,8 @@ function setupSignals() {
             }),
             Main.overview.connect('hiding', () => {
                 const panel = Main.panel;
-                const themeNode = panel.get_theme_node();
-                const backgroundColor = themeNode.get_background_color();
-                const [r, g, b] = [
-                    Math.floor(backgroundColor.red * 255),
-                    Math.floor(backgroundColor.green * 255),
-                    Math.floor(backgroundColor.blue * 255)
-                ];
-                panel.set_style(`background-color: rgba(${r}, ${g}, ${b}, 0) !important;`);
+                const { rgb: [r, g, b], textColor } = _getPanelBaseColor();
+                _applyPanelStyle(panel, r, g, b, 0, textColor);
             }),
             Main.overview.connect('hidden', () => {
                 GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
