@@ -59,6 +59,13 @@
   opacity: 1.0 !important;
 }
 
+/* Panel color inherit fix for theme compatibility */
+#panel.kiwi-panel-color-inherit {
+  /* this often inherits transparency causing unwanted visual bugs */
+  /*background-color: inherit !important;*/
+  background-color: black;
+}
+
 #panel .panel-button {
   -natural-hpadding: 8px; /*default 12*/
   -minimum-hpadding: 4px; /*default 12*/

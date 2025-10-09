@@ -133,5 +133,12 @@
         <summary>Enable Firefox Styling</summary>
         <description>Manage Firefox userChrome.css to apply Kiwi window controls styling and hide Firefox window buttons when panel controls are shown.</description>
       </key>
+
+      <!-- Panel color fix -->
+      <key name="panel-color-inherit" type="b">
+        <default>false</default>
+        <summary>Panel Color Inherit Fix</summary>
+        <description>Apply background-color: inherit to fix panel color issues on some themes (e.g., white panel on dark themes).</description>
+      </key>
     </schema>
 </schemalist>

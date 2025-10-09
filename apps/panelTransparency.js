@@ -19,6 +19,18 @@ let safetyIntervalId;
 let lastForcedAlpha = null; // remember last alpha decided by logic (touch/fullscreen)
 let lastFullscreenState = false; // edge-detect fullscreen state changes
 
+// Panel color fix helper
+function applyPanelColorFix() {
+    const panel = Main.panel;
+    if (!panel) return;
+    
+    if (settings && settings.get_boolean('panel-color-inherit')) {
+        panel.add_style_class_name('kiwi-panel-color-inherit');
+    } else {
+        panel.remove_style_class_name('kiwi-panel-color-inherit');
+    }
+}
+
 function setOpaqueImmediately() {
     const panel = Main.panel;
     if (!panel) return;
@@ -280,6 +292,9 @@ function setupSignals() {
         }),
         settings.connect('changed::panel-opaque-on-window', () => {
             checkWindowTouchingPanel();
+        }),
+        settings.connect('changed::panel-color-inherit', () => {
+            applyPanelColorFix();
         })
     ];
 
@@ -384,6 +399,9 @@ export function enable(_settings) {
     }
     forceThemeUpdate();
 
+    // Apply panel color fix on startup
+    applyPanelColorFix();
+
     timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         checkWindowTouchingPanel();
         timeoutId = null;
@@ -427,6 +445,7 @@ export function disable() {
     try {
         const panel = Main.panel;
         panel.remove_style_class_name('kiwi-panel-fullscreen');
+        panel.remove_style_class_name('kiwi-panel-color-inherit');
         if (originalStyle) {
             panel.set_style(originalStyle);
         } else {

@@ -418,19 +418,18 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Add panel transparency group
         const transparencyGroup = new Adw.PreferencesGroup({
             title: _('Panel Transparency'),
-            description: _('Configure panel transparency settings'),
+            description: _('Configure panel transparency and appearance'),
         });
         settingsPage.add(transparencyGroup);
 
-        // Enable transparency switch
-        const transparencySwitch = new Adw.SwitchRow({
-            title: _("Enable Panel Transparency"),
+        // Panel transparency expander with sub-options
+        const transparencyExpander = new Adw.ExpanderRow({
+            title: _("Panel Transparency"),
             subtitle: _("Make the top panel transparent"),
-            active: settings.get_boolean('panel-transparency'),
+            expanded: settings.get_boolean('panel-transparency'),
+            show_enable_switch: true,
+            enable_expansion: settings.get_boolean('panel-transparency'),
         });
-        transparencyGroup.add(transparencySwitch);
-        settings.bind('panel-transparency', transparencySwitch, 'active', 
-            Gio.SettingsBindFlags.DEFAULT);
 
         // Transparency level spinbox
         const transparencySpinRow = new Adw.SpinRow({
@@ -445,11 +444,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             }),
             sensitive: settings.get_boolean('panel-transparency'),
         });
-        transparencyGroup.add(transparencySpinRow);
-        settings.bind('panel-transparency-level', transparencySpinRow, 'value',
-            Gio.SettingsBindFlags.DEFAULT);
-        settings.bind('panel-transparency', transparencySpinRow, 'sensitive',
-            Gio.SettingsBindFlags.GET);
+        transparencyExpander.add_row(transparencySpinRow);
 
         // Opaque on window touch switch
         const opaqueOnWindowSwitch = new Adw.SwitchRow({
@@ -458,11 +453,38 @@ export default class KiwiPreferences extends ExtensionPreferences {
             active: settings.get_boolean('panel-opaque-on-window'),
             sensitive: settings.get_boolean('panel-transparency'),
         });
-        transparencyGroup.add(opaqueOnWindowSwitch);
+        transparencyExpander.add_row(opaqueOnWindowSwitch);
+
+        // Panel color inherit fix
+        const panelColorFixRow = new Adw.SwitchRow({
+            title: _("Panel Color Fix"),
+            subtitle: _("Fix white panel on some themes (e.g., Ubuntu Yaru)"),
+            active: settings.get_boolean('panel-color-inherit'),
+        });
+        transparencyExpander.add_row(panelColorFixRow);
+
+        transparencyGroup.add(transparencyExpander);
+
+        // Bindings for expander
+        settings.bind('panel-transparency', transparencyExpander, 'expanded', Gio.SettingsBindFlags.GET);
+        transparencyExpander.enable_expansion = settings.get_boolean('panel-transparency');
+        transparencyExpander.connect('notify::enable-expansion', () => {
+            const enabled = transparencyExpander.enable_expansion;
+            if (settings.get_boolean('panel-transparency') !== enabled)
+                settings.set_boolean('panel-transparency', enabled);
+        });
+
+        // Bindings for sub-options
+        settings.bind('panel-transparency-level', transparencySpinRow, 'value',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-transparency', transparencySpinRow, 'sensitive',
+            Gio.SettingsBindFlags.GET);
         settings.bind('panel-opaque-on-window', opaqueOnWindowSwitch, 'active',
             Gio.SettingsBindFlags.DEFAULT);
         settings.bind('panel-transparency', opaqueOnWindowSwitch, 'sensitive',
             Gio.SettingsBindFlags.GET);
+        settings.bind('panel-color-inherit', panelColorFixRow, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
 
         const switchList = [
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
