@@ -6,8 +6,8 @@ import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-// Static variable for the battery percentage trigger threshold
-const BATTERY_TRIGGER_PERCENTAGE = 25;
+// Static variable for the battery percentage trigger threshold. Default is 20%.
+const BATTERY_TRIGGER_PERCENTAGE = 20;
 
 class BatteryPercentage {
     constructor() {
