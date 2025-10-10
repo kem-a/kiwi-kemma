@@ -2,6 +2,7 @@
 // Adjusts the top-panel keyboard indicator to match user preferences.
 
 import St from 'gi://St';
+import GLib from 'gi://GLib';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Keyboard from 'resource:///org/gnome/shell/ui/status/keyboard.js';
 
@@ -47,6 +48,7 @@ function _findLabel(root) {
     if (!root || !root.get_children)
         return null;
     const stack = [root];
+    let fallback = null;
     while (stack.length) {
         const node = stack.pop();
         if (node instanceof St.Label) {
@@ -54,15 +56,15 @@ function _findLabel(root) {
             const text = node.text ?? '';
             if (node.visible && text.length > 0)
                 return node;
-            // Keep as last resort if nothing else found
-            if (!_state?.fallbackLabel)
-                _state = _state ? { ..._state, fallbackLabel: node } : { fallbackLabel: node };
+            // Keep as last resort if nothing else found (do not store globally)
+            if (!fallback)
+                fallback = node;
         }
         const children = node.get_children?.();
         if (children && children.length)
             stack.push(...children);
     }
-    return _state?.fallbackLabel ?? null;
+    return fallback;
 }
 
 function _ensureLabelRef() {
@@ -72,13 +74,46 @@ function _ensureLabelRef() {
     if (newLabel === _state.label)
         return;
     // Reconnect notify::text to the current label actor
-    if (_state.label && _state.labelChangedId) {
-        try { _state.label.disconnect(_state.labelChangedId); } catch (_e) {}
-        _state.labelChangedId = 0;
+    if (_state.label) {
+        if (_state.labelChangedId) {
+            try { _state.label.disconnect(_state.labelChangedId); } catch (_e) {}
+            _state.labelChangedId = 0;
+        }
+        if (_state.labelDestroyId) {
+            try { _state.label.disconnect(_state.labelDestroyId); } catch (_e) {}
+            _state.labelDestroyId = 0;
+        }
     }
     _state.label = newLabel;
-    if (_state.label)
+    if (_state.label) {
+        // Track actor destruction to avoid accessing disposed objects
+        _state.labelDestroyId = _state.label.connect('destroy', obj => {
+            if (!_state || obj !== _state.label)
+                return;
+            // Clear connections tracked for this label
+            if (_state.labelChangedId) {
+                try { obj.disconnect(_state.labelChangedId); } catch (_e) {}
+                _state.labelChangedId = 0;
+            }
+            if (_state.labelDestroyId) {
+                try { obj.disconnect(_state.labelDestroyId); } catch (_e) {}
+                _state.labelDestroyId = 0;
+            }
+            _state.label = null;
+            // Refresh on next idle to locate a replacement label safely
+            if (!_state.idleId) {
+                _state.idleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+                    if (_state) {
+                        _state.idleId = 0;
+                        _ensureLabelRef();
+                        _syncIndicatorState();
+                    }
+                    return GLib.SOURCE_REMOVE;
+                });
+            }
+        });
         _state.labelChangedId = _state.label.connect('notify::text', _updateLabel);
+    }
 }
 
 function _applyVisibility() {
@@ -104,11 +139,11 @@ function _applyTheme(isVisible = _state?.indicator?.visible ?? false) {
     if (!_state?.indicator)
         return;
     if (!isVisible) {
-        _state.indicator.remove_style_class_name('kiwi-input-themed');
-        _state.indicator.remove_style_class_name('kiwi-input-en');
+        try { _state.indicator.remove_style_class_name('kiwi-input-themed'); } catch (_e) {}
+        try { _state.indicator.remove_style_class_name('kiwi-input-en'); } catch (_e) {}
         return;
     }
-    _state.indicator.add_style_class_name('kiwi-input-themed');
+    try { _state.indicator.add_style_class_name('kiwi-input-themed'); } catch (_e) {}
 }
 
 function _updateLabel() {
@@ -124,19 +159,25 @@ function _updateLabel() {
     // If theming class isn't present (feature disabled), ensure we don't change anything
     if (!_state.indicator.has_style_class_name('kiwi-input-themed')) {
         try {
-            if (label._kiwiOriginalText !== undefined && label.text !== label._kiwiOriginalText)
-                label.text = label._kiwiOriginalText;
+            if (label && label._kiwiOriginalText !== undefined) {
+                try {
+                    if (label.text !== label._kiwiOriginalText)
+                        label.text = label._kiwiOriginalText;
+                } catch (_e) { /* label may be disposed */ }
+            }
         } catch (_e) {}
-        _state.indicator.remove_style_class_name('kiwi-input-en');
+        try { _state.indicator.remove_style_class_name('kiwi-input-en'); } catch (_e) {}
         return;
     }
 
     // Save original text if not already saved for this label actor
-    if (!label._kiwiOriginalText)
-        label._kiwiOriginalText = label.text;
+    if (!label._kiwiOriginalText) {
+        try { label._kiwiOriginalText = label.text; } catch (_e) { return; }
+    }
 
     // Get the current text (what's actually displayed in panel)
-    const currentText = label.text || '';
+    let currentText = '';
+    try { currentText = label.text || ''; } catch (_e) { return; }
     let nextText = currentText;
 
     // Helpers
@@ -170,8 +211,10 @@ function _updateLabel() {
         }
     }
 
-    if (label.text !== nextText)
-        label.text = nextText;
+    try {
+        if (label.text !== nextText)
+            label.text = nextText;
+    } catch (_e) { return; }
 
     // Maintain hidden state if requested
     _applyVisibility();
@@ -199,8 +242,12 @@ function _connect() {
 
 function _disconnect() {
     if (_state?.label && _state.labelChangedId) {
-        _state.label.disconnect(_state.labelChangedId);
+        try { _state.label.disconnect(_state.labelChangedId); } catch (_e) {}
         _state.labelChangedId = 0;
+    }
+    if (_state?.label && _state.labelDestroyId) {
+        try { _state.label.disconnect(_state.labelDestroyId); } catch (_e) {}
+        _state.labelDestroyId = 0;
     }
     if (_state?.inputManagerChangedId) {
         const inputSourceManager = Keyboard.getInputSourceManager();
@@ -212,6 +259,10 @@ function _disconnect() {
     if (_state?.visibilityChangedId && _state.indicator) {
         try { _state.indicator.disconnect(_state.visibilityChangedId); } catch (_e) {}
         _state.visibilityChangedId = 0;
+    }
+    if (_state?.idleId) {
+        try { GLib.source_remove(_state.idleId); } catch (_e) {}
+        _state.idleId = 0;
     }
 }
 
@@ -226,10 +277,12 @@ export function enable(settings) {
         label: null,
         settings,
         labelChangedId: 0,
+        labelDestroyId: 0,
         inputManagerChangedId: 0,
         visibilityChangedId: 0,
         shellVisible: indicator.visible,
         updatingVisibility: false,
+        idleId: 0,
     };
     _ensureLabelRef();
     _connect();
@@ -248,13 +301,13 @@ export function disable() {
         const currentLabel = _findLabel(_state.indicator);
         if (currentLabel)
             labels.add(currentLabel);
-        if (_state.fallbackLabel)
-            labels.add(_state.fallbackLabel);
         for (const lb of labels) {
             try {
                 if (lb && lb._kiwiOriginalText !== undefined) {
-                    if (lb.text !== lb._kiwiOriginalText)
-                        lb.text = lb._kiwiOriginalText;
+                    try {
+                        if (lb.text !== lb._kiwiOriginalText)
+                            lb.text = lb._kiwiOriginalText;
+                    } catch (_e) {}
                     // Clear the marker to avoid leaking state
                     lb._kiwiOriginalText = undefined;
                 }
@@ -262,12 +315,16 @@ export function disable() {
         }
     } catch (_e) {}
     if (_state.indicator) {
-        if (_state.shellVisible !== undefined)
-            _state.indicator.visible = _state.shellVisible;
-        if (_state.indicator._kiwiOriginalVisible !== undefined)
-            _state.indicator._kiwiOriginalVisible = undefined;
+        try {
+            if (_state.shellVisible !== undefined)
+                _state.indicator.visible = _state.shellVisible;
+        } catch (_e) {}
+        try {
+            if (_state.indicator._kiwiOriginalVisible !== undefined)
+                _state.indicator._kiwiOriginalVisible = undefined;
+        } catch (_e) {}
+        try { _state.indicator.remove_style_class_name('kiwi-input-themed'); } catch (_e) {}
+        try { _state.indicator.remove_style_class_name('kiwi-input-en'); } catch (_e) {}
     }
-    _state.indicator.remove_style_class_name('kiwi-input-themed');
-    _state.indicator.remove_style_class_name('kiwi-input-en');
     _state = null;
 }
