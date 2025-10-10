@@ -47,7 +47,7 @@ flatpak override --user --filesystem=xdg-config/gtk-4.0:ro
 
 ## Known Issues
 
-- GTK4 apps in fullscreen: the top panel works but may be buggy and can conflict with the app’s own headerbar reveal logic.
+- none atm
 
 ## Installation
 
