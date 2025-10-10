@@ -37,6 +37,7 @@ import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './
 import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNotificationsDisable } from './apps/quickSettingsNotifications.js';
 import { enable as quickSettingsMediaEnable, disable as quickSettingsMediaDisable } from './apps/quickSettingsMedia.js';
 import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
+import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './apps/launchpadApp.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -161,6 +162,12 @@ export default class KiwiExtension extends Extension {
             keyboardIndicatorEnable(this._settings);
         else
             keyboardIndicatorDisable();
+
+        // Launchpad app
+        if (this._settings.get_boolean('enable-launchpad-app'))
+            launchpadAppEnable();
+        else
+            launchpadAppDisable();
     }
 
     enable() {
@@ -205,6 +212,7 @@ export default class KiwiExtension extends Extension {
         firefoxThemeManagerDisable();
         quickSettingsMediaDisable();
         quickSettingsNotificationsDisable();
+        launchpadAppDisable();
         this._settings = null;
     }
 }

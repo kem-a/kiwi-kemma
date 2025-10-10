@@ -617,6 +617,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'lock-icon', title: _("Caps Lock and Num Lock"), subtitle: _("Show Caps Lock and Num Lock icon") },
             { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
+            { key: 'enable-launchpad-app', title: _("Launchpad Application"), subtitle: _("Add custom Launchpad icon to dock that opens application overview") },
         ];
 
         extrasSwitchList.forEach((item) => {

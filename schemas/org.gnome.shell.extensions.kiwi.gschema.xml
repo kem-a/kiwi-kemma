@@ -140,5 +140,12 @@
         <summary>Panel Color Inherit Fix</summary>
         <description>Apply background-color: inherit to fix panel color issues on some themes (e.g., white panel on dark themes).</description>
       </key>
+
+      <!-- Launchpad app -->
+      <key name="enable-launchpad-app" type="b">
+        <default>false</default>
+        <summary>Enable Launchpad Application</summary>
+        <description>Adds a custom Launchpad icon to dock that opens the application overview.</description>
+      </key>
     </schema>
 </schemalist>
