@@ -458,7 +458,7 @@ GObject.registerClass(MediaHeader);
 class MediaWidget extends St.BoxLayout {
     constructor() {
         super({
-            orientation: Clutter.Orientation.VERTICAL,
+            vertical: true,
             x_expand: true,
             reactive: true,
             style_class: 'kiwi-media',
