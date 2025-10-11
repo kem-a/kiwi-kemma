@@ -83,8 +83,8 @@ function syncDndButtonState() {
     _dndIcon.icon_name = DND_ICON_NAME;
     _dndButton.set_tooltip_text?.(dndActive ? 'Disable Do Not Disturb' : 'Enable Do Not Disturb');
 
-    if (SHELL_HAS_SYSTEM_DND)
-        hideDateMenuIndicator();
+    // Always hide the date menu DND indicator in the panel; we provide our own.
+    hideDateMenuIndicator();
     ensurePanelMoonIcon(dndActive);
 }
 
@@ -102,8 +102,10 @@ function ensureDndButton() {
     if (!container || !settings)
         return false;
 
+    // Suppress quick settings DND toggle only on GNOME 49+ where it exists
     const toggleSuppressed = SHELL_HAS_SYSTEM_DND ? suppressBuiltinDndToggle() : true;
-    const indicatorSuppressed = SHELL_HAS_SYSTEM_DND ? suppressBuiltinDndIndicator() : true;
+    // Always suppress panel DND indicator; we replace it with our own moon icon
+    const indicatorSuppressed = suppressBuiltinDndIndicator();
 
     if (!_dndButton) {
         // Attempt to inherit styling from an existing button for consistency
@@ -321,10 +323,10 @@ export function enable() {
             grid.layout_manager.child_set_property(grid, notificationWidget, 'column-span', 2);
         }
 
-        if (SHELL_HAS_SYSTEM_DND) {
+        // On GNOME 49+, hide built-in quick settings DND toggle; always hide panel indicator
+        if (SHELL_HAS_SYSTEM_DND)
             suppressBuiltinDndToggle();
-            suppressBuiltinDndIndicator();
-        }
+        suppressBuiltinDndIndicator();
         ensureDndButtonWithRetry();
 
         enabled = true;
@@ -348,10 +350,10 @@ export function disable() {
     }
 
     destroyDndButton();
-    if (SHELL_HAS_SYSTEM_DND) {
-        restoreBuiltinDndIndicator();
+    // Always restore panel indicator; restore quick settings toggle on GNOME 49+
+    restoreBuiltinDndIndicator();
+    if (SHELL_HAS_SYSTEM_DND)
         restoreBuiltinDndToggle();
-    }
 
     const grid = getQuickSettingsGrid();
     if (grid) {

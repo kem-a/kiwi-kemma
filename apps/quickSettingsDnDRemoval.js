@@ -234,9 +234,6 @@ export function restoreBuiltinDndToggle() {
 }
 
 export function suppressBuiltinDndIndicator() {
-    if (!SHELL_HAS_SYSTEM_DND)
-        return true;
-
     if (_suppressedActors.indicator)
         return true;
 
@@ -271,9 +268,6 @@ export function suppressBuiltinDndIndicator() {
 }
 
 export function restoreBuiltinDndIndicator() {
-    if (!SHELL_HAS_SYSTEM_DND)
-        return;
-
     restoreActor('indicator', () => Main.panel.statusArea.quickSettings?._indicators ?? null);
 }
 
@@ -293,9 +287,6 @@ function getDateMenuIndicator() {
 }
 
 export function hideDateMenuIndicator() {
-    if (!SHELL_HAS_SYSTEM_DND)
-        return;
-
     const indicator = getDateMenuIndicator();
     if (!indicator)
         return;
@@ -319,9 +310,6 @@ export function hideDateMenuIndicator() {
 }
 
 export function restoreDateMenuIndicator() {
-    if (!SHELL_HAS_SYSTEM_DND)
-        return;
-
     const indicator = getDateMenuIndicator();
     if (!indicator || !_dateMenuIndicatorState)
         return;
