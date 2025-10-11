@@ -87,104 +87,71 @@ function _clearOverviewHandlers() {
     _overviewSignalIds.clear();
 }
 
-function _isAppGridVisible() {
-    if (!Main.overview.visible)
-        return false;
-
-    // Access overview controls (path varies by GNOME version)
+function _getShowAppsButton() {
     const overview = Main.overview;
-    let controls = overview._overview?._controls;
-    if (!controls)
-        controls = overview.controls || overview._controls;
+    // Try multiple paths for different GNOME versions
+    const controlsPaths = [
+        overview._overview?._controls,
+        overview.controls,
+        overview._controls,
+    ];
     
-    if (!controls)
-        return false;
-
-    // Check state adjustment - APP_GRID = 2, WINDOW_PICKER = 1, HIDDEN = 0
-    if (controls._stateAdjustment)
-        return controls._stateAdjustment.value === 2;
+    for (const controls of controlsPaths) {
+        if (!controls)
+            continue;
+        
+        const dashCandidates = [
+            controls.dash,
+            controls._dash,
+        ];
+        
+        for (const dash of dashCandidates) {
+            if (dash?.showAppsButton)
+                return dash.showAppsButton;
+        }
+    }
     
-    // Fallback: check dash show apps button
-    const dash = controls.dash || controls._dash;
-    if (dash?.showAppsButton)
-        return Boolean(dash.showAppsButton.checked);
-
-    return false;
+    // Direct dash access fallback
+    if (overview.dash?.showAppsButton)
+        return overview.dash.showAppsButton;
+    
+    return null;
 }
 
 function _activateLaunchpad() {
     const overview = Main.overview;
-    const isAppGrid = _isAppGridVisible();
-
-    // If app grid is already showing, go back to window picker mode
-    if (overview.visible && isAppGrid) {
-        const controls = _getOverviewControls();
+    const showAppsButton = _getShowAppsButton();
+    
+    if (!showAppsButton) {
+        console.error('Launchpad: Failed to find showAppsButton');
+        // Fallback: just toggle overview
         _queueIdle(() => {
-            try {
-                if (controls?._stateAdjustment)
-                    controls._stateAdjustment.value = 1; // ControlsState.WINDOW_PICKER
-                else
-                    overview.hide(); // fallback
-            } catch (_) {
+            if (overview.visible)
                 overview.hide();
-            }
+            else
+                overview.showApps();
             return GLib.SOURCE_REMOVE;
         });
         return 'OK';
     }
 
-    // If overview is visible but not showing app grid (window picker mode),
-    // force-switch to app grid and also re-open after overview auto-hides
-    // due to activation from the overview grid/dash.
-    if (overview.visible && !isAppGrid) {
-        const controls = _getOverviewControls();
-        // Connect to 'hidden' so if GNOME hides overview upon activation,
-        // we bring up the app grid immediately afterwards.
-        const handlerId = Main.overview.connect('hidden', () => {
-            _disconnectOverviewHandler(handlerId);
-            _queueIdle(() => {
-                overview.showApps();
-                return GLib.SOURCE_REMOVE;
-            });
-        });
-        _overviewSignalIds.add(handlerId);
-
-        // Safety timeout to remove the handler if it never fires (1s)
-        const timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-            _disconnectOverviewHandler(handlerId);
-            _mainLoopSources.delete(timeoutId);
-            return GLib.SOURCE_REMOVE;
-        });
-        _mainLoopSources.add(timeoutId);
-
+    // If overview is not visible, show the app grid
+    if (!overview.visible) {
         _queueIdle(() => {
-            try {
-                if (controls?._stateAdjustment)
-                    controls._stateAdjustment.value = 2; // ControlsState.APP_GRID
-                else
-                    overview.showApps();
-            } catch (_) {
-                overview.showApps();
-            }
+            overview.showApps();
             return GLib.SOURCE_REMOVE;
         });
         return 'OK';
     }
 
-    // Otherwise (overview hidden), show the app grid
+    // Overview is visible: toggle the showAppsButton which handles state transitions
+    // This mimics GNOME Shell's internal _toggleAppsPage() behavior from overviewControls.js
+    // When checked=true, it shows APP_GRID; when checked=false, it shows WINDOW_PICKER
     _queueIdle(() => {
-        overview.showApps();
+        showAppsButton.checked = !showAppsButton.checked;
         return GLib.SOURCE_REMOVE;
     });
     return 'OK';
-}
-
-function _getOverviewControls() {
-    const overview = Main.overview;
-    let controls = overview._overview?._controls;
-    if (!controls)
-        controls = overview.controls || overview._controls;
-    return controls || null;
 }
 
 function _ensureDbusService() {
