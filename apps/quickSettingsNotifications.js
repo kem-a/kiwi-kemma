@@ -23,7 +23,6 @@ const DND_ICON_NAME = 'weather-clear-night-symbolic';
 const DND_ICON_SIZE = 16;
 const DATE_MENU_PLACEHOLDER_MIN_WIDTH = 280;
 const DATE_MENU_PLACEHOLDER_DEFAULT_WIDTH = 360;
-const DATE_MENU_PLACEHOLDER_MAX_WIDTH = 400;
 const HAS_MESSAGE_LIST_SECTION = MessageList && typeof MessageList.MessageListSection === 'function';
 
 // State holders
@@ -45,6 +44,7 @@ let _dateMenuMessageListParent = null;
 let _dateMenuMessageListIndex = -1;
 let _dateMenuMessageListWasVisible = null;
 let _dateMenuMessageListPlaceholder = null;
+let _dateMenuSuppressed = false;
 
 
 // Get QuickSettings grid
@@ -258,13 +258,13 @@ function suppressDateMenuMessageList() {
 
     parent.remove_child(messageList);
 
-    const placeholderWidth = Math.min(Math.max(allocatedWidth, DATE_MENU_PLACEHOLDER_MIN_WIDTH), DATE_MENU_PLACEHOLDER_MAX_WIDTH);
+    const placeholderWidth = Math.max(allocatedWidth, DATE_MENU_PLACEHOLDER_MIN_WIDTH);
     _dateMenuMessageListPlaceholder = new St.Widget({
-        x_expand: false,
+        x_expand: true,
         y_expand: true,
         x_align: Clutter.ActorAlign.START,
     });
-    _dateMenuMessageListPlaceholder.set_style(`min-width: ${placeholderWidth}px; max-width: ${placeholderWidth}px;`);
+    _dateMenuMessageListPlaceholder.set_style(`min-width: ${placeholderWidth}px;`);
     parent.insert_child_at_index(_dateMenuMessageListPlaceholder, _dateMenuMessageListIndex);
 
     messageList.hide();
@@ -647,7 +647,12 @@ export function enable() {
             grid.layout_manager.child_set_property(grid, notificationWidget, 'column-span', 2);
         }
 
-        suppressDateMenuMessageList();
+        if (HAS_MESSAGE_LIST_SECTION) {
+            suppressDateMenuMessageList();
+            _dateMenuSuppressed = true;
+        } else {
+            _dateMenuSuppressed = false;
+        }
 
         // On GNOME 49+, hide built-in quick settings DND toggle; always hide panel indicator
         if (SHELL_HAS_SYSTEM_DND)
@@ -681,7 +686,9 @@ export function disable() {
     if (SHELL_HAS_SYSTEM_DND)
         restoreBuiltinDndToggle();
 
-    restoreDateMenuMessageList();
+    if (_dateMenuSuppressed)
+        restoreDateMenuMessageList();
+    _dateMenuSuppressed = false;
 
     const grid = getQuickSettingsGrid();
     if (grid) {
