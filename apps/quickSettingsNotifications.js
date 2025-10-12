@@ -24,6 +24,7 @@ const DND_ICON_SIZE = 16;
 const DATE_MENU_PLACEHOLDER_MIN_WIDTH = 280;
 const DATE_MENU_PLACEHOLDER_DEFAULT_WIDTH = 360;
 const DATE_MENU_PLACEHOLDER_MAX_WIDTH = 400;
+const HAS_MESSAGE_LIST_SECTION = MessageList && typeof MessageList.MessageListSection === 'function';
 
 // State holders
 let enabled = false;
@@ -298,235 +299,245 @@ function restoreDateMenuMessageList() {
 }
 
 // #region Notification Classes
-const MAX_NOTIFICATION_ACTIONS = 3;
+let NotificationList;
 
-const QuickNotificationMessage = GObject.registerClass(
-class QuickNotificationMessage extends MessageList.Message {
-    constructor(notification) {
-        super(notification.source);
+if (HAS_MESSAGE_LIST_SECTION) {
+    const MAX_NOTIFICATION_ACTIONS = 3;
 
-        this._notification = notification;
-        this._closed = false;
-        this._actionButtons = new Map();
+    const QuickNotificationMessage = GObject.registerClass(
+    class QuickNotificationMessage extends MessageList.Message {
+        constructor(notification) {
+            super(notification.source);
 
-        this.connect('close', () => {
-            this._closed = true;
-            if (this._notification)
-                this._notification.destroy(MessageTray.NotificationDestroyedReason.DISMISSED);
-        });
+            this._notification = notification;
+            this._closed = false;
+            this._actionButtons = new Map();
 
-        notification.connectObject(
-            'action-added', (_n, action) => this._addAction(action),
-            'action-removed', (_n, action) => this._removeAction(action),
-            'destroy', () => {
-                this._notification = null;
-                if (!this._closed)
-                    this.close();
-            },
-            this,
-        );
+            this.connect('close', () => {
+                this._closed = true;
+                if (this._notification)
+                    this._notification.destroy(MessageTray.NotificationDestroyedReason.DISMISSED);
+            });
 
-        notification.bind_property('title', this, 'title', GObject.BindingFlags.SYNC_CREATE);
-        notification.bind_property('body', this, 'body', GObject.BindingFlags.SYNC_CREATE);
-        notification.bind_property('use-body-markup', this, 'use-body-markup', GObject.BindingFlags.SYNC_CREATE);
-        notification.bind_property('datetime', this, 'datetime', GObject.BindingFlags.SYNC_CREATE);
-        notification.bind_property('gicon', this, 'icon', GObject.BindingFlags.SYNC_CREATE);
+            notification.connectObject(
+                'action-added', (_n, action) => this._addAction(action),
+                'action-removed', (_n, action) => this._removeAction(action),
+                'destroy', () => {
+                    this._notification = null;
+                    if (!this._closed)
+                        this.close();
+                },
+                this,
+            );
 
-        notification.actions?.forEach(action => this._addAction(action));
-    }
+            notification.bind_property('title', this, 'title', GObject.BindingFlags.SYNC_CREATE);
+            notification.bind_property('body', this, 'body', GObject.BindingFlags.SYNC_CREATE);
+            notification.bind_property('use-body-markup', this, 'use-body-markup', GObject.BindingFlags.SYNC_CREATE);
+            notification.bind_property('datetime', this, 'datetime', GObject.BindingFlags.SYNC_CREATE);
+            notification.bind_property('gicon', this, 'icon', GObject.BindingFlags.SYNC_CREATE);
 
-    vfunc_clicked() {
-        this._notification?.activate();
-    }
-
-    canClose() {
-        return true;
-    }
-
-    _ensureActionArea() {
-        if (this._buttonBox)
-            return;
-
-        this._buttonBox = new St.BoxLayout({
-            style_class: 'notification-buttons-bin',
-            x_expand: true,
-        });
-        this.setActionArea(this._buttonBox);
-        global.focus_manager.add_group(this._buttonBox);
-    }
-
-    _addAction(action) {
-        if (this._actionButtons.has(action))
-            return;
-
-        this._ensureActionArea();
-
-        if (this._buttonBox.get_n_children() >= MAX_NOTIFICATION_ACTIONS)
-            return;
-
-        const button = new St.Button({
-            style_class: 'notification-button',
-            label: action.label,
-            x_expand: true,
-        });
-        button.connect('clicked', () => action.activate());
-        this._actionButtons.set(action, button);
-        this._buttonBox.add_child(button);
-    }
-
-    _removeAction(action) {
-        this._actionButtons.get(action)?.destroy();
-        this._actionButtons.delete(action);
-    }
-});
-
-const QuickNotificationSection = GObject.registerClass(
-class QuickNotificationSection extends MessageList.MessageListSection {
-    constructor() {
-        super();
-
-        this._urgentCount = 0;
-        this._messageByNotification = new Map();
-
-        Main.messageTray.connectObject(
-            'source-added', this._onSourceAdded.bind(this),
-            'source-removed', this._onSourceRemoved.bind(this),
-            this,
-        );
-
-        Main.messageTray.getSources().forEach(source => this._onSourceAdded(Main.messageTray, source));
-    }
-
-    get allowed() {
-        return Main.sessionMode.hasNotifications && !Main.sessionMode.isGreeter;
-    }
-
-    _onSourceAdded(_tray, source) {
-        source.connectObject('notification-added', this._onNotificationAdded.bind(this), this);
-
-        if (source.notifications) {
-            for (const notification of source.notifications)
-                this._onNotificationAdded(source, notification, false);
+            notification.actions?.forEach(action => this._addAction(action));
         }
-    }
 
-    _onSourceRemoved(_tray, source) {
-        source.disconnectObject(this);
-    }
+        vfunc_clicked() {
+            this._notification?.activate();
+        }
 
-    _onNotificationAdded(source, notification, animate = this.mapped) {
-        if (this._messageByNotification.has(notification))
-            return;
+        canClose() {
+            return true;
+        }
 
-        const isUrgent = notification.urgency === MessageTray.Urgency.CRITICAL;
-        const entry = {
-            message: new QuickNotificationMessage(notification),
-            isUrgent,
-        };
-        this._messageByNotification.set(notification, entry);
+        _ensureActionArea() {
+            if (this._buttonBox)
+                return;
 
-        notification.connectObject(
-            'destroy', () => {
-                const current = this._messageByNotification.get(notification);
-                if (!current)
-                    return;
+            this._buttonBox = new St.BoxLayout({
+                style_class: 'notification-buttons-bin',
+                x_expand: true,
+            });
+            this.setActionArea(this._buttonBox);
+            global.focus_manager.add_group(this._buttonBox);
+        }
 
-                if (current.isUrgent && this._urgentCount > 0)
-                    this._urgentCount--;
-                this._messageByNotification.delete(notification);
-            },
-            'notify::datetime', () => {
-                const current = this._messageByNotification.get(notification);
-                if (!current)
-                    return;
+        _addAction(action) {
+            if (this._actionButtons.has(action))
+                return;
 
-                this.moveMessage(current.message, current.isUrgent ? 0 : this._urgentCount, this.mapped);
-            },
-            this,
-        );
+            this._ensureActionArea();
 
-        const index = isUrgent ? 0 : this._urgentCount;
-        this.addMessageAtIndex(entry.message, index, animate);
+            if (this._buttonBox.get_n_children() >= MAX_NOTIFICATION_ACTIONS)
+                return;
 
-        if (isUrgent)
-            this._urgentCount++;
-        else if (this.mapped)
-            notification.acknowledged = true;
-    }
+            const button = new St.Button({
+                style_class: 'notification-button',
+                label: action.label,
+                x_expand: true,
+            });
+            button.connect('clicked', () => action.activate());
+            this._actionButtons.set(action, button);
+            this._buttonBox.add_child(button);
+        }
 
-    vfunc_map() {
-        for (const [notification, entry] of this._messageByNotification) {
-            if (!entry.isUrgent)
+        _removeAction(action) {
+            this._actionButtons.get(action)?.destroy();
+            this._actionButtons.delete(action);
+        }
+    });
+
+    const QuickNotificationSection = GObject.registerClass(
+    class QuickNotificationSection extends MessageList.MessageListSection {
+        constructor() {
+            super();
+
+            this._urgentCount = 0;
+            this._messageByNotification = new Map();
+
+            Main.messageTray.connectObject(
+                'source-added', this._onSourceAdded.bind(this),
+                'source-removed', this._onSourceRemoved.bind(this),
+                this,
+            );
+
+            Main.messageTray.getSources().forEach(source => this._onSourceAdded(Main.messageTray, source));
+        }
+
+        get allowed() {
+            return Main.sessionMode.hasNotifications && !Main.sessionMode.isGreeter;
+        }
+
+        _onSourceAdded(_tray, source) {
+            source.connectObject('notification-added', this._onNotificationAdded.bind(this), this);
+
+            if (source.notifications) {
+                for (const notification of source.notifications)
+                    this._onNotificationAdded(source, notification, false);
+            }
+        }
+
+        _onSourceRemoved(_tray, source) {
+            source.disconnectObject(this);
+        }
+
+        _onNotificationAdded(source, notification, animate = this.mapped) {
+            if (this._messageByNotification.has(notification))
+                return;
+
+            const isUrgent = notification.urgency === MessageTray.Urgency.CRITICAL;
+            const entry = {
+                message: new QuickNotificationMessage(notification),
+                isUrgent,
+            };
+            this._messageByNotification.set(notification, entry);
+
+            notification.connectObject(
+                'destroy', () => {
+                    const current = this._messageByNotification.get(notification);
+                    if (!current)
+                        return;
+
+                    if (current.isUrgent && this._urgentCount > 0)
+                        this._urgentCount--;
+                    this._messageByNotification.delete(notification);
+                },
+                'notify::datetime', () => {
+                    const current = this._messageByNotification.get(notification);
+                    if (!current)
+                        return;
+
+                    this.moveMessage(current.message, current.isUrgent ? 0 : this._urgentCount, this.mapped);
+                },
+                this,
+            );
+
+            const index = isUrgent ? 0 : this._urgentCount;
+            this.addMessageAtIndex(entry.message, index, animate);
+
+            if (isUrgent)
+                this._urgentCount++;
+            else if (this.mapped)
                 notification.acknowledged = true;
         }
 
-        super.vfunc_map();
-    }
+        vfunc_map() {
+            for (const [notification, entry] of this._messageByNotification) {
+                if (!entry.isUrgent)
+                    notification.acknowledged = true;
+            }
 
-    clear() {
-        super.clear();
-        this._messageByNotification.clear();
-        this._urgentCount = 0;
-    }
+            super.vfunc_map();
+        }
 
-    destroy() {
-        Main.messageTray.disconnectObject(this);
-        Main.messageTray.getSources().forEach(source => source.disconnectObject?.(this));
-        this._messageByNotification.clear();
+        clear() {
+            super.clear();
+            this._messageByNotification.clear();
+            this._urgentCount = 0;
+        }
 
-        super.destroy();
-    }
-});
+        destroy() {
+            Main.messageTray.disconnectObject(this);
+            Main.messageTray.getSources().forEach(source => source.disconnectObject?.(this));
+            this._messageByNotification.clear();
 
-const NotificationList = GObject.registerClass({
-    Properties: {
-        'empty': GObject.ParamSpec.boolean(
-            'empty', 'empty', 'empty',
-            GObject.ParamFlags.READABLE,
-            true,
-        ),
-        'can-clear': GObject.ParamSpec.boolean(
-            'can-clear', 'can-clear', 'can-clear',
-            GObject.ParamFlags.READABLE,
-            false,
-        ),
-    },
-}, class NotificationList extends St.BoxLayout {
-    constructor() {
-        super({
-            vertical: true,
-            x_expand: true,
-            y_expand: true,
-        });
+            super.destroy();
+        }
+    });
 
-        this._section = new QuickNotificationSection();
-        this._section.x_expand = true;
-        this.add_child(this._section);
+    NotificationList = GObject.registerClass({
+        Properties: {
+            'empty': GObject.ParamSpec.boolean(
+                'empty', 'empty', 'empty',
+                GObject.ParamFlags.READABLE,
+                true,
+            ),
+            'can-clear': GObject.ParamSpec.boolean(
+                'can-clear', 'can-clear', 'can-clear',
+                GObject.ParamFlags.READABLE,
+                false,
+            ),
+        },
+    }, class NotificationList extends St.BoxLayout {
+        constructor() {
+            super({
+                vertical: true,
+                x_expand: true,
+                y_expand: true,
+            });
 
-        this._section.connectObject(
-            'notify::empty', () => this.notify('empty'),
-            'notify::can-clear', () => this.notify('can-clear'),
-            this,
-        );
-    }
+            this._section = new QuickNotificationSection();
+            this._section.x_expand = true;
+            this.add_child(this._section);
 
-    get empty() {
-        return this._section.empty;
-    }
+            this._section.connectObject(
+                'notify::empty', () => this.notify('empty'),
+                'notify::can-clear', () => this.notify('can-clear'),
+                this,
+            );
+        }
 
-    get canClear() {
-        return this._section.canClear;
-    }
+        get empty() {
+            return this._section.empty;
+        }
 
-    clear() {
-        this._section.clear();
-    }
+        get canClear() {
+            return this._section.canClear;
+        }
 
-    destroy() {
-        this._section.destroy();
-        super.destroy();
-    }
-});
+        clear() {
+            this._section.clear();
+        }
+
+        destroy() {
+            this._section.destroy();
+            super.destroy();
+        }
+    });
+} else {
+    NotificationList = GObject.registerClass(
+    class NotificationList extends MessageList.MessageView {
+        // Prevent unexpected media integration on legacy shells
+        _setupMpris() {}
+    });
+}
 
 // Notification Header
 class NotificationHeader extends St.BoxLayout {
