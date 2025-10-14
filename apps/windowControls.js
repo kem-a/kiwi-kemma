@@ -20,11 +20,12 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
         this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
         this._settingsChangedId = this._settings.connect('changed', (_, key) => {
-            if (key === 'button-type') this._updateIcons();
+            if (key === 'button-type') this._updateAllIcons();
             else if (key === 'show-window-controls' || key === 'enable-app-window-buttons') this._updateVisibility();
         });
 
-        this._iconPath = Extension.lookupByUUID('kiwi@kemma').path;
+    this._iconPath = Extension.lookupByUUID('kiwi@kemma').path;
+    this._iconsRootPath = `${this._iconPath}/icons`;
         this._box = new St.BoxLayout({ style_class: 'window-controls-box' });
         this.add_child(this._box);
         
@@ -123,7 +124,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._box.add_child(this._minimizeButton);
         this._box.add_child(this._maximizeButton);
 
-        this._updateIcons();
+        this._updateAllIcons();
         
         this._focusWindowSignal = global.display.connect('notify::focus-window', this._onFocusWindowChanged.bind(this));
         this._overviewShowingId = Main.overview.connect('showing', () => this._updateVisibility());
@@ -211,11 +212,8 @@ class WindowControlsIndicator extends PanelMenu.Button {
             button.reactive = false; // makes it "insensitive" visually via St
             button.remove_style_pseudo_class('active');
             // Use backdrop variant to visually indicate disabled state
-            const iconName = 'button-minimize-backdrop.svg';
-            button.child = new St.Icon({
-                gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this._iconPath}/icons/${this._settings.get_string('button-type')}/${iconName}`) }),
-                icon_size: 16
-            });
+            const iconName = 'button-minimize-backdrop.png';
+            this._setButtonIcon(button, iconName);
             return;
         } else if (buttonType === 'minimize') {
             // Restore reactivity when leaving fullscreen
@@ -230,21 +228,15 @@ class WindowControlsIndicator extends PanelMenu.Button {
         
         // For maximize button: show restore icon when window is maximized OR fullscreen
         const buttonName = (buttonType === 'maximize' && (isMaximized || isFullscreen)) ? 'restore' : buttonType;
-        const iconName = `button-${buttonName}${state}.svg`;
-        
-        button.child = new St.Icon({
-            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this._iconPath}/icons/${this._settings.get_string('button-type')}/${iconName}`) }),
-            icon_size: 16
-        });
+        const iconName = `button-${buttonName}${state}.png`;
+        this._setButtonIcon(button, iconName);
     }
 
     _updateAllIcons() {
         ['minimize', 'maximize', 'close'].forEach(buttonType => this._updateButtonIcon(buttonType));
     }
 
-    _updateIcons() {
-        this._updateAllIcons();
-    }
+
 
     _updateVisibility() {
         const focusWindow = this._focusWindow;
@@ -370,6 +362,68 @@ class WindowControlsIndicator extends PanelMenu.Button {
         }
     }
 
+    _setButtonIcon(button, iconName) {
+        const monitor = Main.layoutManager.primaryMonitor;
+        const scaleFactor = monitor ? monitor.geometry_scale : 1;
+        const file = this._getIconFile(iconName, scaleFactor);
+        
+        button.child = new St.Icon({
+            gicon: new Gio.FileIcon({ file }),
+            icon_size: 16,
+        });
+    }
+
+    _getIconFile(iconName, scaleFactor = 1) {
+        const buttonType = this._settings.get_string('button-type');
+        const isAltTheme = buttonType === 'titlebuttons-alt';
+        const baseFolder = isAltTheme ? 'titlebuttons' : buttonType;
+        const basePath = `${this._iconsRootPath}/${baseFolder}`;
+
+        const getScaledName = (name) => {
+            if (scaleFactor >= 1.5 && name.endsWith('.png')) {
+                return `${name.slice(0, -4)}@2.png`;
+            }
+            return name;
+        };
+
+        if (isAltTheme) {
+            const altName = this._getAltVariant(iconName);
+            if (altName) {
+                const scaledAltName = getScaledName(altName);
+                const scaledAltFile = Gio.File.new_for_path(`${basePath}/${scaledAltName}`);
+                if (scaledAltFile.query_exists(null))
+                    return scaledAltFile;
+                
+                const altFile = Gio.File.new_for_path(`${basePath}/${altName}`);
+                if (altFile.query_exists(null))
+                    return altFile;
+            }
+        }
+
+        const scaledName = getScaledName(iconName);
+        const scaledFile = Gio.File.new_for_path(`${basePath}/${scaledName}`);
+        if (scaledFile.query_exists(null))
+            return scaledFile;
+
+        const fallbackFile = Gio.File.new_for_path(`${basePath}/${iconName}`);
+        if (fallbackFile.query_exists(null))
+            return fallbackFile;
+
+        const defaultScaledFile = Gio.File.new_for_path(`${this._iconsRootPath}/titlebuttons/${scaledName}`);
+        if (defaultScaledFile.query_exists(null))
+            return defaultScaledFile;
+
+        return Gio.File.new_for_path(`${this._iconsRootPath}/titlebuttons/${iconName}`);
+    }
+
+    _getAltVariant(iconName) {
+        if (!/-hover|-active/.test(iconName))
+            return null;
+        if (!iconName.endsWith('.png'))
+            return null;
+        return `${iconName.slice(0, -4)}-alt.png`;
+    }
+
     destroy() {
         if (this._focusWindowSignal) global.display.disconnect(this._focusWindowSignal);
         if (this._settingsChangedId) this._settings.disconnect(this._settingsChangedId);
@@ -407,11 +461,6 @@ export function enable() {
 
 export function disable() {
     if (controlsIndicator) {
-        // Disconnect settings signal before destroying
-        if (controlsIndicator._settingsChangedId && controlsIndicator._settings) {
-            controlsIndicator._settings.disconnect(controlsIndicator._settingsChangedId);
-            controlsIndicator._settingsChangedId = null;
-        }
         controlsIndicator.destroy();
         controlsIndicator = null;
     }
