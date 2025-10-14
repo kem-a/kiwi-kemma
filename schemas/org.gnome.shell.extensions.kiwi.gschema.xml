@@ -90,7 +90,7 @@
         <description>Make panel opaque when a window touches it.</description>
       </key>
       <key name="hide-minimized-windows" type="b">
-        <default>true</default>
+        <default>false</default>
         <summary>Hide minimized windows</summary>
         <description>Hide minimized windows in the overview.</description>
       </key>
