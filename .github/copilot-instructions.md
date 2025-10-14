@@ -138,6 +138,7 @@ cd advanced/
 - **RULE**: Code must not be obfuscated or minified
 - **RULE**: No excessive logging
 - **RULE**: Use modern ES6 features, avoid deprecated patterns
+- **RULE**: Avoid unnecessary try and catch blocks
 
 ### 5. Common Issues to Look For:
 

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-/* Firefox Window Controls Theming (Kiwi - default set) */
+/* Firefox Window Controls Theming (Kiwi - alt set) */
 @namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 /* Ensure the button box aligns items centrally like other toolbar icons */
@@ -138,6 +138,9 @@
   appearance: none !important;
   -moz-appearance: none !important;
   background: none !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
   border: 0 !important;
   box-shadow: none !important;
   list-style-image: none !important;
@@ -160,20 +163,26 @@
 #nav-bar .titlebar-close,
 #toolbar-menubar .titlebar-close,
 #TabsToolbar .titlebar-close{
-  background: url("titlebuttons-alt/button-close.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-close.png") 1x,
+    url("titlebuttons/button-close@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-max,
 #toolbar-menubar .titlebar-max,
 #TabsToolbar .titlebar-max {
-  background: url("titlebuttons-alt/button-maximize.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-maximize.png") 1x,
+    url("titlebuttons/button-maximize@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-min,
 #toolbar-menubar .titlebar-min,
 #TabsToolbar .titlebar-min {
-  background: url("titlebuttons-alt/button-minimize.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-minimize.png") 1x,
+    url("titlebuttons/button-minimize@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-restore,
 #toolbar-menubar .titlebar-restore,
@@ -181,8 +190,10 @@
 :root[sizemode="maximized"] #nav-bar .titlebar-max,
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-max,
 :root[sizemode="maximized"] #TabsToolbar .titlebar-max {
-  background: url("titlebuttons-alt/button-restore.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-restore.png") 1x,
+    url("titlebuttons/button-restore@2.png") 2x
+  ) !important;
 }
 
 /* Only show restore when maximized; hide maximize then */
@@ -202,20 +213,26 @@
 #nav-bar .titlebar-close:hover,
 #toolbar-menubar .titlebar-close:hover,
 #TabsToolbar .titlebar-close:hover {
-  background: url("titlebuttons-alt/button-close-hover.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-close-hover-alt.png") 1x,
+    url("titlebuttons/button-close-hover-alt@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-max:hover,
 #toolbar-menubar .titlebar-max:hover,
 #TabsToolbar .titlebar-max:hover {
-  background: url("titlebuttons-alt/button-maximize-hover.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-maximize-hover-alt.png") 1x,
+    url("titlebuttons/button-maximize-hover-alt@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-min:hover,
 #toolbar-menubar .titlebar-min:hover,
 #TabsToolbar .titlebar-min:hover {
-  background: url("titlebuttons-alt/button-minimize-hover.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-minimize-hover.png") 1x,
+    url("titlebuttons/button-minimize-hover@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-restore:hover,
 #toolbar-menubar .titlebar-restore:hover,
@@ -223,8 +240,10 @@
 :root[sizemode="maximized"] #nav-bar .titlebar-max:hover,
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-max:hover,
 :root[sizemode="maximized"] #TabsToolbar .titlebar-max:hover {
-  background: url("titlebuttons-alt/button-restore-hover.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-restore-hover-alt.png") 1x,
+    url("titlebuttons/button-restore-hover-alt@2.png") 2x
+  ) !important;
 }
 
 /* Group hover (hovering any button hovers them all) */
@@ -234,8 +253,10 @@
 #nav-bar .titlebar-buttonbox:hover .titlebar-close,
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-close,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-close {
-  background: url("titlebuttons-alt/button-close-hover.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-close-hover-alt.png") 1x,
+    url("titlebuttons/button-close-hover-alt@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-min,
 #toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-min,
@@ -243,8 +264,10 @@
 #nav-bar .titlebar-buttonbox:hover .titlebar-min,
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-min,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-min {
-  background: url("titlebuttons-alt/button-minimize-hover.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-minimize-hover.png") 1x,
+    url("titlebuttons/button-minimize-hover@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-max,
 #toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-max,
@@ -252,8 +275,10 @@
 #nav-bar .titlebar-buttonbox:hover .titlebar-max,
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-max,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-max {
-  background: url("titlebuttons-alt/button-maximize-hover.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-maximize-hover-alt.png") 1x,
+    url("titlebuttons/button-maximize-hover-alt@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-restore,
 #toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-restore,
@@ -267,16 +292,20 @@
 :root[sizemode="maximized"] #nav-bar .titlebar-buttonbox:hover .titlebar-max,
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox:hover .titlebar-max,
 :root[sizemode="maximized"] #TabsToolbar .titlebar-buttonbox:hover .titlebar-max {
-  background: url("titlebuttons-alt/button-restore-hover.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-restore-hover-alt.png") 1x,
+    url("titlebuttons/button-restore-hover-alt@2.png") 2x
+  ) !important;
 }
 
 /* Pressed (active) state overrides - ensure visible feedback when clicking */
 #nav-bar .titlebar-close:active,
 #toolbar-menubar .titlebar-close:active,
 #TabsToolbar .titlebar-close:active {
-  background: url("titlebuttons-alt/button-close-active.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-close-active-alt.png") 1x,
+    url("titlebuttons/button-close-active-alt@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-close:active,
 #toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-close:active,
@@ -284,14 +313,18 @@
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-close:active,
 #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-close:active,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-close:active {
-  background: url("titlebuttons-alt/button-close-active.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-close-active-alt.png") 1x,
+    url("titlebuttons/button-close-active-alt@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-min:active,
 #toolbar-menubar .titlebar-min:active,
 #TabsToolbar .titlebar-min:active {
-  background: url("titlebuttons-alt/button-minimize-active.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-minimize-active.png") 1x,
+    url("titlebuttons/button-minimize-active@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-min:active,
 #toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-min:active,
@@ -299,14 +332,18 @@
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-min:active,
 #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-min:active,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-min:active {
-  background: url("titlebuttons-alt/button-minimize-active.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-minimize-active.png") 1x,
+    url("titlebuttons/button-minimize-active@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-max:active,
 #toolbar-menubar .titlebar-max:active,
 #TabsToolbar .titlebar-max:active {
-  background: url("titlebuttons-alt/button-maximize-active.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-maximize-active-alt.png") 1x,
+    url("titlebuttons/button-maximize-active-alt@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-max:active,
 #toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-max:active,
@@ -314,8 +351,10 @@
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-max:active,
 #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-max:active,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-max:active {
-  background: url("titlebuttons-alt/button-maximize-active.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-maximize-active-alt.png") 1x,
+    url("titlebuttons/button-maximize-active-alt@2.png") 2x
+  ) !important;
 }
 #nav-bar .titlebar-restore:active,
 #toolbar-menubar .titlebar-restore:active,
@@ -324,8 +363,10 @@
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-max:active,
 :root[sizemode="maximized"] #nav-bar .titlebar-buttonbox .titlebar-max:active,
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox .titlebar-max:active {
-  background: url("titlebuttons-alt/button-restore-active.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-restore-active-alt.png") 1x,
+    url("titlebuttons/button-restore-active-alt@2.png") 2x
+  ) !important;
 }
 :root[sizemode="maximized"] #nav-bar .titlebar-buttonbox-container:hover .titlebar-max:active,
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-max:active,
@@ -339,6 +380,8 @@
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-restore:active,
 #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-restore:active,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-restore:active {
-  background: url("titlebuttons-alt/button-restore-active.svg") no-repeat center center !important;
-  background-size: 16px 16px !important;
+  background-image: image-set(
+    url("titlebuttons/button-restore-active-alt.png") 1x,
+    url("titlebuttons/button-restore-active-alt@2.png") 2x
+  ) !important;
 }

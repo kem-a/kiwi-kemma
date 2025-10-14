@@ -30,17 +30,21 @@ static void ensure_hover_data(GtkWidget *target) {
   }
 }
 
-static void add_class(GtkWidget *w) {
-  gtk_style_context_add_class(gtk_widget_get_style_context(w), "titlebuttons-hover");
+static void add_hover_classes(GtkWidget *w) {
+  GtkStyleContext *ctx = gtk_widget_get_style_context(w);
+  gtk_style_context_add_class(ctx, "titlebuttons-hover");
+  gtk_style_context_add_class(ctx, "titlebuttons-hover-alt");
 }
-static void remove_class(GtkWidget *w) {
-  gtk_style_context_remove_class(gtk_widget_get_style_context(w), "titlebuttons-hover");
+static void remove_hover_classes(GtkWidget *w) {
+  GtkStyleContext *ctx = gtk_widget_get_style_context(w);
+  gtk_style_context_remove_class(ctx, "titlebuttons-hover");
+  gtk_style_context_remove_class(ctx, "titlebuttons-hover-alt");
 }
 
 static void reset_hover_state(GtkWidget *target) {
   HoverHoverData *d = g_object_get_data(G_OBJECT(target), "tb-hover-data");
   if (d) d->hover_count = 0;
-  remove_class(target);
+  remove_hover_classes(target);
 }
 
 static GtkWidget *find_headerbar(GtkWidget *w) {
@@ -52,14 +56,14 @@ static gboolean on_btn_enter(GtkWidget *btn, GdkEventCrossing *e, gpointer targe
   if (e->detail == GDK_NOTIFY_INFERIOR) return FALSE;
   ensure_hover_data(GTK_WIDGET(target));
   HoverHoverData *d = g_object_get_data(G_OBJECT(target), "tb-hover-data");
-  if (d->hover_count++ == 0) add_class(GTK_WIDGET(target));
+  if (d->hover_count++ == 0) add_hover_classes(GTK_WIDGET(target));
   return FALSE;
 }
 static gboolean on_btn_leave(GtkWidget *btn, GdkEventCrossing *e, gpointer target) {
   if (e->detail == GDK_NOTIFY_INFERIOR) return FALSE;
   HoverHoverData *d = g_object_get_data(G_OBJECT(target), "tb-hover-data");
   if (!d) return FALSE;
-  if (d->hover_count > 0 && --d->hover_count == 0) remove_class(GTK_WIDGET(target));
+  if (d->hover_count > 0 && --d->hover_count == 0) remove_hover_classes(GTK_WIDGET(target));
   return FALSE;
 }
 

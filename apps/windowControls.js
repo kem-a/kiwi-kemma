@@ -24,7 +24,8 @@ class WindowControlsIndicator extends PanelMenu.Button {
             else if (key === 'show-window-controls' || key === 'enable-app-window-buttons') this._updateVisibility();
         });
 
-        this._iconPath = Extension.lookupByUUID('kiwi@kemma').path;
+    this._iconPath = Extension.lookupByUUID('kiwi@kemma').path;
+    this._iconsRootPath = `${this._iconPath}/icons`;
         this._box = new St.BoxLayout({ style_class: 'window-controls-box' });
         this.add_child(this._box);
         
@@ -211,11 +212,8 @@ class WindowControlsIndicator extends PanelMenu.Button {
             button.reactive = false; // makes it "insensitive" visually via St
             button.remove_style_pseudo_class('active');
             // Use backdrop variant to visually indicate disabled state
-            const iconName = 'button-minimize-backdrop.svg';
-            button.child = new St.Icon({
-                gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this._iconPath}/icons/${this._settings.get_string('button-type')}/${iconName}`) }),
-                icon_size: 16
-            });
+            const iconName = 'button-minimize-backdrop.png';
+            this._setButtonIcon(button, iconName);
             return;
         } else if (buttonType === 'minimize') {
             // Restore reactivity when leaving fullscreen
@@ -230,12 +228,8 @@ class WindowControlsIndicator extends PanelMenu.Button {
         
         // For maximize button: show restore icon when window is maximized OR fullscreen
         const buttonName = (buttonType === 'maximize' && (isMaximized || isFullscreen)) ? 'restore' : buttonType;
-        const iconName = `button-${buttonName}${state}.svg`;
-        
-        button.child = new St.Icon({
-            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this._iconPath}/icons/${this._settings.get_string('button-type')}/${iconName}`) }),
-            icon_size: 16
-        });
+        const iconName = `button-${buttonName}${state}.png`;
+        this._setButtonIcon(button, iconName);
     }
 
     _updateAllIcons() {
@@ -368,6 +362,45 @@ class WindowControlsIndicator extends PanelMenu.Button {
             if (this._closeButton)
                 this._closeButton.reactive = true;
         }
+    }
+
+    _setButtonIcon(button, iconName) {
+        const file = this._getIconFile(iconName);
+        button.child = new St.Icon({
+            gicon: new Gio.FileIcon({ file }),
+            icon_size: 16,
+        });
+    }
+
+    _getIconFile(iconName) {
+        const buttonType = this._settings.get_string('button-type');
+        const isAltTheme = buttonType === 'titlebuttons-alt';
+        const baseFolder = isAltTheme ? 'titlebuttons' : buttonType;
+        const basePath = `${this._iconsRootPath}/${baseFolder}`;
+
+        if (isAltTheme) {
+            const altName = this._getAltVariant(iconName);
+            if (altName) {
+                const altFile = Gio.File.new_for_path(`${basePath}/${altName}`);
+                if (altFile.query_exists(null))
+                    return altFile;
+            }
+        }
+
+        const fallbackFile = Gio.File.new_for_path(`${basePath}/${iconName}`);
+        if (fallbackFile.query_exists(null))
+            return fallbackFile;
+
+        // Final fallback to default titlebuttons folder
+        return Gio.File.new_for_path(`${this._iconsRootPath}/titlebuttons/${iconName}`);
+    }
+
+    _getAltVariant(iconName) {
+        if (!/-hover|-active/.test(iconName))
+            return null;
+        if (!iconName.endsWith('.png'))
+            return null;
+        return `${iconName.slice(0, -4)}-alt.png`;
     }
 
     destroy() {
