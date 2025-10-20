@@ -617,7 +617,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
-            { key: 'enable-launchpad-app', title: _("Launchpad Application"), subtitle: _("Add custom Launchpad icon to dock that opens application overview") },
+            { key: 'enable-launchpad-app', title: _("Launchpad Application"), subtitle: _("Add custom Launchpad icon to dock that opens application overview. Recommended to hide default app launcher.") },
         ];
 
         extrasSwitchList.forEach((item) => {
