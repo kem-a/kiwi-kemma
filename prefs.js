@@ -247,13 +247,14 @@ export default class KiwiPreferences extends ExtensionPreferences {
             });
             
             const recommendations = [
-                { title: 'Dash to Dock', author: 'michele_g', url: 'https://extensions.gnome.org/extension/307/dash-to-dock/' },
-                { title: 'Compiz alike magic lamp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/' },
-                { title: 'Logo Menu', author: 'Aryan Kaushik', url: 'https://extensions.gnome.org/extension/4451/logo-menu/' },
-                { title: 'AppIndicator Support', author: '3v1n0', url: 'https://extensions.gnome.org/extension/615/appindicator-support/' },
-                { title: 'Gtk4 Desktop Icons NG (DING)', author: 'smedius', url: 'https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/' },
-                { title: 'Clipboard Indicator', author: 'Tudmotu', url: 'https://extensions.gnome.org/extension/779/clipboard-indicator/' },
-                { title: 'Weather or Not', author: 'somepaulo', url: 'https://extensions.gnome.org/extension/5660/weather-or-not/' },
+                { title: 'Dash2Dock Animated', author: 'icedman', url: 'https://extensions.gnome.org/extension/4994' },
+                { title: 'Compiz alike magic lamp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740' },
+                { title: 'AppIndicator Support', author: '3v1n0', url: 'https://extensions.gnome.org/extension/615' },
+                { title: 'Clipboard Indicator', author: 'Tudmotu', url: 'https://extensions.gnome.org/extension/779' },
+                { title: 'Gtk4 Desktop Icons NG (DING)', author: 'smedius', url: 'https://extensions.gnome.org/extension/5263' },
+                { title: 'Logo Menu', author: 'Aryan Kaushik', url: 'https://extensions.gnome.org/extension/4451' },
+                { title: 'Light Style', author: 'fmuellner', url: 'https://extensions.gnome.org/extension/6198' },
+                { title: 'Weather or Not', author: 'somepaulo', url: 'https://extensions.gnome.org/extension/5660' },
             ];
 
             recommendations.forEach((rec) => {
@@ -552,7 +553,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Firefox styling switch (moved here from Extras)
         const firefoxStylingSwitch = new Adw.SwitchRow({
             title: _("Firefox Styling"),
-            subtitle: _("Apply macOS window control styling for Firefox"),
+            subtitle: _("Apply macOS window control styling for Firefox. Recommended to use with vertical tabs."),
             active: settings.get_boolean('enable-firefox-styling'),
         });
         buttonsExpander.add_row(firefoxStylingSwitch);
@@ -719,8 +720,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Installation instructions
         // Link row in libadwaita style (like GTK4 "Website" row)
         const advancedLinksGroup = new Adw.PreferencesGroup();
-        advancedLinksGroup.set_margin_start(15);
-        advancedLinksGroup.set_margin_end(70);
+        //advancedLinksGroup.set_margin_start(15);
+        //advancedLinksGroup.set_margin_end(70);
         const guideRow = new Adw.ActionRow({
             title: _('Installation Guide on GitHub'),
             subtitle: _('Open the advanced module build instructions'),
@@ -734,5 +735,22 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         advancedLinksGroup.add(guideRow);
         advancedPage.add(advancedLinksGroup);
+
+        const moreGroup = new Adw.PreferencesGroup({
+            title: _('Even more...'),
+        });
+        const macTahoeRow = new Adw.ActionRow({
+            title: _('MacTahoe Icon Pack'),
+            subtitle: _('macOS Tahoe icon theme for Linux'),
+            activatable: true,
+        });
+        macTahoeRow.add_suffix(new Gtk.Image({
+            icon_name: 'external-link-symbolic',
+        }));
+        macTahoeRow.connect('activated', () => {
+            Gtk.show_uri(null, 'https://github.com/vinceliuice/MacTahoe-icon-theme', Gdk.CURRENT_TIME);
+        });
+        moreGroup.add(macTahoeRow);
+        advancedPage.add(moreGroup);
     }
 }
