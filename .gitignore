@@ -1,11 +1,14 @@
 # samples folder of knowledge
 samples
-change.log
+.vscode
+.github
+*.log
+stylesheet-test.css
+stylesheet-backup.css
+
 # Object files
 extras/*.o
 extras/*.obj
-
-# Temporary files
 extras/*~
 extras/.DS_Store
 
@@ -13,6 +16,3 @@ extras/.DS_Store
 REVIEW_GUIDELINES_NOTES.md
 COMPLIANCE_REVIEW_REPORT.md
 
-.vscode
-.github
-AGENTS.md
