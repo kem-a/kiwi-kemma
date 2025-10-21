@@ -368,11 +368,15 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   font-size: 0.95em;
 }
 
-/* Hide the vertical scrollbar for the notification widget */
-.kiwi-notification-scroll .v-scrollbar {
-    width: 0;
-    padding: 0;
-    margin: 0;
+/* Hide scrollbar and remove its reserved space */
+.kiwi-notification-scroll StScrollBar {
+    min-width: 0 !important;
+}
+
+/* Target scroll content container */
+.kiwi-notification-scroll StScrollView > * {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
 }
 
 .kiwi-dnd-button {
