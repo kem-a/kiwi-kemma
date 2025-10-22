@@ -31,13 +31,14 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 
 <details> <summary> Details <b>(click to open)</b> </summary>
 
-- **[Dash2Dock Animated](https://extensions.gnome.org/extension/4994/dash2dock-lite/)** by icedman
-- **[AppIndicator Support](https://extensions.gnome.org/extension/615/appindicator-support/)** by 3v1n0
-- **[Compiz alike magic lamp effect](https://extensions.gnome.org/extension/3740/compiz-alike-magic-lamp-effect/)** by hermes83
-- **[Gtk4 Desktop Icons NG (DING)](https://extensions.gnome.org/extension/5263/gtk4-desktop-icons-ng-ding/)** by smedius
-- **[Clipboard Indicator](https://extensions.gnome.org/extension/779/clipboard-indicator/)** by Tudmotu
-- **[Logo Menu](https://extensions.gnome.org/extension/4451/logo-menu/)** by Aryan Kaushik
-- **[Light Style](https://extensions.gnome.org/extension/6198/light-style/)** by fmuellner
+- **[Dash2Dock Animated](https://extensions.gnome.org/extension/4994/)** by icedman
+- **[Compiz alike magic lamp effect](https://extensions.gnome.org/extension/3740/)** by hermes83
+- **[Kiwi Menu](https://extensions.gnome.org/extension/65851/)** by Arnis Kemlers
+- **[AppIndicator Support](https://extensions.gnome.org/extension/615/)** by 3v1n0
+- **[Gtk4 Desktop Icons NG (DING)](https://extensions.gnome.org/extension/5263/)** by smedius
+- **[Clipboard Indicator](https://extensions.gnome.org/extension/779/)** by Tudmotu
+- **[Light Style](https://extensions.gnome.org/extension/6198/)** by fmuellner
+- **[Weather or Not](https://extensions.gnome.org/extension/5660/)** by somepaulo
 </details>
 
 ## Visual experience

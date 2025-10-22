@@ -247,14 +247,14 @@ export default class KiwiPreferences extends ExtensionPreferences {
             });
             
             const recommendations = [
-                { title: 'Dash2Dock Animated', author: 'icedman', url: 'https://extensions.gnome.org/extension/4994' },
-                { title: 'Compiz alike magic lamp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740' },
-                { title: 'AppIndicator Support', author: '3v1n0', url: 'https://extensions.gnome.org/extension/615' },
-                { title: 'Clipboard Indicator', author: 'Tudmotu', url: 'https://extensions.gnome.org/extension/779' },
-                { title: 'Gtk4 Desktop Icons NG (DING)', author: 'smedius', url: 'https://extensions.gnome.org/extension/5263' },
-                { title: 'Logo Menu', author: 'Aryan Kaushik', url: 'https://extensions.gnome.org/extension/4451' },
-                { title: 'Light Style', author: 'fmuellner', url: 'https://extensions.gnome.org/extension/6198' },
-                { title: 'Weather or Not', author: 'somepaulo', url: 'https://extensions.gnome.org/extension/5660' },
+                { title: 'Dash2Dock Animated', author: 'icedman', url: 'https://extensions.gnome.org/extension/4994/' },
+                { title: 'Compiz alike magic lamp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740/' },
+                { title: 'Kiwi Menu', author: 'Arnis K (Me)', url: 'https://extensions.gnome.org/extension/65851/' },            
+                { title: 'AppIndicator Support', author: '3v1n0', url: 'https://extensions.gnome.org/extension/615/' },
+                { title: 'Clipboard Indicator', author: 'Tudmotu', url: 'https://extensions.gnome.org/extension/779/' },
+                { title: 'Gtk4 Desktop Icons NG (DING)', author: 'smedius', url: 'https://extensions.gnome.org/extension/5263/' },
+                { title: 'Light Style', author: 'fmuellner', url: 'https://extensions.gnome.org/extension/6198/' },
+                { title: 'Weather or Not', author: 'somepaulo', url: 'https://extensions.gnome.org/extension/5660/' },
             ];
 
             recommendations.forEach((rec) => {
