@@ -204,7 +204,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             title: _('Credits'),
             activatable: true,
         });
-        creditsRow.add_suffix(new Gtk.Image({ icon_name: 'go-up-symbolic' }));
+        creditsRow.add_suffix(new Gtk.Image({ icon_name: 'go-next-symbolic' }));
         creditsRow.connect('activated', () => {
             // Create a dialog with slide-up presentation
             const creditsDialog = new Adw.Dialog({
@@ -284,7 +284,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             title: _('Legal'),
             activatable: true,
         });
-        legalRow.add_suffix(new Gtk.Image({ icon_name: 'go-up-symbolic' }));
+        legalRow.add_suffix(new Gtk.Image({ icon_name: 'go-next-symbolic' }));
         legalRow.connect('activated', () => {
             // Create a dialog with slide-up presentation
             const legalDialog = new Adw.Dialog({
