@@ -134,9 +134,19 @@ export default class KiwiPreferences extends ExtensionPreferences {
         headerBox.append(authorLabel);
 
         // Version pill
-        const versionName = this.metadata['version-name'] ?? (this.metadata.version ? `${this.metadata.version}` : _('Unknown'));
+        const metadataVersionName = this.metadata['version-name'];
+        const metadataVersionRaw = this.metadata.version;
+        const metadataVersionString = typeof metadataVersionRaw === 'number'
+            ? (Number.isFinite(metadataVersionRaw) ? `${metadataVersionRaw}` : '')
+            : typeof metadataVersionRaw === 'string'
+                ? metadataVersionRaw.trim()
+                : '';
+        const hasValidNumericVersion = metadataVersionString.length > 0 && !Number.isNaN(Number(metadataVersionString));
+        let versionLabel = metadataVersionName ?? (hasValidNumericVersion ? metadataVersionString : _('Unknown'));
+        if (metadataVersionName && hasValidNumericVersion)
+            versionLabel = `${metadataVersionName} (${metadataVersionString})`;
         const versionButton = new Gtk.Button({
-            label: versionName,
+            label: versionLabel,
             halign: Gtk.Align.CENTER,
             margin_top: 4,
             tooltip_text: _('Change log'),
@@ -146,8 +156,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const releasesBaseUrl = 'https://github.com/kem-a/kiwi-kemma/releases';
         versionButton.connect('clicked', () => {
             let targetUrl = releasesBaseUrl;
-            if (versionName && versionName !== _('Unknown'))
-                targetUrl = `${releasesBaseUrl}/tag/v${encodeURIComponent(versionName)}`;
+            if (metadataVersionName && metadataVersionName !== _('Unknown'))
+                targetUrl = `${releasesBaseUrl}/tag/v${encodeURIComponent(metadataVersionName)}`;
 
             Gtk.show_uri(null, targetUrl, Gdk.CURRENT_TIME);
         });
