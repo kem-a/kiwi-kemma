@@ -294,7 +294,7 @@ function _createHoverArea() {
         x2: geometry.x + geometry.width,
         y1: geometry.y,
         y2: geometry.y,
-        directions: Meta.BarrierDirection.POSITIVE_Y,
+        directions: Meta.BarrierDirection.POSITIVE_Y | Meta.BarrierDirection.NEGATIVE_Y,
     });
 
     hoverArea._barrier = barrier;
