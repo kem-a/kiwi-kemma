@@ -1,8 +1,16 @@
-# <img width="56" height="56" alt="kiwi_logo" src="https://github.com/user-attachments/assets/f7820666-899a-46b8-b022-d5349bb1731b" /> Kiwi is not Apple 
+<!-- Row 1: install & reach -->
+[![Install on GNOME Extensions](https://img.shields.io/badge/Install_on-GNOME_Extensions-blue?logo=gnome)](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
+[![EGO Downloads](https://img.shields.io/gnome-extensions/dt/kiwi@kemma?logo=gnome&label=EGO%20downloads)](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
+![Shell 45–49](https://img.shields.io/badge/GNOME_Shell-45–49-informational?logo=gnome)
+[![License](https://img.shields.io/github/license/kem-a/kiwi-kemma)](https://github.com/kem-a/kiwi-kemma/blob/main/LICENSE)
+[![Latest tag](https://img.shields.io/github/v/tag/kem-a/kiwi-kemma?sort=semver)](https://github.com/kem-a/kiwi-kemma/tags)
+[![Last commit](https://img.shields.io/github/last-commit/kem-a/kiwi-kemma)](https://github.com/kem-a/kiwi-kemma/commits)
+[![Stars](https://img.shields.io/github/stars/kem-a/kiwi-kemma?style=social)](https://github.com/kem-a/kiwi-kemma/stargazers)
+
+
+# <img width="48" height="48" alt="kiwi_logo" src="https://github.com/user-attachments/assets/f7820666-899a-46b8-b022-d5349bb1731b" /> Kiwi is not Apple 
 
 Kiwi is a GNOME Shell extension that mimics various macOS features. This extension provides a collection of small quality-of-life functionalities such as moving windows to new workspaces, adding the username to the quick menu, focusing launched windows, and more.
-
-[<img width="228" height="106" alt="get-it-on-ego" src="https://github.com/user-attachments/assets/8aa08f2b-a902-48ca-999d-149591b49da7"/>](https://extensions.gnome.org/extension/8276)
 
 
 ## Features
