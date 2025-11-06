@@ -3,7 +3,7 @@
 [![EGO Downloads](https://img.shields.io/gnome-extensions/dt/kiwi@kemma?logo=gnome&label=EGO%20downloads)](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
 ![Shell 45–49](https://img.shields.io/badge/GNOME_Shell-45–49-informational?logo=gnome)
 [![License](https://img.shields.io/github/license/kem-a/kiwi-kemma)](https://github.com/kem-a/kiwi-kemma/blob/main/LICENSE)
-[![Latest tag](https://img.shields.io/github/v/tag/kem-a/kiwi-kemma?sort=semver)](https://github.com/kem-a/kiwi-kemma/tags)
+[![Latest release](https://img.shields.io/github/v/release/kem-a/kiwi-kemma?sort=semver)](https://github.com/kem-a/kiwi-kemma/releases/latest)
 [![Stars](https://img.shields.io/github/stars/kem-a/kiwi-kemma?style=social)](https://github.com/kem-a/kiwi-kemma/stargazers)
 
 
