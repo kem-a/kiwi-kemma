@@ -64,6 +64,7 @@ flatpak override --user --filesystem=$HOME/.local/share/gnome-shell/extensions/k
 
 ## Known Issues
 
+- vertical multimonitor setup is not supported. Mouse cross blocked.
 - Wacky behavior of move to fullscreen due to built in GNOME dynamic workspace management. Disabling it might help.
 - Advanced triple button hover effect for GTK3 flatpak apps does not work due to sandboxing
 
