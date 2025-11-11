@@ -70,6 +70,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
     }
 
     _onFocusedWindowChanged() {
+        //
         let window = global.display.focus_window;
 
         if (!window && this.menu && this.menu.isOpen)
@@ -110,8 +111,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
             return;
         }
 
-        // Exclude window titles that start with "com." or "gjs"
-        if (windowTitle.startsWith('com.') || windowTitle.includes('@!0,0')) {
+        // Exclude window titles that start with "com." or that matches something like "@!0,0"
+        if (windowTitle.startsWith('com.') || /@!\d+,\d+/.test(windowTitle)) {
             this._label.text = '';
             this._icon.gicon = null;
             this.hide();
