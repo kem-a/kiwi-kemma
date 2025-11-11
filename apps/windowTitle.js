@@ -61,9 +61,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
 
     _updateVisibility() {
         if (Main.overview.visible) {
-            this._label.text = '';
-            this._icon.gicon = null;
-            this.hide();
+            this._clearDisplay();
         } else {
             this._updateWindowTitle();
         }
@@ -87,9 +85,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
             this._updateWindowTitle();
             this.show();
         } else {
-            this._label.text = '';
-            this._icon.gicon = null;
-            this.hide();
+            this._clearDisplay();
         }
     }
 
@@ -104,21 +100,28 @@ class WindowTitleIndicator extends PanelMenu.Button {
         
         // Handle null window title
         if (!windowTitle) {
-            this._label.text = '';
-            this._icon.gicon = null;
-            this.hide();
+            this._clearDisplay();
             return;
         }
 
         // Exclude window titles that start with "com." or "gjs"
-        if (windowTitle.startsWith('com.') || windowTitle.includes('@!0,0')) {
-            this._label.text = '';
-            this._icon.gicon = null;
-            this.hide();
+        const normalizedTitle = windowTitle.trim().toLowerCase();
+        if (normalizedTitle.startsWith('com.') || normalizedTitle.startsWith('gjs') || normalizedTitle.includes('@!0,0')) {
+            this._clearDisplay();
             return;
         }
 
-        const app = Shell.WindowTracker.get_default().get_window_app(this._focusWindow);
+        windowTitle = windowTitle.trim();
+
+        const tracker = Shell.WindowTracker.get_default();
+        const app = tracker ? tracker.get_window_app(this._focusWindow) : null;
+        const appName = app ? app.get_name() : null;
+        const normalizedAppName = appName ? appName.trim().toLowerCase() : '';
+        if (normalizedAppName.startsWith('com.') || normalizedAppName.startsWith('gjs')) {
+            this._clearDisplay();
+            return;
+        }
+
         const dashIndex = Math.max(windowTitle.lastIndexOf(' - '), windowTitle.lastIndexOf(' — '));
         if (dashIndex !== -1) {
             windowTitle = windowTitle.substring(0, dashIndex);
@@ -134,6 +137,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
             this._menu.setApp(null);
         }
         
+        this.reactive = true;
         if (!Main.overview.visible) {
             this.show();
         }
@@ -142,6 +146,18 @@ class WindowTitleIndicator extends PanelMenu.Button {
             this._syncMenuAlignment();
             return GLib.SOURCE_REMOVE;
         });
+    }
+
+    _clearDisplay(resetMenu = true) {
+        this._label.text = '';
+        this._icon.gicon = null;
+        this.reactive = false;
+        if (resetMenu && this._menu) {
+            if (this.menu && this.menu.isOpen)
+                this.menu.close(true);
+            this._menu.setApp(null);
+        }
+        this.hide();
     }
 
     _syncMenuAlignment() {
