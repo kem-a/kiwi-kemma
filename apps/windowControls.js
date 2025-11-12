@@ -7,6 +7,7 @@ import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
+import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -264,7 +265,23 @@ class WindowControlsIndicator extends PanelMenu.Button {
         // Add window exclusion logic with null check for window title
         if (focusWindow) {
             const windowTitle = focusWindow.get_title();
-            if (windowTitle && (windowTitle.startsWith('com.') || windowTitle.includes('@!0,0'))) {
+            if (windowTitle) {
+                const normalizedTitle = windowTitle.trim().toLowerCase();
+                if (normalizedTitle.startsWith('com.') || normalizedTitle.startsWith('gjs') || normalizedTitle.includes('@!0,0')) {
+                    this.hide();
+                    return;
+                }
+            }
+            if (windowTitle && !windowTitle.trim()) {
+                this.hide();
+                return;
+            }
+
+            const tracker = Shell.WindowTracker.get_default();
+            const app = tracker ? tracker.get_window_app(focusWindow) : null;
+            const appName = app ? app.get_name() : null;
+            const normalizedAppName = appName ? appName.trim().toLowerCase() : '';
+            if (normalizedAppName.startsWith('com.') || normalizedAppName.startsWith('gjs')) {
                 this.hide();
                 return;
             }
