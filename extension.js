@@ -165,7 +165,7 @@ export default class KiwiExtension extends Extension {
 
         // Launchpad app
         if (this._settings.get_boolean('enable-launchpad-app'))
-            launchpadAppEnable();
+            launchpadAppEnable(this);
         else
             launchpadAppDisable();
     }
