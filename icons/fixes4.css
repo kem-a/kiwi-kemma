@@ -54,8 +54,8 @@ headerbar windowcontrols button > image {
 .floating-bar.bottom,
 .floating-bar.horizontal,
 .floating-bar.right {
-  background-color: @accent_bg_color;
-  color: @accent_fg_color;
+  background-color: var(--accent-bg-color, #3584e4);
+  color: var(--accent-fg-color, #ffffff);
 }
 
 /* Popover and Menu accent color fix to use system accent color */
@@ -81,6 +81,6 @@ popover.menu modelbutton:focus,
 .context-menu > .menu-item:focus,
 menuitem:focus,
 .menuitem:focus {
-  background-color: @accent_bg_color;
-  color: @accent_fg_color;
+  background-color: var(--accent-bg-color, #3584e4);
+  color: var(--accent-fg-color, #ffffff);
 }

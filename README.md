@@ -67,6 +67,7 @@ flatpak override --user --filesystem=$HOME/.local/share/gnome-shell/extensions/k
 - vertical multimonitor setup is not supported. Mouse cross blocked.
 - Wacky behavior of move to fullscreen due to built in GNOME dynamic workspace management. Disabling it might help.
 - Advanced triple button hover effect for GTK3 flatpak apps does not work due to sandboxing
+- Electron apps launched with `--ozone-platform=wayland` use libdecor titlebars, so Kiwi's macOS buttons still apply but appear blurry and only react per-button; there is no CSS fix beyond avoiding forced Wayland or providing larger assets.
 
 ## Installing from Source
 
