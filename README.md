@@ -49,8 +49,6 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **[Weather or Not](https://extensions.gnome.org/extension/5660/)** by somepaulo
 </details>
 
-## Visual experience
-<img width="3072" height="1920" alt="Screenshot From 2025-08-23 23-29-58" src="https://github.com/user-attachments/assets/99ddf567-2002-454d-92dd-b7460631ae44" />
 
 ## Flatpak theming
 
