@@ -20,6 +20,7 @@ let mediaWidget = null;
 let quickSettingsGrid = null;
 let _initTimeoutId = null;
 let mediaIndicator = null;
+let gettextFunc = (message) => message;
 
 // Get QuickSettings grid
 function getQuickSettingsGrid() {
@@ -98,7 +99,7 @@ class MediaList extends St.BoxLayout {
         this.connect('scroll-event', this._onScrollEvent.bind(this));
         this.connect('destroy', this._onDestroy.bind(this));
 
-        this._source = new Source();
+        this._source = new Source(gettextFunc);
         this._source.connectObject('player-removed', (_source, player) => {
             if (this._destroyed)
                 return;
@@ -410,7 +411,7 @@ class MediaHeader extends St.BoxLayout {
         super({ style_class: 'kiwi-header', vertical: true });
         this.spacing = 4;
         this._headerLabel = new St.Label({
-            text: 'Media',
+            text: gettextFunc('Media'),
             style_class: 'kiwi-header-label',
             y_align: Clutter.ActorAlign.CENTER,
             x_align: Clutter.ActorAlign.START,
@@ -533,7 +534,8 @@ class MediaWidget extends St.BoxLayout {
 GObject.registerClass(MediaWidget);
 // #endregion Media Classes
 
-export function enable() {
+export function enable(gettext) {
+    gettextFunc = typeof gettext === 'function' ? gettext : (message) => message;
     if (enabled)
         return;
 
@@ -586,4 +588,5 @@ export function disable() {
     destroyMediaIndicator();
 
     enabled = false;
+    gettextFunc = (message) => message;
 }

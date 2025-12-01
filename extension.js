@@ -44,7 +44,12 @@ export default class KiwiExtension extends Extension {
         super(metadata);
     }
 
+    _getGettextFunc() {
+        return typeof this.gettext === 'function' ? this.gettext.bind(this) : (message) => message;
+    }
+
     _on_settings_changed(key) {
+        const gettextFunc = this._getGettextFunc();
         // Re-apply keyboard indicator module on any of its keys changing
         if (key === 'keyboard-indicator' || key === 'hide-keyboard-indicator') {
             if (this._settings.get_boolean('keyboard-indicator')) {
@@ -95,8 +100,8 @@ export default class KiwiExtension extends Extension {
 
          if (this._settings.get_boolean('move-calendar-right')) {
             calendarEnable();
-            quickSettingsNotificationsEnable();
-            quickSettingsMediaEnable();
+            quickSettingsNotificationsEnable(gettextFunc);
+            quickSettingsMediaEnable(gettextFunc);
         } else {
             calendarDisable();
             quickSettingsNotificationsDisable();
@@ -165,7 +170,7 @@ export default class KiwiExtension extends Extension {
 
         // Launchpad app
         if (this._settings.get_boolean('enable-launchpad-app'))
-            launchpadAppEnable(this);
+            launchpadAppEnable(this, gettextFunc);
         else
             launchpadAppDisable();
     }

@@ -2,9 +2,11 @@
 samples
 .vscode
 .github
+.venv/
 *.log
 stylesheet-test.css
 stylesheet-backup.css
+locale/
 
 # Object files
 extras/*.o

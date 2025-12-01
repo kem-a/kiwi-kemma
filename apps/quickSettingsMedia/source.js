@@ -11,11 +11,12 @@ const DBusIface = loadInterfaceXML('org.freedesktop.DBus');
 const DBusProxy = Gio.DBusProxy.makeProxyWrapper(DBusIface);
 
 export class Source extends GObject.Object {
-    constructor() {
+    constructor(gettext) {
         super();
         this._players = new Map();
         this._proxy = null;
         this._nameOwnerChangedId = 0;
+        this._gettext = typeof gettext === 'function' ? gettext : (message) => message;
     }
 
     start() {
@@ -59,7 +60,7 @@ export class Source extends GObject.Object {
         if (this._players.has(busName))
             return;
 
-        const player = new Player(busName);
+        const player = new Player(busName, this._gettext);
         this._players.set(busName, player);
 
         player.connectObject('notify::can-play', () => {

@@ -1,0 +1,491 @@
+# Latvian translation for Kiwi Menu
+# Copyright (C) 2025 Arnis Kemlers
+# This file is distributed under the same license as the kiwimenu package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kiwimenu\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-01 18:20+0200\n"
+"PO-Revision-Date: 2025-10-27 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Latvian\n"
+"Language: lv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: apps/launchpadApp.js:283
+msgid "Launchpad"
+msgstr "Launchpad"
+
+#: apps/launchpadApp.js:284
+msgid "Open Application Overview"
+msgstr "Atvērt lietotņu pārskatu"
+
+#: apps/quickSettingsMedia.js:414
+msgid "Media"
+msgstr "Multivide"
+
+#: apps/quickSettingsMedia/player.js:167
+msgid "Unknown artist"
+msgstr "Nezināms izpildītājs"
+
+#: apps/quickSettingsMedia/player.js:172
+msgid "Unknown title"
+msgstr "Nezināms nosaukums"
+
+#: apps/quickSettingsNotifications.js:95
+msgid "Disable Do Not Disturb"
+msgstr "Izslēgt Netraucēt"
+
+#: apps/quickSettingsNotifications.js:95
+#: apps/quickSettingsNotifications.js:150
+msgid "Enable Do Not Disturb"
+msgstr "Ieslēgt Netraucēt"
+
+#: apps/quickSettingsNotifications.js:146
+msgid "Do Not Disturb"
+msgstr "Netraucēt"
+
+#: apps/quickSettingsNotifications.js:550
+msgid "Notifications"
+msgstr "Paziņojumi"
+
+#: apps/quickSettingsNotifications.js:560
+msgid "Clear"
+msgstr "Notīrīt"
+
+#: apps/quickSettingsNotifications.js:565
+msgid "Clear all notifications"
+msgstr "Notīrīt visus paziņojumus"
+
+#: apps/quickSettingsNotifications.js:722
+msgid "Do Not Disturb Indicator"
+msgstr "Netraucēt indikators"
+
+#: prefs.js:35
+msgid "Kiwi is not Apple"
+msgstr "Kiwi nav Apple"
+
+#: prefs.js:86
+msgid "About"
+msgstr "Par"
+
+#: prefs.js:146 prefs.js:160
+msgid "Unknown"
+msgstr "Nezināms"
+
+#: prefs.js:153
+msgid "Change log"
+msgstr "Izmaiņu žurnāls"
+
+#: prefs.js:193
+msgid "Website"
+msgstr "Tīmekļa vietne"
+
+#: prefs.js:203
+msgid "Report an Issue"
+msgstr "Ziņot par problēmu"
+
+#: prefs.js:215 prefs.js:230
+msgid "Credits"
+msgstr "Atzinības"
+
+#: prefs.js:239
+msgid ""
+"Special thanks to all contributors, developers and the GNOME community "
+"♥️♥️♥️"
+msgstr ""
+"Liels paldies visiem līdzautoriem, izstrādātājiem un GNOME kopienai ♥️♥️♥️"
+
+#: prefs.js:244
+msgid "Contributors"
+msgstr "Līdzautori"
+
+#: prefs.js:245
+msgid "View all project contributors on GitHub"
+msgstr "Skatīt visus projekta līdzautorus GitHub"
+
+#: prefs.js:256
+msgid "Recommended Extensions"
+msgstr "Ieteiktie paplašinājumi"
+
+#: prefs.js:257
+msgid "Extensions that are compatible with Kiwi"
+msgstr "Paplašinājumi, kas ir savietojami ar Kiwi"
+
+#: prefs.js:295 prefs.js:310
+msgid "Legal"
+msgstr "Juridisks"
+
+#: prefs.js:318
+msgid "License"
+msgstr "Licence"
+
+#: prefs.js:319
+msgid "Kiwi is not Apple is free and open source software"
+msgstr "Kiwi is not Apple ir brīva un atvērtā koda programmatūra"
+
+#: prefs.js:324
+msgid "GNU General Public License v3.0"
+msgstr "GNU vispārējā publiskā licence v3.0"
+
+#: prefs.js:325
+msgid "View the full license text on GitHub"
+msgstr "Skatīt pilnu licences tekstu GitHub"
+
+#: prefs.js:336
+msgid "Copyright"
+msgstr "Autortiesības"
+
+#: prefs.js:337
+msgid ""
+"Copyright © 2025 Arnis Kemlers\n"
+"\n"
+"This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+msgstr ""
+"Autortiesības © 2025 Arnis Kemlers\n"
+"\n"
+"Šī programma ir brīva programmatūra; jūs varat to izplatīt un/vai modificēt saskaņā ar GNU vispārējās publiskās licences noteikumiem, ko publicējusi Free Software Foundation, vai nu licences versiju 3, vai (pēc jūsu izvēles) jebkuru vēlākas versijas."
+
+#: prefs.js:390
+msgid "Support the project"
+msgstr "Atbalstīt projektu"
+
+#: prefs.js:403
+msgid "Buy Me a Coffee"
+msgstr "Uzsauc man kafiju"
+
+#: prefs.js:420
+msgid "Options"
+msgstr "Opcijas"
+
+#: prefs.js:425
+msgid "Kiwi"
+msgstr "Kiwi"
+
+#: prefs.js:426
+msgid ""
+"Kiwi is not like Apple, it's free open source project that brings macOS-like"
+" feel for GNOME"
+msgstr ""
+"Kiwi nav Apple; tas ir brīvs atvērtā koda projekts, kas piešķir GNOME videi "
+"macOS līdzīgu sajūtu"
+
+#: prefs.js:432 prefs.js:439
+msgid "Panel Transparency"
+msgstr "Paneļa caurspīdīgums"
+
+#: prefs.js:433
+msgid "Configure panel transparency and appearance"
+msgstr "Konfigurēt paneļa caurspīdīgumu un izskatu"
+
+#: prefs.js:440
+msgid "Make the top panel transparent"
+msgstr "Padarīt augšējo paneli caurspīdīgu"
+
+#: prefs.js:448
+msgid "Transparency Level"
+msgstr "Caurspīdīguma līmenis"
+
+#: prefs.js:449
+msgid "Set panel transparency (0-100)"
+msgstr "Iestatīt paneļa caurspīdīgumu (0–100)"
+
+#: prefs.js:463
+msgid "Opaque When Window Touches"
+msgstr "Kļūst necaurspīdīgs, kad pieskaras logs"
+
+#: prefs.js:464
+msgid "Make panel opaque when a window touches it"
+msgstr "Padarīt paneli necaurspīdīgu, kad to aizskar logs"
+
+#: prefs.js:472
+msgid "Panel Color Fix"
+msgstr "Paneļa krāsas labojums"
+
+#: prefs.js:473
+msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
+msgstr "Novērst balto paneli dažās tēmās (piem., Ubuntu Yaru)"
+
+#: prefs.js:502
+msgid "Move Window to New Workspace"
+msgstr "Pārvietot logu uz jaunu darbvietu"
+
+#: prefs.js:502
+msgid "Move fullscreen window to a new workspace"
+msgstr "Pārvietot pilnekrāna logu uz jaunu darbvietu"
+
+#: prefs.js:503
+msgid "Transparent Move"
+msgstr "Caurspīdīga pārvietošana"
+
+#: prefs.js:503
+msgid "Move window with transparency"
+msgstr "Pārvietot logu ar caurspīdīgumu"
+
+#: prefs.js:504
+msgid "Battery Percentage"
+msgstr "Akumulatora procents"
+
+#: prefs.js:504
+msgid "Show battery percentage in the top bar when below 20%"
+msgstr "Rādīt akumulatora procentu augšējā joslā, kad tas ir zem 20 %"
+
+#: prefs.js:505
+msgid "Move Calendar to Right"
+msgstr "Pārvietot kalendāru pa labi"
+
+#: prefs.js:505
+msgid "Move calendar to right side and hide notifications"
+msgstr "Pārvietot kalendāru uz labo pusi un paslēpt paziņojumus"
+
+#: prefs.js:506
+msgid "Show Window Title"
+msgstr "Rādīt loga virsrakstu"
+
+#: prefs.js:506
+msgid "Display current window title in the top panel"
+msgstr "Rādīt pašreizējā loga virsrakstu augšējā panelī"
+
+#: prefs.js:507
+msgid "Show Panel on Hover"
+msgstr "Rādīt paneli kursoram tuvojoties"
+
+#: prefs.js:507
+msgid ""
+"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
+msgstr ""
+"Rādīt paneli, kad pele pilnekrāna režīmā ir pie augšējās malas. GTK4 "
+"lietotnēm ir zināmas problēmas."
+
+#: prefs.js:508
+msgid "Overview Wallpaper Blur"
+msgstr "Pārskata fona izpludināšana"
+
+#: prefs.js:508
+msgid ""
+"Use blurred current wallpaper as overview background (requires ImageMagick)"
+msgstr ""
+"Izmantot izpludinātu pašreizējo fonu pārskata fonā (nepieciešams "
+"ImageMagick)"
+
+#: prefs.js:521
+msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+msgstr ""
+"ImageMagick nav uzstādīts (lai ieslēgtu, instalējiet pakotni "
+"\"imagemagick\")"
+
+#: prefs.js:530
+msgid "Window Control Button Style"
+msgstr "Logu vadības pogu stils"
+
+#: prefs.js:531
+msgid ""
+"Choose the window control button style. Log out to apply it across all apps."
+msgstr ""
+"Izvēlieties logu vadības pogu stilu. Lai piemērotu visām lietotnēm, "
+"izrakstieties."
+
+#: prefs.js:537
+msgid "Enable macOS Window Buttons"
+msgstr "Ieslēgt macOS logu pogas"
+
+#: prefs.js:538
+msgid "Show window control buttons in application windows"
+msgstr "Rādīt logu vadības pogas lietotņu logos"
+
+#: prefs.js:555
+msgid "Show Window Controls on Panel"
+msgstr "Rādīt logu vadību uz paneļa"
+
+#: prefs.js:556
+msgid ""
+"Display window control buttons in the top panel when window is maximized"
+msgstr "Rādīt vadības pogas augšējā panelī, kad logs ir maksimizēts"
+
+#: prefs.js:566
+msgid "Firefox Styling"
+msgstr "Firefox noformējums"
+
+#: prefs.js:567
+msgid ""
+"Apply macOS window control styling for Firefox. Recommended to use with "
+"vertical tabs."
+msgstr ""
+"Piemērot macOS logu vadības stilu pārlūkā Firefox. Ieteicams lietot kopā ar "
+"vertikālām cilnēm."
+
+#: prefs.js:583
+msgid "Button Type"
+msgstr "Pogas tips"
+
+#: prefs.js:584
+msgid "Choose the button icon set"
+msgstr "Izvēlieties pogu ikonu komplektu"
+
+#: prefs.js:615
+msgid "Extras"
+msgstr "Papildiespējas"
+
+#: prefs.js:621
+msgid "Extra Features"
+msgstr "Papildu funkcijas"
+
+#: prefs.js:622
+msgid "Additional customization options and utilities"
+msgstr "Papildu pielāgošanas iespējas un rīki"
+
+#: prefs.js:627
+msgid "Add Username"
+msgstr "Pievienot lietotājvārdu"
+
+#: prefs.js:627
+msgid "Add username to the quick menu"
+msgstr "Pievienot lietotājvārdu ātrajai izvēlnei"
+
+#: prefs.js:628
+msgid "Caps Lock and Num Lock"
+msgstr "Caps Lock un Num Lock"
+
+#: prefs.js:628
+msgid "Show Caps Lock and Num Lock icon"
+msgstr "Rādīt Caps Lock un Num Lock ikonu"
+
+#: prefs.js:629
+msgid "Hide Activities Button"
+msgstr "Paslēpt pogu “Darbības”"
+
+#: prefs.js:629
+msgid "Hide the Activities button in the top panel"
+msgstr "Paslēpt augšējā panelī esošo pogu “Darbības”"
+
+#: prefs.js:630
+msgid "Hide Minimized Windows"
+msgstr "Paslēpt minimizētos logus"
+
+#: prefs.js:630
+msgid "Hide minimized windows in the overview"
+msgstr "Pārskatā paslēpt minimizētos logus"
+
+#: prefs.js:631
+msgid "Skip to Desktop"
+msgstr "Pāriet tieši uz darbvirsmu"
+
+#: prefs.js:631
+msgid "Do not show the overview when logging in. Animation is still visible"
+msgstr "Piesakoties nerādīt pārskatu. Animācija joprojām redzama."
+
+#: prefs.js:632
+msgid "Launchpad Application"
+msgstr "Launchpad lietotne"
+
+#: prefs.js:632
+msgid ""
+"Add custom Launchpad icon to dock that opens application overview. "
+"Recommended to hide default app launcher."
+msgstr ""
+"Pievienot dokam pielāgotu Launchpad ikonu, kas atver lietotņu pārskatu. "
+"Ieteicams paslēpt noklusējuma palaidēju."
+
+#: prefs.js:647
+msgid "Style Keyboard Indicator"
+msgstr "Noformēt tastatūras indikatoru"
+
+#: prefs.js:648
+msgid ""
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
+msgstr ""
+"Nedaudz noformēt tastatūras/ievades avota indikatoru, pārveidojot uz "
+"lielajiem burtiem un pievienojot apmali"
+
+#: prefs.js:656
+msgid "Hide keyboard indicator"
+msgstr "Paslēpt tastatūras indikatoru"
+
+#: prefs.js:657
+msgid "Completely hide the indicator from the panel"
+msgstr "Pilnībā paslēpt indikatoru no paneļa"
+
+#: prefs.js:683
+msgid "Advanced"
+msgstr "Papildu"
+
+#: prefs.js:713
+msgid "Titlebuttons Hover Effect for GTK3 apps"
+msgstr "GTK3 lietotņu logu pogu hover efekts"
+
+#: prefs.js:724
+msgid ""
+"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
+"\n"
+"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
+msgstr ""
+"Logu pogu hover modulis nodrošina macOS līdzīgus efektus GTK3 lietotņu logu vadības pogām. GTK3 lietotnes nevar vienlaikus rādīt hover efektus visām trim pogām, tādēļ vajadzīgajai uzvedībai nepieciešama šī bibliotēka.\n"
+"\n"
+"Šo bināro kodu nevar izplatīt caur GNOME paplašinājumu platformu vietējo bibliotēku drošības politikas dēļ, taču manuāla instalēšana ir iespējama."
+
+#: prefs.js:738
+msgid "Installation Guide on GitHub"
+msgstr "Instalēšanas rokasgrāmata GitHub"
+
+#: prefs.js:739
+msgid "Open the advanced module build instructions"
+msgstr "Atvērt paplašinātā moduļa būvēšanas norādījumus"
+
+#: prefs.js:752
+msgid "Even more..."
+msgstr "Vēl vairāk…"
+
+#: prefs.js:755
+msgid "MacTahoe Icon Pack"
+msgstr "MacTahoe ikonu paka"
+
+#: prefs.js:756
+msgid "macOS Tahoe icon theme for Linux"
+msgstr "macOS Tahoe ikonu tēma Linux sistēmai"
+
+
+
+
+
+
+
+
+
+
+
+
+#, javascript-format
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

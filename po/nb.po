@@ -1,0 +1,483 @@
+# Norwegian Bokmål translation for Kiwi Menu
+# Copyright (C) 2025 Arnis Kemlers
+# This file is distributed under the same license as the kiwimenu package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kiwimenu\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-01 18:20+0200\n"
+"PO-Revision-Date: 2025-10-27 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Norwegian Bokmål\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: apps/launchpadApp.js:283
+msgid "Launchpad"
+msgstr "Launchpad"
+
+#: apps/launchpadApp.js:284
+msgid "Open Application Overview"
+msgstr "Åpne programoversikten"
+
+#: apps/quickSettingsMedia.js:414
+msgid "Media"
+msgstr "Media"
+
+#: apps/quickSettingsMedia/player.js:167
+msgid "Unknown artist"
+msgstr "Ukjent artist"
+
+#: apps/quickSettingsMedia/player.js:172
+msgid "Unknown title"
+msgstr "Ukjent tittel"
+
+#: apps/quickSettingsNotifications.js:95
+msgid "Disable Do Not Disturb"
+msgstr "Deaktiver Ikke forstyrr"
+
+#: apps/quickSettingsNotifications.js:95
+#: apps/quickSettingsNotifications.js:150
+msgid "Enable Do Not Disturb"
+msgstr "Aktiver Ikke forstyrr"
+
+#: apps/quickSettingsNotifications.js:146
+msgid "Do Not Disturb"
+msgstr "Ikke forstyrr"
+
+#: apps/quickSettingsNotifications.js:550
+msgid "Notifications"
+msgstr "Varsler"
+
+#: apps/quickSettingsNotifications.js:560
+msgid "Clear"
+msgstr "Tøm"
+
+#: apps/quickSettingsNotifications.js:565
+msgid "Clear all notifications"
+msgstr "Tøm alle varsler"
+
+#: apps/quickSettingsNotifications.js:722
+msgid "Do Not Disturb Indicator"
+msgstr "Ikke forstyrr-indikator"
+
+#: prefs.js:35
+msgid "Kiwi is not Apple"
+msgstr "Kiwi er ikke Apple"
+
+#: prefs.js:86
+msgid "About"
+msgstr "Om"
+
+#: prefs.js:146 prefs.js:160
+msgid "Unknown"
+msgstr "Ukjent"
+
+#: prefs.js:153
+msgid "Change log"
+msgstr "Endringslogg"
+
+#: prefs.js:193
+msgid "Website"
+msgstr "Nettsted"
+
+#: prefs.js:203
+msgid "Report an Issue"
+msgstr "Rapporter et problem"
+
+#: prefs.js:215 prefs.js:230
+msgid "Credits"
+msgstr "Bidragsytere"
+
+#: prefs.js:239
+msgid ""
+"Special thanks to all contributors, developers and the GNOME community "
+"♥️♥️♥️"
+msgstr ""
+"En spesiell takk til alle bidragsytere, utviklere og GNOME-fellesskapet "
+"♥️♥️♥️"
+
+#: prefs.js:244
+msgid "Contributors"
+msgstr "Bidragsytere"
+
+#: prefs.js:245
+msgid "View all project contributors on GitHub"
+msgstr "Se alle prosjektets bidragsytere på GitHub"
+
+#: prefs.js:256
+msgid "Recommended Extensions"
+msgstr "Anbefalte utvidelser"
+
+#: prefs.js:257
+msgid "Extensions that are compatible with Kiwi"
+msgstr "Utvidelser som er kompatible med Kiwi"
+
+#: prefs.js:295 prefs.js:310
+msgid "Legal"
+msgstr "Juridisk"
+
+#: prefs.js:318
+msgid "License"
+msgstr "Lisens"
+
+#: prefs.js:319
+msgid "Kiwi is not Apple is free and open source software"
+msgstr "Kiwi er ikke Apple er fri og åpen kildekode-programvare"
+
+#: prefs.js:324
+msgid "GNU General Public License v3.0"
+msgstr "GNU General Public License v3.0"
+
+#: prefs.js:325
+msgid "View the full license text on GitHub"
+msgstr "Vis hele lisensteksten på GitHub"
+
+#: prefs.js:336
+msgid "Copyright"
+msgstr "Opphavsrett"
+
+#: prefs.js:337
+msgid ""
+"Copyright © 2025 Arnis Kemlers\n"
+"\n"
+"This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+msgstr ""
+"Opphavsrett © 2025 Arnis Kemlers\n"
+"\n"
+"Dette programmet er fri programvare; du kan distribuere det og/eller endre det under vilkårene i GNU General Public License, publisert av Free Software Foundation, enten versjon 3 av lisensen eller (etter eget valg) en senere versjon."
+
+#: prefs.js:390
+msgid "Support the project"
+msgstr "Støtt prosjektet"
+
+#: prefs.js:403
+msgid "Buy Me a Coffee"
+msgstr "Kjøp meg en kaffe"
+
+#: prefs.js:420
+msgid "Options"
+msgstr "Alternativer"
+
+#: prefs.js:425
+msgid "Kiwi"
+msgstr "Kiwi"
+
+#: prefs.js:426
+msgid ""
+"Kiwi is not like Apple, it's free open source project that brings macOS-like"
+" feel for GNOME"
+msgstr ""
+"Kiwi er ikke Apple; det er et fritt og åpen kildekode-prosjekt som gir GNOME"
+" en macOS-lignende følelse"
+
+#: prefs.js:432 prefs.js:439
+msgid "Panel Transparency"
+msgstr "Panelgjennomsiktighet"
+
+#: prefs.js:433
+msgid "Configure panel transparency and appearance"
+msgstr "Konfigurer panelgjennomsiktighet og utseende"
+
+#: prefs.js:440
+msgid "Make the top panel transparent"
+msgstr "Gjør topppanelet gjennomsiktig"
+
+#: prefs.js:448
+msgid "Transparency Level"
+msgstr "Gjennomsiktighetsnivå"
+
+#: prefs.js:449
+msgid "Set panel transparency (0-100)"
+msgstr "Sett panelgjennomsiktighet (0–100)"
+
+#: prefs.js:463
+msgid "Opaque When Window Touches"
+msgstr "Ugjennomsiktig når vindu berører"
+
+#: prefs.js:464
+msgid "Make panel opaque when a window touches it"
+msgstr "Gjør panelet ugjennomsiktig når et vindu berører det"
+
+#: prefs.js:472
+msgid "Panel Color Fix"
+msgstr "Panelfarge-fiks"
+
+#: prefs.js:473
+msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
+msgstr "Fiks hvitt panel i noen temaer (f.eks. Ubuntu Yaru)"
+
+#: prefs.js:502
+msgid "Move Window to New Workspace"
+msgstr "Flytt vindu til nytt arbeidsområde"
+
+#: prefs.js:502
+msgid "Move fullscreen window to a new workspace"
+msgstr "Flytt fullskjermsvindu til et nytt arbeidsområde"
+
+#: prefs.js:503
+msgid "Transparent Move"
+msgstr "Gjennomsiktig flytting"
+
+#: prefs.js:503
+msgid "Move window with transparency"
+msgstr "Flytt vindu med gjennomsiktighet"
+
+#: prefs.js:504
+msgid "Battery Percentage"
+msgstr "Batteriprosent"
+
+#: prefs.js:504
+msgid "Show battery percentage in the top bar when below 20%"
+msgstr "Vis batteriprosent i toppfeltet når den er under 20 %"
+
+#: prefs.js:505
+msgid "Move Calendar to Right"
+msgstr "Flytt kalender til høyre"
+
+#: prefs.js:505
+msgid "Move calendar to right side and hide notifications"
+msgstr "Flytt kalenderen til høyre side og skjul varsler"
+
+#: prefs.js:506
+msgid "Show Window Title"
+msgstr "Vis vindustittel"
+
+#: prefs.js:506
+msgid "Display current window title in the top panel"
+msgstr "Vis gjeldende vindustittel i topppanelet"
+
+#: prefs.js:507
+msgid "Show Panel on Hover"
+msgstr "Vis panel ved hovring"
+
+#: prefs.js:507
+msgid ""
+"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
+msgstr ""
+"Vis panelet når musen er nær toppkanten i fullskjerm. Feil for GTK4-apper."
+
+#: prefs.js:508
+msgid "Overview Wallpaper Blur"
+msgstr "Oversikts-bakgrunnsuskarphet"
+
+#: prefs.js:508
+msgid ""
+"Use blurred current wallpaper as overview background (requires ImageMagick)"
+msgstr ""
+"Bruk en uskarp versjon av gjeldende bakgrunn som oversiktsbakgrunn (krever "
+"ImageMagick)"
+
+#: prefs.js:521
+msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+msgstr ""
+"ImageMagick er ikke installert (installer pakken «imagemagick» for å "
+"aktivere)"
+
+#: prefs.js:530
+msgid "Window Control Button Style"
+msgstr "Vindukontroll-knappestil"
+
+#: prefs.js:531
+msgid ""
+"Choose the window control button style. Log out to apply it across all apps."
+msgstr ""
+"Velg vindukontroll-knappenes stil. Logg ut for å bruke den i alle apper."
+
+#: prefs.js:537
+msgid "Enable macOS Window Buttons"
+msgstr "Aktiver macOS-vindu knapper"
+
+#: prefs.js:538
+msgid "Show window control buttons in application windows"
+msgstr "Vis vindukontroll-knapper i programvinduer"
+
+#: prefs.js:555
+msgid "Show Window Controls on Panel"
+msgstr "Vis vindukontroller i panelet"
+
+#: prefs.js:556
+msgid ""
+"Display window control buttons in the top panel when window is maximized"
+msgstr "Vis vindukontroll-knapper i topppanelet når vinduet er maksimert"
+
+#: prefs.js:566
+msgid "Firefox Styling"
+msgstr "Firefox-stil"
+
+#: prefs.js:567
+msgid ""
+"Apply macOS window control styling for Firefox. Recommended to use with "
+"vertical tabs."
+msgstr ""
+"Bruk macOS-stil for vindukontroller i Firefox. Anbefales med vertikale "
+"faner."
+
+#: prefs.js:583
+msgid "Button Type"
+msgstr "Knapptype"
+
+#: prefs.js:584
+msgid "Choose the button icon set"
+msgstr "Velg ikonsett for knappene"
+
+#: prefs.js:615
+msgid "Extras"
+msgstr "Ekstra"
+
+#: prefs.js:621
+msgid "Extra Features"
+msgstr "Ekstrafunksjoner"
+
+#: prefs.js:622
+msgid "Additional customization options and utilities"
+msgstr "Flere tilpasningsmuligheter og verktøy"
+
+#: prefs.js:627
+msgid "Add Username"
+msgstr "Legg til brukernavn"
+
+#: prefs.js:627
+msgid "Add username to the quick menu"
+msgstr "Legg til brukernavn i hurtigmenyen"
+
+#: prefs.js:628
+msgid "Caps Lock and Num Lock"
+msgstr "Caps Lock og Num Lock"
+
+#: prefs.js:628
+msgid "Show Caps Lock and Num Lock icon"
+msgstr "Vis Caps Lock- og Num Lock-ikon"
+
+#: prefs.js:629
+msgid "Hide Activities Button"
+msgstr "Skjul Aktiviteter-knappen"
+
+#: prefs.js:629
+msgid "Hide the Activities button in the top panel"
+msgstr "Skjul Aktiviteter-knappen i topppanelet"
+
+#: prefs.js:630
+msgid "Hide Minimized Windows"
+msgstr "Skjul minimerte vinduer"
+
+#: prefs.js:630
+msgid "Hide minimized windows in the overview"
+msgstr "Skjul minimerte vinduer i oversikten"
+
+#: prefs.js:631
+msgid "Skip to Desktop"
+msgstr "Hopp til skrivebordet"
+
+#: prefs.js:631
+msgid "Do not show the overview when logging in. Animation is still visible"
+msgstr "Ikke vis oversikten når du logger inn. Animasjonen vises fortsatt."
+
+#: prefs.js:632
+msgid "Launchpad Application"
+msgstr "Launchpad-program"
+
+#: prefs.js:632
+msgid ""
+"Add custom Launchpad icon to dock that opens application overview. "
+"Recommended to hide default app launcher."
+msgstr ""
+"Legg til et tilpasset Launchpad-ikon i dokken som åpner programoversikten. "
+"Anbefales å skjule standardstarteren."
+
+#: prefs.js:647
+msgid "Style Keyboard Indicator"
+msgstr "Stilsett tastaturindikatoren"
+
+#: prefs.js:648
+msgid ""
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
+msgstr ""
+"Gi tastatur-/inndatakilde-indikatoren litt stil ved å gjøre teksten til "
+"store bokstaver og legge til en kantlinje"
+
+#: prefs.js:656
+msgid "Hide keyboard indicator"
+msgstr "Skjul tastaturindikatoren"
+
+#: prefs.js:657
+msgid "Completely hide the indicator from the panel"
+msgstr "Skjul indikatoren helt fra panelet"
+
+#: prefs.js:683
+msgid "Advanced"
+msgstr "Avansert"
+
+#: prefs.js:713
+msgid "Titlebuttons Hover Effect for GTK3 apps"
+msgstr "Sveveeffekt for tittellinjeknapper i GTK3-apper"
+
+#: prefs.js:724
+msgid ""
+"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
+"\n"
+"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
+msgstr ""
+"Tittellinjeknappenes svevemodul gir macOS-lignende effekter for vindukontroller i GTK3-programmer. GTK3-apper kan ikke vise sveveeffekter på alle tre vindukontroller samtidig, og trenger derfor dette biblioteket for å oppnå ønsket oppførsel.\n"
+"\n"
+"Denne binærfilen kan ikke distribueres via GNOME Extensions-plattformen på grunn av sikkerhetspolicyer for native-biblioteker, men manuell installasjon er mulig."
+
+#: prefs.js:738
+msgid "Installation Guide on GitHub"
+msgstr "Installationsveiledning på GitHub"
+
+#: prefs.js:739
+msgid "Open the advanced module build instructions"
+msgstr "Åpne byggeinstruksjonene for avansert modul"
+
+#: prefs.js:752
+msgid "Even more..."
+msgstr "Enda mer…"
+
+#: prefs.js:755
+msgid "MacTahoe Icon Pack"
+msgstr "MacTahoe ikonsamling"
+
+#: prefs.js:756
+msgid "macOS Tahoe icon theme for Linux"
+msgstr "macOS Tahoe-ikontema for Linux"
+
+
+
+
+
+
+
+
+
+
+
+
+#, javascript-format
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
