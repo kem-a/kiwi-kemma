@@ -50,6 +50,7 @@ let _appBusOwnerId = 0; // For org.freedesktop.Application
 let _appDbusExport = null;
 const _mainLoopSources = new Set();
 const _overviewSignalIds = new Set();
+let gettextFunc = (message) => message;
 
 function _queueIdle(callback) {
     const id = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
@@ -258,7 +259,8 @@ function _teardownDbusService() {
     }
 }
 
-export function enable(extension) {
+export function enable(extension, gettext) {
+    gettextFunc = typeof gettext === 'function' ? gettext : (message) => message;
     if (!extension || !extension.dir) {
         console.error('Launchpad: Missing extension context');
         return;
@@ -279,8 +281,8 @@ export function enable(extension) {
     const desktopContent = `
         [Desktop Entry]
         Type=Application
-        Name=Launchpad
-        Comment=Open Application Overview
+        Name=${gettextFunc('Launchpad')}
+        Comment=${gettextFunc('Open Application Overview')}
         Icon=${iconPath}
         DBusActivatable=true
         Exec=/usr/bin/true
@@ -352,4 +354,6 @@ export function disable() {
     } catch (e) {
         // Ignore
     }
+
+    gettextFunc = (message) => message;
 }

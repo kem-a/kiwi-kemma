@@ -51,9 +51,10 @@ const PLAYER_IFACE_NAME = 'org.mpris.MediaPlayer2.Player';
 const MPRIS_IFACE_NAME = 'org.mpris.MediaPlayer2';
 
 export class Player extends GObject.Object {
-    constructor(busName) {
+    constructor(busName, gettext) {
         super();
         this._busName = busName;
+        this._gettext = typeof gettext === 'function' ? gettext : (message) => message;
         this.source = new MessageList.Source();
         this._canPlay = false;
         this._canSeek = false;
@@ -163,12 +164,12 @@ export class Player extends GObject.Object {
         if (typeof this._trackArtists === 'string') {
             this._trackArtists = [this._trackArtists];
         } else if (!Array.isArray(this._trackArtists) || !this._trackArtists.every(artist => typeof artist === 'string')) {
-            this._trackArtists = ['Unknown artist'];
+            this._trackArtists = [this._gettext('Unknown artist')];
         }
 
         this._trackTitle = metadata['xesam:title']?.deepUnpack();
         if (typeof this._trackTitle !== 'string')
-            this._trackTitle = 'Unknown title';
+            this._trackTitle = this._gettext('Unknown title');
 
         this._trackCoverUrl = metadata['mpris:artUrl']?.deepUnpack();
         if (typeof this._trackCoverUrl !== 'string')

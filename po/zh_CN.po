@@ -1,0 +1,470 @@
+# Copyright (C) YEAR Arnis Kemlers
+# This file is distributed under the same license as the Kiwi Menu package.
+#
+# SPDX-FileCopyrightText: 2025 Markson Hosben <marksonhosben@proton.me>
+msgid ""
+msgstr ""
+"Project-Id-Version: Kiwi Menu 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-01 18:20+0200\n"
+"PO-Revision-Date: 2025-11-02 10:45+0800\n"
+"Last-Translator: Markson Hosben <marksonhosben@proton.me>\n"
+"Language-Team: Chinese\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Lokalize 23.08.5\n"
+
+#: apps/launchpadApp.js:283
+msgid "Launchpad"
+msgstr "启动台"
+
+#: apps/launchpadApp.js:284
+msgid "Open Application Overview"
+msgstr "打开应用概览"
+
+#: apps/quickSettingsMedia.js:414
+msgid "Media"
+msgstr "媒体"
+
+#: apps/quickSettingsMedia/player.js:167
+msgid "Unknown artist"
+msgstr "未知艺人"
+
+#: apps/quickSettingsMedia/player.js:172
+msgid "Unknown title"
+msgstr "未知标题"
+
+#: apps/quickSettingsNotifications.js:95
+msgid "Disable Do Not Disturb"
+msgstr "关闭勿扰模式"
+
+#: apps/quickSettingsNotifications.js:95
+#: apps/quickSettingsNotifications.js:150
+msgid "Enable Do Not Disturb"
+msgstr "开启勿扰模式"
+
+#: apps/quickSettingsNotifications.js:146
+msgid "Do Not Disturb"
+msgstr "勿扰模式"
+
+#: apps/quickSettingsNotifications.js:550
+msgid "Notifications"
+msgstr "通知"
+
+#: apps/quickSettingsNotifications.js:560
+msgid "Clear"
+msgstr "清除"
+
+#: apps/quickSettingsNotifications.js:565
+msgid "Clear all notifications"
+msgstr "清除所有通知"
+
+#: apps/quickSettingsNotifications.js:722
+msgid "Do Not Disturb Indicator"
+msgstr "勿扰模式指示器"
+
+#: prefs.js:35
+msgid "Kiwi is not Apple"
+msgstr "Kiwi 不是 Apple"
+
+#: prefs.js:86
+msgid "About"
+msgstr "关于"
+
+#: prefs.js:146 prefs.js:160
+msgid "Unknown"
+msgstr "未知"
+
+#: prefs.js:153
+msgid "Change log"
+msgstr "更新日志"
+
+#: prefs.js:193
+msgid "Website"
+msgstr "网站"
+
+#: prefs.js:203
+msgid "Report an Issue"
+msgstr "报告一个问题"
+
+#: prefs.js:215 prefs.js:230
+msgid "Credits"
+msgstr "致谢"
+
+#: prefs.js:239
+msgid ""
+"Special thanks to all contributors, developers and the GNOME community "
+"♥️♥️♥️"
+msgstr "特别感谢所有贡献者、开发者以及 GNOME 社区 ♥️♥️♥️"
+
+#: prefs.js:244
+msgid "Contributors"
+msgstr "贡献者"
+
+#: prefs.js:245
+msgid "View all project contributors on GitHub"
+msgstr "在 GitHub 查看所有项目贡献者"
+
+#: prefs.js:256
+msgid "Recommended Extensions"
+msgstr "推荐扩展"
+
+#: prefs.js:257
+msgid "Extensions that are compatible with Kiwi"
+msgstr "与 Kiwi 兼容的扩展"
+
+#: prefs.js:295 prefs.js:310
+msgid "Legal"
+msgstr "法律"
+
+#: prefs.js:318
+msgid "License"
+msgstr "许可"
+
+#: prefs.js:319
+msgid "Kiwi is not Apple is free and open source software"
+msgstr "Kiwi is not Apple 是一款自由且开源的软件"
+
+#: prefs.js:324
+msgid "GNU General Public License v3.0"
+msgstr "GNU 通用公共许可证第 3 版"
+
+#: prefs.js:325
+msgid "View the full license text on GitHub"
+msgstr "在 GitHub 查看完整许可文本"
+
+#: prefs.js:336
+msgid "Copyright"
+msgstr "版权"
+
+#: prefs.js:337
+msgid ""
+"Copyright © 2025 Arnis Kemlers\n"
+"\n"
+"This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+msgstr ""
+"版权 © 2025 Arnis Kemlers\n"
+"\n"
+"本程序为自由软件；你可以在 GNU 通用公共许可证第 3 版或（可选）任意更新版本的条款下重新发布和/或修改，它由自由软件基金会发布。"
+
+#: prefs.js:390
+msgid "Support the project"
+msgstr "支持该项目"
+
+#: prefs.js:403
+msgid "Buy Me a Coffee"
+msgstr "请我喝咖啡"
+
+#: prefs.js:420
+msgid "Options"
+msgstr "选项"
+
+#: prefs.js:425
+msgid "Kiwi"
+msgstr "Kiwi"
+
+#: prefs.js:426
+msgid ""
+"Kiwi is not like Apple, it's free open source project that brings macOS-like"
+" feel for GNOME"
+msgstr "Kiwi 不是 Apple；它是一个自由开源项目，让 GNOME 拥有类似 macOS 的体验"
+
+#: prefs.js:432 prefs.js:439
+msgid "Panel Transparency"
+msgstr "面板透明度"
+
+#: prefs.js:433
+msgid "Configure panel transparency and appearance"
+msgstr "配置面板透明度与外观"
+
+#: prefs.js:440
+msgid "Make the top panel transparent"
+msgstr "使顶部面板透明"
+
+#: prefs.js:448
+msgid "Transparency Level"
+msgstr "透明度"
+
+#: prefs.js:449
+msgid "Set panel transparency (0-100)"
+msgstr "设置面板透明度 (0–100)"
+
+#: prefs.js:463
+msgid "Opaque When Window Touches"
+msgstr "窗口触碰时变为不透明"
+
+#: prefs.js:464
+msgid "Make panel opaque when a window touches it"
+msgstr "当窗口碰到面板时让其变为不透明"
+
+#: prefs.js:472
+msgid "Panel Color Fix"
+msgstr "面板颜色修正"
+
+#: prefs.js:473
+msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
+msgstr "修复某些主题（如 Ubuntu Yaru）中出现的白色面板"
+
+#: prefs.js:502
+msgid "Move Window to New Workspace"
+msgstr "将窗口移动到新的工作区"
+
+#: prefs.js:502
+msgid "Move fullscreen window to a new workspace"
+msgstr "把全屏窗口移动到新的工作区"
+
+#: prefs.js:503
+msgid "Transparent Move"
+msgstr "透明移动"
+
+#: prefs.js:503
+msgid "Move window with transparency"
+msgstr "以透明效果移动窗口"
+
+#: prefs.js:504
+msgid "Battery Percentage"
+msgstr "电量百分比"
+
+#: prefs.js:504
+msgid "Show battery percentage in the top bar when below 20%"
+msgstr "当电量低于 20% 时在顶部栏显示电量百分比"
+
+#: prefs.js:505
+msgid "Move Calendar to Right"
+msgstr "将日历移到右侧"
+
+#: prefs.js:505
+msgid "Move calendar to right side and hide notifications"
+msgstr "把日历移动到右侧并隐藏通知"
+
+#: prefs.js:506
+msgid "Show Window Title"
+msgstr "显示窗口标题"
+
+#: prefs.js:506
+msgid "Display current window title in the top panel"
+msgstr "在顶部面板显示当前窗口标题"
+
+#: prefs.js:507
+msgid "Show Panel on Hover"
+msgstr "悬停时显示面板"
+
+#: prefs.js:507
+msgid ""
+"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
+msgstr "当鼠标在全屏模式下靠近顶部边缘时显示面板。GTK4 应用存在问题。"
+
+#: prefs.js:508
+msgid "Overview Wallpaper Blur"
+msgstr "概览壁纸模糊"
+
+#: prefs.js:508
+msgid ""
+"Use blurred current wallpaper as overview background (requires ImageMagick)"
+msgstr "将当前壁纸的模糊版本用作概览背景（需要 ImageMagick）"
+
+#: prefs.js:521
+msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+msgstr "未安装 ImageMagick（安装 “imagemagick” 软件包以启用）"
+
+#: prefs.js:530
+msgid "Window Control Button Style"
+msgstr "窗口控制按钮样式"
+
+#: prefs.js:531
+msgid ""
+"Choose the window control button style. Log out to apply it across all apps."
+msgstr "选择窗口控制按钮样式。注销后可在所有应用中生效。"
+
+#: prefs.js:537
+msgid "Enable macOS Window Buttons"
+msgstr "启用 macOS 风格窗口按钮"
+
+#: prefs.js:538
+msgid "Show window control buttons in application windows"
+msgstr "在应用窗口中显示窗口控制按钮"
+
+#: prefs.js:555
+msgid "Show Window Controls on Panel"
+msgstr "在面板显示窗口控制按钮"
+
+#: prefs.js:556
+msgid ""
+"Display window control buttons in the top panel when window is maximized"
+msgstr "窗口最大化时在顶部面板显示控制按钮"
+
+#: prefs.js:566
+msgid "Firefox Styling"
+msgstr "Firefox 样式"
+
+#: prefs.js:567
+msgid ""
+"Apply macOS window control styling for Firefox. Recommended to use with "
+"vertical tabs."
+msgstr "为 Firefox 应用 macOS 风格的窗口控制。建议与垂直选项卡一起使用。"
+
+#: prefs.js:583
+msgid "Button Type"
+msgstr "按钮类型"
+
+#: prefs.js:584
+msgid "Choose the button icon set"
+msgstr "选择按钮图标集"
+
+#: prefs.js:615
+msgid "Extras"
+msgstr "额外功能"
+
+#: prefs.js:621
+msgid "Extra Features"
+msgstr "额外特性"
+
+#: prefs.js:622
+msgid "Additional customization options and utilities"
+msgstr "额外的自定义选项和工具"
+
+#: prefs.js:627
+msgid "Add Username"
+msgstr "添加用户名"
+
+#: prefs.js:627
+msgid "Add username to the quick menu"
+msgstr "将用户名添加到快速菜单"
+
+#: prefs.js:628
+msgid "Caps Lock and Num Lock"
+msgstr "大写锁定和数字锁定"
+
+#: prefs.js:628
+msgid "Show Caps Lock and Num Lock icon"
+msgstr "显示大写锁定和数字锁定图标"
+
+#: prefs.js:629
+msgid "Hide Activities Button"
+msgstr "隐藏活动按钮"
+
+#: prefs.js:629
+msgid "Hide the Activities button in the top panel"
+msgstr "在顶部面板隐藏“活动”按钮"
+
+#: prefs.js:630
+msgid "Hide Minimized Windows"
+msgstr "隐藏最小化窗口"
+
+#: prefs.js:630
+msgid "Hide minimized windows in the overview"
+msgstr "在概览中隐藏已最小化的窗口"
+
+#: prefs.js:631
+msgid "Skip to Desktop"
+msgstr "跳过至桌面"
+
+#: prefs.js:631
+msgid "Do not show the overview when logging in. Animation is still visible"
+msgstr "登录时不显示概览。动画依然可见。"
+
+#: prefs.js:632
+msgid "Launchpad Application"
+msgstr "Launchpad 应用"
+
+#: prefs.js:632
+msgid ""
+"Add custom Launchpad icon to dock that opens application overview. "
+"Recommended to hide default app launcher."
+msgstr "在 Dock 中添加自定义 Launchpad 图标以打开应用概览。建议隐藏默认启动器。"
+
+#: prefs.js:647
+msgid "Style Keyboard Indicator"
+msgstr "美化键盘指示器"
+
+#: prefs.js:648
+msgid ""
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
+msgstr "对键盘/输入源指示器做轻微美化，将其转换为大写并添加边框"
+
+#: prefs.js:656
+msgid "Hide keyboard indicator"
+msgstr "隐藏键盘指示器"
+
+#: prefs.js:657
+msgid "Completely hide the indicator from the panel"
+msgstr "从面板中完全隐藏该指示器"
+
+#: prefs.js:683
+msgid "Advanced"
+msgstr "高级"
+
+#: prefs.js:713
+msgid "Titlebuttons Hover Effect for GTK3 apps"
+msgstr "GTK3 应用窗口按钮悬停效果"
+
+#: prefs.js:724
+msgid ""
+"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
+"\n"
+"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
+msgstr ""
+"窗口按钮悬停模块为 GTK3 应用的窗口控制提供类似 macOS 的悬停效果。GTK3 应用无法原生同时在三个窗口控制上显示悬停效果，因此需要该库来实现期望的行为。\n"
+"\n"
+"由于 GNOME 扩展平台对本地库的安全策略，此二进制文件无法通过平台分发，但可以手动安装。"
+
+#: prefs.js:738
+msgid "Installation Guide on GitHub"
+msgstr "GitHub 上的安装指南"
+
+#: prefs.js:739
+msgid "Open the advanced module build instructions"
+msgstr "打开高级模块的构建说明"
+
+#: prefs.js:752
+msgid "Even more..."
+msgstr "更多内容…"
+
+#: prefs.js:755
+msgid "MacTahoe Icon Pack"
+msgstr "MacTahoe 图标包"
+
+#: prefs.js:756
+msgid "macOS Tahoe icon theme for Linux"
+msgstr "适用于 Linux 的 macOS Tahoe 图标主题"
+
+
+
+
+
+
+
+
+
+
+
+
+#, javascript-format
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

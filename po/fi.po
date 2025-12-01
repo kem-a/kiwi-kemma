@@ -1,0 +1,484 @@
+# Finnish translation for Kiwi Menu
+# Copyright (C) 2025 Arnis Kemlers
+# This file is distributed under the same license as the kiwimenu package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kiwimenu\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-01 18:20+0200\n"
+"PO-Revision-Date: 2025-10-27 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Finnish\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: apps/launchpadApp.js:283
+msgid "Launchpad"
+msgstr "Launchpad"
+
+#: apps/launchpadApp.js:284
+msgid "Open Application Overview"
+msgstr "Avaa sovellusnäkymä"
+
+#: apps/quickSettingsMedia.js:414
+msgid "Media"
+msgstr "Media"
+
+#: apps/quickSettingsMedia/player.js:167
+msgid "Unknown artist"
+msgstr "Tuntematon artisti"
+
+#: apps/quickSettingsMedia/player.js:172
+msgid "Unknown title"
+msgstr "Tuntematon otsikko"
+
+#: apps/quickSettingsNotifications.js:95
+msgid "Disable Do Not Disturb"
+msgstr "Poista Älä häiritse käytöstä"
+
+#: apps/quickSettingsNotifications.js:95
+#: apps/quickSettingsNotifications.js:150
+msgid "Enable Do Not Disturb"
+msgstr "Ota Älä häiritse käyttöön"
+
+#: apps/quickSettingsNotifications.js:146
+msgid "Do Not Disturb"
+msgstr "Älä häiritse"
+
+#: apps/quickSettingsNotifications.js:550
+msgid "Notifications"
+msgstr "Ilmoitukset"
+
+#: apps/quickSettingsNotifications.js:560
+msgid "Clear"
+msgstr "Tyhjennä"
+
+#: apps/quickSettingsNotifications.js:565
+msgid "Clear all notifications"
+msgstr "Tyhjennä kaikki ilmoitukset"
+
+#: apps/quickSettingsNotifications.js:722
+msgid "Do Not Disturb Indicator"
+msgstr "Älä häiritse -ilmaisin"
+
+#: prefs.js:35
+msgid "Kiwi is not Apple"
+msgstr "Kiwi ei ole Apple"
+
+#: prefs.js:86
+msgid "About"
+msgstr "Tietoja"
+
+#: prefs.js:146 prefs.js:160
+msgid "Unknown"
+msgstr "Tuntematon"
+
+#: prefs.js:153
+msgid "Change log"
+msgstr "Muutosloki"
+
+#: prefs.js:193
+msgid "Website"
+msgstr "Verkkosivusto"
+
+#: prefs.js:203
+msgid "Report an Issue"
+msgstr "Ilmoita ongelmasta"
+
+#: prefs.js:215 prefs.js:230
+msgid "Credits"
+msgstr "Tekijät"
+
+#: prefs.js:239
+msgid ""
+"Special thanks to all contributors, developers and the GNOME community "
+"♥️♥️♥️"
+msgstr ""
+"Erityiskiitos kaikille avustajille, kehittäjille ja GNOME-yhteisölle ♥️♥️♥️"
+
+#: prefs.js:244
+msgid "Contributors"
+msgstr "Avustajat"
+
+#: prefs.js:245
+msgid "View all project contributors on GitHub"
+msgstr "Näytä kaikki projektin avustajat GitHubissa"
+
+#: prefs.js:256
+msgid "Recommended Extensions"
+msgstr "Suositellut laajennukset"
+
+#: prefs.js:257
+msgid "Extensions that are compatible with Kiwi"
+msgstr "Kiwin kanssa yhteensopivat laajennukset"
+
+#: prefs.js:295 prefs.js:310
+msgid "Legal"
+msgstr "Lakiasiat"
+
+#: prefs.js:318
+msgid "License"
+msgstr "Lisenssi"
+
+#: prefs.js:319
+msgid "Kiwi is not Apple is free and open source software"
+msgstr "Kiwi is not Apple on vapaa ja avoimen lähdekoodin ohjelmisto"
+
+#: prefs.js:324
+msgid "GNU General Public License v3.0"
+msgstr "GNU yleinen julkinen lisenssi v3.0"
+
+#: prefs.js:325
+msgid "View the full license text on GitHub"
+msgstr "Katso koko lisenssiteksti GitHubista"
+
+#: prefs.js:336
+msgid "Copyright"
+msgstr "Tekijänoikeus"
+
+#: prefs.js:337
+msgid ""
+"Copyright © 2025 Arnis Kemlers\n"
+"\n"
+"This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+msgstr ""
+"Tekijänoikeus © 2025 Arnis Kemlers\n"
+"\n"
+"Tämä ohjelma on vapaa ohjelmisto; voit levittää sitä ja/tai muokata sitä Free Software Foundationin julkaisemien GNU General Public License -ehtojen mukaisesti, joko version 3 tai (valintasi mukaan) minkä tahansa myöhemmän version."
+
+#: prefs.js:390
+msgid "Support the project"
+msgstr "Tue projektia"
+
+#: prefs.js:403
+msgid "Buy Me a Coffee"
+msgstr "Osta minulle kahvi"
+
+#: prefs.js:420
+msgid "Options"
+msgstr "Asetukset"
+
+#: prefs.js:425
+msgid "Kiwi"
+msgstr "Kiwi"
+
+#: prefs.js:426
+msgid ""
+"Kiwi is not like Apple, it's free open source project that brings macOS-like"
+" feel for GNOME"
+msgstr ""
+"Kiwi ei ole Apple; se on vapaa avoimen lähdekoodin projekti, joka tuo "
+"GNOMEen macOS-tyylisen tuntuman"
+
+#: prefs.js:432 prefs.js:439
+msgid "Panel Transparency"
+msgstr "Paneelin läpinäkyvyys"
+
+#: prefs.js:433
+msgid "Configure panel transparency and appearance"
+msgstr "Säädä paneelin läpinäkyvyyttä ja ulkoasua"
+
+#: prefs.js:440
+msgid "Make the top panel transparent"
+msgstr "Tee yläpaneelista läpinäkyvä"
+
+#: prefs.js:448
+msgid "Transparency Level"
+msgstr "Läpinäkyvyyden taso"
+
+#: prefs.js:449
+msgid "Set panel transparency (0-100)"
+msgstr "Aseta paneelin läpinäkyvyys (0–100)"
+
+#: prefs.js:463
+msgid "Opaque When Window Touches"
+msgstr "Läpinäkymätön kun ikkuna koskettaa"
+
+#: prefs.js:464
+msgid "Make panel opaque when a window touches it"
+msgstr "Muuta paneeli läpinäkymättömäksi, kun ikkuna koskettaa sitä"
+
+#: prefs.js:472
+msgid "Panel Color Fix"
+msgstr "Paneelin värikorjaus"
+
+#: prefs.js:473
+msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
+msgstr "Korjaa valkoinen paneeli joissakin teemoissa (esim. Ubuntu Yaru)"
+
+#: prefs.js:502
+msgid "Move Window to New Workspace"
+msgstr "Siirrä ikkuna uuteen työtilaan"
+
+#: prefs.js:502
+msgid "Move fullscreen window to a new workspace"
+msgstr "Siirrä koko näytön ikkuna uuteen työtilaan"
+
+#: prefs.js:503
+msgid "Transparent Move"
+msgstr "Läpinäkyvä siirto"
+
+#: prefs.js:503
+msgid "Move window with transparency"
+msgstr "Siirrä ikkunaa läpinäkyvyydellä"
+
+#: prefs.js:504
+msgid "Battery Percentage"
+msgstr "Akun prosentti"
+
+#: prefs.js:504
+msgid "Show battery percentage in the top bar when below 20%"
+msgstr "Näytä akun prosentti yläpalkissa, kun varausta on alle 20 %"
+
+#: prefs.js:505
+msgid "Move Calendar to Right"
+msgstr "Siirrä kalenteri oikealle"
+
+#: prefs.js:505
+msgid "Move calendar to right side and hide notifications"
+msgstr "Siirrä kalenteri oikealle ja piilota ilmoitukset"
+
+#: prefs.js:506
+msgid "Show Window Title"
+msgstr "Näytä ikkunan otsikko"
+
+#: prefs.js:506
+msgid "Display current window title in the top panel"
+msgstr "Näytä nykyisen ikkunan otsikko yläpaneelissa"
+
+#: prefs.js:507
+msgid "Show Panel on Hover"
+msgstr "Näytä paneeli osoittimen lähestyessä"
+
+#: prefs.js:507
+msgid ""
+"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
+msgstr ""
+"Näytä paneeli, kun hiiri on lähellä yläreunaa koko näytön tilassa. "
+"GTK4-sovelluksissa saattaa olla virheitä."
+
+#: prefs.js:508
+msgid "Overview Wallpaper Blur"
+msgstr "Yleisnäkymän taustan sumennus"
+
+#: prefs.js:508
+msgid ""
+"Use blurred current wallpaper as overview background (requires ImageMagick)"
+msgstr ""
+"Käytä sumennettua nykyistä taustakuvaa yleisnäkymän taustana (vaatii "
+"ImageMagickin)"
+
+#: prefs.js:521
+msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+msgstr ""
+"ImageMagickia ei ole asennettu (asenna \"imagemagick\"-paketti käyttöönottoa"
+" varten)"
+
+#: prefs.js:530
+msgid "Window Control Button Style"
+msgstr "Ikkunanohjauspainikkeiden tyyli"
+
+#: prefs.js:531
+msgid ""
+"Choose the window control button style. Log out to apply it across all apps."
+msgstr ""
+"Valitse ikkunanohjauspainikkeiden tyyli. Kirjaudu ulos ottaaksesi sen "
+"käyttöön kaikissa sovelluksissa."
+
+#: prefs.js:537
+msgid "Enable macOS Window Buttons"
+msgstr "Ota macOS-ikkunapainikkeet käyttöön"
+
+#: prefs.js:538
+msgid "Show window control buttons in application windows"
+msgstr "Näytä ikkunanohjauspainikkeet sovellusikkunoissa"
+
+#: prefs.js:555
+msgid "Show Window Controls on Panel"
+msgstr "Näytä ikkunanohjaimet paneelissa"
+
+#: prefs.js:556
+msgid ""
+"Display window control buttons in the top panel when window is maximized"
+msgstr "Näytä ikkunanohjauspainikkeet yläpaneelissa, kun ikkuna on maksimoitu"
+
+#: prefs.js:566
+msgid "Firefox Styling"
+msgstr "Firefoxin tyyli"
+
+#: prefs.js:567
+msgid ""
+"Apply macOS window control styling for Firefox. Recommended to use with "
+"vertical tabs."
+msgstr ""
+"Käytä macOS-ikkunapainikkeiden tyyliä Firefoxissa. Suositeltavaa käyttää "
+"pystysuorien välilehtien kanssa."
+
+#: prefs.js:583
+msgid "Button Type"
+msgstr "Painikkeen tyyppi"
+
+#: prefs.js:584
+msgid "Choose the button icon set"
+msgstr "Valitse painikkeiden kuvakejoukko"
+
+#: prefs.js:615
+msgid "Extras"
+msgstr "Lisäosat"
+
+#: prefs.js:621
+msgid "Extra Features"
+msgstr "Lisäominaisuudet"
+
+#: prefs.js:622
+msgid "Additional customization options and utilities"
+msgstr "Lisämuokkausvaihtoehtoja ja työkaluja"
+
+#: prefs.js:627
+msgid "Add Username"
+msgstr "Lisää käyttäjänimi"
+
+#: prefs.js:627
+msgid "Add username to the quick menu"
+msgstr "Lisää käyttäjänimi pikavalikkoon"
+
+#: prefs.js:628
+msgid "Caps Lock and Num Lock"
+msgstr "Caps Lock ja Num Lock"
+
+#: prefs.js:628
+msgid "Show Caps Lock and Num Lock icon"
+msgstr "Näytä Caps Lock- ja Num Lock -kuvake"
+
+#: prefs.js:629
+msgid "Hide Activities Button"
+msgstr "Piilota Aktiviteetit-painike"
+
+#: prefs.js:629
+msgid "Hide the Activities button in the top panel"
+msgstr "Piilota Aktiviteetit-painike yläpalkista"
+
+#: prefs.js:630
+msgid "Hide Minimized Windows"
+msgstr "Piilota pienennetyt ikkunat"
+
+#: prefs.js:630
+msgid "Hide minimized windows in the overview"
+msgstr "Piilota pienennetyt ikkunat yleisnäkymässä"
+
+#: prefs.js:631
+msgid "Skip to Desktop"
+msgstr "Siirry suoraan työpöydälle"
+
+#: prefs.js:631
+msgid "Do not show the overview when logging in. Animation is still visible"
+msgstr "Älä näytä yleisnäkymää kirjautuessa sisään. Animaatio näkyy silti."
+
+#: prefs.js:632
+msgid "Launchpad Application"
+msgstr "Launchpad-sovellus"
+
+#: prefs.js:632
+msgid ""
+"Add custom Launchpad icon to dock that opens application overview. "
+"Recommended to hide default app launcher."
+msgstr ""
+"Lisää telakkaan mukautettu Launchpad-kuvake, joka avaa sovellusnäkymän. "
+"Suositellaan piilottamaan oletuslaukaisin."
+
+#: prefs.js:647
+msgid "Style Keyboard Indicator"
+msgstr "Tyylittele näppäimistöindikaattori"
+
+#: prefs.js:648
+msgid ""
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
+msgstr ""
+"Tyylittele näppäimistö-/syöttölähdeindikaattoria muuttamalla se isoiksi "
+"kirjaimiksi ja lisäämällä reunus"
+
+#: prefs.js:656
+msgid "Hide keyboard indicator"
+msgstr "Piilota näppäimistöindikaattori"
+
+#: prefs.js:657
+msgid "Completely hide the indicator from the panel"
+msgstr "Piilota indikaattori kokonaan paneelista"
+
+#: prefs.js:683
+msgid "Advanced"
+msgstr "Lisäasetukset"
+
+#: prefs.js:713
+msgid "Titlebuttons Hover Effect for GTK3 apps"
+msgstr "GTK3-sovellusten otsikkopainikkeiden hover-efekti"
+
+#: prefs.js:724
+msgid ""
+"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
+"\n"
+"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
+msgstr ""
+"Otsikkopainikkeiden hover-moduuli tuo macOS-tyyliset hover-efektit GTK3-sovellusten ikkunanhallintapainikkeisiin. GTK3-sovellukset eivät pysty näyttämään hover-efektiä kaikissa kolmessa painikkeessa yhtä aikaa, joten halutun toiminnan saavuttamiseksi tarvitaan tämä kirjasto.\n"
+"\n"
+"Tätä binaaria ei voi levittää GNOME-laajennusten alustalla natiivikirjastoja koskevien turvallisuussääntöjen vuoksi, mutta manuaalinen asennus on mahdollinen."
+
+#: prefs.js:738
+msgid "Installation Guide on GitHub"
+msgstr "Asennusohje GitHubissa"
+
+#: prefs.js:739
+msgid "Open the advanced module build instructions"
+msgstr "Avaa lisämoduulin käännösohjeet"
+
+#: prefs.js:752
+msgid "Even more..."
+msgstr "Lisää vielä…"
+
+#: prefs.js:755
+msgid "MacTahoe Icon Pack"
+msgstr "MacTahoe-kuvakepaketti"
+
+#: prefs.js:756
+msgid "macOS Tahoe icon theme for Linux"
+msgstr "macOS Tahoe -kuvaketeema Linuxille"
+
+
+
+
+
+
+
+
+
+
+
+
+#, javascript-format
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

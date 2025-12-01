@@ -1,0 +1,491 @@
+# Italian translations for Kiwi Menu package.
+# Copyright (C) 2025 Arnis Kemlers
+# This file is distributed under the same license as the Kiwi Menu package.
+# Automatically generated, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Kiwi Menu 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-01 18:20+0200\n"
+"PO-Revision-Date: 2025-10-27 00:00+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: apps/launchpadApp.js:283
+msgid "Launchpad"
+msgstr "Launchpad"
+
+#: apps/launchpadApp.js:284
+msgid "Open Application Overview"
+msgstr "Apri la panoramica delle applicazioni"
+
+#: apps/quickSettingsMedia.js:414
+msgid "Media"
+msgstr "Media"
+
+#: apps/quickSettingsMedia/player.js:167
+msgid "Unknown artist"
+msgstr "Artista sconosciuto"
+
+#: apps/quickSettingsMedia/player.js:172
+msgid "Unknown title"
+msgstr "Titolo sconosciuto"
+
+#: apps/quickSettingsNotifications.js:95
+msgid "Disable Do Not Disturb"
+msgstr "Disattiva Non disturbare"
+
+#: apps/quickSettingsNotifications.js:95
+#: apps/quickSettingsNotifications.js:150
+msgid "Enable Do Not Disturb"
+msgstr "Attiva Non disturbare"
+
+#: apps/quickSettingsNotifications.js:146
+msgid "Do Not Disturb"
+msgstr "Non disturbare"
+
+#: apps/quickSettingsNotifications.js:550
+msgid "Notifications"
+msgstr "Notifiche"
+
+#: apps/quickSettingsNotifications.js:560
+msgid "Clear"
+msgstr "Pulisci"
+
+#: apps/quickSettingsNotifications.js:565
+msgid "Clear all notifications"
+msgstr "Pulisci tutte le notifiche"
+
+#: apps/quickSettingsNotifications.js:722
+msgid "Do Not Disturb Indicator"
+msgstr "Indicatore Non disturbare"
+
+#: prefs.js:35
+msgid "Kiwi is not Apple"
+msgstr "Kiwi non è Apple"
+
+#: prefs.js:86
+msgid "About"
+msgstr "Informazioni"
+
+#: prefs.js:146 prefs.js:160
+msgid "Unknown"
+msgstr "Sconosciuto"
+
+#: prefs.js:153
+msgid "Change log"
+msgstr "Registro delle modifiche"
+
+#: prefs.js:193
+msgid "Website"
+msgstr "Sito web"
+
+#: prefs.js:203
+msgid "Report an Issue"
+msgstr "Segnala un problema"
+
+#: prefs.js:215 prefs.js:230
+msgid "Credits"
+msgstr "Riconoscimenti"
+
+#: prefs.js:239
+msgid ""
+"Special thanks to all contributors, developers and the GNOME community "
+"♥️♥️♥️"
+msgstr ""
+"Un ringraziamento speciale a tutti i collaboratori, agli sviluppatori e alla"
+" comunità GNOME ♥️♥️♥️"
+
+#: prefs.js:244
+msgid "Contributors"
+msgstr "Collaboratori"
+
+#: prefs.js:245
+msgid "View all project contributors on GitHub"
+msgstr "Visualizza tutti i collaboratori del progetto su GitHub"
+
+#: prefs.js:256
+msgid "Recommended Extensions"
+msgstr "Estensioni consigliate"
+
+#: prefs.js:257
+msgid "Extensions that are compatible with Kiwi"
+msgstr "Estensioni compatibili con Kiwi"
+
+#: prefs.js:295 prefs.js:310
+msgid "Legal"
+msgstr "Note legali"
+
+#: prefs.js:318
+msgid "License"
+msgstr "Licenza"
+
+#: prefs.js:319
+msgid "Kiwi is not Apple is free and open source software"
+msgstr "Kiwi is not Apple è un software libero e open source"
+
+#: prefs.js:324
+msgid "GNU General Public License v3.0"
+msgstr "Licenza Pubblica Generale GNU v3.0"
+
+#: prefs.js:325
+msgid "View the full license text on GitHub"
+msgstr "Visualizza il testo completo della licenza su GitHub"
+
+#: prefs.js:336
+msgid "Copyright"
+msgstr "Copyright"
+
+#: prefs.js:337
+msgid ""
+"Copyright © 2025 Arnis Kemlers\n"
+"\n"
+"This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+msgstr ""
+"Copyright © 2025 Arnis Kemlers\n"
+"\n"
+"Questo programma è software libero; puoi redistribuirlo e/o modificarlo secondo i termini della GNU General Public License pubblicata dalla Free Software Foundation, versione 3 della licenza o (a tua scelta) qualsiasi versione successiva."
+
+#: prefs.js:390
+msgid "Support the project"
+msgstr "Sostieni il progetto"
+
+#: prefs.js:403
+msgid "Buy Me a Coffee"
+msgstr "Offrimi un caffè"
+
+#: prefs.js:420
+msgid "Options"
+msgstr "Opzioni"
+
+#: prefs.js:425
+msgid "Kiwi"
+msgstr "Kiwi"
+
+#: prefs.js:426
+msgid ""
+"Kiwi is not like Apple, it's free open source project that brings macOS-like"
+" feel for GNOME"
+msgstr ""
+"Kiwi non è Apple; è un progetto libero e open source che porta un’esperienza"
+" simile a macOS su GNOME"
+
+#: prefs.js:432 prefs.js:439
+msgid "Panel Transparency"
+msgstr "Trasparenza del pannello"
+
+#: prefs.js:433
+msgid "Configure panel transparency and appearance"
+msgstr "Configura la trasparenza e l’aspetto del pannello"
+
+#: prefs.js:440
+msgid "Make the top panel transparent"
+msgstr "Rendi trasparente il pannello superiore"
+
+#: prefs.js:448
+msgid "Transparency Level"
+msgstr "Livello di trasparenza"
+
+#: prefs.js:449
+msgid "Set panel transparency (0-100)"
+msgstr "Imposta la trasparenza del pannello (0-100)"
+
+#: prefs.js:463
+msgid "Opaque When Window Touches"
+msgstr "Opaco quando una finestra tocca"
+
+#: prefs.js:464
+msgid "Make panel opaque when a window touches it"
+msgstr "Rendi il pannello opaco quando una finestra lo tocca"
+
+#: prefs.js:472
+msgid "Panel Color Fix"
+msgstr "Correzione colore pannello"
+
+#: prefs.js:473
+msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
+msgstr "Correggi il pannello bianco in alcuni temi (ad es. Ubuntu Yaru)"
+
+#: prefs.js:502
+msgid "Move Window to New Workspace"
+msgstr "Sposta la finestra in un nuovo spazio di lavoro"
+
+#: prefs.js:502
+msgid "Move fullscreen window to a new workspace"
+msgstr "Sposta la finestra a schermo intero in un nuovo spazio di lavoro"
+
+#: prefs.js:503
+msgid "Transparent Move"
+msgstr "Spostamento trasparente"
+
+#: prefs.js:503
+msgid "Move window with transparency"
+msgstr "Sposta la finestra con trasparenza"
+
+#: prefs.js:504
+msgid "Battery Percentage"
+msgstr "Percentuale batteria"
+
+#: prefs.js:504
+msgid "Show battery percentage in the top bar when below 20%"
+msgstr ""
+"Mostra la percentuale della batteria nella barra superiore quando scende "
+"sotto il 20%"
+
+#: prefs.js:505
+msgid "Move Calendar to Right"
+msgstr "Sposta il calendario a destra"
+
+#: prefs.js:505
+msgid "Move calendar to right side and hide notifications"
+msgstr "Sposta il calendario sul lato destro e nascondi le notifiche"
+
+#: prefs.js:506
+msgid "Show Window Title"
+msgstr "Mostra il titolo della finestra"
+
+#: prefs.js:506
+msgid "Display current window title in the top panel"
+msgstr "Mostra il titolo della finestra corrente nel pannello superiore"
+
+#: prefs.js:507
+msgid "Show Panel on Hover"
+msgstr "Mostra il pannello al passaggio del mouse"
+
+#: prefs.js:507
+msgid ""
+"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
+msgstr ""
+"Mostra il pannello quando il puntatore è vicino al bordo superiore a schermo"
+" intero. Presenta problemi con le app GTK4."
+
+#: prefs.js:508
+msgid "Overview Wallpaper Blur"
+msgstr "Sfocatura dello sfondo della panoramica"
+
+#: prefs.js:508
+msgid ""
+"Use blurred current wallpaper as overview background (requires ImageMagick)"
+msgstr ""
+"Usa lo sfondo attuale sfocato come sfondo della panoramica (richiede "
+"ImageMagick)"
+
+#: prefs.js:521
+msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+msgstr ""
+"ImageMagick non è installato (installa il pacchetto \"imagemagick\" per "
+"abilitarlo)"
+
+#: prefs.js:530
+msgid "Window Control Button Style"
+msgstr "Stile dei pulsanti di controllo finestra"
+
+#: prefs.js:531
+msgid ""
+"Choose the window control button style. Log out to apply it across all apps."
+msgstr ""
+"Scegli lo stile dei pulsanti di controllo finestra. Esci per applicarlo a "
+"tutte le app."
+
+#: prefs.js:537
+msgid "Enable macOS Window Buttons"
+msgstr "Abilita i pulsanti finestra di macOS"
+
+#: prefs.js:538
+msgid "Show window control buttons in application windows"
+msgstr "Mostra i pulsanti di controllo nelle finestre delle applicazioni"
+
+#: prefs.js:555
+msgid "Show Window Controls on Panel"
+msgstr "Mostra i controlli finestra sul pannello"
+
+#: prefs.js:556
+msgid ""
+"Display window control buttons in the top panel when window is maximized"
+msgstr ""
+"Mostra i pulsanti di controllo nel pannello superiore quando la finestra è "
+"massimizzata"
+
+#: prefs.js:566
+msgid "Firefox Styling"
+msgstr "Stile per Firefox"
+
+#: prefs.js:567
+msgid ""
+"Apply macOS window control styling for Firefox. Recommended to use with "
+"vertical tabs."
+msgstr ""
+"Applica lo stile dei controlli di macOS a Firefox. Consigliato con le schede"
+" verticali."
+
+#: prefs.js:583
+msgid "Button Type"
+msgstr "Tipo di pulsante"
+
+#: prefs.js:584
+msgid "Choose the button icon set"
+msgstr "Scegli il set di icone dei pulsanti"
+
+#: prefs.js:615
+msgid "Extras"
+msgstr "Extra"
+
+#: prefs.js:621
+msgid "Extra Features"
+msgstr "Funzionalità extra"
+
+#: prefs.js:622
+msgid "Additional customization options and utilities"
+msgstr "Ulteriori opzioni di personalizzazione e strumenti"
+
+#: prefs.js:627
+msgid "Add Username"
+msgstr "Aggiungi nome utente"
+
+#: prefs.js:627
+msgid "Add username to the quick menu"
+msgstr "Aggiungi il nome utente al menu rapido"
+
+#: prefs.js:628
+msgid "Caps Lock and Num Lock"
+msgstr "Bloc Maius e Bloc Num"
+
+#: prefs.js:628
+msgid "Show Caps Lock and Num Lock icon"
+msgstr "Mostra l’icona Bloc Maius e Bloc Num"
+
+#: prefs.js:629
+msgid "Hide Activities Button"
+msgstr "Nascondi il pulsante Attività"
+
+#: prefs.js:629
+msgid "Hide the Activities button in the top panel"
+msgstr "Nascondi il pulsante Attività nel pannello superiore"
+
+#: prefs.js:630
+msgid "Hide Minimized Windows"
+msgstr "Nascondi le finestre minimizzate"
+
+#: prefs.js:630
+msgid "Hide minimized windows in the overview"
+msgstr "Nascondi le finestre minimizzate nella panoramica"
+
+#: prefs.js:631
+msgid "Skip to Desktop"
+msgstr "Vai direttamente al desktop"
+
+#: prefs.js:631
+msgid "Do not show the overview when logging in. Animation is still visible"
+msgstr "Non mostrare la panoramica all’accesso. L’animazione rimane visibile."
+
+#: prefs.js:632
+msgid "Launchpad Application"
+msgstr "Applicazione Launchpad"
+
+#: prefs.js:632
+msgid ""
+"Add custom Launchpad icon to dock that opens application overview. "
+"Recommended to hide default app launcher."
+msgstr ""
+"Aggiungi al dock un’icona Launchpad personalizzata che apre la panoramica "
+"delle applicazioni. Si consiglia di nascondere il launcher predefinito."
+
+#: prefs.js:647
+msgid "Style Keyboard Indicator"
+msgstr "Personalizza l’indicatore della tastiera"
+
+#: prefs.js:648
+msgid ""
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
+msgstr ""
+"Personalizza leggermente l’indicatore della tastiera/della sorgente di input"
+" convertendolo in maiuscolo e aggiungendo un bordo"
+
+#: prefs.js:656
+msgid "Hide keyboard indicator"
+msgstr "Nascondi l’indicatore della tastiera"
+
+#: prefs.js:657
+msgid "Completely hide the indicator from the panel"
+msgstr "Nascondi completamente l’indicatore dal pannello"
+
+#: prefs.js:683
+msgid "Advanced"
+msgstr "Avanzate"
+
+#: prefs.js:713
+msgid "Titlebuttons Hover Effect for GTK3 apps"
+msgstr "Effetto hover dei pulsanti del titolo per app GTK3"
+
+#: prefs.js:724
+msgid ""
+"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
+"\n"
+"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
+msgstr ""
+"Il modulo di effetto hover dei pulsanti del titolo offre effetti in stile macOS per i controlli finestra delle applicazioni GTK3. Le app GTK3 non possono mostrare l’effetto sui tre controlli contemporaneamente, quindi è necessaria questa libreria per ottenere il comportamento desiderato.\n"
+"\n"
+"Questo codice binario non può essere distribuito tramite la piattaforma delle estensioni GNOME a causa delle regole di sicurezza relative alle librerie native, ma è possibile installarlo manualmente."
+
+#: prefs.js:738
+msgid "Installation Guide on GitHub"
+msgstr "Guida all’installazione su GitHub"
+
+#: prefs.js:739
+msgid "Open the advanced module build instructions"
+msgstr "Apri le istruzioni di compilazione del modulo avanzato"
+
+#: prefs.js:752
+msgid "Even more..."
+msgstr "Ancora di più…"
+
+#: prefs.js:755
+msgid "MacTahoe Icon Pack"
+msgstr "Pacchetto di icone MacTahoe"
+
+#: prefs.js:756
+msgid "macOS Tahoe icon theme for Linux"
+msgstr "Tema di icone macOS Tahoe per Linux"
+
+
+
+
+
+
+
+
+
+
+
+
+#, javascript-format
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

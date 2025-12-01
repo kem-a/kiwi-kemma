@@ -32,7 +32,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         window._settings = settings;
-        window.title = 'Kiwi is not Apple';
+        const extensionTitle = _('Kiwi is not Apple');
+        window.title = extensionTitle;
         window.set_default_size(500, 710);
         window.set_size_request(420, 550);
         // Enable built-in libadwaita search (adds search button automatically)
@@ -82,7 +83,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // About Page (First Page)
         //
         const aboutPage = new Adw.PreferencesPage({
-            title: 'About',
+            title: _('About'),
             icon_name: 'help-about-symbolic',
         });
         window.add(aboutPage);
@@ -120,7 +121,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         // Title
         const titleLabel = new Gtk.Label({
-            label: '<span size="xx-large" weight="bold">Kiwi is not Apple</span>',
+            label: `<span size="xx-large" weight="bold">${GLib.markup_escape_text(extensionTitle, -1)}</span>`,
             use_markup: true,
             halign: Gtk.Align.CENTER,
         });
@@ -234,7 +235,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
             // Thanks section
             const thanksGroup = new Adw.PreferencesGroup({
-                title: _(''),
+                title: '',
                 description: _('Special thanks to all contributors, developers and the GNOME community ♥️♥️♥️'),
             });
             
@@ -257,8 +258,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
             });
             
             const recommendations = [
-                { title: 'Dash2Dock Animated', author: 'icedman', url: 'https://extensions.gnome.org/extension/4994/' },
-                { title: 'Compiz alike magic lamp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740/' },
+                { title: 'Dash to Dock', author: 'michele_g', url: 'https://extensions.gnome.org/extension/307/' },
+                { title: 'Compiz alike magic l`amp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740/' },
                 { title: 'Kiwi Menu', author: 'Arnis K (Me)', url: 'https://extensions.gnome.org/extension/8697/' },            
                 { title: 'AppIndicator Support', author: '3v1n0', url: 'https://extensions.gnome.org/extension/615/' },
                 { title: 'Clipboard Indicator', author: 'Tudmotu', url: 'https://extensions.gnome.org/extension/779/' },
@@ -270,7 +271,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             recommendations.forEach((rec) => {
                 const extRow = new Adw.ActionRow({
                     title: rec.title,
-                    subtitle: `by ${rec.author}`,
+                    subtitle: rec.author,
                     activatable: true,
                 });
                 extRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
@@ -416,7 +417,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Options Page
         //
         const settingsPage = new Adw.PreferencesPage({
-            title: 'Options',
+            title: _('Options'),
             icon_name: 'preferences-other-symbolic',
         });
 
@@ -611,7 +612,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Extras Page
         //
         const extrasPage = new Adw.PreferencesPage({
-            title: 'Extras',
+            title: _('Extras'),
             icon_name: 'application-x-addon-symbolic',
         });
         window.add(extrasPage);
@@ -679,7 +680,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Advanced Page
         //
         const advancedPage = new Adw.PreferencesPage({
-            title: 'Advanced',
+            title: _('Advanced'),
             icon_name: 'applications-utilities-symbolic',
         });
         window.add(advancedPage);
@@ -709,8 +710,9 @@ export default class KiwiPreferences extends ExtensionPreferences {
             icon_size: Gtk.IconSize.LARGE,
         }));
 
+        const hoverTitle = _('Titlebuttons Hover Effect for GTK3 apps');
         warningHeaderBox.append(new Gtk.Label({
-            label: '<b>Titlebuttons Hover Effect for GTK3 apps</b>',
+            label: `<b>${GLib.markup_escape_text(hoverTitle, -1)}</b>`,
             use_markup: true,
             halign: Gtk.Align.START,
         }));
@@ -719,7 +721,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         // Explanation text
         const explanationLabel = new Gtk.Label({
-            label: 'The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n\nThis binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible.',
+            label: _('The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n\nThis binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible.'),
             wrap: true,
             halign: Gtk.Align.START,
             xalign: 0,

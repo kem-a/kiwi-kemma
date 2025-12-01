@@ -27,6 +27,7 @@ const HAS_MESSAGE_LIST_SECTION = MessageList && typeof MessageList.MessageListSe
 
 // State holders
 let enabled = false;
+let gettextFunc = (message) => message;
 let notificationWidget = null;
 let quickSettingsGrid = null;
 let _monitor = null;
@@ -91,7 +92,8 @@ function syncDndButtonState() {
         _dndButton.checked = dndActive;
 
     _dndIcon.icon_name = DND_ICON_NAME;
-    _dndButton.set_tooltip_text?.(dndActive ? 'Disable Do Not Disturb' : 'Enable Do Not Disturb');
+    const tooltip = dndActive ? gettextFunc('Disable Do Not Disturb') : gettextFunc('Enable Do Not Disturb');
+    _dndButton.set_tooltip_text?.(tooltip);
 
     // Always hide the date menu DND indicator in the panel; we provide our own.
     hideDateMenuIndicator();
@@ -141,11 +143,11 @@ function ensureDndButton() {
             reactive: true,
             track_hover: true,
             toggle_mode: true,
-            accessible_name: 'Do Not Disturb',
+            accessible_name: gettextFunc('Do Not Disturb'),
         });
         _dndButton.set_child(_dndIcon);
         _dndButton.connect('clicked', toggleDnd);
-        _dndButton.set_tooltip_text?.('Enable Do Not Disturb');
+        _dndButton.set_tooltip_text?.(gettextFunc('Enable Do Not Disturb'));
     }
 
     const currentParent = _dndButton.get_parent();
@@ -545,7 +547,7 @@ class NotificationHeader extends St.BoxLayout {
         super({ style_class: 'kiwi-header' });
 
         this._headerLabel = new St.Label({
-            text: 'Notifications',
+            text: gettextFunc('Notifications'),
             style_class: 'kiwi-header-label',
             y_align: Clutter.ActorAlign.CENTER,
             x_align: Clutter.ActorAlign.START,
@@ -555,12 +557,12 @@ class NotificationHeader extends St.BoxLayout {
 
         this._clearButton = new St.Button({
             style_class: 'message-list-clear-button button destructive-action',
-            label: 'Clear',
+            label: gettextFunc('Clear'),
             can_focus: true,
             x_align: Clutter.ActorAlign.END,
             x_expand: false,
         });
-        this._clearButton.set_accessible_name('Clear all notifications');
+        this._clearButton.set_accessible_name(gettextFunc('Clear all notifications'));
         this.add_child(this._clearButton);
     }
 }
@@ -623,7 +625,8 @@ GObject.registerClass(NotificationWidget);
 
 // #endregion Notification Classes
 
-export function enable() {
+export function enable(gettext) {
+    gettextFunc = typeof gettext === 'function' ? gettext : (message) => message;
     if (enabled) return;
 
     // Delay to ensure quicksettings is fully loaded
@@ -700,6 +703,7 @@ export function disable() {
     }
 
     enabled = false;
+    gettextFunc = (message) => message;
 }
 
 function ensurePanelMoonIcon(isActive = false) {
@@ -717,7 +721,7 @@ function ensurePanelMoonIcon(isActive = false) {
             style_class: 'system-status-icon kiwi-dnd-indicator',
             visible: false,
             reactive: false,
-            accessible_name: 'Do Not Disturb Indicator',
+            accessible_name: gettextFunc('Do Not Disturb Indicator'),
         });
     }
 

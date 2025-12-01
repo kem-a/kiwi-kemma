@@ -25,6 +25,7 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Show Panel on Hover**: Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.
 - **Hide Minimized Windows**: Hide minimized windows in the overview
 - **Overview Wallpaper Background blur**. Use blurred current wallpaper as overview background (requires **ImageMagick**).
+- **Multilingual UI**: Ships with translations for 16 languages (de, es, et, fa, fi, fr, it, ko, lt, lv, nb, nl, pl, pt, sv, zh_CN) and is easy to extend via `po/` files.
 
 ## Extras
 - **Lock Icon**: Display Caps Lock or Num Lock icon in the GNOME top panel.
