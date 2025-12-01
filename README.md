@@ -27,17 +27,16 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Overview Wallpaper Background blur**. Use blurred current wallpaper as overview background (requires **ImageMagick**).
 - **Multilingual UI**: Ships with translations for 16 languages (de, es, et, fa, fi, fr, it, ko, lt, lv, nb, nl, pl, pt, sv, zh_CN) and is easy to extend via `po/` files.
 
-## Extras
+<details> <summary> <H3> Extras </H3> <b>(click to open)</b> </summary>
+  
 - **Lock Icon**: Display Caps Lock or Num Lock icon in the GNOME top panel.
 - **Add Username to Quick Menu**: Display the username in the quick settings menu.
 - **Skip Overview on Login**: Do not show the overview when logging into GNOME; go directly to the desktop.
 - **Hide Activities Button**: Hide the Activities button in the top panel
 - **Style Keyboard Indicator**. Style keyboard/input source indicator in panel by converting to uppercase and adding border. Also can hide it.
-
+</details>
   
 ## Recommended Extensions for better experience
-
-<details> <summary> Details <b>(click to open)</b> </summary>
 
 - **[Dash to Dock](https://extensions.gnome.org/extension/307/)** by michele_g
 - **[Compiz alike magic lamp effect](https://extensions.gnome.org/extension/3740/)** by hermes83
@@ -47,19 +46,6 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **[Clipboard Indicator](https://extensions.gnome.org/extension/779/)** by Tudmotu
 - **[Light Style](https://extensions.gnome.org/extension/6198/)** by fmuellner
 - **[Weather or Not](https://extensions.gnome.org/extension/5660/)** by somepaulo
-</details>
-
-
-## Flatpak theming
-
-Run this command to override `xdg-config` and theme window control buttons for Flatpak apps:
-
-```sh
-flatpak override --user --filesystem=xdg-config/gtk-3.0:ro
-flatpak override --user --filesystem=xdg-config/gtk-4.0:ro
-flatpak override --user --filesystem=xdg-config/environment.d/:ro
-flatpak override --user --filesystem=$HOME/.local/share/gnome-shell/extensions/kiwi@kemma/:ro
-```
 
 ## Known Issues
 
@@ -68,6 +54,16 @@ flatpak override --user --filesystem=$HOME/.local/share/gnome-shell/extensions/k
 - Advanced triple button hover effect for GTK3 flatpak apps does not work due to sandboxing
 - Electron apps launched with `--ozone-platform=wayland` use libdecor titlebars, so Kiwi's macOS buttons still apply but appear blurry and only react per-button; there is no CSS fix beyond avoiding forced Wayland or providing larger assets.
 
+<details> <summary> <H2>Flatpak theming</H2> <b>(click to open)</b> </summary>
+Run this command to override `xdg-config` and theme window control buttons for Flatpak apps:
+
+```sh
+flatpak override --user --filesystem=xdg-config/gtk-3.0:ro
+flatpak override --user --filesystem=xdg-config/gtk-4.0:ro
+flatpak override --user --filesystem=xdg-config/environment.d/:ro
+flatpak override --user --filesystem=$HOME/.local/share/gnome-shell/extensions/kiwi@kemma/:ro
+```
+</details>
 
 ## Contributing Translations
 
