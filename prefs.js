@@ -259,7 +259,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             
             const recommendations = [
                 { title: 'Dash to Dock', author: 'michele_g', url: 'https://extensions.gnome.org/extension/307/' },
-                { title: 'Compiz alike magic l`amp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740/' },
+                { title: 'Compiz alike magic lamp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740/' },
                 { title: 'Kiwi Menu', author: 'Arnis K (Me)', url: 'https://extensions.gnome.org/extension/8697/' },            
                 { title: 'AppIndicator Support', author: '3v1n0', url: 'https://extensions.gnome.org/extension/615/' },
                 { title: 'Clipboard Indicator', author: 'Tudmotu', url: 'https://extensions.gnome.org/extension/779/' },
