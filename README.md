@@ -70,21 +70,11 @@ flatpak override --user --filesystem=$HOME/.local/share/gnome-shell/extensions/k
 - Advanced triple button hover effect for GTK3 flatpak apps does not work due to sandboxing
 - Electron apps launched with `--ozone-platform=wayland` use libdecor titlebars, so Kiwi's macOS buttons still apply but appear blurry and only react per-button; there is no CSS fix beyond avoiding forced Wayland or providing larger assets.
 
-## Installing from Source
 
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/kem-a/kiwi-kemma.git
-    ```
+## Contributing Translations
 
-2. Copy the extension to the GNOME Shell extensions directory:
-    ```sh
-    cp -r kiwi-kemma ~/.local/share/gnome-shell/extensions/kiwi@kemma
-    ```
+Want to help translate Kiwi to your language? See the [translation guide](translating/README.md) for instructions.
 
-3. Log out and log in to GNOME 
-
-4. Enable the extension using GNOME Tweaks or Extensions app.
 
 ## Advanced
 
