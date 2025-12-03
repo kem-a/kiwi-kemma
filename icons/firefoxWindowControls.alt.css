@@ -13,7 +13,8 @@
   display: flex !important;
   align-items: center !important;
   gap: 11px !important;
-  padding-left: 8px;
+  padding-inline-start: 8px;
+  padding-inline-end: 8px;
 }
 
 #nav-bar .titlebar-spacer{
