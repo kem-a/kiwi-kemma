@@ -14,7 +14,8 @@
 
 :root[sizemode="maximized"] #nav-bar .titlebar-buttonbox-container,
 :root[sizemode="maximized"] #TabsToolbar .titlebar-buttonbox-container {
-  padding-left: 0px !important;
+  padding-inline-start: 0px !important;
+  padding-inline-end: 0px !important;
 }
 
 :root[sizemode="maximized"] #TabsToolbar .titlebar-spacer {

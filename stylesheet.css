@@ -204,13 +204,8 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 }
 
 .popup-menu .popup-menu-item:hover,
-.popup-menu .popup-menu-item:focus,
+.popup-menu .popup-menu-item:active,
 .popup-menu .popup-menu-item.selected {
-  background-color: -st-accent-color;
-  color: -st-accent-fg-color;
-}
-
-.popup-menu .popup-menu-item:active {
   background-color: -st-accent-color;
   color: -st-accent-fg-color;
 }

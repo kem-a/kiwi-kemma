@@ -6,6 +6,7 @@ import GLib from 'gi://GLib';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 let _manager = null;
+const KIWI_MARKER_FILENAME = '.kiwi-managed';
 
 class FirefoxThemeManager {
     constructor() {
@@ -61,12 +62,15 @@ class FirefoxThemeManager {
         try {
             const chromeDir = GLib.build_filenamev([profile, 'chrome']);
             const chromeGFile = Gio.File.new_for_path(chromeDir);
+            const bakDir = `${chromeDir}.bak`;
+            const bakGFile = Gio.File.new_for_path(bakDir);
+            const chromeExists = chromeGFile.query_exists(null);
+            const chromeIsKiwiManaged = chromeExists && this._isChromeManagedByKiwi(chromeDir);
 
-            // If chrome exists, back it up to chrome.bak (once)
-            if (chromeGFile.query_exists(null)) {
-                const bakDir = `${chromeDir}.bak`;
-                const bakGFile = Gio.File.new_for_path(bakDir);
-                if (!bakGFile.query_exists(null)) {
+            if (chromeExists) {
+                if (chromeIsKiwiManaged) {
+                    try { this._deleteDirRecursive(chromeGFile); } catch (e) { /* ignore */ }
+                } else if (!bakGFile.query_exists(null)) {
                     chromeGFile.move(bakGFile, Gio.FileCopyFlags.NONE, null, null);
                 } else {
                     try { this._deleteDirRecursive(chromeGFile); } catch (e) { /* ignore */ }
@@ -97,6 +101,8 @@ class FirefoxThemeManager {
             const userChromeFile = Gio.File.new_for_path(userChromePath);
             userChromeFile.replace_contents(userChromeContent, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
 
+            this._markChromeAsKiwiManaged(chromeDir);
+
             // Ensure legacy userChrome loading is enabled
             this._ensureLegacyPref(profile);
         } catch (e) {
@@ -124,6 +130,25 @@ class FirefoxThemeManager {
             }
         } catch (e) {
             // ignore cleanup errors
+        }
+    }
+
+    _markChromeAsKiwiManaged(chromeDirPath) {
+        try {
+            const markerPath = GLib.build_filenamev([chromeDirPath, KIWI_MARKER_FILENAME]);
+            const markerFile = Gio.File.new_for_path(markerPath);
+            markerFile.replace_contents('Kiwi managed chrome folder\n', null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
+        } catch (e) {
+            // ignore marker failures
+        }
+    }
+
+    _isChromeManagedByKiwi(chromeDirPath) {
+        try {
+            const markerPath = GLib.build_filenamev([chromeDirPath, KIWI_MARKER_FILENAME]);
+            return Gio.File.new_for_path(markerPath).query_exists(null);
+        } catch (e) {
+            return false;
         }
     }
 
