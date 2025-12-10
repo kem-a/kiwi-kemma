@@ -1,73 +1,344 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Moves fullscreen windows to dedicated workspaces and cleans them up safely.
-// NOTE: Previous implementation stored raw Meta.Workspace objects on windows and
-// removed "empty" workspaces immediately on fullscreen exit. Under certain
-// timing (e.g. exiting fullscreen via F11 / custom restore button) Mutter could
-// still reference a soon-to-be-removed workspace, leading to an assertion:
-// meta_workspace_index: assertion 'ret >= 0' failed and subsequent segfault.
+// Fullscreen Window Workspace Manager
 //
-// This rewrite stores only workspace indices, validates existence before use,
-// and defers removal of the temporary fullscreen workspace safely via idle so
-// we never activate / remove the same workspace inside the notify::fullscreen
-// emission stack.
+// Moves fullscreen windows to dedicated workspaces (appended to the right) and
+// manages workspace lifecycle inspired by GNOME Shell's WorkspaceTracker.
+//
+// Key behaviors:
+// 1. Main workspace (index 0) is always preserved - at least one main workspace exists
+// 2. Fullscreen windows are isolated to workspaces appended to the RIGHT
+// 3. When exiting fullscreen, windows return to their original workspace
+// 4. New windows opening on a fullscreen workspace are redirected to main (index 0)
+// 5. Empty non-main workspaces are cleaned up (deferred to idle for safety)
+//
+// Safety notes:
+// - Store workspace indices (numbers), never raw Meta.Workspace objects
+// - Defer workspace removal to GLib.idle_add to avoid Mutter race conditions
+// - Validate indices against wm.n_workspaces before use
+// - All operations wrapped in try/catch to prevent Shell crashes
 
 import GLib from 'gi://GLib';
 
-class MoveFullscreenWindow {
+// Minimum number of workspaces to maintain (main + 1 empty)
+const MIN_WORKSPACES = 2;
+
+// Always keep at least one empty workspace after the last workspace with windows
+const KEEP_EMPTY_WORKSPACE_AT_END = true;
+
+// Debounce delay before isolating fullscreen window (ms)
+const FULLSCREEN_ISOLATION_DELAY = 650;
+
+// Grace period after leaving workspace before cleaning it (ms)
+const WORKSPACE_CLEANUP_DELAY = 800;
+
+/**
+ * FullscreenWorkspaceManager - Manages fullscreen window isolation and workspace lifecycle
+ *
+ * Workspace layout:
+ * [Main WS 0] [WS 1] [WS 2] ... [Empty WS N]
+ *
+ * Rules:
+ * - Main workspace (index 0) always exists
+ * - Fullscreen windows move to first available workspace to the right if current has other windows
+ * - If current workspace (index > 0) has no other windows, fullscreen stays there
+ * - If on main workspace (index 0), always move to the right (keep main for normal windows)
+ * - Always keep exactly 1 empty workspace at the end
+ * - Remove any other empty workspaces
+ */
+class FullscreenWorkspaceManager {
     constructor() {
+        // Track signal connections per window: window -> { fullscreen, unmanaged }
         this._windowSignals = new Map();
-        this._windowAddedId = null;
-    this._pendingIsolation = new Map(); // window -> timeout id
+
+        // Track pending isolation timeouts: window -> sourceId
+        this._pendingIsolation = new Map();
+
+        // Track fullscreen workspaces: workspaceIndex -> fullscreenWindow
+        this._fullscreenWorkspaces = new Map();
+
+        // Track pending cleanup timeouts: workspaceIndex -> sourceId
+        this._pendingCleanup = new Map();
+
+        // Global signal IDs
+        this._windowCreatedId = null;
+        this._workspacesChangedId = null;
+        this._workspaceSwitchedId = null;
+
+        // Pause workspace checks during batch operations
+        this._pauseWorkspaceCheck = false;
+        
+        // Track last active workspace index for cleanup on switch
+        this._lastActiveWorkspaceIndex = null;
+
+        // Pending workspace check idle source
+        this._checkWorkspacesId = 0;
     }
 
-    _onWindowCreated(display, window) {
-        this._connectWindowSignals(window);
+    // =========================================================================
+    // Workspace Management (inspired by GNOME WorkspaceTracker)
+    // =========================================================================
+
+    /**
+     * Get the workspace manager
+     */
+    _getWorkspaceManager() {
+        return global.workspace_manager;
     }
 
-    _connectWindowSignals(window) {
-        if (this._windowSignals.has(window)) {
-            // Already connected
+    /**
+     * Get the main workspace (always index 0)
+     */
+    _getMainWorkspace() {
+        const wm = this._getWorkspaceManager();
+        if (!wm || wm.n_workspaces < 1)
+            return null;
+        return wm.get_workspace_by_index(0);
+    }
+
+    /**
+     * Check if a workspace has a fullscreen window
+     */
+    _isFullscreenWorkspace(workspaceIndex) {
+        return this._fullscreenWorkspaces.has(workspaceIndex);
+    }
+
+    /**
+     * Get the fullscreen window on a workspace (if any)
+     */
+    _getFullscreenWindowOnWorkspace(workspaceIndex) {
+        return this._fullscreenWorkspaces.get(workspaceIndex) || null;
+    }
+
+    /**
+     * Find the first empty workspace to the right of the given index
+     * Returns null if no empty workspace found
+     */
+    _findFirstEmptyWorkspaceAfter(startIndex) {
+        const wm = this._getWorkspaceManager();
+        if (!wm)
+            return null;
+
+        for (let i = startIndex + 1; i < wm.n_workspaces; i++) {
+            try {
+                const ws = wm.get_workspace_by_index(i);
+                if (ws && ws.list_windows().filter(w => !w.skip_taskbar).length === 0) {
+                    return ws;
+                }
+            } catch (_) {}
+        }
+        return null;
+    }
+
+    /**
+     * Find the index of the last workspace that has windows
+     * Returns -1 if no workspace has windows (shouldn't happen normally)
+     */
+    _findLastOccupiedWorkspaceIndex() {
+        const wm = this._getWorkspaceManager();
+        if (!wm)
+            return -1;
+
+        for (let i = wm.n_workspaces - 1; i >= 0; i--) {
+            try {
+                const ws = wm.get_workspace_by_index(i);
+                if (ws && ws.list_windows().filter(w => !w.skip_taskbar).length > 0) {
+                    return i;
+                }
+            } catch (_) {}
+        }
+        return -1;
+    }
+
+    /**
+     * Ensure there's at least one empty workspace after the last occupied one
+     * and that we never have less than MIN_WORKSPACES (2)
+     */
+    _ensureEmptyWorkspaceAtEnd() {
+        const wm = this._getWorkspaceManager();
+        if (!wm)
             return;
+
+        // First ensure we have at least MIN_WORKSPACES (2)
+        while (wm.n_workspaces < MIN_WORKSPACES) {
+            try {
+                wm.append_new_workspace(false, global.get_current_time());
+            } catch (_) {
+                break;
+            }
         }
 
-        // Connect to notify::fullscreen signal
-        let fullscreenId = window.connect('notify::fullscreen', () => {
+        if (!KEEP_EMPTY_WORKSPACE_AT_END)
+            return;
+
+        const lastOccupied = this._findLastOccupiedWorkspaceIndex();
+        
+        // If there's no empty workspace after the last occupied one, create one
+        // lastOccupied is the index, so if n_workspaces == lastOccupied + 1, we need one more
+        if (lastOccupied >= 0 && wm.n_workspaces <= lastOccupied + 1) {
+            try {
+                wm.append_new_workspace(false, global.get_current_time());
+            } catch (_) {}
+        }
+    }
+
+    /**
+     * Queue a workspace check (deferred to avoid signal recursion)
+     */
+    _queueCheckWorkspaces() {
+        if (this._checkWorkspacesId !== 0)
+            return;
+
+        this._checkWorkspacesId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._checkWorkspacesId = 0;
+            this._checkWorkspaces();
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    /**
+     * Check workspaces state.
+     * This is only called on n-workspaces change to ensure +1 empty exists.
+     * Actual cleanup is done via _scheduleWorkspaceCleanup when leaving workspaces.
+     */
+    _checkWorkspaces() {
+        if (this._pauseWorkspaceCheck)
+            return;
+
+        // Just ensure we have +1 empty workspace at the end
+        this._ensureEmptyWorkspaceAtEnd();
+    }
+
+    /**
+     * Handle workspace switch - schedule cleanup of the workspace we left
+     */
+    _onWorkspaceSwitched(wm, from, to, _direction) {
+        // Schedule cleanup of the workspace we just left (if not main and different from current)
+        if (from !== to && from > 0) {
+            this._scheduleWorkspaceCleanup(from);
+        }
+        
+        // Cancel any pending cleanup for the workspace we're entering
+        this._cancelWorkspaceCleanup(to);
+    }
+
+    /**
+     * Schedule cleanup of a workspace after a delay (600ms)
+     * Only called when leaving a workspace or exiting fullscreen
+     */
+    _scheduleWorkspaceCleanup(workspaceIndex) {
+        // Cancel any existing cleanup for this index
+        this._cancelWorkspaceCleanup(workspaceIndex);
+
+        const sourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, WORKSPACE_CLEANUP_DELAY, () => {
+            this._pendingCleanup.delete(workspaceIndex);
+            this._cleanupWorkspaceIfEmpty(workspaceIndex);
+            return GLib.SOURCE_REMOVE;
+        });
+
+        this._pendingCleanup.set(workspaceIndex, sourceId);
+    }
+
+    /**
+     * Clean up a specific workspace if it's empty
+     * Never removes if it would leave us with less than MIN_WORKSPACES (2)
+     */
+    _cleanupWorkspaceIfEmpty(workspaceIndex) {
+        const wm = this._getWorkspaceManager();
+        if (!wm)
+            return;
+
+        // Don't remove main workspace (index 0)
+        if (workspaceIndex <= 0)
+            return;
+
+        // Never go below MIN_WORKSPACES (2)
+        if (wm.n_workspaces <= MIN_WORKSPACES)
+            return;
+
+        // Check if index is still valid
+        if (workspaceIndex >= wm.n_workspaces)
+            return;
+
+        try {
+            const ws = wm.get_workspace_by_index(workspaceIndex);
+            if (!ws)
+                return;
+
+            const windows = ws.list_windows().filter(w => !w.skip_taskbar);
+            
+            // Only remove if empty and not active
+            if (windows.length === 0 && !ws.active) {
+                // Check if this is the last workspace - if so, keep it as the +1 empty
+                const lastOccupied = this._findLastOccupiedWorkspaceIndex();
+                if (workspaceIndex === lastOccupied + 1 && wm.n_workspaces === workspaceIndex + 1) {
+                    // This is the +1 empty workspace at the end, keep it
+                    return;
+                }
+
+                // Double-check we won't go below MIN_WORKSPACES after removal
+                if (wm.n_workspaces - 1 < MIN_WORKSPACES)
+                    return;
+
+                this._fullscreenWorkspaces.delete(workspaceIndex);
+                wm.remove_workspace(ws, global.get_current_time());
+                this._shiftFullscreenIndicesAfterRemove(workspaceIndex);
+            }
+        } catch (_) {}
+
+        // Ensure we still have +1 empty at the end and MIN_WORKSPACES
+        this._ensureEmptyWorkspaceAtEnd();
+    }
+
+    /**
+     * Cancel pending cleanup for a workspace
+     */
+    _cancelWorkspaceCleanup(workspaceIndex) {
+        const sourceId = this._pendingCleanup.get(workspaceIndex);
+        if (sourceId) {
+            try {
+                GLib.source_remove(sourceId);
+            } catch (_) {}
+            this._pendingCleanup.delete(workspaceIndex);
+        }
+    }
+
+    // =========================================================================
+    // Window Signal Management
+    // =========================================================================
+
+    /**
+     * Handle new window creation
+     */
+    _onWindowCreated(display, window) {
+        this._connectWindowSignals(window);
+
+        // Check if window opened on a fullscreen workspace - redirect to main
+        // Also ensure we always have an empty workspace at the end
+        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._redirectWindowFromFullscreenWorkspace(window);
+            // If window opened on what was the last (empty) workspace, ensure +1 empty exists
+            this._ensureEmptyWorkspaceAtEnd();
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    /**
+     * Connect signals for a window
+     */
+    _connectWindowSignals(window) {
+        if (this._windowSignals.has(window))
+            return;
+
+        // Skip windows that shouldn't be managed
+        if (window.skip_taskbar)
+            return;
+
+        const fullscreenId = window.connect('notify::fullscreen', () => {
             this._onWindowFullscreenChanged(window);
         });
 
-        // Handle when the window is unmanaged (closed)
-        let unmanagedId = window.connect('unmanaged', () => {
-            // Defer all workspace manipulations; doing them synchronously during
-            // the unmanaged emission can race with Mutter internals and cause
-            // panel / layout corruption.
-            const origIndex = window._originalWorkspaceIndex;
-            const tempIndex = window._fullscreenTempWorkspaceIndex;
-            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-                try {
-                    const wm = global.workspace_manager;
-                    if (wm) {
-                        if (origIndex !== undefined && origIndex !== null && origIndex >= 0 && origIndex < wm.n_workspaces) {
-                            const ws = wm.get_workspace_by_index(origIndex);
-                            if (ws) {
-                                // Only activate if different from current to avoid redundant layout passes
-                                if (!ws.active)
-                                    ws.activate(global.get_current_time());
-                            }
-                        }
-                        // Safe removal of temporary workspace if it still exists, is empty, not index 0 and not active
-                        if (tempIndex !== undefined && tempIndex !== null && tempIndex >= 0 && tempIndex < wm.n_workspaces) {
-                            try {
-                                const tws = wm.get_workspace_by_index(tempIndex);
-                                if (tws && !tws.active && tws.index() !== 0 && tws.list_windows().length === 0) {
-                                    wm.remove_workspace(tws, global.get_current_time());
-                                }
-                            } catch (_) {}
-                        }
-                    }
-                } catch (_) {}
-                return GLib.SOURCE_REMOVE;
-            });
-            this._disconnectWindowSignals(window);
+        const unmanagedId = window.connect('unmanaged', () => {
+            this._onWindowUnmanaged(window);
         });
 
         this._windowSignals.set(window, {
@@ -75,204 +346,469 @@ class MoveFullscreenWindow {
             unmanaged: unmanagedId,
         });
 
-        // Store original workspace index (not the object) only once
-        if (window._originalWorkspaceIndex === undefined || window._originalWorkspaceIndex === null) {
-            try {
-                window._originalWorkspaceIndex = window.get_workspace()?.index?.();
-            } catch (_) {
-                window._originalWorkspaceIndex = null;
-            }
-        }
+        // Store original workspace index
+        this._captureOriginalWorkspace(window);
 
-        // Check initial fullscreen state
+        // Handle if window is already fullscreen
         if (window.is_fullscreen()) {
             this._onWindowFullscreenChanged(window);
         }
     }
 
+    /**
+     * Disconnect signals for a window
+     */
     _disconnectWindowSignals(window) {
-        if (this._windowSignals.has(window)) {
-            let signalIds = this._windowSignals.get(window);
-            window.disconnect(signalIds.fullscreen);
-            window.disconnect(signalIds.unmanaged);
+        const signals = this._windowSignals.get(window);
+        if (signals) {
+            try {
+                window.disconnect(signals.fullscreen);
+            } catch (_) {}
+            try {
+                window.disconnect(signals.unmanaged);
+            } catch (_) {}
             this._windowSignals.delete(window);
         }
     }
 
+    /**
+     * Capture the original workspace index for a window
+     */
+    _captureOriginalWorkspace(window) {
+        if (window._kiwi_originalWorkspaceIndex === undefined) {
+            try {
+                const ws = window.get_workspace();
+                window._kiwi_originalWorkspaceIndex = ws ? ws.index() : 0;
+            } catch (_) {
+                window._kiwi_originalWorkspaceIndex = 0;
+            }
+        }
+    }
+
+    // =========================================================================
+    // Fullscreen Window Handling
+    // =========================================================================
+
+    /**
+     * Handle fullscreen state change
+     */
     _onWindowFullscreenChanged(window) {
         try {
             if (window.is_fullscreen()) {
                 this._scheduleIsolation(window);
             } else {
                 this._cancelPendingIsolation(window);
-                this._restoreWindowToOriginalWorkspace(window);
+                this._restoreWindowFromFullscreen(window);
             }
         } catch (e) {
-            // Defensive: never let an exception propagate into Shell
-            try { log(`[MoveFullscreen] Error handling fullscreen change: ${e}`); } catch (_) {}
+            // Defensive: never propagate exceptions to Shell
         }
     }
 
+    /**
+     * Schedule isolation of a fullscreen window (debounced)
+     */
     _scheduleIsolation(window) {
-        // Already isolated or already pending -> do nothing
-        if (window._isolated || this._pendingIsolation.has(window))
+        if (window._kiwi_isolated || this._pendingIsolation.has(window))
             return;
 
-        // Ensure original workspace index captured early
-        if (window._originalWorkspaceIndex === undefined || window._originalWorkspaceIndex === null) {
-            try { window._originalWorkspaceIndex = window.get_workspace()?.index?.(); } catch (_) { window._originalWorkspaceIndex = null; }
-        }
+        // Capture original workspace before isolation
+        this._captureOriginalWorkspace(window);
 
-        const DELAY_MS = 650; // debounce: if user closes quickly, we skip isolation
-        const sourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, DELAY_MS, () => {
+        const sourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, FULLSCREEN_ISOLATION_DELAY, () => {
             this._pendingIsolation.delete(window);
-            if (!window.is_fullscreen()) {
-                return GLib.SOURCE_REMOVE; // user exited before delay elapsed
-            }
-            try { this._moveWindowToNewWorkspace(window); } catch (e) { try { log(`[MoveFullscreen] isolation failed: ${e}`); } catch (_) {} }
+
+            if (!window.is_fullscreen())
+                return GLib.SOURCE_REMOVE;
+
+            try {
+                this._isolateFullscreenWindow(window);
+            } catch (_) {}
+
             return GLib.SOURCE_REMOVE;
         });
+
         this._pendingIsolation.set(window, sourceId);
     }
 
+    /**
+     * Cancel pending isolation for a window
+     */
     _cancelPendingIsolation(window) {
-        const id = this._pendingIsolation.get(window);
-        if (id) {
-            try { GLib.source_remove(id); } catch (_) {}
+        const sourceId = this._pendingIsolation.get(window);
+        if (sourceId) {
+            try {
+                GLib.source_remove(sourceId);
+            } catch (_) {}
             this._pendingIsolation.delete(window);
         }
     }
 
-    _moveWindowToNewWorkspace(window) {
-        const wm = global.workspace_manager;
+    /**
+     * Isolate a fullscreen window to its own workspace.
+     * 
+     * Logic:
+     * - If current workspace (index > 0) has no other windows, stay there
+     * - If on main workspace (index 0) OR current has other windows, move to first empty workspace on the right
+     * - If no empty workspace exists, create one (append)
+     */
+    _isolateFullscreenWindow(window) {
+        const wm = this._getWorkspaceManager();
         if (!wm)
             return;
 
-        if (window._isolated) // already done
+        if (window._kiwi_isolated)
             return;
 
-        // If the window is already alone on its workspace, skip creating a new one
+        let currentWs = null;
+        let currentIndex = 0;
+        let otherWindowsOnCurrent = 0;
+
         try {
-            const currentWs = window.get_workspace();
-            if (currentWs?.list_windows?.().filter(w => !w.skip_taskbar).length === 1) {
-                return; // already isolated
+            currentWs = window.get_workspace();
+            currentIndex = currentWs?.index?.() ?? 0;
+            // Count other windows (excluding this one)
+            const allWindows = currentWs?.list_windows?.().filter(w => !w.skip_taskbar) || [];
+            otherWindowsOnCurrent = allWindows.filter(w => w !== window).length;
+        } catch (_) {}
+
+        // Decision: should we move?
+        // - If on main workspace (index 0), always move (keep main clean)
+        // - If on workspace index > 0 and alone, stay there
+        // - If on workspace index > 0 but has other windows, move
+
+        const shouldMove = (currentIndex === 0) || (otherWindowsOnCurrent > 0);
+
+        if (!shouldMove) {
+            // Already isolated on a non-main workspace with no other windows
+            window._kiwi_isolated = true;
+            window._kiwi_fullscreenWorkspaceIndex = currentIndex;
+            this._fullscreenWorkspaces.set(currentIndex, window);
+            this._ensureEmptyWorkspaceAtEnd();
+            return;
+        }
+
+        // Find first empty workspace to the right of current
+        let targetWs = this._findFirstEmptyWorkspaceAfter(currentIndex);
+
+        // If no empty workspace found, create one (append)
+        if (!targetWs) {
+            try {
+                targetWs = wm.append_new_workspace(false, global.get_current_time());
+            } catch (_) {
+                return;
+            }
+        }
+
+        if (!targetWs)
+            return;
+
+        const targetIndex = targetWs.index();
+        const leavingWorkspaceIndex = currentIndex;
+
+        // Move window to the target workspace
+        try {
+            window.change_workspace(targetWs);
+        } catch (_) {
+            return;
+        }
+
+        // Activate the workspace
+        try {
+            targetWs.activate(global.get_current_time());
+        } catch (_) {}
+
+        // Track the fullscreen workspace
+        window._kiwi_isolated = true;
+        window._kiwi_fullscreenWorkspaceIndex = targetIndex;
+        this._fullscreenWorkspaces.set(targetIndex, window);
+
+        // Cancel any pending cleanup for the target workspace
+        this._cancelWorkspaceCleanup(targetIndex);
+
+        // Schedule cleanup of the workspace we just left (if not main)
+        if (leavingWorkspaceIndex > 0) {
+            this._scheduleWorkspaceCleanup(leavingWorkspaceIndex);
+        }
+
+        // Ensure there's still an empty workspace after this one
+        this._ensureEmptyWorkspaceAtEnd();
+    }
+
+    /**
+     * Shift fullscreen workspace indices after removing a workspace at the given index
+     */
+    _shiftFullscreenIndicesAfterRemove(removedIndex) {
+        const newMap = new Map();
+        for (const [idx, win] of this._fullscreenWorkspaces) {
+            if (idx > removedIndex) {
+                // This workspace shifted left
+                const newIdx = idx - 1;
+                newMap.set(newIdx, win);
+                if (win._kiwi_fullscreenWorkspaceIndex !== undefined) {
+                    win._kiwi_fullscreenWorkspaceIndex = newIdx;
+                }
+            } else if (idx < removedIndex) {
+                newMap.set(idx, win);
+            }
+            // idx === removedIndex is already deleted, skip it
+        }
+        this._fullscreenWorkspaces = newMap;
+        
+        // Also shift original workspace indices for all tracked windows
+        for (const [win] of this._windowSignals) {
+            if (win._kiwi_originalWorkspaceIndex !== undefined && 
+                win._kiwi_originalWorkspaceIndex > removedIndex) {
+                win._kiwi_originalWorkspaceIndex -= 1;
+            }
+        }
+    }
+
+    /**
+     * Restore a window from fullscreen isolation
+     */
+    _restoreWindowFromFullscreen(window) {
+        const wm = this._getWorkspaceManager();
+        if (!wm)
+            return;
+
+        if (!window._kiwi_isolated) {
+            return;
+        }
+
+        const fullscreenWsIndex = window._kiwi_fullscreenWorkspaceIndex;
+        const originalIndex = window._kiwi_originalWorkspaceIndex;
+
+        // Clear tracking
+        window._kiwi_isolated = false;
+        window._kiwi_fullscreenWorkspaceIndex = undefined;
+
+        // Remove from fullscreen workspace tracking
+        if (fullscreenWsIndex !== undefined) {
+            this._fullscreenWorkspaces.delete(fullscreenWsIndex);
+        }
+
+        // Determine target workspace
+        let targetIndex = 0; // Default to main workspace
+        if (originalIndex !== undefined && originalIndex >= 0) {
+            // Clamp to valid range
+            targetIndex = Math.min(originalIndex, Math.max(0, wm.n_workspaces - 1));
+        }
+
+        // Move window to target workspace
+        try {
+            const targetWs = wm.get_workspace_by_index(targetIndex);
+            if (targetWs) {
+                window.change_workspace(targetWs);
+                targetWs.activate(global.get_current_time());
             }
         } catch (_) {}
 
-        // Create a new workspace at the end (append)
-        let newWorkspace = null;
-        try {
-            newWorkspace = wm.append_new_workspace(false, wm.n_workspaces);
-        } catch (_) {
-            return; // bail if API mismatch / failure
+        // Clear original workspace tracking
+        window._kiwi_originalWorkspaceIndex = undefined;
+
+        // Schedule cleanup of the fullscreen workspace we just left (with 600ms delay)
+        if (fullscreenWsIndex !== undefined && fullscreenWsIndex > 0) {
+            this._scheduleWorkspaceCleanup(fullscreenWsIndex);
         }
-
-        // Record the temp workspace index so we can safely remove later
-        try { window._fullscreenTempWorkspaceIndex = newWorkspace.index(); } catch (_) { window._fullscreenTempWorkspaceIndex = null; }
-
-        try { window.change_workspace(newWorkspace); } catch (_) {}
-        try { newWorkspace.activate(global.get_current_time()); } catch (_) {}
-        window._isolated = true;
     }
 
-    _restoreWindowToOriginalWorkspace(window) {
-        const wm = global.workspace_manager;
+    /**
+     * Handle window unmanaged (closed)
+     */
+    _onWindowUnmanaged(window) {
+        // Cancel any pending isolation
+        this._cancelPendingIsolation(window);
+
+        const fullscreenWsIndex = window._kiwi_fullscreenWorkspaceIndex;
+        const originalIndex = window._kiwi_originalWorkspaceIndex;
+        
+        // Get the workspace the window was on before it's gone
+        let windowWorkspaceIndex = null;
+        try {
+            const ws = window.get_workspace();
+            windowWorkspaceIndex = ws?.index?.() ?? null;
+        } catch (_) {}
+
+        // Disconnect signals first
+        this._disconnectWindowSignals(window);
+
+        // Defer cleanup to avoid race conditions with Mutter
+        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            const wm = this._getWorkspaceManager();
+            if (!wm)
+                return GLib.SOURCE_REMOVE;
+
+            // Try to activate original workspace if valid and not already active
+            if (originalIndex !== undefined && originalIndex >= 0 && originalIndex < wm.n_workspaces) {
+                try {
+                    const ws = wm.get_workspace_by_index(originalIndex);
+                    if (ws && !ws.active) {
+                        ws.activate(global.get_current_time());
+                    }
+                } catch (_) {}
+            }
+
+            // Remove from fullscreen tracking
+            if (fullscreenWsIndex !== undefined) {
+                this._fullscreenWorkspaces.delete(fullscreenWsIndex);
+            }
+
+            // Schedule cleanup of the workspace the window was on (with 600ms delay)
+            const wsToCleanup = fullscreenWsIndex ?? windowWorkspaceIndex;
+            if (wsToCleanup !== null && wsToCleanup > 0) {
+                this._scheduleWorkspaceCleanup(wsToCleanup);
+            }
+
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    /**
+     * Redirect a window from a fullscreen workspace to main workspace
+     */
+    _redirectWindowFromFullscreenWorkspace(window) {
+        if (!window || window.is_fullscreen() || window.skip_taskbar)
+            return;
+
+        const wm = this._getWorkspaceManager();
         if (!wm)
             return;
 
-        // If window was never isolated (debounced or skipped), nothing to do.
-        if (!window._isolated) {
-            window._fullscreenTempWorkspaceIndex = null;
-            return;
+        try {
+            const currentWs = window.get_workspace();
+            if (!currentWs)
+                return;
+
+            const currentIndex = currentWs.index();
+
+            // Check if current workspace has a fullscreen window (not this window)
+            const fullscreenWindow = this._getFullscreenWindowOnWorkspace(currentIndex);
+            if (fullscreenWindow && fullscreenWindow !== window) {
+                // Redirect to main workspace (index 0)
+                const mainWs = this._getMainWorkspace();
+                if (mainWs && mainWs.index() !== currentIndex) {
+                    window.change_workspace(mainWs);
+                    // Update original workspace tracking
+                    window._kiwi_originalWorkspaceIndex = 0;
+                }
+            }
+        } catch (_) {}
+    }
+
+    // =========================================================================
+    // Lifecycle Management
+    // =========================================================================
+
+    /**
+     * Enable the manager
+     */
+    enable() {
+        const wm = this._getWorkspaceManager();
+
+        // Connect to window-created signal
+        this._windowCreatedId = global.display.connect(
+            'window-created',
+            this._onWindowCreated.bind(this)
+        );
+
+        // Connect to workspace changes for cleanup
+        if (wm) {
+            this._workspacesChangedId = wm.connect(
+                'notify::n-workspaces',
+                this._queueCheckWorkspaces.bind(this)
+            );
+            
+            // Connect to workspace switch to cleanup empty workspaces when leaving them
+            this._workspaceSwitchedId = wm.connect(
+                'workspace-switched',
+                this._onWorkspaceSwitched.bind(this)
+            );
         }
 
-        const origIndex = window._originalWorkspaceIndex;
-        if (origIndex !== undefined && origIndex !== null && origIndex >= 0) {
-            // If index now outside range, clamp
-            let targetIndex = Math.min(origIndex, wm.n_workspaces - 1);
-            if (targetIndex >= 0) {
-                let targetWs = null;
-                try { targetWs = wm.get_workspace_by_index(targetIndex); } catch (_) {}
-                if (targetWs) {
-                    try { window.change_workspace(targetWs); } catch (_) {}
-                    try { targetWs.activate(global.get_current_time()); } catch (_) {}
-                }
+        // Connect signals to existing windows
+        global.get_window_actors().forEach(actor => {
+            const window = actor.meta_window;
+            if (window) {
+                this._connectWindowSignals(window);
+            }
+        });
+    }
+
+    /**
+     * Disable the manager and clean up
+     */
+    disable() {
+        // Disconnect global signals
+        if (this._windowCreatedId) {
+            global.display.disconnect(this._windowCreatedId);
+            this._windowCreatedId = null;
+        }
+
+        const wm = this._getWorkspaceManager();
+        if (wm) {
+            if (this._workspacesChangedId) {
+                wm.disconnect(this._workspacesChangedId);
+                this._workspacesChangedId = null;
+            }
+            if (this._workspaceSwitchedId) {
+                wm.disconnect(this._workspaceSwitchedId);
+                this._workspaceSwitchedId = null;
             }
         }
 
-        // Clear stored original index now that we're back
-        window._originalWorkspaceIndex = null;
-
-        // Defer removal of the temp workspace (if any) to idle to avoid running
-        // inside notify::fullscreen emission. Only remove if it's empty and not the last remaining base workspace (index 0).
-        const tempIndex = window._fullscreenTempWorkspaceIndex;
-        window._fullscreenTempWorkspaceIndex = null;
-        if (tempIndex !== undefined && tempIndex !== null) {
-            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-                try {
-                    if (tempIndex < wm.n_workspaces) {
-                        const ws = wm.get_workspace_by_index(tempIndex);
-                        // If tempIndex now refers to a different workspace because of shifts, we still only remove if empty and not index 0
-                        if (ws && ws.index() !== 0 && ws.list_windows().length === 0) {
-                            wm.remove_workspace(ws, global.get_current_time());
-                        }
-                    }
-                } catch (_) {}
-                return GLib.SOURCE_REMOVE;
-            });
+        // Cancel pending workspace check
+        if (this._checkWorkspacesId !== 0) {
+            try {
+                GLib.source_remove(this._checkWorkspacesId);
+            } catch (_) {}
+            this._checkWorkspacesId = 0;
         }
-    window._isolated = false;
-    }
 
-    _removeEmptyWorkspaces() {
-        // Legacy no-op retained for backward compatibility; empty workspaces
-        // are now only removed in a controlled deferred path above.
+        // Cancel all pending isolation timeouts
+        for (const [, sourceId] of this._pendingIsolation) {
+            try {
+                GLib.source_remove(sourceId);
+            } catch (_) {}
+        }
+        this._pendingIsolation.clear();
+
+        // Cancel all pending cleanup timeouts
+        for (const [, sourceId] of this._pendingCleanup) {
+            try {
+                GLib.source_remove(sourceId);
+            } catch (_) {}
+        }
+        this._pendingCleanup.clear();
+
+        // Disconnect all window signals
+        for (const [window, signals] of this._windowSignals) {
+            try {
+                window.disconnect(signals.fullscreen);
+            } catch (_) {}
+            try {
+                window.disconnect(signals.unmanaged);
+            } catch (_) {}
+        }
+        this._windowSignals.clear();
+
+        // Clear fullscreen workspace tracking
+        this._fullscreenWorkspaces.clear();
     }
 }
 
-let moveFullscreenWindowInstance = null;
+let _instance = null;
 
 export function enable() {
-    if (!moveFullscreenWindowInstance) {
-        moveFullscreenWindowInstance = new MoveFullscreenWindow();
-
-        // Connect to window-created signal
-        moveFullscreenWindowInstance._windowAddedId = global.display.connect(
-            'window-created',
-            moveFullscreenWindowInstance._onWindowCreated.bind(moveFullscreenWindowInstance)
-        );
-
-        // For existing windows, connect to fullscreen changes
-        global.get_window_actors().forEach(actor => {
-            let window = actor.meta_window;
-            moveFullscreenWindowInstance._connectWindowSignals(window);
-        });
+    if (!_instance) {
+        _instance = new FullscreenWorkspaceManager();
+        _instance.enable();
     }
 }
 
 export function disable() {
-    if (moveFullscreenWindowInstance) {
-        // Disconnect signal from global display
-        if (moveFullscreenWindowInstance._windowAddedId) {
-            global.display.disconnect(moveFullscreenWindowInstance._windowAddedId);
-            moveFullscreenWindowInstance._windowAddedId = null;
-        }
-
-        // Clean up pending isolation timeouts
-        for (let [window, timeoutId] of moveFullscreenWindowInstance._pendingIsolation) {
-            try {
-                GLib.source_remove(timeoutId);
-            } catch (_) {}
-        }
-        moveFullscreenWindowInstance._pendingIsolation.clear();
-
-        // Disconnect signals for each window
-        for (let [window, signalIds] of moveFullscreenWindowInstance._windowSignals) {
-            window.disconnect(signalIds.fullscreen);
-            window.disconnect(signalIds.unmanaged);
-        }
-        moveFullscreenWindowInstance._windowSignals.clear();
-
-        moveFullscreenWindowInstance = null;
+    if (_instance) {
+        _instance.disable();
+        _instance = null;
     }
 }
