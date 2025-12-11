@@ -10,12 +10,6 @@
 // 3. When exiting fullscreen, windows return to their original workspace
 // 4. New windows opening on a fullscreen workspace are redirected to main (index 0)
 // 5. Empty non-main workspaces are cleaned up (deferred to idle for safety)
-//
-// Safety notes:
-// - Store workspace indices (numbers), never raw Meta.Workspace objects
-// - Defer workspace removal to GLib.idle_add to avoid Mutter race conditions
-// - Validate indices against wm.n_workspaces before use
-// - All operations wrapped in try/catch to prevent Shell crashes
 
 import GLib from 'gi://GLib';
 
@@ -35,20 +29,7 @@ const FULLSCREEN_RESTORE_DELAY = 650;
 // Grace period after leaving workspace before cleaning it (ms)
 const WORKSPACE_CLEANUP_DELAY = 800;
 
-/**
- * FullscreenWorkspaceManager - Manages fullscreen window isolation and workspace lifecycle
- *
- * Workspace layout:
- * [Main WS 0] [WS 1] [WS 2] ... [Empty WS N]
- *
- * Rules:
- * - Main workspace (index 0) always exists
- * - Fullscreen windows move to first available workspace to the right if current has other windows
- * - If current workspace (index > 0) has no other windows, fullscreen stays there
- * - If on main workspace (index 0), always move to the right (keep main for normal windows)
- * - Always keep exactly 1 empty workspace at the end
- * - Remove any other empty workspaces
- */
+
 class FullscreenWorkspaceManager {
     constructor() {
         // Track signal connections per window: window -> { fullscreen, unmanaged }
@@ -65,6 +46,12 @@ class FullscreenWorkspaceManager {
 
         // Track pending cleanup timeouts: workspaceIndex -> sourceId
         this._pendingCleanup = new Map();
+
+        // Track pending window created idle sources: window -> sourceId
+        this._pendingWindowCreated = new Map();
+
+        // Track pending window unmanaged idle sources: window -> sourceId
+        this._pendingWindowUnmanaged = new Map();
 
         // Global signal IDs
         this._windowCreatedId = null;
@@ -120,12 +107,10 @@ class FullscreenWorkspaceManager {
             return null;
 
         for (let i = startIndex + 1; i < wm.n_workspaces; i++) {
-            try {
-                const ws = wm.get_workspace_by_index(i);
-                if (ws && ws.list_windows().filter(w => !w.skip_taskbar).length === 0) {
-                    return ws;
-                }
-            } catch (_) {}
+            const ws = wm.get_workspace_by_index(i);
+            if (ws && ws.list_windows().filter(w => !w.skip_taskbar).length === 0) {
+                return ws;
+            }
         }
         return null;
     }
@@ -140,12 +125,10 @@ class FullscreenWorkspaceManager {
             return -1;
 
         for (let i = wm.n_workspaces - 1; i >= 0; i--) {
-            try {
-                const ws = wm.get_workspace_by_index(i);
-                if (ws && ws.list_windows().filter(w => !w.skip_taskbar).length > 0) {
-                    return i;
-                }
-            } catch (_) {}
+            const ws = wm.get_workspace_by_index(i);
+            if (ws && ws.list_windows().filter(w => !w.skip_taskbar).length > 0) {
+                return i;
+            }
         }
         return -1;
     }
@@ -161,11 +144,7 @@ class FullscreenWorkspaceManager {
 
         // First ensure we have at least MIN_WORKSPACES (2)
         while (wm.n_workspaces < MIN_WORKSPACES) {
-            try {
-                wm.append_new_workspace(false, global.get_current_time());
-            } catch (_) {
-                break;
-            }
+            wm.append_new_workspace(false, global.get_current_time());
         }
 
         if (!KEEP_EMPTY_WORKSPACE_AT_END)
@@ -176,9 +155,7 @@ class FullscreenWorkspaceManager {
         // If there's no empty workspace after the last occupied one, create one
         // lastOccupied is the index, so if n_workspaces == lastOccupied + 1, we need one more
         if (lastOccupied >= 0 && wm.n_workspaces <= lastOccupied + 1) {
-            try {
-                wm.append_new_workspace(false, global.get_current_time());
-            } catch (_) {}
+            wm.append_new_workspace(false, global.get_current_time());
         }
     }
 
@@ -257,31 +234,29 @@ class FullscreenWorkspaceManager {
         if (workspaceIndex >= wm.n_workspaces)
             return;
 
-        try {
-            const ws = wm.get_workspace_by_index(workspaceIndex);
-            if (!ws)
+        const ws = wm.get_workspace_by_index(workspaceIndex);
+        if (!ws)
+            return;
+
+        const windows = ws.list_windows().filter(w => !w.skip_taskbar);
+        
+        // Only remove if empty and not active
+        if (windows.length === 0 && !ws.active) {
+            // Check if this is the last workspace - if so, keep it as the +1 empty
+            const lastOccupied = this._findLastOccupiedWorkspaceIndex();
+            if (workspaceIndex === lastOccupied + 1 && wm.n_workspaces === workspaceIndex + 1) {
+                // This is the +1 empty workspace at the end, keep it
+                return;
+            }
+
+            // Double-check we won't go below MIN_WORKSPACES after removal
+            if (wm.n_workspaces - 1 < MIN_WORKSPACES)
                 return;
 
-            const windows = ws.list_windows().filter(w => !w.skip_taskbar);
-            
-            // Only remove if empty and not active
-            if (windows.length === 0 && !ws.active) {
-                // Check if this is the last workspace - if so, keep it as the +1 empty
-                const lastOccupied = this._findLastOccupiedWorkspaceIndex();
-                if (workspaceIndex === lastOccupied + 1 && wm.n_workspaces === workspaceIndex + 1) {
-                    // This is the +1 empty workspace at the end, keep it
-                    return;
-                }
-
-                // Double-check we won't go below MIN_WORKSPACES after removal
-                if (wm.n_workspaces - 1 < MIN_WORKSPACES)
-                    return;
-
-                this._fullscreenWorkspaces.delete(workspaceIndex);
-                wm.remove_workspace(ws, global.get_current_time());
-                this._shiftFullscreenIndicesAfterRemove(workspaceIndex);
-            }
-        } catch (_) {}
+            this._fullscreenWorkspaces.delete(workspaceIndex);
+            wm.remove_workspace(ws, global.get_current_time());
+            this._shiftFullscreenIndicesAfterRemove(workspaceIndex);
+        }
 
         // Ensure we still have +1 empty at the end and MIN_WORKSPACES
         this._ensureEmptyWorkspaceAtEnd();
@@ -293,9 +268,7 @@ class FullscreenWorkspaceManager {
     _cancelWorkspaceCleanup(workspaceIndex) {
         const sourceId = this._pendingCleanup.get(workspaceIndex);
         if (sourceId) {
-            try {
-                GLib.source_remove(sourceId);
-            } catch (_) {}
+            GLib.source_remove(sourceId);
             this._pendingCleanup.delete(workspaceIndex);
         }
     }
@@ -312,12 +285,14 @@ class FullscreenWorkspaceManager {
 
         // Check if window opened on a fullscreen workspace - redirect to main
         // Also ensure we always have an empty workspace at the end
-        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        const sourceId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._pendingWindowCreated.delete(window);
             this._redirectWindowFromFullscreenWorkspace(window);
             // If window opened on what was the last (empty) workspace, ensure +1 empty exists
             this._ensureEmptyWorkspaceAtEnd();
             return GLib.SOURCE_REMOVE;
         });
+        this._pendingWindowCreated.set(window, sourceId);
     }
 
     /**
@@ -359,12 +334,8 @@ class FullscreenWorkspaceManager {
     _disconnectWindowSignals(window) {
         const signals = this._windowSignals.get(window);
         if (signals) {
-            try {
-                window.disconnect(signals.fullscreen);
-            } catch (_) {}
-            try {
-                window.disconnect(signals.unmanaged);
-            } catch (_) {}
+            window.disconnect(signals.fullscreen);
+            window.disconnect(signals.unmanaged);
             this._windowSignals.delete(window);
         }
     }
@@ -374,12 +345,8 @@ class FullscreenWorkspaceManager {
      */
     _captureOriginalWorkspace(window) {
         if (window._kiwi_originalWorkspaceIndex === undefined) {
-            try {
-                const ws = window.get_workspace();
-                window._kiwi_originalWorkspaceIndex = ws ? ws.index() : 0;
-            } catch (_) {
-                window._kiwi_originalWorkspaceIndex = 0;
-            }
+            const ws = window.get_workspace();
+            window._kiwi_originalWorkspaceIndex = ws ? ws.index() : 0;
         }
     }
 
@@ -391,15 +358,11 @@ class FullscreenWorkspaceManager {
      * Handle fullscreen state change
      */
     _onWindowFullscreenChanged(window) {
-        try {
-            if (window.is_fullscreen()) {
-                this._scheduleIsolation(window);
-            } else {
-                this._cancelPendingIsolation(window);
-                this._restoreWindowFromFullscreen(window);
-            }
-        } catch (e) {
-            // Defensive: never propagate exceptions to Shell
+        if (window.is_fullscreen()) {
+            this._scheduleIsolation(window);
+        } else {
+            this._cancelPendingIsolation(window);
+            this._restoreWindowFromFullscreen(window);
         }
     }
 
@@ -419,9 +382,7 @@ class FullscreenWorkspaceManager {
             if (!window.is_fullscreen())
                 return GLib.SOURCE_REMOVE;
 
-            try {
-                this._isolateFullscreenWindow(window);
-            } catch (_) {}
+            this._isolateFullscreenWindow(window);
 
             return GLib.SOURCE_REMOVE;
         });
@@ -435,9 +396,7 @@ class FullscreenWorkspaceManager {
     _cancelPendingIsolation(window) {
         const sourceId = this._pendingIsolation.get(window);
         if (sourceId) {
-            try {
-                GLib.source_remove(sourceId);
-            } catch (_) {}
+            GLib.source_remove(sourceId);
             this._pendingIsolation.delete(window);
         }
     }
@@ -464,12 +423,10 @@ class FullscreenWorkspaceManager {
         let currentIndex = 0;
         let otherWindowsOnCurrent = 0;
 
-        try {
-            currentWs = window.get_workspace();
-            currentIndex = currentWs?.index?.() ?? 0;
-            const allWindows = currentWs?.list_windows?.().filter(w => !w.skip_taskbar) || [];
-            otherWindowsOnCurrent = allWindows.filter(w => w !== window).length;
-        } catch (_) {}
+        currentWs = window.get_workspace();
+        currentIndex = currentWs?.index?.() ?? 0;
+        const allWindows = currentWs?.list_windows?.().filter(w => !w.skip_taskbar) || [];
+        otherWindowsOnCurrent = allWindows.filter(w => w !== window).length;
 
         // Decision: should we move?
         // - If on main workspace (index 0), always move (keep main clean)
@@ -492,80 +449,61 @@ class FullscreenWorkspaceManager {
 
         // Check if workspace at desiredTargetIndex exists and is empty
         if (desiredTargetIndex < wm.n_workspaces) {
-            try {
-                const existingWs = wm.get_workspace_by_index(desiredTargetIndex);
-                if (existingWs) {
-                    const existingWindows = existingWs.list_windows().filter(w => !w.skip_taskbar);
-                    if (existingWindows.length === 0) {
-                        // Workspace exists and is empty, use it
-                        targetWs = existingWs;
+            const existingWs = wm.get_workspace_by_index(desiredTargetIndex);
+            if (existingWs) {
+                const existingWindows = existingWs.list_windows().filter(w => !w.skip_taskbar);
+                if (existingWindows.length === 0) {
+                    // Workspace exists and is empty, use it
+                    targetWs = existingWs;
+                } else {
+                    // Workspace is occupied - find or create workspace to move existing windows
+                    let destinationWs = this._findFirstEmptyWorkspaceAfter(desiredTargetIndex);
+                    let destinationIndex;
+                    
+                    if (destinationWs) {
+                        destinationIndex = destinationWs.index();
                     } else {
-                        // Workspace is occupied - find or create workspace to move existing windows
-                        let destinationWs = this._findFirstEmptyWorkspaceAfter(desiredTargetIndex);
-                        let destinationIndex;
-                        
-                        if (destinationWs) {
-                            destinationIndex = destinationWs.index();
-                        } else {
-                            // No empty workspace found, create one
-                            destinationWs = wm.append_new_workspace(false, global.get_current_time());
-                            destinationIndex = destinationWs ? destinationWs.index() : -1;
-                        }
-                        
-                        if (destinationWs) {
-                            // Move windows from target to destination workspace
-                            for (const w of existingWindows) {
-                                try {
-                                    w.change_workspace(destinationWs);
-                                    // Update tracking for moved fullscreen windows
-                                    if (w._kiwi_fullscreenWorkspaceIndex === desiredTargetIndex) {
-                                        w._kiwi_fullscreenWorkspaceIndex = destinationIndex;
-                                        this._fullscreenWorkspaces.delete(desiredTargetIndex);
-                                        this._fullscreenWorkspaces.set(destinationIndex, w);
-                                    }
-                                } catch (_) {}
+                        // No empty workspace found, create one
+                        destinationWs = wm.append_new_workspace(false, global.get_current_time());
+                        destinationIndex = destinationWs ? destinationWs.index() : -1;
+                    }
+                    
+                    if (destinationWs) {
+                        // Move windows from target to destination workspace
+                        for (const w of existingWindows) {
+                            w.change_workspace(destinationWs);
+                            // Update tracking for moved fullscreen windows
+                            if (w._kiwi_fullscreenWorkspaceIndex === desiredTargetIndex) {
+                                w._kiwi_fullscreenWorkspaceIndex = destinationIndex;
+                                this._fullscreenWorkspaces.delete(desiredTargetIndex);
+                                this._fullscreenWorkspaces.set(destinationIndex, w);
                             }
-                            // Use the now-empty workspace at desiredTargetIndex
-                            targetWs = existingWs;
                         }
+                        // Use the now-empty workspace at desiredTargetIndex
+                        targetWs = existingWs;
                     }
                 }
-            } catch (_) {}
+            }
         }
 
         // If still no target workspace, create one
         if (!targetWs) {
-            try {
-                targetWs = wm.append_new_workspace(false, global.get_current_time());
-            } catch (_) {
-                return;
-            }
+            targetWs = wm.append_new_workspace(false, global.get_current_time());
         }
 
         if (!targetWs)
             return;
 
         // Get final index
-        let finalTargetIndex;
-        try {
-            finalTargetIndex = targetWs.index();
-        } catch (_) {
-            finalTargetIndex = desiredTargetIndex;
-        }
+        let finalTargetIndex = targetWs.index();
 
         const leavingWorkspaceIndex = currentIndex;
 
         // Move window to the target workspace
-        try {
-            window.change_workspace(targetWs);
-        } catch (_) {
-            return;
-        }
+        window.change_workspace(targetWs);
 
         // Activate the workspace
-        try {
-            targetWs.activate(global.get_current_time());
-        } catch (_) {}
+        targetWs.activate(global.get_current_time());
 
         // Track the fullscreen workspace
         window._kiwi_isolated = true;
@@ -651,9 +589,7 @@ class FullscreenWorkspaceManager {
     _cancelPendingRestore(window) {
         const sourceId = this._pendingRestore.get(window);
         if (sourceId) {
-            try {
-                GLib.source_remove(sourceId);
-            } catch (_) {}
+            GLib.source_remove(sourceId);
             this._pendingRestore.delete(window);
         }
     }
@@ -674,13 +610,11 @@ class FullscreenWorkspaceManager {
         }
 
         // Move window to target workspace
-        try {
-            const targetWs = wm.get_workspace_by_index(targetIndex);
-            if (targetWs) {
-                window.change_workspace(targetWs);
-                targetWs.activate(global.get_current_time());
-            }
-        } catch (_) {}
+        const targetWs = wm.get_workspace_by_index(targetIndex);
+        if (targetWs) {
+            window.change_workspace(targetWs);
+            targetWs.activate(global.get_current_time());
+        }
 
         // Clear original workspace tracking
         window._kiwi_originalWorkspaceIndex = undefined;
@@ -704,28 +638,25 @@ class FullscreenWorkspaceManager {
         
         // Get the workspace the window was on before it's gone
         let windowWorkspaceIndex = null;
-        try {
-            const ws = window.get_workspace();
-            windowWorkspaceIndex = ws?.index?.() ?? null;
-        } catch (_) {}
+        const ws = window.get_workspace();
+        windowWorkspaceIndex = ws?.index?.() ?? null;
 
         // Disconnect signals first
         this._disconnectWindowSignals(window);
 
         // Defer cleanup to avoid race conditions with Mutter
-        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        const sourceId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._pendingWindowUnmanaged.delete(window);
             const wm = this._getWorkspaceManager();
             if (!wm)
                 return GLib.SOURCE_REMOVE;
 
             // Try to activate original workspace if valid and not already active
             if (originalIndex !== undefined && originalIndex >= 0 && originalIndex < wm.n_workspaces) {
-                try {
-                    const ws = wm.get_workspace_by_index(originalIndex);
-                    if (ws && !ws.active) {
-                        ws.activate(global.get_current_time());
-                    }
-                } catch (_) {}
+                const ws = wm.get_workspace_by_index(originalIndex);
+                if (ws && !ws.active) {
+                    ws.activate(global.get_current_time());
+                }
             }
 
             // Remove from fullscreen tracking
@@ -741,6 +672,7 @@ class FullscreenWorkspaceManager {
 
             return GLib.SOURCE_REMOVE;
         });
+        this._pendingWindowUnmanaged.set(window, sourceId);
     }
 
     /**
@@ -754,25 +686,23 @@ class FullscreenWorkspaceManager {
         if (!wm)
             return;
 
-        try {
-            const currentWs = window.get_workspace();
-            if (!currentWs)
-                return;
+        const currentWs = window.get_workspace();
+        if (!currentWs)
+            return;
 
-            const currentIndex = currentWs.index();
+        const currentIndex = currentWs.index();
 
-            // Check if current workspace has a fullscreen window (not this window)
-            const fullscreenWindow = this._getFullscreenWindowOnWorkspace(currentIndex);
-            if (fullscreenWindow && fullscreenWindow !== window) {
-                // Redirect to main workspace (index 0)
-                const mainWs = this._getMainWorkspace();
-                if (mainWs && mainWs.index() !== currentIndex) {
-                    window.change_workspace(mainWs);
-                    // Update original workspace tracking
-                    window._kiwi_originalWorkspaceIndex = 0;
-                }
+        // Check if current workspace has a fullscreen window (not this window)
+        const fullscreenWindow = this._getFullscreenWindowOnWorkspace(currentIndex);
+        if (fullscreenWindow && fullscreenWindow !== window) {
+            // Redirect to main workspace (index 0)
+            const mainWs = this._getMainWorkspace();
+            if (mainWs && mainWs.index() !== currentIndex) {
+                window.change_workspace(mainWs);
+                // Update original workspace tracking
+                window._kiwi_originalWorkspaceIndex = 0;
             }
-        } catch (_) {}
+        }
     }
 
     // =========================================================================
@@ -838,50 +768,48 @@ class FullscreenWorkspaceManager {
 
         // Cancel pending workspace check
         if (this._checkWorkspacesId !== 0) {
-            try {
-                GLib.source_remove(this._checkWorkspacesId);
-            } catch (_) {}
+            GLib.source_remove(this._checkWorkspacesId);
             this._checkWorkspacesId = 0;
         }
 
         // Cancel all pending isolation timeouts
         for (const [, sourceId] of this._pendingIsolation) {
-            try {
-                GLib.source_remove(sourceId);
-            } catch (_) {}
+            GLib.source_remove(sourceId);
         }
         this._pendingIsolation.clear();
 
         // Cancel all pending restore timeouts
         for (const [, sourceId] of this._pendingRestore) {
-            try {
-                GLib.source_remove(sourceId);
-            } catch (_) {}
+            GLib.source_remove(sourceId);
         }
         this._pendingRestore.clear();
 
         // Cancel all pending cleanup timeouts
         for (const [, sourceId] of this._pendingCleanup) {
-            try {
-                GLib.source_remove(sourceId);
-            } catch (_) {}
+            GLib.source_remove(sourceId);
         }
         this._pendingCleanup.clear();
 
+        // Cancel all pending window created idle sources
+        for (const [, sourceId] of this._pendingWindowCreated) {
+            GLib.source_remove(sourceId);
+        }
+        this._pendingWindowCreated.clear();
+
+        // Cancel all pending window unmanaged idle sources
+        for (const [, sourceId] of this._pendingWindowUnmanaged) {
+            GLib.source_remove(sourceId);
+        }
+        this._pendingWindowUnmanaged.clear();
+
         // Disconnect all window signals and clean up window properties
         for (const [window, signals] of this._windowSignals) {
-            try {
-                window.disconnect(signals.fullscreen);
-            } catch (_) {}
-            try {
-                window.disconnect(signals.unmanaged);
-            } catch (_) {}
+            window.disconnect(signals.fullscreen);
+            window.disconnect(signals.unmanaged);
             // Clean up custom properties on windows
-            try {
-                delete window._kiwi_originalWorkspaceIndex;
-                delete window._kiwi_fullscreenWorkspaceIndex;
-                delete window._kiwi_isolated;
-            } catch (_) {}
+            delete window._kiwi_originalWorkspaceIndex;
+            delete window._kiwi_fullscreenWorkspaceIndex;
+            delete window._kiwi_isolated;
         }
         this._windowSignals.clear();
 
