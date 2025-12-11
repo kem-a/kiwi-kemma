@@ -251,39 +251,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             
             creditsContent.add(thanksGroup);
 
-            // Recommended Extensions section
-            const extGroup = new Adw.PreferencesGroup({
-                title: _('Recommended Extensions'),
-                description: _('Extensions that are compatible with Kiwi'),
-            });
-            
-            const recommendations = [
-                { title: 'Dash to Dock', author: 'michele_g', url: 'https://extensions.gnome.org/extension/307/' },
-                { title: 'Compiz alike magic lamp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740/' },
-                { title: 'Kiwi Menu', author: 'Arnis K (Me)', url: 'https://extensions.gnome.org/extension/8697/' },            
-                { title: 'AppIndicator Support', author: '3v1n0', url: 'https://extensions.gnome.org/extension/615/' },
-                { title: 'Clipboard Indicator', author: 'Tudmotu', url: 'https://extensions.gnome.org/extension/779/' },
-                { title: 'Gtk4 Desktop Icons NG (DING)', author: 'smedius', url: 'https://extensions.gnome.org/extension/5263/' },
-                { title: 'Light Style', author: 'fmuellner', url: 'https://extensions.gnome.org/extension/6198/' },
-                { title: 'Weather or Not', author: 'somepaulo', url: 'https://extensions.gnome.org/extension/5660/' },
-            ];
-
-            recommendations.forEach((rec) => {
-                const extRow = new Adw.ActionRow({
-                    title: rec.title,
-                    subtitle: rec.author,
-                    activatable: true,
-                });
-                extRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
-                extRow.connect('activated', () => Gtk.show_uri(window, rec.url, Gdk.CURRENT_TIME));
-                extGroup.add(extRow);
-            });
-
-            creditsContent.add(extGroup);
-
-            const scroller = new Gtk.ScrolledWindow({ vexpand: true, hexpand: true });
-            scroller.set_child(creditsContent);
-            creditsToolbar.set_content(scroller);
+            creditsToolbar.set_content(creditsContent);
             creditsDialog.set_child(creditsToolbar);
 
             // Present the dialog (slides in from right on wide screens, bottom on mobile)
@@ -676,6 +644,16 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('hide-keyboard-indicator', hideRow, 'active', Gio.SettingsBindFlags.DEFAULT);
         settings.bind('keyboard-indicator', hideRow, 'sensitive', Gio.SettingsBindFlags.GET);
 
+        const syncKeyboardIndicatorExpansion = () => {
+            const styleEnabled = settings.get_boolean('keyboard-indicator');
+            const hideEnabled = settings.get_boolean('hide-keyboard-indicator');
+            kbExpander.expanded = styleEnabled && hideEnabled;
+        };
+
+        syncKeyboardIndicatorExpansion();
+        settings.connect('changed::keyboard-indicator', syncKeyboardIndicatorExpansion);
+        settings.connect('changed::hide-keyboard-indicator', syncKeyboardIndicatorExpansion);
+
         //
         // Advanced Page
         //
@@ -751,6 +729,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const moreGroup = new Adw.PreferencesGroup({
             title: _('Even more...'),
         });
+
         const macTahoeRow = new Adw.ActionRow({
             title: _('MacTahoe Icon Pack'),
             subtitle: _('macOS Tahoe icon theme for Linux'),
@@ -762,7 +741,53 @@ export default class KiwiPreferences extends ExtensionPreferences {
         macTahoeRow.connect('activated', () => {
             Gtk.show_uri(null, 'https://github.com/vinceliuice/MacTahoe-icon-theme', Gdk.CURRENT_TIME);
         });
+
+        const gdmWallpaper = new Adw.ActionRow({
+            title: _('GDM Wallpaper'),
+            subtitle: _('Set custom GDM login screen wallpaper'),
+            activatable: true,
+        });
+        gdmWallpaper.add_suffix(new Gtk.Image({
+            icon_name: 'external-link-symbolic',
+        }));
+        gdmWallpaper.connect('activated', () => {
+            Gtk.show_uri(null, 'https://github.com/kem-a/gnome-gdm-wallpaper', Gdk.CURRENT_TIME);
+        });
+
         moreGroup.add(macTahoeRow);
+        moreGroup.add(gdmWallpaper);
         advancedPage.add(moreGroup);
+
+        const recommendedGroup = new Adw.PreferencesGroup();
+        advancedPage.add(recommendedGroup);
+
+        const recommendedExpander = new Adw.ExpanderRow({
+            title: _('Recommended Extensions'),
+            subtitle: _('Extensions that are compatible with Kiwi'),
+            expanded: false,
+        });
+        recommendedGroup.add(recommendedExpander);
+
+        const recommendedExtensions = [
+            { title: 'Dash to Dock', author: 'michele_g', url: 'https://extensions.gnome.org/extension/307/' },
+            { title: 'Compiz alike magic lamp effect', author: 'hermes83', url: 'https://extensions.gnome.org/extension/3740/' },
+            { title: 'Kiwi Menu', author: 'Arnis K (Me)', url: 'https://extensions.gnome.org/extension/8697/' },
+            { title: 'AppIndicator Support', author: '3v1n0', url: 'https://extensions.gnome.org/extension/615/' },
+            { title: 'Clipboard Indicator', author: 'Tudmotu', url: 'https://extensions.gnome.org/extension/779/' },
+            { title: 'Gtk4 Desktop Icons NG (DING)', author: 'smedius', url: 'https://extensions.gnome.org/extension/5263/' },
+            { title: 'Light Style', author: 'fmuellner', url: 'https://extensions.gnome.org/extension/6198/' },
+            { title: 'Weather or Not', author: 'somepaulo', url: 'https://extensions.gnome.org/extension/5660/' },
+        ];
+
+        recommendedExtensions.forEach((rec) => {
+            const extRow = new Adw.ActionRow({
+                title: rec.title,
+                subtitle: rec.author,
+                activatable: true,
+            });
+            extRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+            extRow.connect('activated', () => Gtk.show_uri(null, rec.url, Gdk.CURRENT_TIME));
+            recommendedExpander.add_row(extRow);
+        });
     }
 }
