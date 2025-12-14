@@ -70,7 +70,8 @@ class FullscreenWorkspaceManager {
         this._isCreatingWorkspace = false;
 
         // Settings for workspace mode detection
-        this._wmPreferences = null;
+        this._mutterSettings = null;  // For dynamic-workspaces
+        this._wmPreferences = null;   // For num-workspaces
     }
 
     // =========================================================================
@@ -89,10 +90,10 @@ class FullscreenWorkspaceManager {
      * Returns true if dynamic, false if fixed number of workspaces
      */
     _isDynamicWorkspaceMode() {
-        if (!this._wmPreferences) {
+        if (!this._mutterSettings) {
             return true; // Default to dynamic if we can't determine
         }
-        return this._wmPreferences.get_boolean('dynamic-workspaces');
+        return this._mutterSettings.get_boolean('dynamic-workspaces');
     }
 
     /**
@@ -125,20 +126,25 @@ class FullscreenWorkspaceManager {
     /**
      * Check if we can safely append a new workspace
      * Returns true if it's safe to create, false otherwise
+     * 
+     * @param {boolean} bypassNumWorkspacesLimit - If true, bypass the num-workspaces limit in fixed mode
+     *                                             Used for fullscreen isolation to allow temporary workspaces
      */
-    _canAppendWorkspace() {
+    _canAppendWorkspace(bypassNumWorkspacesLimit = false) {
         const wm = this._getWorkspaceManager();
         if (!wm)
             return false;
 
-        // Check if we're already at or beyond the limit
-        const maxAllowed = this._getMaxAllowedWorkspaces();
-        if (wm.n_workspaces >= maxAllowed)
-            return false;
-
-        // Also check against absolute maximum
+        // Always check against absolute maximum
         if (wm.n_workspaces >= MAX_WORKSPACES)
             return false;
+
+        // Check if we're already at or beyond the limit (unless bypassing for fullscreen)
+        if (!bypassNumWorkspacesLimit) {
+            const maxAllowed = this._getMaxAllowedWorkspaces();
+            if (wm.n_workspaces >= maxAllowed)
+                return false;
+        }
 
         // Prevent recursive creation
         if (this._isCreatingWorkspace)
@@ -223,7 +229,7 @@ class FullscreenWorkspaceManager {
             return;
 
         // First ensure we have at least MIN_WORKSPACES (2)
-        while (wm.n_workspaces < MIN_WORKSPACES && this._canAppendWorkspace()) {
+        while (wm.n_workspaces < MIN_WORKSPACES && this._canAppendWorkspace(true)) {
             this._isCreatingWorkspace = true;
             try {
                 wm.append_new_workspace(false, global.get_current_time());
@@ -239,8 +245,8 @@ class FullscreenWorkspaceManager {
         
         // If there's no empty workspace after the last occupied one, create one
         // lastOccupied is the index, so if n_workspaces == lastOccupied + 1, we need one more
-        // BUT: only if we haven't hit the workspace limit
-        if (lastOccupied >= 0 && wm.n_workspaces <= lastOccupied + 1 && this._canAppendWorkspace()) {
+        // Allow bypassing num-workspaces limit to ensure +1 empty workspace exists
+        if (lastOccupied >= 0 && wm.n_workspaces <= lastOccupied + 1 && this._canAppendWorkspace(true)) {
             this._isCreatingWorkspace = true;
             try {
                 wm.append_new_workspace(false, global.get_current_time());
@@ -650,8 +656,8 @@ class FullscreenWorkspaceManager {
                     if (destinationWs) {
                         destinationIndex = destinationWs.index();
                     } else {
-                        // No empty workspace found, create one (with safety check)
-                        if (this._canAppendWorkspace()) {
+                        // No empty workspace found, create one (bypass num-workspaces limit for fullscreen)
+                        if (this._canAppendWorkspace(true)) {
                             this._isCreatingWorkspace = true;
                             try {
                                 destinationWs = wm.append_new_workspace(false, global.get_current_time());
@@ -660,9 +666,10 @@ class FullscreenWorkspaceManager {
                                 this._isCreatingWorkspace = false;
                             }
                         } else {
-                            // Can't create more - keep windows where they are
-                            destinationWs = null;
-                            destinationIndex = -1;
+                            // Can't create more - we hit MAX_WORKSPACES absolute limit
+                            // In this case, we cannot isolate - abort isolation
+                            console.warn('Kiwi: Cannot isolate fullscreen window - maximum workspace limit reached');
+                            return;
                         }
                     }
                     
@@ -684,9 +691,9 @@ class FullscreenWorkspaceManager {
             }
         }
 
-        // If still no target workspace, create one (with safety check)
+        // If still no target workspace, create one (bypass num-workspaces limit for fullscreen)
         if (!targetWs) {
-            if (this._canAppendWorkspace()) {
+            if (this._canAppendWorkspace(true)) {
                 this._isCreatingWorkspace = true;
                 try {
                     targetWs = wm.append_new_workspace(false, global.get_current_time());
@@ -694,10 +701,10 @@ class FullscreenWorkspaceManager {
                     this._isCreatingWorkspace = false;
                 }
             } else {
-                // Cannot create more workspaces - use the last available one
-                if (wm.n_workspaces > 0) {
-                    targetWs = wm.get_workspace_by_index(wm.n_workspaces - 1);
-                }
+                // Cannot create more workspaces - we hit MAX_WORKSPACES absolute limit
+                // Cannot isolate - abort
+                console.warn('Kiwi: Cannot isolate fullscreen window - maximum workspace limit reached');
+                return;
             }
         }
 
@@ -927,11 +934,20 @@ class FullscreenWorkspaceManager {
 
         // Initialize workspace settings for mode detection
         try {
+            this._mutterSettings = new Gio.Settings({
+                schema_id: 'org.gnome.mutter'
+            });
+        } catch (e) {
+            console.warn('Kiwi: Could not access mutter settings, assuming dynamic mode:', e);
+            this._mutterSettings = null;
+        }
+
+        try {
             this._wmPreferences = new Gio.Settings({
                 schema_id: 'org.gnome.desktop.wm.preferences'
             });
         } catch (e) {
-            console.warn('Kiwi: Could not access workspace settings, assuming dynamic mode:', e);
+            console.warn('Kiwi: Could not access wm preferences, using defaults:', e);
             this._wmPreferences = null;
         }
 
@@ -1037,6 +1053,7 @@ class FullscreenWorkspaceManager {
         this._fullscreenWorkspaces.clear();
 
         // Clear workspace settings
+        this._mutterSettings = null;
         this._wmPreferences = null;
 
         // Reset creation guard flag
