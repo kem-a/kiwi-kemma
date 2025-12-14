@@ -231,11 +231,8 @@ class FullscreenWorkspaceManager {
         // First ensure we have at least MIN_WORKSPACES (2)
         while (wm.n_workspaces < MIN_WORKSPACES && this._canAppendWorkspace(true)) {
             this._isCreatingWorkspace = true;
-            try {
-                wm.append_new_workspace(false, global.get_current_time());
-            } finally {
-                this._isCreatingWorkspace = false;
-            }
+            wm.append_new_workspace(false, global.get_current_time());
+            this._isCreatingWorkspace = false;
         }
 
         if (!KEEP_EMPTY_WORKSPACE_AT_END)
@@ -248,11 +245,8 @@ class FullscreenWorkspaceManager {
         // Allow bypassing num-workspaces limit to ensure +1 empty workspace exists
         if (lastOccupied >= 0 && wm.n_workspaces <= lastOccupied + 1 && this._canAppendWorkspace(true)) {
             this._isCreatingWorkspace = true;
-            try {
-                wm.append_new_workspace(false, global.get_current_time());
-            } finally {
-                this._isCreatingWorkspace = false;
-            }
+            wm.append_new_workspace(false, global.get_current_time());
+            this._isCreatingWorkspace = false;
         }
     }
 
@@ -659,12 +653,9 @@ class FullscreenWorkspaceManager {
                         // No empty workspace found, create one (bypass num-workspaces limit for fullscreen)
                         if (this._canAppendWorkspace(true)) {
                             this._isCreatingWorkspace = true;
-                            try {
-                                destinationWs = wm.append_new_workspace(false, global.get_current_time());
-                                destinationIndex = destinationWs ? destinationWs.index() : -1;
-                            } finally {
-                                this._isCreatingWorkspace = false;
-                            }
+                            destinationWs = wm.append_new_workspace(false, global.get_current_time());
+                            destinationIndex = destinationWs ? destinationWs.index() : -1;
+                            this._isCreatingWorkspace = false;
                         } else {
                             // Can't create more - we hit MAX_WORKSPACES absolute limit
                             // In this case, we cannot isolate - abort isolation
@@ -695,11 +686,8 @@ class FullscreenWorkspaceManager {
         if (!targetWs) {
             if (this._canAppendWorkspace(true)) {
                 this._isCreatingWorkspace = true;
-                try {
-                    targetWs = wm.append_new_workspace(false, global.get_current_time());
-                } finally {
-                    this._isCreatingWorkspace = false;
-                }
+                targetWs = wm.append_new_workspace(false, global.get_current_time());
+                this._isCreatingWorkspace = false;
             } else {
                 // Cannot create more workspaces - we hit MAX_WORKSPACES absolute limit
                 // Cannot isolate - abort
@@ -933,23 +921,12 @@ class FullscreenWorkspaceManager {
         const wm = this._getWorkspaceManager();
 
         // Initialize workspace settings for mode detection
-        try {
-            this._mutterSettings = new Gio.Settings({
-                schema_id: 'org.gnome.mutter'
-            });
-        } catch (e) {
-            console.warn('Kiwi: Could not access mutter settings, assuming dynamic mode:', e);
-            this._mutterSettings = null;
-        }
-
-        try {
-            this._wmPreferences = new Gio.Settings({
-                schema_id: 'org.gnome.desktop.wm.preferences'
-            });
-        } catch (e) {
-            console.warn('Kiwi: Could not access wm preferences, using defaults:', e);
-            this._wmPreferences = null;
-        }
+        this._mutterSettings = new Gio.Settings({
+            schema_id: 'org.gnome.mutter'
+        });
+        this._wmPreferences = new Gio.Settings({
+            schema_id: 'org.gnome.desktop.wm.preferences'
+        });
 
         // Connect to window-created signal
         this._windowCreatedId = global.display.connect(
