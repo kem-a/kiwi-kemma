@@ -12,6 +12,7 @@
 // 5. Empty non-main workspaces are cleaned up (deferred to idle for safety)
 
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 
 // Minimum number of workspaces to maintain (main + 1 empty)
 const MIN_WORKSPACES = 2;
@@ -20,14 +21,18 @@ const MIN_WORKSPACES = 2;
 const KEEP_EMPTY_WORKSPACE_AT_END = true;
 
 // Debounce delay before isolating fullscreen window (ms)
-const FULLSCREEN_ISOLATION_DELAY = 650;
+const FULLSCREEN_ISOLATION_DELAY = 600;
 
 // Delay before restoring window to original workspace after exiting fullscreen (ms)
 // Allows window resize animation to complete
-const FULLSCREEN_RESTORE_DELAY = 650;
+const FULLSCREEN_RESTORE_DELAY = 600;
 
 // Grace period after leaving workspace before cleaning it (ms)
-const WORKSPACE_CLEANUP_DELAY = 800;
+const WORKSPACE_CLEANUP_DELAY = 600;
+
+// Maximum number of workspaces allowed (GNOME schema limit)
+// org.gnome.desktop.wm.preferences.num-workspaces has range 1-36
+const MAX_WORKSPACES = 36;
 
 
 class FullscreenWorkspaceManager {
@@ -60,6 +65,13 @@ class FullscreenWorkspaceManager {
 
         // Pending workspace check idle source
         this._checkWorkspacesId = 0;
+
+        // Flag to prevent recursive workspace creation during signal handling
+        this._isCreatingWorkspace = false;
+
+        // Settings for workspace mode detection
+        this._mutterSettings = null;  // For dynamic-workspaces
+        this._wmPreferences = null;   // For num-workspaces
     }
 
     // =========================================================================
@@ -71,6 +83,74 @@ class FullscreenWorkspaceManager {
      */
     _getWorkspaceManager() {
         return global.workspace_manager;
+    }
+
+    /**
+     * Check if we're in dynamic workspace mode
+     * Returns true if dynamic, false if fixed number of workspaces
+     */
+    _isDynamicWorkspaceMode() {
+        if (!this._mutterSettings) {
+            return true; // Default to dynamic if we can't determine
+        }
+        return this._mutterSettings.get_boolean('dynamic-workspaces');
+    }
+
+    /**
+     * Get the maximum allowed workspace index
+     * In fixed mode, respects the num-workspaces setting
+     */
+    _getMaxAllowedWorkspaces() {
+        const wm = this._getWorkspaceManager();
+        if (!wm)
+            return MAX_WORKSPACES;
+
+        if (this._isDynamicWorkspaceMode()) {
+            return MAX_WORKSPACES;
+        }
+
+        // In fixed mode, respect the configured number
+        if (this._wmPreferences) {
+            try {
+                const numWorkspaces = this._wmPreferences.get_int('num-workspaces');
+                return Math.min(numWorkspaces, MAX_WORKSPACES);
+            } catch (e) {
+                // If we can't read the setting, use current count
+                return Math.min(wm.n_workspaces, MAX_WORKSPACES);
+            }
+        }
+
+        return Math.min(wm.n_workspaces, MAX_WORKSPACES);
+    }
+
+    /**
+     * Check if we can safely append a new workspace
+     * Returns true if it's safe to create, false otherwise
+     * 
+     * @param {boolean} bypassNumWorkspacesLimit - If true, bypass the num-workspaces limit in fixed mode
+     *                                             Used for fullscreen isolation to allow temporary workspaces
+     */
+    _canAppendWorkspace(bypassNumWorkspacesLimit = false) {
+        const wm = this._getWorkspaceManager();
+        if (!wm)
+            return false;
+
+        // Always check against absolute maximum
+        if (wm.n_workspaces >= MAX_WORKSPACES)
+            return false;
+
+        // Check if we're already at or beyond the limit (unless bypassing for fullscreen)
+        if (!bypassNumWorkspacesLimit) {
+            const maxAllowed = this._getMaxAllowedWorkspaces();
+            if (wm.n_workspaces >= maxAllowed)
+                return false;
+        }
+
+        // Prevent recursive creation
+        if (this._isCreatingWorkspace)
+            return false;
+
+        return true;
     }
 
     /**
@@ -136,15 +216,23 @@ class FullscreenWorkspaceManager {
     /**
      * Ensure there's at least one empty workspace after the last occupied one
      * and that we never have less than MIN_WORKSPACES (2)
+     * 
+     * SAFETY: Guards against infinite workspace creation by checking limits
      */
     _ensureEmptyWorkspaceAtEnd() {
         const wm = this._getWorkspaceManager();
         if (!wm)
             return;
 
+        // Prevent recursive calls during workspace creation
+        if (this._isCreatingWorkspace)
+            return;
+
         // First ensure we have at least MIN_WORKSPACES (2)
-        while (wm.n_workspaces < MIN_WORKSPACES) {
+        while (wm.n_workspaces < MIN_WORKSPACES && this._canAppendWorkspace(true)) {
+            this._isCreatingWorkspace = true;
             wm.append_new_workspace(false, global.get_current_time());
+            this._isCreatingWorkspace = false;
         }
 
         if (!KEEP_EMPTY_WORKSPACE_AT_END)
@@ -154,8 +242,11 @@ class FullscreenWorkspaceManager {
         
         // If there's no empty workspace after the last occupied one, create one
         // lastOccupied is the index, so if n_workspaces == lastOccupied + 1, we need one more
-        if (lastOccupied >= 0 && wm.n_workspaces <= lastOccupied + 1) {
+        // Allow bypassing num-workspaces limit to ensure +1 empty workspace exists
+        if (lastOccupied >= 0 && wm.n_workspaces <= lastOccupied + 1 && this._canAppendWorkspace(true)) {
+            this._isCreatingWorkspace = true;
             wm.append_new_workspace(false, global.get_current_time());
+            this._isCreatingWorkspace = false;
         }
     }
 
@@ -185,15 +276,23 @@ class FullscreenWorkspaceManager {
 
     /**
      * Handle workspace switch - schedule cleanup of the workspace we left
+     * In fixed workspace mode, cleans up ALL empty workspaces
      */
     _onWorkspaceSwitched(wm, from, to, _direction) {
-        // Schedule cleanup of the workspace we just left (if not main and different from current)
-        if (from !== to && from > 0) {
-            this._scheduleWorkspaceCleanup(from);
-        }
-        
         // Cancel any pending cleanup for the workspace we're entering
         this._cancelWorkspaceCleanup(to);
+
+        // If we left a different workspace and it's not main
+        if (from !== to && from > 0) {
+            // In fixed workspace mode, clean up ALL empty workspaces
+            // In dynamic mode, GNOME handles this automatically
+            if (!this._isDynamicWorkspaceMode()) {
+                this._scheduleCleanupAllEmptyWorkspaces();
+            } else {
+                // In dynamic mode, just clean up the one we left
+                this._scheduleWorkspaceCleanup(from);
+            }
+        }
     }
 
     /**
@@ -271,6 +370,94 @@ class FullscreenWorkspaceManager {
             GLib.source_remove(sourceId);
             this._pendingCleanup.delete(workspaceIndex);
         }
+    }
+
+    /**
+     * Schedule cleanup of ALL empty workspaces (used in fixed workspace mode)
+     */
+    _scheduleCleanupAllEmptyWorkspaces() {
+        // Use a special cleanup ID to track this operation
+        const CLEANUP_ALL_ID = -1;
+        
+        // Cancel any existing cleanup-all operation
+        this._cancelWorkspaceCleanup(CLEANUP_ALL_ID);
+
+        const sourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, WORKSPACE_CLEANUP_DELAY, () => {
+            this._pendingCleanup.delete(CLEANUP_ALL_ID);
+            this._cleanupAllEmptyWorkspaces();
+            return GLib.SOURCE_REMOVE;
+        });
+
+        this._pendingCleanup.set(CLEANUP_ALL_ID, sourceId);
+    }
+
+    /**
+     * Clean up ALL empty non-main workspaces
+     * Only called in fixed workspace mode when leaving a workspace
+     */
+    _cleanupAllEmptyWorkspaces() {
+        const wm = this._getWorkspaceManager();
+        if (!wm)
+            return;
+
+        // Never go below MIN_WORKSPACES (2)
+        if (wm.n_workspaces <= MIN_WORKSPACES)
+            return;
+
+        // Get current active workspace to avoid removing it
+        const activeWs = wm.get_active_workspace();
+        const activeIndex = activeWs ? activeWs.index() : -1;
+
+        // Find the last occupied workspace
+        const lastOccupied = this._findLastOccupiedWorkspaceIndex();
+
+        // Collect all empty workspaces (except main, active, and the +1 empty at the end)
+        const emptyIndices = [];
+        for (let i = 1; i < wm.n_workspaces; i++) {
+            // Skip the active workspace
+            if (i === activeIndex)
+                continue;
+
+            // Skip the +1 empty workspace at the end (if it's the last one)
+            if (KEEP_EMPTY_WORKSPACE_AT_END && i === lastOccupied + 1 && i === wm.n_workspaces - 1)
+                continue;
+
+            const ws = wm.get_workspace_by_index(i);
+            if (ws) {
+                const windows = ws.list_windows().filter(w => !w.skip_taskbar);
+                if (windows.length === 0) {
+                    emptyIndices.push(i);
+                }
+            }
+        }
+
+        // Remove empty workspaces from highest index to lowest to avoid index shifting issues
+        emptyIndices.sort((a, b) => b - a);
+        
+        for (const idx of emptyIndices) {
+            // Safety check: don't go below MIN_WORKSPACES
+            if (wm.n_workspaces <= MIN_WORKSPACES)
+                break;
+
+            // Re-validate index is still valid and empty
+            if (idx >= wm.n_workspaces || idx <= 0)
+                continue;
+
+            const ws = wm.get_workspace_by_index(idx);
+            if (!ws)
+                continue;
+
+            const windows = ws.list_windows().filter(w => !w.skip_taskbar);
+            if (windows.length === 0 && !ws.active) {
+                this._fullscreenWorkspaces.delete(idx);
+                wm.remove_workspace(ws, global.get_current_time());
+                // Shift tracking after each removal
+                this._shiftFullscreenIndicesAfterRemove(idx);
+            }
+        }
+
+        // Ensure we still have proper workspace setup
+        this._ensureEmptyWorkspaceAtEnd();
     }
 
     // =========================================================================
@@ -456,39 +643,84 @@ class FullscreenWorkspaceManager {
                     // Workspace exists and is empty, use it
                     targetWs = existingWs;
                 } else {
-                    // Workspace is occupied - find or create workspace to move existing windows
-                    let destinationWs = this._findFirstEmptyWorkspaceAfter(desiredTargetIndex);
-                    let destinationIndex;
+                    // Workspace is occupied - need to shift all windows from desiredTargetIndex onwards
+                    // to the right by one position to maintain order
                     
-                    if (destinationWs) {
-                        destinationIndex = destinationWs.index();
-                    } else {
-                        // No empty workspace found, create one
-                        destinationWs = wm.append_new_workspace(false, global.get_current_time());
-                        destinationIndex = destinationWs ? destinationWs.index() : -1;
+                    // First, ensure we have space at the end or create a new workspace
+                    const lastOccupiedIndex = this._findLastOccupiedWorkspaceIndex();
+                    let shiftDestinationWs = null;
+                    
+                    // Check if there's an empty workspace after the last occupied one
+                    if (lastOccupiedIndex >= 0 && lastOccupiedIndex + 1 < wm.n_workspaces) {
+                        shiftDestinationWs = wm.get_workspace_by_index(lastOccupiedIndex + 1);
                     }
                     
-                    if (destinationWs) {
-                        // Move windows from target to destination workspace
-                        for (const w of existingWindows) {
-                            w.change_workspace(destinationWs);
+                    // If no empty workspace at the end, create one
+                    if (!shiftDestinationWs) {
+                        if (this._canAppendWorkspace(true)) {
+                            this._isCreatingWorkspace = true;
+                            shiftDestinationWs = wm.append_new_workspace(false, global.get_current_time());
+                            this._isCreatingWorkspace = false;
+                        } else {
+                            // Can't create more - we hit MAX_WORKSPACES absolute limit
+                            console.warn('Kiwi: Cannot isolate fullscreen window - maximum workspace limit reached');
+                            return;
+                        }
+                    }
+                    
+                    if (!shiftDestinationWs) {
+                        console.warn('Kiwi: Failed to create destination workspace for shifting');
+                        return;
+                    }
+                    
+                    // Now shift all windows from right to left (reverse order to avoid conflicts)
+                    // Start from the last occupied workspace and move backwards to desiredTargetIndex
+                    const newLastOccupiedIndex = this._findLastOccupiedWorkspaceIndex();
+                    for (let i = newLastOccupiedIndex; i >= desiredTargetIndex; i--) {
+                        const sourceWs = wm.get_workspace_by_index(i);
+                        if (!sourceWs)
+                            continue;
+                        
+                        const windowsToMove = sourceWs.list_windows().filter(w => !w.skip_taskbar);
+                        if (windowsToMove.length === 0)
+                            continue;
+                        
+                        // Target is i + 1
+                        const targetShiftWs = wm.get_workspace_by_index(i + 1);
+                        if (!targetShiftWs)
+                            continue;
+                        
+                        // Move all windows from workspace i to workspace i+1
+                        for (const w of windowsToMove) {
+                            w.change_workspace(targetShiftWs);
+                            
                             // Update tracking for moved fullscreen windows
-                            if (w._kiwi_fullscreenWorkspaceIndex === desiredTargetIndex) {
-                                w._kiwi_fullscreenWorkspaceIndex = destinationIndex;
-                                this._fullscreenWorkspaces.delete(desiredTargetIndex);
-                                this._fullscreenWorkspaces.set(destinationIndex, w);
+                            if (w._kiwi_fullscreenWorkspaceIndex === i) {
+                                w._kiwi_fullscreenWorkspaceIndex = i + 1;
+                                this._fullscreenWorkspaces.delete(i);
+                                this._fullscreenWorkspaces.set(i + 1, w);
                             }
                         }
-                        // Use the now-empty workspace at desiredTargetIndex
-                        targetWs = existingWs;
                     }
+                    
+                    // Now desiredTargetIndex workspace should be empty
+                    targetWs = existingWs;
                 }
             }
         }
 
-        // If still no target workspace, create one
+        // If still no target workspace, create one (bypass num-workspaces limit for fullscreen)
         if (!targetWs) {
-            targetWs = wm.append_new_workspace(false, global.get_current_time());
+            if (this._canAppendWorkspace(true)) {
+                this._isCreatingWorkspace = true;
+                targetWs = wm.append_new_workspace(false, global.get_current_time());
+                this._isCreatingWorkspace = false;
+            } else {
+                // Cannot create more workspaces - we hit MAX_WORKSPACES absolute limit
+                // Cannot isolate - abort
+                console.warn('Kiwi: Cannot isolate fullscreen window - maximum workspace limit reached');
+                return;
+            }
         }
 
         if (!targetWs)
@@ -715,6 +947,14 @@ class FullscreenWorkspaceManager {
     enable() {
         const wm = this._getWorkspaceManager();
 
+        // Initialize workspace settings for mode detection
+        this._mutterSettings = new Gio.Settings({
+            schema_id: 'org.gnome.mutter'
+        });
+        this._wmPreferences = new Gio.Settings({
+            schema_id: 'org.gnome.desktop.wm.preferences'
+        });
+
         // Connect to window-created signal
         this._windowCreatedId = global.display.connect(
             'window-created',
@@ -815,6 +1055,13 @@ class FullscreenWorkspaceManager {
 
         // Clear fullscreen workspace tracking
         this._fullscreenWorkspaces.clear();
+
+        // Clear workspace settings
+        this._mutterSettings = null;
+        this._wmPreferences = null;
+
+        // Reset creation guard flag
+        this._isCreatingWorkspace = false;
     }
 }
 
