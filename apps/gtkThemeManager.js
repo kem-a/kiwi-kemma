@@ -201,7 +201,7 @@ class GtkThemeManager {
         if (!this._settings) {
             this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
             this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
-                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'show-window-controls') {
+                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
                     this.updateGtkCss().catch(error => {
                         console.error(`[Kiwi] Error in settings changed handler: ${error}`);
                     });
