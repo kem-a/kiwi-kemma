@@ -562,6 +562,27 @@ export default class KiwiPreferences extends ExtensionPreferences {
             settings.set_string('button-type', combo.selected_item.get_string());
         });
 
+        // Button size dropdown
+        const buttonSizeModel = new Gtk.StringList();
+        buttonSizeModel.append('small');
+        buttonSizeModel.append('normal');
+
+        let selectedSizeIndex = 1;
+        const currentButtonSize = settings.get_string('button-size');
+        if (currentButtonSize === 'small') selectedSizeIndex = 0;
+
+        const buttonSizeCombo = new Adw.ComboRow({
+            title: _('Button Size'),
+            subtitle: _('Choose button size (small: 14px, normal: 16px)'),
+            model: buttonSizeModel,
+            selected: selectedSizeIndex,
+        });
+        buttonsExpander.add_row(buttonSizeCombo);
+
+        buttonSizeCombo.connect('notify::selected', (combo) => {
+            settings.set_string('button-size', combo.selected_item.get_string());
+        });
+
         // When the main switch is turned off, also turn off sub-toggles to avoid complications
         settings.connect('changed::enable-app-window-buttons', () => {
             const enabled = settings.get_boolean('enable-app-window-buttons');

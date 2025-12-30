@@ -10,10 +10,11 @@ windowcontrols button {
   background-repeat: no-repeat;
   background-size: 16px 16px;
   background-position: center;
-  border-radius: 8px;
+  margin: 0px;
+  padding: 1px;
 }
 
-/* If you actually have image children, keep this; otherwise it's harmless */
+/* This changes spacing between buttons */
 windowcontrols button > image {
   padding: 0 3px;
 }

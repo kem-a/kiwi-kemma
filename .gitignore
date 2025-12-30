@@ -1,19 +1,12 @@
 # samples folder of knowledge
 samples
-.vscode
-.github
 .venv/
 *.log
 stylesheet-test.css
 stylesheet-backup.css
 locale/
 *.png
-
-# Object files
-extras/*.o
-extras/*.obj
-extras/*~
-extras/.DS_Store
+*.ns.md
 
 # Review logs and files for publishing to Gnome Shell extensions web
 REVIEW_GUIDELINES_NOTES.md
