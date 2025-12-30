@@ -18,7 +18,7 @@ class FirefoxThemeManager {
         if (!this._settings) {
             this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
             this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
-                if (key === 'enable-firefox-styling' || key === 'enable-app-window-buttons' || key === 'button-type' || key === 'show-window-controls') {
+                if (key === 'enable-firefox-styling' || key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
                     this.updateFirefoxCss().catch(e => console.error(`[Kiwi] FirefoxTheme update error: ${e}`));
                 }
             });
@@ -45,6 +45,7 @@ class FirefoxThemeManager {
         const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
         const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
         const buttonType = this._settings.get_string('button-type'); // 'titlebuttons' | 'titlebuttons-alt'
+        const buttonSize = this._settings.get_string('button-size'); // 'small' | 'normal'
 
         // If neither feature is active, restore original chrome and exit
         if (!enableAppButtons && !showControlsOnPanel) {
@@ -89,6 +90,12 @@ class FirefoxThemeManager {
                     imports.push(`@import url("file://${altThemingPath}");`);
                 else
                     imports.push(`@import url("file://${themingPath}");`);
+
+                // Add small size overrides if selected
+                if (buttonSize === 'small') {
+                    const smallSizePath = `${iconsRoot}/firefoxWindowControls-size-small.css`;
+                    imports.push(`@import url("file://${smallSizePath}");`);
+                }
             }
             if (showControlsOnPanel) {
                 const hiddenPath = `${iconsRoot}/firefoxWindowControlsHidden.css`;

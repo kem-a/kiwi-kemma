@@ -1,0 +1,20 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Firefox Window Controls - Small size overrides (14px) */
+
+#nav-bar .titlebar-button,
+#toolbar-menubar .titlebar-button,
+#TabsToolbar .titlebar-button {
+  background-size: 14px 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+#nav-bar .titlebar-buttonbox,
+#TabsToolbar .titlebar-buttonbox,
+#toolbar-menubar .titlebar-buttonbox,
+#TabsToolbar .titlebar-buttonbox-container,
+#nav-bar .titlebar-buttonbox-container, 
+#toolbar-menubar .titlebar-buttonbox-container {
+  gap: 10px !important;
+}
