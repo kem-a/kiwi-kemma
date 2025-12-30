@@ -314,13 +314,37 @@ msgstr ""
 "Taikyti macOS langų valdymo stilių Firefox naršyklei. Rekomenduojama naudoti"
 " su vertikaliomis kortelėmis."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Mygtuko tipas"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Pasirinkti mygtukų piktogramų rinkinį"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Numatytasis"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternatyvus"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Mygtuko dydis"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Pasirinkite mygtuko dydį"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Mažas"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normalus"
 
 #: prefs.js:615
 msgid "Extras"

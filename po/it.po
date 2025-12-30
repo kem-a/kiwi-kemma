@@ -324,13 +324,37 @@ msgstr ""
 "Applica lo stile dei controlli di macOS a Firefox. Consigliato con le schede"
 " verticali."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Tipo di pulsante"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Scegli il set di icone dei pulsanti"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Predefinito"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternativo"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Dimensione pulsante"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Scegli dimensione pulsante"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Piccolo"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normale"
 
 #: prefs.js:615
 msgid "Extras"

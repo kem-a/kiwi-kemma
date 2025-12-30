@@ -306,13 +306,37 @@ msgid ""
 "vertical tabs."
 msgstr "Firefox에 macOS 스타일 제어 버튼을 적용합니다. 세로 탭과 함께 사용할 것을 권장합니다."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "버튼 종류"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "버튼 아이콘 세트를 선택"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "기본"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "대체"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "버튼 크기"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "버튼 크기 선택"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "작게"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "보통"
 
 #: prefs.js:615
 msgid "Extras"

@@ -320,13 +320,37 @@ msgstr ""
 "Zastosuj styl sterowania oknami jak w macOS dla Firefoksa. Zalecane przy "
 "użyciu pionowych kart."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Typ przycisków"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Wybierz zestaw ikon przycisków"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Domyślny"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternatywny"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Rozmiar przycisku"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Wybierz rozmiar przycisku"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Mały"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normalny"
 
 #: prefs.js:615
 msgid "Extras"

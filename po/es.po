@@ -322,13 +322,37 @@ msgstr ""
 "Aplicar el estilo de controles de macOS a Firefox. Se recomienda usarlo con "
 "pestañas verticales."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Tipo de botón"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Elige el conjunto de iconos de los botones"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Predeterminado"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternativo"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Tamaño del botón"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Elegir tamaño del botón"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Pequeño"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normal"
 
 #: prefs.js:615
 msgid "Extras"

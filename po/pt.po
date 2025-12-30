@@ -322,13 +322,37 @@ msgstr ""
 "Aplicar o estilo de controle de janela do macOS ao Firefox. Recomendado usar"
 " com abas verticais."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Tipo de botão"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Escolha o conjunto de ícones dos botões"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Padrão"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternativo"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Tamanho do botão"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Escolher tamanho do botão"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Pequeno"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normal"
 
 #: prefs.js:615
 msgid "Extras"

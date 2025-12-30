@@ -304,12 +304,36 @@ msgid ""
 "vertical tabs."
 msgstr ""
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr ""
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
+msgstr ""
+
+#: prefs.js:556
+msgid "Default"
+msgstr ""
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr ""
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr ""
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr ""
+
+#: prefs.js:587
+msgid "Small"
+msgstr ""
+
+#: prefs.js:591
+msgid "Normal"
 msgstr ""
 
 #: prefs.js:615

@@ -317,13 +317,37 @@ msgstr ""
 "Käytä macOS-ikkunapainikkeiden tyyliä Firefoxissa. Suositeltavaa käyttää "
 "pystysuorien välilehtien kanssa."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Painikkeen tyyppi"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Valitse painikkeiden kuvakejoukko"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Oletus"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Vaihtoehtoinen"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Painikkeen koko"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Valitse painikkeen koko"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Pieni"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normaali"
 
 #: prefs.js:615
 msgid "Extras"

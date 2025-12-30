@@ -316,13 +316,37 @@ msgstr ""
 "Använd macOS-stil för fönsterkontroller i Firefox. Rekommenderas med "
 "vertikala flikar."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Knapptyp"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Välj ikonuppsättning för knapparna"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Standard"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternativ"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Knappstorlek"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Välj knappstorlek"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Liten"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normal"
 
 #: prefs.js:615
 msgid "Extras"

@@ -319,13 +319,37 @@ msgstr ""
 "استایل کنترل‌های پنجرهٔ macOS را برای فایرفاکس اعمال کن. استفاده همراه "
 "برگه‌های عمودی توصیه می‌شود."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "نوع دکمه"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "مجموعهٔ آیکون دکمه‌ها را انتخاب کنید"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "پیش‌فرض"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "جایگزین"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "اندازه دکمه"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "انتخاب اندازه دکمه"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "کوچک"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "معمولی"
 
 #: prefs.js:615
 msgid "Extras"
