@@ -7,6 +7,7 @@ headerbar button.titlebutton,
   min-width: 14px;
   min-height: 14px;
   background-size: 14px 14px;
+  padding: 0px;
 }
 
 headerbar button > image {
