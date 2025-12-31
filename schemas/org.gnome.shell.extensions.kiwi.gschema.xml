@@ -68,6 +68,11 @@
         <summary>Button icon set</summary>
         <description>Determines which set of icons to use for window control buttons.</description>
       </key>
+      <key name="button-size" type="s">
+        <default>'normal'</default>
+        <summary>Button size</summary>
+        <description>Determines the size of window control buttons (small: 14px, normal: 16px).</description>
+      </key>
       <key name="panel-hover-fullscreen" type="b">
         <default>true</default>
         <summary>Show Panel on Hover in Fullscreen</summary>

@@ -1,0 +1,19 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* GTK3 - Small size overrides for window control buttons (14px) */
+
+headerbar button.titlebutton,
+.titlebar button.titlebutton {
+  min-width: 14px;
+  min-height: 14px;
+  background-size: 14px 14px;
+  padding: 0px;
+}
+
+headerbar button > image {
+  padding: 0 1px;
+}
+
+headerbar.titlebar {
+  padding-left: 10px;
+}

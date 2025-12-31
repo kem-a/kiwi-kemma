@@ -17,9 +17,9 @@ headerbar button.titlebutton,
   background-repeat: no-repeat;
   background-size: 16px 16px;
   background-position: center;
-  border-radius: 8px;
 }
 
+/* changes spacing around buttons */
 headerbar button > image {
   padding: 0 1px;
 }

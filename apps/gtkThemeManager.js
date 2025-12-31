@@ -18,6 +18,7 @@ class GtkThemeManager {
         const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
         const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
         const buttonType = this._settings.get_string('button-type');
+        const buttonSize = this._settings.get_string('button-size');
     
     // Define GTK 3 and GTK 4 specific content
     let gtk3Content = '';
@@ -32,6 +33,12 @@ class GtkThemeManager {
             // Default to titlebuttons
             gtk3Content += `@import 'titlebuttons3.css';\n`;
             gtk4Content += `@import 'titlebuttons4.css';\n`;
+        }
+
+        // Add button size overrides if small size is selected
+        if (buttonSize === 'small') {
+            gtk3Content += `@import 'titlebuttons-size-small3.css';\n`;
+            gtk4Content += `@import 'titlebuttons-size-small4.css';\n`;
         }
     }
     
@@ -61,7 +68,7 @@ class GtkThemeManager {
         // Update user GTK config files with imports
         await this.createUserGtkConfig();
         
-        console.log(`[Kiwi] Updated GTK CSS files. App buttons: ${enableAppButtons}, Button type: ${buttonType}, Panel controls: ${showControlsOnPanel}`);
+        console.log(`[Kiwi] Updated GTK CSS files. App buttons: ${enableAppButtons}, Button type: ${buttonType}, Button size: ${buttonSize}, Panel controls: ${showControlsOnPanel}`);
     } catch (error) {
         console.error(`[Kiwi] Error updating GTK CSS files: ${error}`);
     }
@@ -194,7 +201,7 @@ class GtkThemeManager {
         if (!this._settings) {
             this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
             this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
-                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'show-window-controls') {
+                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
                     this.updateGtkCss().catch(error => {
                         console.error(`[Kiwi] Error in settings changed handler: ${error}`);
                     });

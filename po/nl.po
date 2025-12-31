@@ -319,13 +319,37 @@ msgstr ""
 "Pas macOS-styling voor vensterbediening toe op Firefox. Aanbevolen met "
 "verticale tabbladen."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Knoptype"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Kies het pictogrammenpakket voor de knoppen"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Standaard"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternatief"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Knopgrootte"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Kies knopgrootte"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Klein"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normaal"
 
 #: prefs.js:615
 msgid "Extras"

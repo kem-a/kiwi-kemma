@@ -320,13 +320,37 @@ msgstr ""
 "macOS-Fenstersteuerungsstil für Firefox anwenden. Empfohlen in Kombination "
 "mit vertikalen Tabs."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Schaltflächentyp"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Symbolsatz für Schaltflächen wählen"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Standard"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternativ"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Schaltflächengröße"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Schaltflächengröße wählen"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Klein"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normal"
 
 #: prefs.js:615
 msgid "Extras"

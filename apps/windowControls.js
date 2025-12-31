@@ -22,6 +22,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
         this._settingsChangedId = this._settings.connect('changed', (_, key) => {
             if (key === 'button-type') this._updateAllIcons();
+            else if (key === 'button-size') this._updateButtonSizeClass();
             else if (key === 'show-window-controls' || key === 'enable-app-window-buttons') this._updateVisibility();
         });
 
@@ -155,6 +156,16 @@ class WindowControlsIndicator extends PanelMenu.Button {
         }
         
         this._updateVisibility();
+        this._updateButtonSizeClass();
+    }
+
+    _updateButtonSizeClass() {
+        const buttonSize = this._settings.get_string('button-size');
+        if (buttonSize === 'small') {
+            this._box.add_style_class_name('small-size');
+        } else {
+            this._box.remove_style_class_name('small-size');
+        }
     }
 
     _onFocusWindowChanged() {
@@ -386,7 +397,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         
         button.child = new St.Icon({
             gicon: new Gio.FileIcon({ file }),
-            icon_size: 16,
+            style_class: 'window-control-icon',
         });
     }
 

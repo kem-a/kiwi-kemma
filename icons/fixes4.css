@@ -17,23 +17,6 @@ listview.view > row.activatable > cell {
   padding: 0px 9px;
 }
 
-/* GTK4 Window Controls Fix */
-headerbar windowcontrols button {
-  min-width: 16px;
-  min-height: 16px;
-  margin: 0px;
-  padding: 1px;
-}
-
-headerbar windowcontrols button > image {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 16px 16px;
-  border: none;
-  outline: none;
-  box-shadow: none;
-}
-
 /* Ensure maximize button shows properly when window is maximized */
 .maximized headerbar windowcontrols button.maximize > image,
 .fullscreen headerbar windowcontrols button.maximize > image {

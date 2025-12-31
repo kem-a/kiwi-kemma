@@ -317,13 +317,37 @@ msgstr ""
 "Piemērot macOS logu vadības stilu pārlūkā Firefox. Ieteicams lietot kopā ar "
 "vertikālām cilnēm."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Pogas tips"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Izvēlieties pogu ikonu komplektu"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Noklusējuma"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternatīva"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Pogas izmērs"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Izvēlēties pogas izmēru"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Maza"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normāla"
 
 #: prefs.js:615
 msgid "Extras"

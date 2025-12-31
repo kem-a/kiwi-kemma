@@ -539,27 +539,68 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('enable-firefox-styling', firefoxStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
         // No need to manage visibility; expander controls reveal
 
-        const buttonTypeModel = new Gtk.StringList();
-        buttonTypeModel.append('titlebuttons');
-        buttonTypeModel.append('titlebuttons-alt');
-
-        let selectedIndex = 0;
-        const currentButtonType = settings.get_string('button-type');
-        if (currentButtonType === 'titlebuttons-alt') selectedIndex = 1;
-
-        const buttonTypeCombo = new Adw.ComboRow({
+        // Button Type toggle group with round style
+        const buttonTypeRow = new Adw.ActionRow({
             title: _('Button Type'),
             subtitle: _('Choose the button icon set'),
-            model: buttonTypeModel,
-            selected: selectedIndex,
-            // Nested under expander; visibility controlled by expander state
         });
-        buttonsExpander.add_row(buttonTypeCombo);
 
-        // No need to bind visibility; expander controls reveal
+        const buttonTypeToggleGroup = new Adw.ToggleGroup({
+            homogeneous: true,
+            valign: Gtk.Align.CENTER,
+        });
+        buttonTypeToggleGroup.add_css_class('round');
 
-        buttonTypeCombo.connect('notify::selected', (combo) => {
-            settings.set_string('button-type', combo.selected_item.get_string());
+        const defaultToggle = new Adw.Toggle({
+            label: _('Default'),
+            name: 'titlebuttons',
+        });
+        const altToggle = new Adw.Toggle({
+            label: _('Alternative'),
+            name: 'titlebuttons-alt',
+        });
+
+        buttonTypeToggleGroup.add(defaultToggle);
+        buttonTypeToggleGroup.add(altToggle);
+        buttonTypeToggleGroup.set_active_name(settings.get_string('button-type'));
+
+        buttonTypeRow.add_suffix(buttonTypeToggleGroup);
+        buttonsExpander.add_row(buttonTypeRow);
+
+        buttonTypeToggleGroup.connect('notify::active-name', (group) => {
+            settings.set_string('button-type', group.active_name);
+        });
+
+        // Button Size toggle group with round style
+        const buttonSizeRow = new Adw.ActionRow({
+            title: _('Button Size'),
+            subtitle: _('Choose button size'),
+        });
+
+        const buttonSizeToggleGroup = new Adw.ToggleGroup({
+            homogeneous: true,
+            valign: Gtk.Align.CENTER,
+        });
+        buttonSizeToggleGroup.add_css_class('round');
+
+        const smallToggle = new Adw.Toggle({
+            label: _('Small'),
+            name: 'small',
+        });
+        const normalToggle = new Adw.Toggle({
+            label: _('Normal'),
+            name: 'normal',
+        });
+
+        buttonSizeToggleGroup.add(smallToggle);
+        buttonSizeToggleGroup.add(normalToggle);
+        buttonSizeToggleGroup.set_active_name(settings.get_string('button-size'));
+
+        buttonSizeRow.add_suffix(buttonSizeToggleGroup);
+        buttonsExpander.add_row(buttonSizeRow);
+
+        buttonSizeToggleGroup.connect('notify::active-name', (group) => {
+            settings.set_string('button-size', group.active_name);
         });
 
         // When the main switch is turned off, also turn off sub-toggles to avoid complications

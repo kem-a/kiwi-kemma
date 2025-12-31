@@ -306,13 +306,37 @@ msgid ""
 "vertical tabs."
 msgstr "为 Firefox 应用 macOS 风格的窗口控制。建议与垂直选项卡一起使用。"
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "按钮类型"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "选择按钮图标集"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "默认"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "替代"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "按钮大小"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "选择按钮大小"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "小"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "正常"
 
 #: prefs.js:615
 msgid "Extras"

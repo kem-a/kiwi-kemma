@@ -315,13 +315,37 @@ msgstr ""
 "Rakenda Firefoxile macOS-i aknanuppude stiil. Soovitatav koos vertikaalsete "
 "kaartidega."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Nupu tüüp"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Vali nupu ikoonide komplekt"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Vaikimisi"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternatiivne"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Nupu suurus"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Vali nupu suurus"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Väike"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Tavaline"
 
 #: prefs.js:615
 msgid "Extras"

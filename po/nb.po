@@ -316,13 +316,37 @@ msgstr ""
 "Bruk macOS-stil for vindukontroller i Firefox. Anbefales med vertikale "
 "faner."
 
-#: prefs.js:583
+#: prefs.js:544
 msgid "Button Type"
 msgstr "Knapptype"
 
-#: prefs.js:584
+#: prefs.js:545
 msgid "Choose the button icon set"
 msgstr "Velg ikonsett for knappene"
+
+#: prefs.js:556
+msgid "Default"
+msgstr "Standard"
+
+#: prefs.js:560
+msgid "Alternative"
+msgstr "Alternativ"
+
+#: prefs.js:576
+msgid "Button Size"
+msgstr "Knappstørrelse"
+
+#: prefs.js:577
+msgid "Choose button size"
+msgstr "Velg knappstørrelse"
+
+#: prefs.js:587
+msgid "Small"
+msgstr "Liten"
+
+#: prefs.js:591
+msgid "Normal"
+msgstr "Normal"
 
 #: prefs.js:615
 msgid "Extras"

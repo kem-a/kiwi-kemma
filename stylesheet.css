@@ -179,9 +179,24 @@
 /*          Window Control Buttons Box           */
 /*################################################*/
 .window-controls-box {
-  spacing: 11px;
+  spacing: 11px;  /* normal_size */
   margin: 0;
   padding: 0;
+}
+
+.window-controls-box.small-size {
+  spacing: 10px;  /* small_size */
+}
+
+/* Window control button icon sizing (GNOME Shell panel, not GTK headerbars)
+ * NOTE: This controls the macOS-style panel buttons created by apps/windowControls.js
+ */
+.window-control-icon {
+  icon-size: 16px; /* normal_size */
+}
+
+.window-controls-box.small-size .window-control-icon {
+  icon-size: 14px; /* small_size */
 }
 
 /* Remove background on window controls container hover */
