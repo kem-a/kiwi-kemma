@@ -1,7 +1,7 @@
 <!-- Row 1: install & reach -->
 [![Install on GNOME Extensions](https://img.shields.io/badge/Install_on-GNOME_Extensions-blue?logo=gnome)](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
 [![EGO Downloads](https://img.shields.io/gnome-extensions/dt/kiwi@kemma?logo=gnome&label=EGO%20downloads)](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
-![Shell 45–49](https://img.shields.io/badge/GNOME_Shell-45–49-informational?logo=gnome)
+![Shell 48–49](https://img.shields.io/badge/GNOME_Shell-48–49-informational?logo=gnome)
 [![License](https://img.shields.io/github/license/kem-a/kiwi-kemma)](https://github.com/kem-a/kiwi-kemma/blob/main/LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/kem-a/kiwi-kemma?semver)](https://github.com/kem-a/kiwi-kemma/releases/latest)
 [![Stars](https://img.shields.io/github/stars/kem-a/kiwi-kemma?style=social)](https://github.com/kem-a/kiwi-kemma/stargazers)
@@ -14,26 +14,31 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 
 ## Features
 
-- **Set Panel Transparnecy**: Make the top panel transparent or opaque when window touches it
-- **Window Control Button Style**: Set macOS window control button styles. Move to top panel for maximized windows and remove window titlebars for maximum space.
-- **Move Window to New Workspace**: Automatically move fullscreen app to new workspace.
-- **Focus Launched Window**: Focus on newly launched windows. Removes the annoying window-ready notification.
-- **Transparent Move**: Make windows slightly transparent when moving.
-- **Battery Percentage**: Show battery percentage in the system menu when below 20%.
-- **Move calendar to the right**: Move calendar to right side and hide and add notifications and media controls to Quick Settings.
+- **Under the hood restyling**: very minimal Gnome shell and GTK/Adwaita app restyling keeping maximum look and compatibility. Reduced menu item spacing; menu item accent colors; uniform top panel status icon padding and more...
+- **Window Control Button Style**: Set macOS window control button styles and sizes.
+- **Firefox Styling**: Apply macOS window control styling for Firefox.
+- **Show Window Controls in Panel**: Move buttons to top panel for maximized windows and remove window titlebars for maximum space.
 - **Show Window title**: Display current window title in the top panel
 - **Show Panel on Hover**: Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.
-- **Hide Minimized Windows**: Hide minimized windows in the overview
+- **Move Window to New Workspace**: Automatically move fullscreen app to new workspace.
+- **Set Panel Transparnecy**: Make the top panel transparent or opaque when window touches it
+- **Transparent Move**: Make windows slightly transparent when moving.
+- **Battery Percentage**: Show battery percentage in the system menu when below 20% and on battery.
+- **Move calendar to the right**: Move calendar to right side and hide and add notifications and media controls to Quick Settings.
+
 - **Overview Wallpaper Background blur**. Use blurred current wallpaper as overview background (requires **ImageMagick**).
 - **Multilingual UI**: Ships with translations for 16 languages (de, es, et, fa, fi, fr, it, ko, lt, lv, nb, nl, pl, pt, sv, zh_CN) and is easy to extend via `po/` files.
 
 <details> <summary> <H3> Extras </H3> <b>(click to open)</b> </summary>
-  
-- **Lock Icon**: Display Caps Lock or Num Lock icon in the GNOME top panel.
+
 - **Add Username to Quick Menu**: Display the username in the quick settings menu.
-- **Skip Overview on Login**: Do not show the overview when logging into GNOME; go directly to the desktop.
+- **Caps Lock Icon**: Display Caps Lock or Num Lock icon in the GNOME top panel.
 - **Hide Activities Button**: Hide the Activities button in the top panel
+- **Hide Minimized Windows**: Hide minimized windows in the overview
+- **Skip Overview on Login**: Do not show the overview when logging into GNOME; go directly to the desktop.
+- **Launchpad Applications**: Add custom launch applications icon to the dock. Move it freely to any place.
 - **Style Keyboard Indicator**. Style keyboard/input source indicator in panel by converting to uppercase and adding border. Also can hide it.
+- **Focus Launched Window**: Focus on newly launched windows. Removes the annoying window-ready notification.
 </details>
   
 ## Recommended Extensions for better experience
