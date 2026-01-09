@@ -1,0 +1,57 @@
+name: Pack and upload GNOME extension on release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:  # allows manual triggering for testing
+
+jobs:
+  pack:
+    name: Pack extension and upload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y gnome-shell zip jq gettext
+
+      - id: pack
+        name: Pack extension and set asset name
+        run: |
+          set -euo pipefail
+          gnome-extensions pack --extra-source=icons --extra-source=apps --podir=po kiwi@kemma
+          # find the generated shell-extension zip (kiwi@kemma.shell-extension.zip)
+          zipfile=$(ls -1 *shell-extension.zip | head -n1)
+          if [ -z "$zipfile" ]; then
+            echo "No shell-extension zip produced"
+            ls -la
+            exit 1
+          fi
+          # extract version from metadata.json (use version-name for semver string)
+          version=$(jq -r '."version-name"' metadata.json || true)
+          if [ -z "$version" ] || [ "$version" = "null" ]; then
+            echo "metadata.json has no version-name; leaving original name"
+            newname="$zipfile"
+          else
+            newname="${zipfile%.zip}-${version}.zip"
+            mv -- "$zipfile" "$newname"
+          fi
+          echo "asset=$newname" >> "$GITHUB_OUTPUT"
+          echo "asset_name=${newname%.zip}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify package
+        run: ls -la | sed -n '1,200p'
+
+      - name: Upload pack to release
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ steps.pack.outputs.asset }}
+          asset_name: ${{ steps.pack.outputs.asset }}
+          asset_content_type: application/zip
