@@ -26,28 +26,19 @@ git clone https://github.com/kem-a/kiwi-kemma && cd kiwi-kemma/advanced
 
 **No compilation dependencies required!** The installer uses the included pre-compiled module.
 
-### Compilation from Source (Optional)
+### Build from Source (Optional)
 
 If you prefer to compile from source or the pre-compiled version doesn't work:
 
-1. **Compile the module**:
-   ```bash
-   git clone https://github.com/kem-a/kiwi-kemma && cd kiwi-kemma/advanced
-   ./compile-extra.sh
-   ```
-
-2. **Install the compiled module**:
-   ```bash
-   ./install-extra.sh
-   ```
-
-#### Prerequisites for Compilation
+#### Prerequisites
 
 Only needed if compiling from source:
 - `gcc` or `clang` compiler
 - `gtk3-devel` (Red Hat/Fedora) or `libgtk-3-dev` (Debian/Ubuntu)
 - `pkg-config`
 
+<details> <summary> <H4> Install dependencies </H4> <b>(click to open)</b> </summary>
+   
 #### Ubuntu/Debian:
 ```bash
 sudo apt install gcc libgtk-3-dev pkg-config
@@ -62,19 +53,15 @@ sudo dnf install gcc gtk3-devel pkg-config
 ```bash
 sudo pacman -S gcc gtk3 pkg-config
 ```
+</details>
 
-#### Compile from Source
-
-To replace the pre-compiled module with your own compilation:
-
-```bash
-./compile-extra.sh           # Compile from source (replaces pre-compiled module)
-./install-extra.sh           # Install the compiled module
-```
-
-### Manual Compilation
-
-If you prefer to compile manually:
+**Build with script**:
+   ```bash
+   git clone https://github.com/kem-a/kiwi-kemma && cd kiwi-kemma/advanced
+   ./compile-extra.sh
+   ```
+   
+**or manually**:
 
 ```bash
 # Compile the module
@@ -126,13 +113,3 @@ rm ~/.config/environment.d/10-gtk3-titlebuttons.conf
 - Some applications (like Wayland-native apps) may not be affected
 - Try testing with standard GNOME applications like Files or Text Editor
 
-## Technical Details
-
-The module works by:
-1. Being loaded system-wide via GTK_MODULES environment variable
-2. Scanning for GTK HeaderBar widgets containing titlebuttons  
-3. Monitoring mouse enter/leave events on titlebuttons
-4. Adding/removing a CSS class (`titlebuttons-hover`) to the headerbar when any button is hovered
-5. The Kiwi extension provides CSS rules that style this class
-
-The module is installed to `~/.config/environment.d/libtitlebuttons_hover.so` and loaded via a configuration file that sets the `GTK_MODULES` environment variable. This approach allows for seamless integration with the existing GTK theming system while providing the macOS-like hover effect.
