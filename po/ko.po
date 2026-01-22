@@ -94,20 +94,6 @@ msgstr "문제 보고"
 msgid "Credits"
 msgstr "저작 정보"
 
-#: prefs.js:239
-msgid ""
-"Special thanks to all contributors, developers and the GNOME community "
-"♥️♥️♥️"
-msgstr "모든 기여자, 개발자, 그리고 GNOME 커뮤니티에 특별한 감사를 전합니다 ♥️♥️♥️"
-
-#: prefs.js:244
-msgid "Contributors"
-msgstr "기여자"
-
-#: prefs.js:245
-msgid "View all project contributors on GitHub"
-msgstr "GitHub에서 프로젝트 기여자 모두 보기"
-
 #: prefs.js:256
 msgid "Recommended Extensions"
 msgstr "추천 확장 기능"

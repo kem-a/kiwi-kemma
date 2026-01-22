@@ -92,22 +92,6 @@ msgstr "Problem melden"
 msgid "Credits"
 msgstr "Danksagungen"
 
-#: prefs.js:239
-msgid ""
-"Special thanks to all contributors, developers and the GNOME community "
-"♥️♥️♥️"
-msgstr ""
-"Besonderer Dank an alle Mitwirkenden, Entwickler und die GNOME-Community "
-"♥️♥️♥️"
-
-#: prefs.js:244
-msgid "Contributors"
-msgstr "Mitwirkende"
-
-#: prefs.js:245
-msgid "View all project contributors on GitHub"
-msgstr "Alle Projektmitwirkenden auf GitHub anzeigen"
-
 #: prefs.js:256
 msgid "Recommended Extensions"
 msgstr "Empfohlene Erweiterungen"
