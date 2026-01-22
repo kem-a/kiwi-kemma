@@ -193,7 +193,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             title: _('Website'),
             activatable: true,
         });
-        websiteRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+        websiteRow.add_suffix(new Gtk.Image({ icon_name: 'adw-external-link-symbolic' }));
         websiteRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma', Gdk.CURRENT_TIME));
         websiteCard.add(websiteRow);
         leftColumn.append(websiteCard);
@@ -203,7 +203,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             title: _('Report an Issue'),
             activatable: true,
         });
-        issueRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+        issueRow.add_suffix(new Gtk.Image({ icon_name: 'adw-external-link-symbolic' }));
         issueRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma/issues', Gdk.CURRENT_TIME));
         issueCard.add(issueRow);
         leftColumn.append(issueCard);
@@ -215,7 +215,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             title: _('Credits'),
             activatable: true,
         });
-        creditsRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+        creditsRow.add_suffix(new Gtk.Image({ icon_name: 'adw-external-link-symbolic' }));
         creditsRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma/graphs/contributors', Gdk.CURRENT_TIME));
         infoGroup.add(creditsRow);
 
@@ -253,7 +253,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
                 subtitle: _('View the full license text on GitHub'),
                 activatable: true,
             });
-            gplRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+        gplRow.add_suffix(new Gtk.Image({ icon_name: 'adw-external-link-symbolic' }));
             gplRow.connect('activated', () => Gtk.show_uri(window, 'https://github.com/kem-a/kiwi-kemma?tab=GPL-3.0-1-ov-file', Gdk.CURRENT_TIME));
             licenseGroup.add(gplRow);
             
@@ -719,7 +719,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             activatable: true,
         });
         guideRow.add_suffix(new Gtk.Image({
-            icon_name: 'external-link-symbolic',
+            icon_name: 'adw-external-link-symbolic',
         }));
         guideRow.connect('activated', () => {
             Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma/tree/main/advanced', Gdk.CURRENT_TIME);
@@ -737,7 +737,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             activatable: true,
         });
         macTahoeRow.add_suffix(new Gtk.Image({
-            icon_name: 'external-link-symbolic',
+            icon_name: 'adw-external-link-symbolic',
         }));
         macTahoeRow.connect('activated', () => {
             Gtk.show_uri(null, 'https://github.com/vinceliuice/MacTahoe-icon-theme', Gdk.CURRENT_TIME);
@@ -749,7 +749,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             activatable: true,
         });
         gdmWallpaper.add_suffix(new Gtk.Image({
-            icon_name: 'external-link-symbolic',
+            icon_name: 'adw-external-link-symbolic',
         }));
         gdmWallpaper.connect('activated', () => {
             Gtk.show_uri(null, 'https://github.com/kem-a/gnome-gdm-wallpaper', Gdk.CURRENT_TIME);
@@ -786,7 +786,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
                 subtitle: rec.author,
                 activatable: true,
             });
-            extRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+            extRow.add_suffix(new Gtk.Image({ icon_name: 'adw-external-link-symbolic' }));
             extRow.connect('activated', () => Gtk.show_uri(null, rec.url, Gdk.CURRENT_TIME));
             recommendedExpander.add_row(extRow);
         });
