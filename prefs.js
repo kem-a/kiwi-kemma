@@ -215,48 +215,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
             title: _('Credits'),
             activatable: true,
         });
-        creditsRow.add_suffix(new Gtk.Image({ icon_name: 'go-next-symbolic' }));
-        creditsRow.connect('activated', () => {
-            // Create a dialog with slide-up presentation
-            const creditsDialog = new Adw.Dialog({
-                content_width: 450,
-                content_height: 600,
-                presentation_mode: Adw.DialogPresentationMode.BOTTOM_SHEET,
-            });
-
-            const creditsToolbar = new Adw.ToolbarView();
-            const creditsHeader = new Adw.HeaderBar({
-                show_title: true,
-                title_widget: new Adw.WindowTitle({ title: _('Credits') }),
-            });
-            creditsToolbar.add_top_bar(creditsHeader);
-
-            const creditsContent = new Adw.PreferencesPage();
-
-            // Thanks section
-            const thanksGroup = new Adw.PreferencesGroup({
-                title: '',
-                description: _('Special thanks to all contributors, developers and the GNOME community ♥️♥️♥️'),
-            });
-            
-            // Contributors link
-            const contributorsRow = new Adw.ActionRow({
-                title: _('Contributors'),
-                subtitle: _('View all project contributors on GitHub'),
-                activatable: true,
-            });
-            contributorsRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
-            contributorsRow.connect('activated', () => Gtk.show_uri(window, 'https://github.com/kem-a/kiwi-kemma/graphs/contributors', Gdk.CURRENT_TIME));
-            thanksGroup.add(contributorsRow);
-            
-            creditsContent.add(thanksGroup);
-
-            creditsToolbar.set_content(creditsContent);
-            creditsDialog.set_child(creditsToolbar);
-
-            // Present the dialog (slides in from right on wide screens, bottom on mobile)
-            creditsDialog.present(window);
-        });
+        creditsRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
+        creditsRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma/graphs/contributors', Gdk.CURRENT_TIME));
         infoGroup.add(creditsRow);
 
         const legalRow = new Adw.ActionRow({
