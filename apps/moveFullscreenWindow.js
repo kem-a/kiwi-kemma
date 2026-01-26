@@ -97,6 +97,31 @@ class FullscreenWorkspaceManager {
     }
 
     /**
+     * Check if workspaces are only on the primary monitor
+     * When enabled, windows on secondary monitors appear on all workspaces
+     */
+    _isWorkspacesOnlyOnPrimary() {
+        if (!this._mutterSettings) {
+            return false; // Default to false if we can't determine
+        }
+        return this._mutterSettings.get_boolean('workspaces-only-on-primary');
+    }
+
+    /**
+     * Filter windows to only include those relevant for workspace tracking
+     * When workspaces-only-on-primary is enabled, only count windows on primary monitor
+     * @param {Array} windows - Array of MetaWindow objects
+     * @returns {Array} Filtered array of windows
+     */
+    _filterWorkspaceRelevantWindows(windows) {
+        if (!this._isWorkspacesOnlyOnPrimary()) {
+            return windows;
+        }
+        // Only count windows on the primary monitor when workspaces-only-on-primary is set
+        return windows.filter(w => w.is_on_primary_monitor());
+    }
+
+    /**
      * Get the maximum allowed workspace index
      * In fixed mode, respects the num-workspaces setting
      */
@@ -188,8 +213,13 @@ class FullscreenWorkspaceManager {
 
         for (let i = startIndex + 1; i < wm.n_workspaces; i++) {
             const ws = wm.get_workspace_by_index(i);
-            if (ws && ws.list_windows().filter(w => !w.skip_taskbar).length === 0) {
-                return ws;
+            if (ws) {
+                const windows = this._filterWorkspaceRelevantWindows(
+                    ws.list_windows().filter(w => !w.skip_taskbar)
+                );
+                if (windows.length === 0) {
+                    return ws;
+                }
             }
         }
         return null;
@@ -206,8 +236,13 @@ class FullscreenWorkspaceManager {
 
         for (let i = wm.n_workspaces - 1; i >= 0; i--) {
             const ws = wm.get_workspace_by_index(i);
-            if (ws && ws.list_windows().filter(w => !w.skip_taskbar).length > 0) {
-                return i;
+            if (ws) {
+                const windows = this._filterWorkspaceRelevantWindows(
+                    ws.list_windows().filter(w => !w.skip_taskbar)
+                );
+                if (windows.length > 0) {
+                    return i;
+                }
             }
         }
         return -1;
@@ -337,7 +372,9 @@ class FullscreenWorkspaceManager {
         if (!ws)
             return;
 
-        const windows = ws.list_windows().filter(w => !w.skip_taskbar);
+        const windows = this._filterWorkspaceRelevantWindows(
+            ws.list_windows().filter(w => !w.skip_taskbar)
+        );
         
         // Only remove if empty and not active
         if (windows.length === 0 && !ws.active) {
@@ -424,7 +461,9 @@ class FullscreenWorkspaceManager {
 
             const ws = wm.get_workspace_by_index(i);
             if (ws) {
-                const windows = ws.list_windows().filter(w => !w.skip_taskbar);
+                const windows = this._filterWorkspaceRelevantWindows(
+                    ws.list_windows().filter(w => !w.skip_taskbar)
+                );
                 if (windows.length === 0) {
                     emptyIndices.push(i);
                 }
@@ -447,7 +486,9 @@ class FullscreenWorkspaceManager {
             if (!ws)
                 continue;
 
-            const windows = ws.list_windows().filter(w => !w.skip_taskbar);
+            const windows = this._filterWorkspaceRelevantWindows(
+                ws.list_windows().filter(w => !w.skip_taskbar)
+            );
             if (windows.length === 0 && !ws.active) {
                 this._fullscreenWorkspaces.delete(idx);
                 wm.remove_workspace(ws, global.get_current_time());
@@ -612,7 +653,9 @@ class FullscreenWorkspaceManager {
 
         currentWs = window.get_workspace();
         currentIndex = currentWs?.index?.() ?? 0;
-        const allWindows = currentWs?.list_windows?.().filter(w => !w.skip_taskbar) || [];
+        const allWindows = this._filterWorkspaceRelevantWindows(
+            currentWs?.list_windows?.().filter(w => !w.skip_taskbar) || []
+        );
         otherWindowsOnCurrent = allWindows.filter(w => w !== window).length;
 
         // Decision: should we move?
@@ -638,7 +681,9 @@ class FullscreenWorkspaceManager {
         if (desiredTargetIndex < wm.n_workspaces) {
             const existingWs = wm.get_workspace_by_index(desiredTargetIndex);
             if (existingWs) {
-                const existingWindows = existingWs.list_windows().filter(w => !w.skip_taskbar);
+                const existingWindows = this._filterWorkspaceRelevantWindows(
+                    existingWs.list_windows().filter(w => !w.skip_taskbar)
+                );
                 if (existingWindows.length === 0) {
                     // Workspace exists and is empty, use it
                     targetWs = existingWs;
@@ -681,7 +726,9 @@ class FullscreenWorkspaceManager {
                         if (!sourceWs)
                             continue;
                         
-                        const windowsToMove = sourceWs.list_windows().filter(w => !w.skip_taskbar);
+                        const windowsToMove = this._filterWorkspaceRelevantWindows(
+                            sourceWs.list_windows().filter(w => !w.skip_taskbar)
+                        );
                         if (windowsToMove.length === 0)
                             continue;
                         
