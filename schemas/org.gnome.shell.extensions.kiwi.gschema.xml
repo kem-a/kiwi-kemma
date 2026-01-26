@@ -69,7 +69,7 @@
         <description>Determines which set of icons to use for window control buttons.</description>
       </key>
       <key name="button-size" type="s">
-        <default>'normal'</default>
+        <default>'small'</default>
         <summary>Button size</summary>
         <description>Determines the size of window control buttons (small: 14px, normal: 16px).</description>
       </key>
