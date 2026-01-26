@@ -38,7 +38,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         if (subtitle)
             row.subtitle = subtitle;
 
-        row.add_suffix(new Gtk.Image({ icon_name: 'adw-external-link-symbolic' }));
+        row.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
         row.connect('activated', () => Gtk.show_uri(null, url, Gdk.CURRENT_TIME));
 
         return row;
@@ -54,6 +54,11 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Enable built-in libadwaita search (adds search button automatically)
         if (window.set_search_enabled)
             window.set_search_enabled(true);
+
+        // Add custom icons path to GTK icon theme search path
+        const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+        const iconsPath = GLib.build_filenamev([this.path, 'icons']);
+        iconTheme.add_search_path(iconsPath);
 
         // Ensure custom CSS for version pill is loaded once per display
         if (!window._kiwiVersionCssProvider) {
