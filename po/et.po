@@ -92,21 +92,6 @@ msgstr "Teata probleemist"
 msgid "Credits"
 msgstr "Autorid"
 
-#: prefs.js:239
-msgid ""
-"Special thanks to all contributors, developers and the GNOME community "
-"♥️♥️♥️"
-msgstr ""
-"Suur tänu kõigile panustajatele, arendajatele ja GNOME kogukonnale ♥️♥️♥️"
-
-#: prefs.js:244
-msgid "Contributors"
-msgstr "Panustajad"
-
-#: prefs.js:245
-msgid "View all project contributors on GitHub"
-msgstr "Vaata kõiki projekti panustajaid GitHubis"
-
 #: prefs.js:256
 msgid "Recommended Extensions"
 msgstr "Soovitatud laiendused"

@@ -92,21 +92,6 @@ msgstr "Ziņot par problēmu"
 msgid "Credits"
 msgstr "Atzinības"
 
-#: prefs.js:239
-msgid ""
-"Special thanks to all contributors, developers and the GNOME community "
-"♥️♥️♥️"
-msgstr ""
-"Liels paldies visiem līdzautoriem, izstrādātājiem un GNOME kopienai ♥️♥️♥️"
-
-#: prefs.js:244
-msgid "Contributors"
-msgstr "Līdzautori"
-
-#: prefs.js:245
-msgid "View all project contributors on GitHub"
-msgstr "Skatīt visus projekta līdzautorus GitHub"
-
 #: prefs.js:256
 msgid "Recommended Extensions"
 msgstr "Ieteiktie paplašinājumi"

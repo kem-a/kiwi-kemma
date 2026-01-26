@@ -29,6 +29,21 @@ export default class KiwiPreferences extends ExtensionPreferences {
         super(metadata);
     }
 
+    _createLinkRow(title, url, subtitle = null) {
+        const row = new Adw.ActionRow({
+            title,
+            activatable: true,
+        });
+
+        if (subtitle)
+            row.subtitle = subtitle;
+
+        row.add_suffix(new Gtk.Image({ icon_name: 'adw-external-link-symbolic' }));
+        row.connect('activated', () => Gtk.show_uri(null, url, Gdk.CURRENT_TIME));
+
+        return row;
+    }
+
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         window._settings = settings;
@@ -189,75 +204,16 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         // Separate cards: Website and Report an Issue
         const websiteCard = new Adw.PreferencesGroup();
-        const websiteRow = new Adw.ActionRow({
-            title: _('Website'),
-            activatable: true,
-        });
-        websiteRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
-        websiteRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma', Gdk.CURRENT_TIME));
-        websiteCard.add(websiteRow);
+        websiteCard.add(this._createLinkRow(_('Website'), 'https://github.com/kem-a/kiwi-kemma'));
         leftColumn.append(websiteCard);
 
         const issueCard = new Adw.PreferencesGroup();
-        const issueRow = new Adw.ActionRow({
-            title: _('Report an Issue'),
-            activatable: true,
-        });
-        issueRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
-        issueRow.connect('activated', () => Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma/issues', Gdk.CURRENT_TIME));
-        issueCard.add(issueRow);
+        issueCard.add(this._createLinkRow(_('Report an Issue'), 'https://github.com/kem-a/kiwi-kemma/issues'));
         leftColumn.append(issueCard);
 
         // Combined Credits & Legal group
         const infoGroup = new Adw.PreferencesGroup();
-
-        const creditsRow = new Adw.ActionRow({
-            title: _('Credits'),
-            activatable: true,
-        });
-        creditsRow.add_suffix(new Gtk.Image({ icon_name: 'go-next-symbolic' }));
-        creditsRow.connect('activated', () => {
-            // Create a dialog with slide-up presentation
-            const creditsDialog = new Adw.Dialog({
-                content_width: 450,
-                content_height: 600,
-                presentation_mode: Adw.DialogPresentationMode.BOTTOM_SHEET,
-            });
-
-            const creditsToolbar = new Adw.ToolbarView();
-            const creditsHeader = new Adw.HeaderBar({
-                show_title: true,
-                title_widget: new Adw.WindowTitle({ title: _('Credits') }),
-            });
-            creditsToolbar.add_top_bar(creditsHeader);
-
-            const creditsContent = new Adw.PreferencesPage();
-
-            // Thanks section
-            const thanksGroup = new Adw.PreferencesGroup({
-                title: '',
-                description: _('Special thanks to all contributors, developers and the GNOME community ♥️♥️♥️'),
-            });
-            
-            // Contributors link
-            const contributorsRow = new Adw.ActionRow({
-                title: _('Contributors'),
-                subtitle: _('View all project contributors on GitHub'),
-                activatable: true,
-            });
-            contributorsRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
-            contributorsRow.connect('activated', () => Gtk.show_uri(window, 'https://github.com/kem-a/kiwi-kemma/graphs/contributors', Gdk.CURRENT_TIME));
-            thanksGroup.add(contributorsRow);
-            
-            creditsContent.add(thanksGroup);
-
-            creditsToolbar.set_content(creditsContent);
-            creditsDialog.set_child(creditsToolbar);
-
-            // Present the dialog (slides in from right on wide screens, bottom on mobile)
-            creditsDialog.present(window);
-        });
-        infoGroup.add(creditsRow);
+        infoGroup.add(this._createLinkRow(_('Credits'), 'https://github.com/kem-a/kiwi-kemma/graphs/contributors'));
 
         const legalRow = new Adw.ActionRow({
             title: _('Legal'),
@@ -288,14 +244,11 @@ export default class KiwiPreferences extends ExtensionPreferences {
             });
             
             // GPL License link
-            const gplRow = new Adw.ActionRow({
-                title: _('GNU General Public License v3.0'),
-                subtitle: _('View the full license text on GitHub'),
-                activatable: true,
-            });
-            gplRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
-            gplRow.connect('activated', () => Gtk.show_uri(window, 'https://github.com/kem-a/kiwi-kemma?tab=GPL-3.0-1-ov-file', Gdk.CURRENT_TIME));
-            licenseGroup.add(gplRow);
+            licenseGroup.add(this._createLinkRow(
+                _('GNU General Public License v3.0'),
+                'https://github.com/kem-a/kiwi-kemma?tab=GPL-3.0-1-ov-file',
+                _('View the full license text on GitHub')
+            ));
             
             legalContent.add(licenseGroup);
 
@@ -751,52 +704,27 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Installation instructions
         // Link row in libadwaita style (like GTK4 "Website" row)
         const advancedLinksGroup = new Adw.PreferencesGroup();
-        //advancedLinksGroup.set_margin_start(15);
-        //advancedLinksGroup.set_margin_end(70);
-        const guideRow = new Adw.ActionRow({
-            title: _('Installation Guide on GitHub'),
-            subtitle: _('Open the advanced module build instructions'),
-            activatable: true,
-        });
-        guideRow.add_suffix(new Gtk.Image({
-            icon_name: 'external-link-symbolic',
-        }));
-        guideRow.connect('activated', () => {
-            Gtk.show_uri(null, 'https://github.com/kem-a/kiwi-kemma/tree/main/advanced', Gdk.CURRENT_TIME);
-        });
-        advancedLinksGroup.add(guideRow);
+        advancedLinksGroup.add(this._createLinkRow(
+            _('Installation Guide on GitHub'),
+            'https://github.com/kem-a/kiwi-kemma/tree/main/advanced',
+            _('Open the advanced module build instructions')
+        ));
         advancedPage.add(advancedLinksGroup);
 
         const moreGroup = new Adw.PreferencesGroup({
             title: _('Even more...'),
         });
 
-        const macTahoeRow = new Adw.ActionRow({
-            title: _('MacTahoe Icon Pack'),
-            subtitle: _('macOS Tahoe icon theme for Linux'),
-            activatable: true,
-        });
-        macTahoeRow.add_suffix(new Gtk.Image({
-            icon_name: 'external-link-symbolic',
-        }));
-        macTahoeRow.connect('activated', () => {
-            Gtk.show_uri(null, 'https://github.com/vinceliuice/MacTahoe-icon-theme', Gdk.CURRENT_TIME);
-        });
-
-        const gdmWallpaper = new Adw.ActionRow({
-            title: _('GDM Wallpaper'),
-            subtitle: _('Set custom GDM login screen wallpaper'),
-            activatable: true,
-        });
-        gdmWallpaper.add_suffix(new Gtk.Image({
-            icon_name: 'external-link-symbolic',
-        }));
-        gdmWallpaper.connect('activated', () => {
-            Gtk.show_uri(null, 'https://github.com/kem-a/gnome-gdm-wallpaper', Gdk.CURRENT_TIME);
-        });
-
-        moreGroup.add(macTahoeRow);
-        moreGroup.add(gdmWallpaper);
+        moreGroup.add(this._createLinkRow(
+            _('MacTahoe Icon Pack'),
+            'https://github.com/vinceliuice/MacTahoe-icon-theme',
+            _('macOS Tahoe icon theme for Linux')
+        ));
+        moreGroup.add(this._createLinkRow(
+            _('GDM Wallpaper'),
+            'https://github.com/kem-a/gnome-gdm-wallpaper',
+            _('Set custom GDM login screen wallpaper')
+        ));
         advancedPage.add(moreGroup);
 
         const recommendedGroup = new Adw.PreferencesGroup();
@@ -821,14 +749,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         ];
 
         recommendedExtensions.forEach((rec) => {
-            const extRow = new Adw.ActionRow({
-                title: rec.title,
-                subtitle: rec.author,
-                activatable: true,
-            });
-            extRow.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
-            extRow.connect('activated', () => Gtk.show_uri(null, rec.url, Gdk.CURRENT_TIME));
-            recommendedExpander.add_row(extRow);
+            recommendedExpander.add_row(this._createLinkRow(rec.title, rec.url, rec.author));
         });
     }
 }

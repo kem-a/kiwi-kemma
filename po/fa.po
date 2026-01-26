@@ -96,20 +96,6 @@ msgstr "گزارش مشکل"
 msgid "Credits"
 msgstr "دست‌اندرکاران"
 
-#: prefs.js:239
-msgid ""
-"Special thanks to all contributors, developers and the GNOME community "
-"♥️♥️♥️"
-msgstr "سپاس ویژه از تمام مشارکت‌کنندگان، توسعه‌دهندگان و جامعه گنوم ♥️♥️♥️"
-
-#: prefs.js:244
-msgid "Contributors"
-msgstr "مشارکت‌کنندگان"
-
-#: prefs.js:245
-msgid "View all project contributors on GitHub"
-msgstr "نمایش همه مشارکت‌کنندگان پروژه در گیت‌هاب"
-
 #: prefs.js:256
 msgid "Recommended Extensions"
 msgstr "افزونه‌های پیشنهادی"
