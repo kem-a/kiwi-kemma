@@ -25,7 +25,6 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Transparent Move**: Make windows slightly transparent when moving.
 - **Battery Percentage**: Show battery percentage in the system menu when below 20% and on battery.
 - **Move calendar to the right**: Move calendar to right side and hide and add notifications and media controls to Quick Settings.
-
 - **Overview Wallpaper Background blur**. Use blurred current wallpaper as overview background (requires **ImageMagick**).
 - **Multilingual UI**: Ships with translations for 16 languages (de, es, et, fa, fi, fr, it, ko, lt, lv, nb, nl, pl, pt, sv, zh_CN) and is easy to extend via `po/` files.
 
