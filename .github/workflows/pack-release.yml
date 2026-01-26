@@ -5,6 +5,9 @@ on:
     types: [published]
   workflow_dispatch:  # allows manual triggering for testing
 
+permissions:
+  contents: write
+
 jobs:
   pack:
     name: Pack extension and upload
