@@ -8,7 +8,6 @@ import St from 'gi://St';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
-import Meta from 'gi://Meta';
 
 // Animation and trigger constants
 const ANIM_IN_MS = 300;
@@ -272,41 +271,25 @@ function _setPanelAutoHide(enable) {
 function _createHoverArea() {
     if (!_enabled) return null;
     
-    const stageWidth = global.stage?.width ?? 1920;
+    // Get primary monitor geometry for proper positioning
+    let primaryMonitor = global.display.get_primary_monitor();
+    let geometry = global.display.get_monitor_geometry(primaryMonitor);
     
     const hoverArea = new Clutter.Actor({
         name: 'panel-hover-area',
         reactive: true,
-        x: 0,
-        y: 0,
-        width: stageWidth,
+        x: geometry.x,
+        y: geometry.y,
+        width: geometry.width,
         height: TRIGGER_EDGE_PX, // Small hover area at top of screen
         opacity: 0,
     });
 
-    // Create pressure barrier for reveal
-    let primaryMonitor = global.display.get_primary_monitor();
-    let geometry = global.display.get_monitor_geometry(primaryMonitor);
-
-    const barrier = new Meta.Barrier({
-        backend: global.backend,
-        x1: geometry.x,
-        x2: geometry.x + geometry.width,
-        y1: geometry.y,
-        y2: geometry.y,
-        directions: Meta.BarrierDirection.POSITIVE_Y | Meta.BarrierDirection.NEGATIVE_Y,
-    });
-
-    hoverArea._barrier = barrier;
-    
-
-    try {
-        hoverArea._barrierSignalId = barrier.connect('hit', () => {
-            if (activeWorkspaceHasFullscreen) {
-                _showPanelAnimated();
-            }
-        });
-    } catch (e) {}
+    // No Meta.Barrier needed - the Clutter.Actor hover area is sufficient
+    // for detecting pointer entry. Barriers cause issues:
+    // 1. Block vertical pointer movement across monitor bounds
+    // 2. Create "sticky" pointer behavior due to hit box implementation
+    // 3. Not needed since we want hover-based reveal, not pressure-based
 
     hoverArea.connect('enter-event', () => {
         if (activeWorkspaceHasFullscreen) {
@@ -322,14 +305,7 @@ function _createHoverArea() {
 
     hoverArea.connect('destroy', () => {
         // Clear any pending timeout
-    _cancelHideTimeout();
-        
-        if (hoverArea._barrier) {
-            if (hoverArea._barrierSignalId) {
-                try { hoverArea._barrier.disconnect(hoverArea._barrierSignalId); } catch (_) {}
-            }
-            try { hoverArea._barrier.destroy(); } catch (_) {}
-        }
+        _cancelHideTimeout();
     });
 
     return hoverArea;
