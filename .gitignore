@@ -7,6 +7,7 @@ stylesheet-backup.css
 locale/
 *.png
 *.ns.md
+.vscode/
 
 # Review logs and files for publishing to Gnome Shell extensions web
 REVIEW_GUIDELINES_NOTES.md

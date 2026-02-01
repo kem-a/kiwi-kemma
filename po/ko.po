@@ -442,6 +442,14 @@ msgstr "MacTahoe 아이콘 팩"
 msgid "macOS Tahoe icon theme for Linux"
 msgstr "리눅스를 위한 macOS Tahoe 아이콘 테마"
 
+#: prefs.js
+msgid "Become a sponsor on GitHub"
+msgstr "GitHub에서 스폰서 되기"
+
+#: prefs.js
+msgid "Sponsor Me ♡"
+msgstr "후원하기 ♡"
+
 
 
 

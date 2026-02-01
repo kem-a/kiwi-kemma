@@ -442,3 +442,11 @@ msgstr ""
 #: prefs.js:756
 msgid "macOS Tahoe icon theme for Linux"
 msgstr ""
+
+#: prefs.js
+msgid "Become a sponsor on GitHub"
+msgstr ""
+
+#: prefs.js
+msgid "Sponsor Me ♡"
+msgstr ""

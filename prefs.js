@@ -288,32 +288,31 @@ export default class KiwiPreferences extends ExtensionPreferences {
             hexpand: true,
         });
 
-        try {
-            const qrPath = this.path + '/icons/qr.png';
-            const qrFile = Gio.File.new_for_path(qrPath);
-            if (qrFile.query_exists(null)) {
-                const qrPixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(qrPath, 128, 128, true);
-                const qrTexture = Gdk.Texture.new_for_pixbuf(qrPixbuf);
-                const qrImage = new Gtk.Image({
-                    paintable: qrTexture,
-                    pixel_size: 128,
-                    halign: Gtk.Align.CENTER,
-                });
-                const qrBox = new Gtk.Box({
-                    halign: Gtk.Align.CENTER,
-                    valign: Gtk.Align.CENTER,
-                    margin_bottom: 12,
-                });
-                qrBox.append(qrImage);
-                rightColumn.append(qrBox);
-            }
-        } catch (e) {
-            console.error('Failed to load QR code image:', e);
-        }
+        // QR code button linking to Ko-fi
+        const qrButton = new Gtk.Button({
+            halign: Gtk.Align.CENTER,
+            tooltip_text: 'Ko-fi',
+        });
+        qrButton.add_css_class('flat');
+        const qrImage = new Gtk.Image({
+            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/qrcode-symbolic.svg`) }),
+            pixel_size: 128,
+        });
+        qrButton.set_child(qrImage);
+        qrButton.connect('clicked', () => {
+            Gtk.show_uri(null, 'https://ko-fi.com/arnisk', Gdk.CURRENT_TIME);
+        });
+        const qrBox = new Gtk.Box({
+            halign: Gtk.Align.CENTER,
+            valign: Gtk.Align.CENTER,
+            margin_bottom: 12,
+        });
+        qrBox.append(qrButton);
+        rightColumn.append(qrBox);
 
         const coffeeButton = new Gtk.Button({
             halign: Gtk.Align.CENTER,
-            tooltip_text: _('Support the project'),
+            tooltip_text: _('Become a sponsor on GitHub'),
         });
         coffeeButton.add_css_class('pill');
         coffeeButton.add_css_class('kiwi-coffee-button');
@@ -323,14 +322,14 @@ export default class KiwiPreferences extends ExtensionPreferences {
             spacing: 8,
         });
         coffeeContent.append(new Gtk.Image({
-            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/coffee-icon-symbolic.svg`) }),
+            gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/github-symbolic.svg`) }),
         }));
         coffeeContent.append(new Gtk.Label({
-            label: _('Buy Me a Coffee'),
+            label: _('Sponsor Me ♡'),
         }));
         coffeeButton.set_child(coffeeContent);
         coffeeButton.connect('clicked', () => {
-            Gtk.show_uri(null, 'https://revolut.me/arnisk', Gdk.CURRENT_TIME);
+            Gtk.show_uri(null, 'https://github.com/sponsors/kem-a', Gdk.CURRENT_TIME);
         });
         rightColumn.append(coffeeButton);
 

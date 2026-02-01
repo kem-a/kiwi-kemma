@@ -454,6 +454,14 @@ msgstr "MacTahoe ikoonipakk"
 msgid "macOS Tahoe icon theme for Linux"
 msgstr "macOS Tahoe ikooniteema Linuxile"
 
+#: prefs.js
+msgid "Become a sponsor on GitHub"
+msgstr "Hakka sponsoriks GitHubis"
+
+#: prefs.js
+msgid "Sponsor Me ♡"
+msgstr "Toeta mind ♡"
+
 
 
 
