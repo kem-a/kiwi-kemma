@@ -63,36 +63,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Ensure custom CSS for version pill is loaded once per display
         if (!window._kiwiVersionCssProvider) {
             const cssProvider = new Gtk.CssProvider();
-            const cssData = `
-                .kiwi-version-button {
-                    padding: 6px 14px;
-                    min-height: 0;
-                    border-radius: 999px;
-                    border: none;
-                    background-color: alpha(@accent_bg_color, 0.18);
-                    color: @accent_color;
-                    font-weight: 600;
-                    letter-spacing: 0.05em;
-                    text-transform: uppercase;
-                }
-
-                .kiwi-version-button:hover, .kiwi-coffee-button:hover  {
-                    background-color: alpha(@accent_bg_color, 0.26);
-                }
-
-                .kiwi-version-button:active, .kiwi-coffee-button:active  {
-                    background-color: alpha(@accent_bg_color, 0.34);
-                }
-
-                .kiwi-coffee-button {
-                    background-color: alpha(@accent_bg_color, 0.18);
-                    color: @accent_color;
-                    font-weight: 600;
-                    padding: 6px 14px;
-                    margin: 0;
-                }
-                `;
-            cssProvider.load_from_data(cssData, -1);
+            const cssPath = GLib.build_filenamev([this.path, 'prefs.css']);
+            cssProvider.load_from_path(cssPath);
             const display = Gdk.Display.get_default();
             if (display)
                 Gtk.StyleContext.add_provider_for_display(display, cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);

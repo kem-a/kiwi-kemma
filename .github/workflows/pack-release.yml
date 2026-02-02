@@ -25,7 +25,7 @@ jobs:
         name: Pack extension and set asset name
         run: |
           set -euo pipefail
-          gnome-extensions pack --extra-source=icons --extra-source=apps --podir=po .
+          gnome-extensions pack --extra-source=icons --extra-source=apps --extra-source=prefs.css --podir=po .
           # find the generated shell-extension zip (kiwi@kemma.shell-extension.zip)
           zipfile=$(ls -1 *shell-extension.zip | head -n1)
           if [ -z "$zipfile" ]; then

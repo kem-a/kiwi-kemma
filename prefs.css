@@ -1,0 +1,27 @@
+.kiwi-version-button {
+    padding: 6px 14px;
+    min-height: 0;
+    border-radius: 999px;
+    border: none;
+    background-color: alpha(@accent_bg_color, 0.18);
+    color: @accent_color;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.kiwi-version-button:hover, .kiwi-coffee-button:hover  {
+    background-color: alpha(@accent_bg_color, 0.26);
+}
+
+.kiwi-version-button:active, .kiwi-coffee-button:active  {
+    background-color: alpha(@accent_bg_color, 0.34);
+}
+
+.kiwi-coffee-button {
+    background-color: alpha(@accent_bg_color, 0.18);
+    color: @accent_color;
+    font-weight: 600;
+    padding: 6px 14px;
+    margin: 0;
+}
