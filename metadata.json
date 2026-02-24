@@ -12,7 +12,8 @@
   "version": "",
   "version-name": "1.5.4",
   "donations": {
-    "custom": "https://revolut.me/arnisk"
+    "kofi": "arnisk",
+    "github": "kem-a"
   },
   "gettext-domain": "kiwi@kemma"
 }
