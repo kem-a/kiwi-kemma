@@ -4,12 +4,13 @@
   "settings-schema": "org.gnome.shell.extensions.kiwi",
   "shell-version": [
     "48",
-    "49"
+    "49",
+    "50"
   ],
   "url": "https://github.com/kem-a/kiwi-kemma",
   "uuid": "kiwi@kemma",
   "version": "",
-  "version-name": "1.5.3",
+  "version-name": "1.5.4",
   "donations": {
     "custom": "https://revolut.me/arnisk"
   },
