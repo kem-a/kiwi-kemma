@@ -216,7 +216,6 @@ export const disable = () => {
         
         // Properly dispose of the proxy
         if (batteryPercentageInstance._batteryProxy) {
-            batteryPercentageInstance._batteryProxy.run_dispose();
             batteryPercentageInstance._batteryProxy = null;
         }
         
