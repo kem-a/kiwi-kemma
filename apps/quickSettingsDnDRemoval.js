@@ -316,11 +316,7 @@ export function restoreDateMenuIndicator() {
 
     if (_dateMenuIndicatorSignals) {
         for (const id of _dateMenuIndicatorSignals) {
-            try {
-                indicator.disconnect(id);
-            } catch (error) {
-                logError(error, '[kiwi] Failed to disconnect date menu indicator signal');
-            }
+            indicator.disconnect(id);
         }
         _dateMenuIndicatorSignals = null;
     }

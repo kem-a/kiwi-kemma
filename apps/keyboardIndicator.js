@@ -76,11 +76,11 @@ function _ensureLabelRef() {
     // Reconnect notify::text to the current label actor
     if (_state.label) {
         if (_state.labelChangedId) {
-            try { _state.label.disconnect(_state.labelChangedId); } catch (_e) {}
+            _state.label.disconnect(_state.labelChangedId);
             _state.labelChangedId = 0;
         }
         if (_state.labelDestroyId) {
-            try { _state.label.disconnect(_state.labelDestroyId); } catch (_e) {}
+            _state.label.disconnect(_state.labelDestroyId);
             _state.labelDestroyId = 0;
         }
     }
@@ -92,11 +92,11 @@ function _ensureLabelRef() {
                 return;
             // Clear connections tracked for this label
             if (_state.labelChangedId) {
-                try { obj.disconnect(_state.labelChangedId); } catch (_e) {}
+                obj.disconnect(_state.labelChangedId);
                 _state.labelChangedId = 0;
             }
             if (_state.labelDestroyId) {
-                try { obj.disconnect(_state.labelDestroyId); } catch (_e) {}
+                obj.disconnect(_state.labelDestroyId);
                 _state.labelDestroyId = 0;
             }
             _state.label = null;
@@ -139,11 +139,11 @@ function _applyTheme(isVisible = _state?.indicator?.visible ?? false) {
     if (!_state?.indicator)
         return;
     if (!isVisible) {
-        try { _state.indicator.remove_style_class_name('kiwi-input-themed'); } catch (_e) {}
-        try { _state.indicator.remove_style_class_name('kiwi-input-en'); } catch (_e) {}
+        _state.indicator.remove_style_class_name('kiwi-input-themed');
+        _state.indicator.remove_style_class_name('kiwi-input-en');
         return;
     }
-    try { _state.indicator.add_style_class_name('kiwi-input-themed'); } catch (_e) {}
+    _state.indicator.add_style_class_name('kiwi-input-themed');
 }
 
 function _updateLabel() {
@@ -158,26 +158,21 @@ function _updateLabel() {
 
     // If theming class isn't present (feature disabled), ensure we don't change anything
     if (!_state.indicator.has_style_class_name('kiwi-input-themed')) {
-        try {
-            if (label && label._kiwiOriginalText !== undefined) {
-                try {
-                    if (label.text !== label._kiwiOriginalText)
-                        label.text = label._kiwiOriginalText;
-                } catch (_e) { /* label may be disposed */ }
-            }
-        } catch (_e) {}
-        try { _state.indicator.remove_style_class_name('kiwi-input-en'); } catch (_e) {}
+        if (label && label._kiwiOriginalText !== undefined) {
+            if (label.text !== label._kiwiOriginalText)
+                label.text = label._kiwiOriginalText;
+        }
+        _state.indicator.remove_style_class_name('kiwi-input-en');
         return;
     }
 
     // Save original text if not already saved for this label actor
     if (!label._kiwiOriginalText) {
-        try { label._kiwiOriginalText = label.text; } catch (_e) { return; }
+        label._kiwiOriginalText = label.text;
     }
 
     // Get the current text (what's actually displayed in panel)
-    let currentText = '';
-    try { currentText = label.text || ''; } catch (_e) { return; }
+    let currentText = label.text || '';
     let nextText = currentText;
 
     // Helpers
@@ -211,10 +206,8 @@ function _updateLabel() {
         }
     }
 
-    try {
-        if (label.text !== nextText)
-            label.text = nextText;
-    } catch (_e) { return; }
+    if (label.text !== nextText)
+        label.text = nextText;
 
     // Maintain hidden state if requested
     _applyVisibility();
@@ -242,11 +235,11 @@ function _connect() {
 
 function _disconnect() {
     if (_state?.label && _state.labelChangedId) {
-        try { _state.label.disconnect(_state.labelChangedId); } catch (_e) {}
+        _state.label.disconnect(_state.labelChangedId);
         _state.labelChangedId = 0;
     }
     if (_state?.label && _state.labelDestroyId) {
-        try { _state.label.disconnect(_state.labelDestroyId); } catch (_e) {}
+        _state.label.disconnect(_state.labelDestroyId);
         _state.labelDestroyId = 0;
     }
     if (_state?.inputManagerChangedId) {
@@ -257,11 +250,11 @@ function _disconnect() {
         _state.inputManagerChangedId = 0;
     }
     if (_state?.visibilityChangedId && _state.indicator) {
-        try { _state.indicator.disconnect(_state.visibilityChangedId); } catch (_e) {}
+        _state.indicator.disconnect(_state.visibilityChangedId);
         _state.visibilityChangedId = 0;
     }
     if (_state?.idleId) {
-        try { GLib.source_remove(_state.idleId); } catch (_e) {}
+        GLib.source_remove(_state.idleId);
         _state.idleId = 0;
     }
 }
@@ -293,38 +286,28 @@ export function disable() {
     if (!_state)
         return;
     _disconnect();
-    try {
-        // Try to restore any label we touched
-        const labels = new Set();
-        if (_state.label)
-            labels.add(_state.label);
-        const currentLabel = _findLabel(_state.indicator);
-        if (currentLabel)
-            labels.add(currentLabel);
-        for (const lb of labels) {
-            try {
-                if (lb && lb._kiwiOriginalText !== undefined) {
-                    try {
-                        if (lb.text !== lb._kiwiOriginalText)
-                            lb.text = lb._kiwiOriginalText;
-                    } catch (_e) {}
-                    // Clear the marker to avoid leaking state
-                    lb._kiwiOriginalText = undefined;
-                }
-            } catch (_e) {}
+    // Try to restore any label we touched
+    const labels = new Set();
+    if (_state.label)
+        labels.add(_state.label);
+    const currentLabel = _findLabel(_state.indicator);
+    if (currentLabel)
+        labels.add(currentLabel);
+    for (const lb of labels) {
+        if (lb && lb._kiwiOriginalText !== undefined) {
+            if (lb.text !== lb._kiwiOriginalText)
+                lb.text = lb._kiwiOriginalText;
+            // Clear the marker to avoid leaking state
+            lb._kiwiOriginalText = undefined;
         }
-    } catch (_e) {}
+    }
     if (_state.indicator) {
-        try {
-            if (_state.shellVisible !== undefined)
-                _state.indicator.visible = _state.shellVisible;
-        } catch (_e) {}
-        try {
-            if (_state.indicator._kiwiOriginalVisible !== undefined)
-                _state.indicator._kiwiOriginalVisible = undefined;
-        } catch (_e) {}
-        try { _state.indicator.remove_style_class_name('kiwi-input-themed'); } catch (_e) {}
-        try { _state.indicator.remove_style_class_name('kiwi-input-en'); } catch (_e) {}
+        if (_state.shellVisible !== undefined)
+            _state.indicator.visible = _state.shellVisible;
+        if (_state.indicator._kiwiOriginalVisible !== undefined)
+            _state.indicator._kiwiOriginalVisible = undefined;
+        _state.indicator.remove_style_class_name('kiwi-input-themed');
+        _state.indicator.remove_style_class_name('kiwi-input-en');
     }
     _state = null;
 }

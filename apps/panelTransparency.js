@@ -250,9 +250,7 @@ function disconnectWindowSignals(metaWindow) {
     if (index !== -1) {
         const { signals } = windowSignals[index];
         signals.forEach(signalId => {
-            try {
-                metaWindow.disconnect(signalId);
-            } catch (e) {}
+            metaWindow.disconnect(signalId);
         });
         windowSignals.splice(index, 1);
     }
@@ -260,9 +258,7 @@ function disconnectWindowSignals(metaWindow) {
 
 function setupSignals() {
     settingsSignals.forEach(signal => {
-        try {
-            settings.disconnect(signal);
-        } catch (e) {}
+        settings.disconnect(signal);
     });
     settingsSignals = [];
 
@@ -410,7 +406,7 @@ export function enable(_settings) {
 
     // Lightweight periodic safety check (every 2s) to catch missed transitions (uses full logic)
     safetyIntervalId = GLib.timeout_add(GLib.PRIORITY_LOW, 2000, () => {
-        if (!settings) return GLib.SOURCE_REMOVE;
+        if (!settings) { safetyIntervalId = null; return GLib.SOURCE_REMOVE; }
         checkWindowTouchingPanel();
         return GLib.SOURCE_CONTINUE;
     });
@@ -427,9 +423,7 @@ export function disable() {
     }
     
     settingsSignals.forEach(signal => {
-        try {
-            settings.disconnect(signal);
-        } catch (e) {}
+        settings.disconnect(signal);
     });
     settingsSignals = [];
 
@@ -442,16 +436,14 @@ export function disable() {
     interfaceSettings = null;
 
     // Remove CSS class and force opaque restore
-    try {
-        const panel = Main.panel;
-        panel.remove_style_class_name('kiwi-panel-fullscreen');
-        panel.remove_style_class_name('kiwi-panel-color-inherit');
-        if (originalStyle) {
-            panel.set_style(originalStyle);
-        } else {
-            setOpaqueImmediately();
-        }
-    } catch (_) {}
+    const panel = Main.panel;
+    panel.remove_style_class_name('kiwi-panel-fullscreen');
+    panel.remove_style_class_name('kiwi-panel-color-inherit');
+    if (originalStyle) {
+        panel.set_style(originalStyle);
+    } else {
+        setOpaqueImmediately();
+    }
 
     settings = null;
     lastForcedAlpha = null;

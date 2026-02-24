@@ -125,44 +125,40 @@ class BatteryPercentage {
     }
 
     _updateBatteryPercentage() {
-        try {
-            // Get the battery percentage and state properties
-            const percentageProperty = this._batteryProxy.get_cached_property('Percentage');
-            const stateProperty = this._batteryProxy.get_cached_property('State');
+        // Get the battery percentage and state properties
+        const percentageProperty = this._batteryProxy.get_cached_property('Percentage');
+        const stateProperty = this._batteryProxy.get_cached_property('State');
 
-            // If properties are not available, return early
-            if (!percentageProperty || !stateProperty) {
-                return;
-            }
+        // If properties are not available, return early
+        if (!percentageProperty || !stateProperty) {
+            return;
+        }
 
-            const percentage = percentageProperty.unpack();
-            const state = stateProperty.unpack();
+        const percentage = percentageProperty.unpack();
+        const state = stateProperty.unpack();
 
-            // Update the label text with the current battery percentage
-            this._batteryLabel.text = `${percentage}%`;
+        // Update the label text with the current battery percentage
+        this._batteryLabel.text = `${percentage}%`;
 
-            // Animate when percentage changes to 25% while not charging
-            if (percentage === BATTERY_TRIGGER_PERCENTAGE && state === 2 && percentage !== this._lastPercentage) {
-                this._animateIn();
-            }
+        // Animate when percentage changes to 25% while not charging
+        if (percentage === BATTERY_TRIGGER_PERCENTAGE && state === 2 && percentage !== this._lastPercentage) {
+            this._animateIn();
+        }
 
-            // Animate when plugging or unplugging the charger while below 25%
-            if (percentage <= BATTERY_TRIGGER_PERCENTAGE && state !== this._lastState) {
-                if (state === 1 || state === 2) { // State: 1 = Charging, 2 = Discharging
-                    if (state === 1) {
-                        this._animateOut();
-                    } else if (state === 2) {
-                        this._animateIn();
-                    }
+        // Animate when plugging or unplugging the charger while below 25%
+        if (percentage <= BATTERY_TRIGGER_PERCENTAGE && state !== this._lastState) {
+            if (state === 1 || state === 2) { // State: 1 = Charging, 2 = Discharging
+                if (state === 1) {
+                    this._animateOut();
+                } else if (state === 2) {
+                    this._animateIn();
                 }
             }
-
-            // Update the last known state and percentage
-            this._lastPercentage = percentage;
-            this._lastState = state;
-        } catch (e) {
-            // Handle update error
         }
+
+        // Update the last known state and percentage
+        this._lastPercentage = percentage;
+        this._lastState = state;
     }
 
     _animateIn() {
@@ -220,11 +216,7 @@ export const disable = () => {
         
         // Properly dispose of the proxy
         if (batteryPercentageInstance._batteryProxy) {
-            try {
-                batteryPercentageInstance._batteryProxy.run_dispose();
-            } catch (e) {
-                // Ignore disposal errors
-            }
+            batteryPercentageInstance._batteryProxy.run_dispose();
             batteryPercentageInstance._batteryProxy = null;
         }
         

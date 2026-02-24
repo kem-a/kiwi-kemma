@@ -69,21 +69,13 @@ function _clearMainLoopSources() {
 function _disconnectOverviewHandler(id) {
     if (!_overviewSignalIds.has(id))
         return;
-    try {
-        Main.overview.disconnect(id);
-    } catch (_) {
-        // ignore
-    }
+    Main.overview.disconnect(id);
     _overviewSignalIds.delete(id);
 }
 
 function _clearOverviewHandlers() {
     for (const id of _overviewSignalIds) {
-        try {
-            Main.overview.disconnect(id);
-        } catch (_) {
-            // ignore
-        }
+        Main.overview.disconnect(id);
     }
     _overviewSignalIds.clear();
 }

@@ -191,10 +191,8 @@ export class Player extends GObject.Object {
     }
 
     _update() {
-        try {
-            const metadata = this._playerProxy?.Metadata;
-            this._parseMetadata(metadata);
-        } catch {}
+        const metadata = this._playerProxy?.Metadata;
+        this._parseMetadata(metadata);
         this.emit('changed');
     }
 

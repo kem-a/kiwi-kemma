@@ -57,7 +57,7 @@ export function enable() {
 
 export function disable() {
     if (startupId) {
-        try { Main.layoutManager.disconnect(startupId); } catch (_) { /* ignore */ }
+        Main.layoutManager.disconnect(startupId);
         startupId = 0;
     }
     

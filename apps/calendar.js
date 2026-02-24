@@ -54,18 +54,14 @@ function setupNotificationIndicator() {
 function cleanupNotificationIndicator() {
     // Disconnect signals and clear intervals
     if (indicatorInsertTimeoutId) {
-        try { GLib.source_remove(indicatorInsertTimeoutId); } catch (_) {}
+        GLib.source_remove(indicatorInsertTimeoutId);
         indicatorInsertTimeoutId = null;
     }
     notificationSignals.forEach(signal => {
-        try {
-            if (signal.obj === 'interval') {
-                GLib.Source.remove(signal.id);
-            } else if (signal.obj && signal.id) {
-                signal.obj.disconnect(signal.id);
-            }
-        } catch (e) {
-            // Signal may already be disconnected
+        if (signal.obj === 'interval') {
+            GLib.Source.remove(signal.id);
+        } else if (signal.obj && signal.id) {
+            signal.obj.disconnect(signal.id);
         }
     });
     notificationSignals = [];

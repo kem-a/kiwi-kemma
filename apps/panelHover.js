@@ -39,7 +39,7 @@ let _ghostMenu = null;
 let _originalTrackFullscreen = null;
 
 function _debug(msg) {
-    try { log(`[PanelHover] ${msg}`); } catch (_) {}
+    log(`[PanelHover] ${msg}`);
 }
 
 function _getPanelBox() {
@@ -51,19 +51,19 @@ function _getPanelHeight() {
 }
 
 function _cancelPanelTransitions() {
-    try { _getPanelBox()?.remove_all_transitions?.(); } catch (_) {}
+    _getPanelBox()?.remove_all_transitions?.();
 }
 
 function _cancelHideTimeout() {
     if (_hideTimeoutId) {
-        try { GLib.Source.remove(_hideTimeoutId); } catch (_) {}
+        GLib.Source.remove(_hideTimeoutId);
         _hideTimeoutId = null;
     }
 }
 
 function _cancelPeriodicCheck() {
     if (_periodCheckId) {
-        try { GLib.Source.remove(_periodCheckId); } catch (_) {}
+        GLib.Source.remove(_periodCheckId);
         _periodCheckId = null;
     }
 }
@@ -78,24 +78,22 @@ function _startPeriodicCheck() {
         
         // Check if any menu is actually open (more thorough check)
         let menuActuallyOpen = false;
-        try {
-            if (Main.panel?.menuManager) {
-                // Check if menuManager reports any menu as open
-                if (Main.panel.menuManager._activeMenu) {
-                    menuActuallyOpen = true;
-                }
-                // Also check for any visible popups in the status area
-                const statusArea = Main.panel.statusArea;
-                if (statusArea) {
-                    for (const indicator of Object.values(statusArea)) {
-                        if (indicator?.menu?.isOpen) {
-                            menuActuallyOpen = true;
-                            break;
-                        }
+        if (Main.panel?.menuManager) {
+            // Check if menuManager reports any menu as open
+            if (Main.panel.menuManager._activeMenu) {
+                menuActuallyOpen = true;
+            }
+            // Also check for any visible popups in the status area
+            const statusArea = Main.panel.statusArea;
+            if (statusArea) {
+                for (const indicator of Object.values(statusArea)) {
+                    if (indicator?.menu?.isOpen) {
+                        menuActuallyOpen = true;
+                        break;
                     }
                 }
             }
-        } catch (_) {}
+        }
         
         // Only hide if no menu is open AND pointer is away from panel area
         if (!menuActuallyOpen && _panelRevealed) {
@@ -178,12 +176,12 @@ function _hidePanelAnimated() {
                 _animating = false;
                 _panelRevealed = false;
                 _setPanelAutoHide(true);
-                try { panelBox.translation_y = 0; } catch (_) {}
+                panelBox.translation_y = 0;
             },
         });
     } catch (_) {
         _setPanelAutoHide(true);
-        try { panelBox.translation_y = 0; } catch (_) {}
+        panelBox.translation_y = 0;
         _animating = false;
         _panelRevealed = false;
     }
@@ -207,7 +205,7 @@ function _openGhostMenu() {
     Main.uiGroup.add_child(anchor);
     _ghostMenu = new PopupMenu.PopupMenu(anchor, 0.5, St.Side.TOP);
     // Register with panel menu manager so Shell treats it as an open menu
-    try { Main.panel?.menuManager?.addMenu?.(_ghostMenu); } catch (_) {}
+    Main.panel?.menuManager?.addMenu?.(_ghostMenu);
     _ghostMenu.actor.opacity = 0;
     _ghostMenu.actor.reactive = false;
     Main.uiGroup.add_child(_ghostMenu.actor);
@@ -218,14 +216,12 @@ function _openGhostMenu() {
 
 function _closeGhostMenu() {
     if (_ghostMenu) {
-        try {
-            _ghostMenu.close();
-            try { Main.panel?.menuManager?.removeMenu?.(_ghostMenu); } catch (_) {}
-            if (_ghostMenu.actor.get_parent())
-                _ghostMenu.actor.get_parent().remove_child(_ghostMenu.actor);
-            if (_ghostMenu._ghostAnchor && _ghostMenu._ghostAnchor.get_parent())
-                _ghostMenu._ghostAnchor.get_parent().remove_child(_ghostMenu._ghostAnchor);
-        } catch (_) {}
+        _ghostMenu.close();
+        Main.panel?.menuManager?.removeMenu?.(_ghostMenu);
+        if (_ghostMenu.actor.get_parent())
+            _ghostMenu.actor.get_parent().remove_child(_ghostMenu.actor);
+        if (_ghostMenu._ghostAnchor && _ghostMenu._ghostAnchor.get_parent())
+            _ghostMenu._ghostAnchor.get_parent().remove_child(_ghostMenu._ghostAnchor);
         _ghostMenu = null;
     }
 }
@@ -337,8 +333,8 @@ function _disconnectWindowSignals(window) {
         return;
 
     let signalIds = windowSignals.get(window);
-    try { window.disconnect(signalIds.fullscreen); } catch (_) {}
-    try { window.disconnect(signalIds.unmanaged); } catch (_) {}
+    window.disconnect(signalIds.fullscreen);
+    window.disconnect(signalIds.unmanaged);
     windowSignals.delete(window);
 
     if (fullscreenWindows.has(window)) {
@@ -370,10 +366,8 @@ function _recomputeFullscreenState() {
         const ws = global.workspace_manager.get_active_workspace();
         const windows = ws?.list_windows?.() || [];
         for (const w of windows) {
-            try {
-                if (w.is_fullscreen())
-                    fullscreenWindows.add(w);
-            } catch (_) {}
+            if (w.is_fullscreen())
+                fullscreenWindows.add(w);
         }
     } catch (e) {
         _debug(`Error listing windows: ${e}`);
@@ -385,7 +379,7 @@ function _recomputeFullscreenState() {
     // Update panel behavior based on fullscreen state and overview visibility
     // Track idle source so it can be cancelled on disable
     if (_recomputeIdleId) {
-        try { GLib.Source.remove(_recomputeIdleId); } catch (_) {}
+        GLib.Source.remove(_recomputeIdleId);
         _recomputeIdleId = null;
     }
     _recomputeIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
@@ -494,20 +488,18 @@ export function enable() {
             
             // Check if any menu is actually open before hiding
             let menuActuallyOpen = false;
-            try {
-                if (Main.panel?.menuManager?._activeMenu) {
-                    menuActuallyOpen = true;
-                }
-                const statusArea = Main.panel.statusArea;
-                if (statusArea) {
-                    for (const indicator of Object.values(statusArea)) {
-                        if (indicator?.menu?.isOpen) {
-                            menuActuallyOpen = true;
-                            break;
-                        }
+            if (Main.panel?.menuManager?._activeMenu) {
+                menuActuallyOpen = true;
+            }
+            const statusArea = Main.panel.statusArea;
+            if (statusArea) {
+                for (const indicator of Object.values(statusArea)) {
+                    if (indicator?.menu?.isOpen) {
+                        menuActuallyOpen = true;
+                        break;
                     }
                 }
-            } catch (_) {}
+            }
             
             if (menuActuallyOpen) return Clutter.EVENT_PROPAGATE;
             
@@ -534,7 +526,7 @@ export function disable() {
     _cancelPeriodicCheck();
     _closeGhostMenu();
     if (_recomputeIdleId) {
-        try { GLib.Source.remove(_recomputeIdleId); } catch (_) {}
+        GLib.Source.remove(_recomputeIdleId);
         _recomputeIdleId = null;
     }
 
@@ -548,44 +540,40 @@ export function disable() {
 
     // Disconnect event handlers
     if (windowCreatedHandler) {
-        try { global.display.disconnect(windowCreatedHandler); } catch (_) {}
+        global.display.disconnect(windowCreatedHandler);
         windowCreatedHandler = null;
     }
     if (workspaceChangedHandler) {
-        try { global.workspace_manager.disconnect(workspaceChangedHandler); } catch (_) {}
+        global.workspace_manager.disconnect(workspaceChangedHandler);
         workspaceChangedHandler = null;
     }
     if (overviewShowingHandler) {
-        try { Main.overview.disconnect(overviewShowingHandler); } catch (_) {}
+        Main.overview.disconnect(overviewShowingHandler);
         overviewShowingHandler = null;
     }
     if (overviewHiddenHandler) {
-        try { Main.overview.disconnect(overviewHiddenHandler); } catch (_) {}
+        Main.overview.disconnect(overviewHiddenHandler);
         overviewHiddenHandler = null;
     }
     // Disconnect panel box signals
-    try {
-        const panelBox = _getPanelBox();
-        if (panelBox) {
-            if (_panelBoxEnterId) { try { panelBox.disconnect(_panelBoxEnterId); } catch (_) {} _panelBoxEnterId = null; }
-            if (_panelBoxLeaveId) { try { panelBox.disconnect(_panelBoxLeaveId); } catch (_) {} _panelBoxLeaveId = null; }
-            if (_panelBoxButtonReleaseId) { try { panelBox.disconnect(_panelBoxButtonReleaseId); } catch (_) {} _panelBoxButtonReleaseId = null; }
-        }
-    } catch (_) {}
+    const panelBox = _getPanelBox();
+    if (panelBox) {
+        if (_panelBoxEnterId) { panelBox.disconnect(_panelBoxEnterId); _panelBoxEnterId = null; }
+        if (_panelBoxLeaveId) { panelBox.disconnect(_panelBoxLeaveId); _panelBoxLeaveId = null; }
+        if (_panelBoxButtonReleaseId) { panelBox.disconnect(_panelBoxButtonReleaseId); _panelBoxButtonReleaseId = null; }
+    }
     
     // Disconnect stage capture
     if (_stageButtonReleaseId && global.stage) {
-        try { global.stage.disconnect(_stageButtonReleaseId); } catch (_) {}
+        global.stage.disconnect(_stageButtonReleaseId);
         _stageButtonReleaseId = null;
     }
 
     // Disconnect window signals
-    try {
-        windowSignals.forEach((signalIds, window) => {
-            try { window.disconnect(signalIds.fullscreen); } catch (_) {}
-            try { window.disconnect(signalIds.unmanaged); } catch (_) {}
-        });
-    } catch (e) { _debug(`Disconnect window signals failed: ${e}`); }
+    windowSignals.forEach((signalIds, window) => {
+        window.disconnect(signalIds.fullscreen);
+        window.disconnect(signalIds.unmanaged);
+    });
     
     windowSignals.clear();
     fullscreenWindows.clear();

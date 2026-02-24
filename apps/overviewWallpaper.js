@@ -328,7 +328,7 @@ function _chooseVariantPathForCurrentScheme() {
 
 function _updateBaseStylesheet(path) {
     if (_styleProvider) {
-        try { St.ThemeContext.get_for_stage(global.stage).get_theme().unload_stylesheet(_styleProvider); } catch (_) {}
+        St.ThemeContext.get_for_stage(global.stage).get_theme().unload_stylesheet(_styleProvider);
         _styleProvider = null;
     }
     _ensureTargetDir();
@@ -486,18 +486,16 @@ export function disable() {
     }
     // Disconnect wallpaper signals
     if (_bgSettings && _bgSignalIds.length) {
-        _bgSignalIds.forEach(id => { try { _bgSettings.disconnect(id); } catch (_) {} });
+        _bgSignalIds.forEach(id => { _bgSettings.disconnect(id); });
     }
     _bgSignalIds = [];
     // Disconnect color scheme
     if (_interfaceSettings && _interfaceSignalId) {
-        try { _interfaceSettings.disconnect(_interfaceSignalId); } catch (_) {}
+        _interfaceSettings.disconnect(_interfaceSignalId);
     }
     _interfaceSignalId = 0;
     if (_styleProvider) {
-        try {
-            St.ThemeContext.get_for_stage(global.stage).get_theme().unload_stylesheet(_styleProvider);
-        } catch (e) { /* ignore */ }
+        St.ThemeContext.get_for_stage(global.stage).get_theme().unload_stylesheet(_styleProvider);
         _styleProvider = null;
     }
     // Terminate any running conversion early to avoid writing after cleanup

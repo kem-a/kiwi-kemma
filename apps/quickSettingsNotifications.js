@@ -196,11 +196,7 @@ function destroyDndButton() {
         _dndEnsureTimeoutId = null;
     }
     if (_notificationSettings && _notificationSettingsChangedId) {
-        try {
-            _notificationSettings.disconnect(_notificationSettingsChangedId);
-        } catch (error) {
-            logError(error, '[kiwi] Failed to disconnect DND settings listener');
-        }
+        _notificationSettings.disconnect(_notificationSettingsChangedId);
         _notificationSettingsChangedId = null;
     }
 
