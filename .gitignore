@@ -6,7 +6,7 @@ stylesheet-test.css
 stylesheet-backup.css
 locale/
 *.png
-*.ns.md
+.github/*.md
 .vscode/
 
 # Review logs and files for publishing to Gnome Shell extensions web
