@@ -6,6 +6,7 @@ import GLib from 'gi://GLib';
 import St from 'gi://St';
 import Gio from 'gi://Gio';
 import Meta from 'gi://Meta';
+import Shell from 'gi://Shell';
 
 let settings;
 let windowSignals = [];
@@ -18,6 +19,67 @@ let timeoutId;
 let safetyIntervalId;
 let lastForcedAlpha = null; // remember last alpha decided by logic (touch/fullscreen)
 let lastFullscreenState = false; // edge-detect fullscreen state changes
+
+// Blur state
+let blurEffect = null;
+let blurWidget = null;
+let blurSizeSignal = null;
+
+// --- Panel blur helpers ---
+
+function createBlurEffect() {
+    destroyBlurEffect();
+
+    const panel = Main.panel;
+    const panelBox = panel.get_parent();
+    if (!panel || !panelBox) return;
+
+    blurEffect = new Shell.BlurEffect({
+        mode: Shell.BlurMode.BACKGROUND,
+        radius: 30,
+        brightness: 0.6,
+    });
+
+    blurWidget = new St.Widget({
+        name: 'kiwi-panel-blur',
+        x: panel.x,
+        y: panel.y,
+        width: panel.width,
+        height: panel.height,
+    });
+    blurWidget.add_effect(blurEffect);
+    panelBox.insert_child_at_index(blurWidget, 0);
+
+    // Keep blur widget sized/positioned to match panel
+    blurSizeSignal = panel.connect('notify::allocation', () => {
+        if (blurWidget) {
+            blurWidget.set_position(panel.x, panel.y);
+            blurWidget.set_size(panel.width, panel.height);
+        }
+    });
+}
+
+function destroyBlurEffect() {
+    if (blurSizeSignal) {
+        const panel = Main.panel;
+        if (panel) {
+            panel.disconnect(blurSizeSignal);
+        }
+        blurSizeSignal = null;
+    }
+
+    if (blurWidget) {
+        blurWidget.destroy();
+        blurWidget = null;
+    }
+    blurEffect = null;
+}
+
+function updateBlurVisibility(visible) {
+    if (blurWidget) {
+        blurWidget.visible = visible;
+    }
+}
 
 // Panel color fix helper
 function applyPanelColorFix() {
@@ -96,9 +158,10 @@ function updatePanelStyle(alpha = null) {
             }
         }
         
-        // In overview, always transparent
+        // In overview, always transparent — show blur if enabled
         if (Main.overview.visible) {
             panel.set_style('background-color: transparent !important;');
+            updateBlurVisibility(settings?.get_boolean('panel-blur'));
             panel.queue_redraw();
             return;
         }
@@ -107,6 +170,7 @@ function updatePanelStyle(alpha = null) {
         if (fullscreenNow) {
             // Clear any inline style to let CSS rule take effect
             panel.set_style('');
+            updateBlurVisibility(false);
             panel.queue_redraw();
             return;
         }
@@ -122,6 +186,7 @@ function updatePanelStyle(alpha = null) {
 
         if (!settings?.get_boolean('panel-transparency')) {
             panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
+            updateBlurVisibility(false);
             panel.queue_redraw();
             return;
         }
@@ -132,6 +197,10 @@ function updatePanelStyle(alpha = null) {
         const opacity = (alpha !== null ? alpha : (lastForcedAlpha !== null ? lastForcedAlpha : settings.get_int('panel-transparency-level') / 100));
         const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important;`;
         
+        // Show/hide blur regardless of whether style string changed
+        const blurEnabled = settings?.get_boolean('panel-blur');
+        updateBlurVisibility(blurEnabled && opacity < 1.0);
+
         if (panel.get_style() !== newStyle) {
             panel.set_style(newStyle);
             panel.queue_redraw();
@@ -291,6 +360,14 @@ function setupSignals() {
         }),
         settings.connect('changed::panel-color-inherit', () => {
             applyPanelColorFix();
+        }),
+        settings.connect('changed::panel-blur', () => {
+            if (settings.get_boolean('panel-blur')) {
+                createBlurEffect();
+                checkWindowTouchingPanel();
+            } else {
+                destroyBlurEffect();
+            }
         })
     ];
 
@@ -398,6 +475,11 @@ export function enable(_settings) {
     // Apply panel color fix on startup
     applyPanelColorFix();
 
+    // Create blur effect if blur is enabled
+    if (settings.get_boolean('panel-blur')) {
+        createBlurEffect();
+    }
+
     timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         checkWindowTouchingPanel();
         timeoutId = null;
@@ -434,6 +516,9 @@ export function disable() {
         interfaceSettingsSignal = null;
     }
     interfaceSettings = null;
+
+    // Destroy blur effect
+    destroyBlurEffect();
 
     // Remove CSS class and force opaque restore
     const panel = Main.panel;

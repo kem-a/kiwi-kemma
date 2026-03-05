@@ -232,7 +232,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             // Copyright section
             const copyrightGroup = new Adw.PreferencesGroup({
                 title: _('Copyright'),
-                description: _('Copyright © 2025 Arnis Kemlers\n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.'),
+                description: _('Copyright © 2026 Arnis Kemlers\n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.'),
             });
             legalContent.add(copyrightGroup);
 
@@ -364,6 +364,15 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         transparencyExpander.add_row(opaqueOnWindowSwitch);
 
+        // Panel blur
+        const panelBlurRow = new Adw.SwitchRow({
+            title: _("Panel Blur"),
+            subtitle: _("Blur the background behind the panel"),
+            active: settings.get_boolean('panel-blur'),
+            sensitive: settings.get_boolean('panel-transparency'),
+        });
+        transparencyExpander.add_row(panelBlurRow);
+
         // Panel color inherit fix
         const panelColorFixRow = new Adw.SwitchRow({
             title: _("Panel Color Fix"),
@@ -391,6 +400,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('panel-opaque-on-window', opaqueOnWindowSwitch, 'active',
             Gio.SettingsBindFlags.DEFAULT);
         settings.bind('panel-transparency', opaqueOnWindowSwitch, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+        settings.bind('panel-blur', panelBlurRow, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-transparency', panelBlurRow, 'sensitive',
             Gio.SettingsBindFlags.GET);
         settings.bind('panel-color-inherit', panelColorFixRow, 'active',
             Gio.SettingsBindFlags.DEFAULT);

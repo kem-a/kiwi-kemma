@@ -6,11 +6,9 @@
 [![Latest release](https://img.shields.io/github/v/release/kem-a/kiwi-kemma?semver)](https://github.com/kem-a/kiwi-kemma/releases/latest)
 [![Stars](https://img.shields.io/github/stars/kem-a/kiwi-kemma?style=social)](https://github.com/kem-a/kiwi-kemma/stargazers)
 
-
-# <img width="48" height="48" alt="kiwi_logo" src="https://github.com/user-attachments/assets/f7820666-899a-46b8-b022-d5349bb1731b" /> Kiwi is not Apple 
+# <img width="48" height="48" alt="kiwi_logo" src="https://github.com/user-attachments/assets/f7820666-899a-46b8-b022-d5349bb1731b" /> Kiwi is not Apple
 
 Kiwi is a GNOME Shell extension that mimics various macOS features. This extension provides a collection of small quality-of-life functionalities such as moving windows to new workspaces, adding the username to the quick menu, focusing launched windows, and more.
-
 
 ## Features
 
@@ -38,6 +36,7 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Launchpad Applications**: Add custom launch applications icon to the dock. Move it freely to any place.
 - **Style Keyboard Indicator**. Style keyboard/input source indicator in panel by converting to uppercase and adding border. Also can hide it.
 - **Focus Launched Window**: Focus on newly launched windows. Removes the annoying window-ready notification.
+
 </details>
   
 ## Recommended Extensions for better experience
@@ -67,12 +66,12 @@ flatpak override --user --filesystem=xdg-config/gtk-4.0:ro
 flatpak override --user --filesystem=xdg-config/environment.d/:ro
 flatpak override --user --filesystem=$HOME/.local/share/gnome-shell/extensions/kiwi@kemma/:ro
 ```
+
 </details>
 
 ## Contributing Translations
 
 Want to help translate Kiwi to your language? See the [translation guide](translating/README.md) for instructions.
-
 
 ## Advanced
 
@@ -83,5 +82,5 @@ The `advanced/` folder contains additional features that cannot be distributed t
 - See [advanced/README.md](advanced/README.md) for detailed installation instructions
 
 ## License
-GPL-3.0-or-later. See [LICENSE](./LICENSE).
 
+GPL-3.0-or-later. See [LICENSE](./LICENSE).
