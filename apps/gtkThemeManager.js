@@ -77,11 +77,11 @@ class GtkThemeManager {
     async createUserGtkConfig() {
     try {
         const extension = Extension.lookupByUUID('kiwi@kemma');
-        const homeDir = GLib.get_home_dir();
+        const configDir = GLib.get_user_config_dir();
         
         // Create user GTK config directories if they don't exist
-        const gtk3ConfigDir = `${homeDir}/.config/gtk-3.0`;
-        const gtk4ConfigDir = `${homeDir}/.config/gtk-4.0`;
+        const gtk3ConfigDir = `${configDir}/gtk-3.0`;
+        const gtk4ConfigDir = `${configDir}/gtk-4.0`;
         
         GLib.mkdir_with_parents(gtk3ConfigDir, 0o755);
         GLib.mkdir_with_parents(gtk4ConfigDir, 0o755);
@@ -149,9 +149,9 @@ class GtkThemeManager {
 
     async removeUserGtkConfig() {
     try {
-        const homeDir = GLib.get_home_dir();
-        const gtk3UserPath = `${homeDir}/.config/gtk-3.0/gtk.css`;
-        const gtk4UserPath = `${homeDir}/.config/gtk-4.0/gtk.css`;
+        const configDir = GLib.get_user_config_dir();
+        const gtk3UserPath = `${configDir}/gtk-3.0/gtk.css`;
+        const gtk4UserPath = `${configDir}/gtk-4.0/gtk.css`;
         
         // Remove our imports from both files
         for (const path of [gtk3UserPath, gtk4UserPath]) {
