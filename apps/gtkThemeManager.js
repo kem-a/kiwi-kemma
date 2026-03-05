@@ -3,18 +3,18 @@
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 let gtkThemeManager = null;
 
 class GtkThemeManager {
-    constructor() {
+    constructor(ext) {
+        this._extension = ext;
         this._settings = null;
         this._settingsChangedId = null;
     }
 
     async updateGtkCss() {
-        const extension = Extension.lookupByUUID('kiwi@kemma');
+        const extension = this._extension;
         const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
         const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
         const buttonType = this._settings.get_string('button-type');
@@ -76,7 +76,7 @@ class GtkThemeManager {
 
     async createUserGtkConfig() {
     try {
-        const extension = Extension.lookupByUUID('kiwi@kemma');
+        const extension = this._extension;
         const configDir = GLib.get_user_config_dir();
         
         // Create user GTK config directories if they don't exist
@@ -199,7 +199,7 @@ class GtkThemeManager {
 
     enable() {
         if (!this._settings) {
-            this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
+            this._settings = this._extension.getSettings();
             this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
                 if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
                     this.updateGtkCss().catch(error => {
@@ -226,12 +226,14 @@ class GtkThemeManager {
         this.removeUserGtkConfig().catch(error => {
             console.error(`[Kiwi] Error in disable cleanup: ${error}`);
         });
+
+        this._extension = null;
     }
 }
 
-export function enable() {
+export function enable(ext) {
     if (!gtkThemeManager) {
-        gtkThemeManager = new GtkThemeManager();
+        gtkThemeManager = new GtkThemeManager(ext);
         gtkThemeManager.enable();
     }
 }

@@ -10,23 +10,23 @@ import Clutter from 'gi://Clutter';
 import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
-import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 let controlsIndicator = null;
+let _extension = null;
 
 const WindowControlsIndicator = GObject.registerClass(
 class WindowControlsIndicator extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'window-controls', false);
 
-        this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
+        this._settings = _extension.getSettings();
         this._settingsChangedId = this._settings.connect('changed', (_, key) => {
             if (key === 'button-type') this._updateAllIcons();
             else if (key === 'button-size') this._updateButtonSizeClass();
             else if (key === 'show-window-controls' || key === 'enable-app-window-buttons') this._updateVisibility();
         });
 
-    this._iconPath = Extension.lookupByUUID('kiwi@kemma').path;
+    this._iconPath = _extension.path;
     this._iconsRootPath = `${this._iconPath}/icons`;
         this._box = new St.BoxLayout({ style_class: 'window-controls-box' });
         this.add_child(this._box);
@@ -470,7 +470,8 @@ class WindowControlsIndicator extends PanelMenu.Button {
     }
 });
 
-export function enable() {
+export function enable(ext) {
+    if (ext) _extension = ext;
     if (!controlsIndicator) {
         controlsIndicator = new WindowControlsIndicator();
         
@@ -490,4 +491,5 @@ export function disable() {
         controlsIndicator.destroy();
         controlsIndicator = null;
     }
+    _extension = null;
 }

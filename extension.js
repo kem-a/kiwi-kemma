@@ -62,7 +62,7 @@ export default class KiwiExtension extends Extension {
 
         if (key === 'button-type' && this._settings.get_boolean('show-window-controls')) {
             windowControlsDisable();
-            windowControlsEnable();
+            windowControlsEnable(this);
         }
 
     // GTK theme updates are handled by gtkThemeManager module
@@ -115,7 +115,7 @@ export default class KiwiExtension extends Extension {
         }
 
         if (this._settings.get_boolean('show-window-controls') && this._settings.get_boolean('enable-app-window-buttons')) {
-            windowControlsEnable();
+            windowControlsEnable(this);
         } else {
             windowControlsDisable();
         }
@@ -158,7 +158,7 @@ export default class KiwiExtension extends Extension {
 
         // Firefox styling manager
         if (this._settings.get_boolean('enable-firefox-styling'))
-            firefoxThemeManagerEnable();
+            firefoxThemeManagerEnable(this);
         else
             firefoxThemeManagerDisable();
 
@@ -180,10 +180,10 @@ export default class KiwiExtension extends Extension {
         this._settingsChangedId = this._settings.connect('changed', (settings, key) => this._on_settings_changed(key));
         
         // Enable GTK theme manager
-        gtkThemeManagerEnable();
+        gtkThemeManagerEnable(this);
         // Enable Firefox theme manager based on setting
         if (this._settings.get_boolean('enable-firefox-styling'))
-            firefoxThemeManagerEnable();
+            firefoxThemeManagerEnable(this);
 
         focusLaunchedWindowEnable();
         

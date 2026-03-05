@@ -3,20 +3,20 @@
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 let _manager = null;
 const KIWI_MARKER_FILENAME = '.kiwi-managed';
 
 class FirefoxThemeManager {
-    constructor() {
+    constructor(ext) {
+        this._extension = ext;
         this._settings = null;
         this._settingsChangedId = null;
     }
 
     enable() {
         if (!this._settings) {
-            this._settings = Extension.lookupByUUID('kiwi@kemma').getSettings();
+            this._settings = this._extension.getSettings();
             this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
                 if (key === 'enable-firefox-styling' || key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
                     this.updateFirefoxCss().catch(e => console.error(`[Kiwi] FirefoxTheme update error: ${e}`));
@@ -34,6 +34,8 @@ class FirefoxThemeManager {
         }
         // Remove our import and files
         this.removeFirefoxCss().catch(e => console.error(`[Kiwi] FirefoxTheme disable cleanup error: ${e}`));
+
+        this._extension = null;
     }
 
     async updateFirefoxCss() {
@@ -57,7 +59,7 @@ class FirefoxThemeManager {
         if (!profile)
             return;
 
-        const ext = Extension.lookupByUUID('kiwi@kemma');
+        const ext = this._extension;
         const iconsRoot = `${ext.path}/icons`;
 
         try {
@@ -246,9 +248,9 @@ class FirefoxThemeManager {
     // removed async reader; only sync reads are used for small files
 }
 
-export function enable() {
+export function enable(ext) {
     if (!_manager) {
-        _manager = new FirefoxThemeManager();
+        _manager = new FirefoxThemeManager(ext);
         _manager.enable();
     }
 }
