@@ -22,56 +22,92 @@ let lastFullscreenState = false; // edge-detect fullscreen state changes
 
 // Blur state
 let blurEffect = null;
+let blurBackgroundGroup = null;
 let blurWidget = null;
-let blurSizeSignal = null;
+let blurSizeSignals = [];
 
 // --- Panel blur helpers ---
+// Uses the same approach as blur-my-shell: a Meta.BackgroundGroup (width/height 0)
+// containing an St.Widget with Shell.BlurEffect, inserted at index 0 of panelBox.
+// Meta.BackgroundGroup doesn't participate in layout allocation, so it won't
+// create a "second panel" like a bare St.Widget would.
 
 function createBlurEffect() {
     destroyBlurEffect();
 
     const panel = Main.panel;
-    const panelBox = panel.get_parent();
+    const panelBox = panel?.get_parent();
     if (!panel || !panelBox) return;
+
+    // Container that doesn't affect layout
+    blurBackgroundGroup = new Meta.BackgroundGroup({
+        name: 'kiwi-panel-blur-group',
+        width: 0,
+        height: 0,
+    });
+
+    // Widget sized to match panel — carries the blur effect
+    blurWidget = new St.Widget({ name: 'kiwi-panel-blur' });
 
     blurEffect = new Shell.BlurEffect({
         mode: Shell.BlurMode.BACKGROUND,
         radius: 30,
-        brightness: 0.6,
-    });
-
-    blurWidget = new St.Widget({
-        name: 'kiwi-panel-blur',
-        x: panel.x,
-        y: panel.y,
-        width: panel.width,
-        height: panel.height,
+        brightness: 1.0,
     });
     blurWidget.add_effect(blurEffect);
-    panelBox.insert_child_at_index(blurWidget, 0);
 
-    // Keep blur widget sized/positioned to match panel
-    blurSizeSignal = panel.connect('notify::allocation', () => {
-        if (blurWidget) {
-            blurWidget.set_position(panel.x, panel.y);
-            blurWidget.set_size(panel.width, panel.height);
-        }
-    });
+    blurBackgroundGroup.insert_child_at_index(blurWidget, 0);
+    panelBox.insert_child_at_index(blurBackgroundGroup, 0);
+
+    // Size/position the blur widget to match the panel
+    _updateBlurSize();
+
+    // Track panel position/size changes
+    blurSizeSignals.push(
+        panel.connect('notify::position', _updateBlurSize),
+        panel.connect('notify::size', _updateBlurSize),
+    );
+    blurSizeSignals.push(
+        panelBox.connect('notify::size', _updateBlurSize),
+        panelBox.connect('notify::position', _updateBlurSize),
+    );
+}
+
+function _updateBlurSize() {
+    const panel = Main.panel;
+    if (!blurWidget || !panel) return;
+
+    blurWidget.set_position(panel.x, panel.y);
+    blurWidget.set_size(panel.width, panel.height);
 }
 
 function destroyBlurEffect() {
-    if (blurSizeSignal) {
-        const panel = Main.panel;
+    const panel = Main.panel;
+    const panelBox = panel?.get_parent();
+
+    // Disconnect size tracking signals
+    if (blurSizeSignals.length > 0) {
+        // First two signals are on the panel, last two on panelBox
         if (panel) {
-            panel.disconnect(blurSizeSignal);
+            try { panel.disconnect(blurSizeSignals[0]); } catch (_) {}
+            try { panel.disconnect(blurSizeSignals[1]); } catch (_) {}
         }
-        blurSizeSignal = null;
+        if (panelBox) {
+            try { panelBox.disconnect(blurSizeSignals[2]); } catch (_) {}
+            try { panelBox.disconnect(blurSizeSignals[3]); } catch (_) {}
+        }
+        blurSizeSignals = [];
     }
 
-    if (blurWidget) {
-        blurWidget.destroy();
-        blurWidget = null;
+    if (blurBackgroundGroup) {
+        if (panelBox) {
+            try { panelBox.remove_child(blurBackgroundGroup); } catch (_) {}
+        }
+        blurBackgroundGroup.destroy_all_children();
+        blurBackgroundGroup.destroy();
+        blurBackgroundGroup = null;
     }
+    blurWidget = null;
     blurEffect = null;
 }
 
@@ -158,10 +194,10 @@ function updatePanelStyle(alpha = null) {
             }
         }
         
-        // In overview, always transparent — show blur if enabled
+        // In overview, always transparent — hide blur
         if (Main.overview.visible) {
             panel.set_style('background-color: transparent !important;');
-            updateBlurVisibility(settings?.get_boolean('panel-blur'));
+            updateBlurVisibility(false);
             panel.queue_redraw();
             return;
         }
