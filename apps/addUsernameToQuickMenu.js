@@ -31,36 +31,47 @@ class AddUsernameToQuickMenu extends St.Widget {
         // Initially hide the actor
         this.visible = false;
 
-        // Start with the label translated fully to the right
-        this._usernameLabel.translation_x = this._usernameLabel.width;
+        this._mappedId = null;
     }
 
     animateIn() {
         // Ensure the actor is visible
         this.visible = true;
 
-        // Wait for the actor to be allocated to get its width
-        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-            // Get the full width of the label
-            let [, naturalWidth] = this._usernameLabel.get_preferred_width(-1);
-
-            // Set the container's width to the label's width
-            this.set_width(naturalWidth);
-
-            // Start the label off-screen to the right
-            this._usernameLabel.translation_x = naturalWidth;
-
-            // Animate the label sliding in from right to left
-            this._usernameLabel.ease({
-                translation_x: 0,
-                duration: 250, // Set duration to 1000 milliseconds
-                mode: Clutter.AnimationMode.LINEAR, // Constant speed
-                onComplete: () => {
-                    this._usernameLabel.translation_x = 0;
-                },
+        // Wait until the widget is mapped (on stage) before querying size
+        if (this.mapped) {
+            this._startSlideIn();
+        } else {
+            this._mappedId = this.connect('notify::mapped', () => {
+                if (this.mapped) {
+                    if (this._mappedId) {
+                        this.disconnect(this._mappedId);
+                        this._mappedId = null;
+                    }
+                    this._startSlideIn();
+                }
             });
+        }
+    }
 
-            return GLib.SOURCE_REMOVE; // Stop the idle callback
+    _startSlideIn() {
+        // Get the full width of the label
+        let [, naturalWidth] = this._usernameLabel.get_preferred_width(-1);
+
+        // Set the container's width to the label's width
+        this.set_width(naturalWidth);
+
+        // Start the label off-screen to the right
+        this._usernameLabel.translation_x = naturalWidth;
+
+        // Animate the label sliding in from right to left
+        this._usernameLabel.ease({
+            translation_x: 0,
+            duration: 250,
+            mode: Clutter.AnimationMode.LINEAR,
+            onComplete: () => {
+                this._usernameLabel.translation_x = 0;
+            },
         });
     }
 
@@ -88,6 +99,11 @@ class AddUsernameToQuickMenu extends St.Widget {
     }
 
     destroy() {
+        if (this._mappedId) {
+            this.disconnect(this._mappedId);
+            this._mappedId = null;
+        }
+        this._usernameLabel.remove_all_transitions();
         super.destroy();
     }
 });
@@ -109,12 +125,11 @@ export function enable() {
 
 export function disable() {
     if (addUsernameInstance) {
-        // Animate the username sliding out, then remove it
-        addUsernameInstance.animateOut(() => {
-            const QuickSettingsMenu = Main.panel.statusArea.quickSettings;
-            QuickSettingsMenu._indicators.remove_child(addUsernameInstance);
-            addUsernameInstance.destroy();
-            addUsernameInstance = null;
-        });
+        const instance = addUsernameInstance;
+        addUsernameInstance = null;
+
+        const QuickSettingsMenu = Main.panel.statusArea.quickSettings;
+        QuickSettingsMenu._indicators.remove_child(instance);
+        instance.destroy();
     }
 }
