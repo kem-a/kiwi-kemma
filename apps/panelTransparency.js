@@ -6,6 +6,7 @@ import GLib from 'gi://GLib';
 import St from 'gi://St';
 import Gio from 'gi://Gio';
 import Meta from 'gi://Meta';
+import Shell from 'gi://Shell';
 
 let settings;
 let windowSignals = [];
@@ -18,6 +19,168 @@ let timeoutId;
 let safetyIntervalId;
 let lastForcedAlpha = null; // remember last alpha decided by logic (touch/fullscreen)
 let lastFullscreenState = false; // edge-detect fullscreen state changes
+
+// Blur state
+let blurEffect = null;
+let blurBackgroundGroup = null;
+let blurWidget = null;
+let blurSizeSignals = [];
+let blurPaintSignals = []; // paint signal connections to force blur repaint
+
+// --- Panel blur helpers ---
+// Uses the same approach as blur-my-shell: a Meta.BackgroundGroup (width/height 0)
+// containing an St.Widget with Shell.BlurEffect, inserted at index 0 of panelBox.
+// Meta.BackgroundGroup doesn't participate in layout allocation, so it won't
+// create a "second panel" like a bare St.Widget would.
+
+function createBlurEffect() {
+    destroyBlurEffect();
+
+    const panel = Main.panel;
+    const panelBox = panel?.get_parent();
+    if (!panel || !panelBox) return;
+
+    // Container that doesn't affect layout
+    blurBackgroundGroup = new Meta.BackgroundGroup({
+        name: 'kiwi-panel-blur-group',
+        width: 0,
+        height: 0,
+    });
+
+    // Widget sized to match panel — carries the blur effect
+    blurWidget = new St.Widget({ name: 'kiwi-panel-blur' });
+
+    blurEffect = new Shell.BlurEffect({
+        mode: Shell.BlurMode.BACKGROUND,
+        radius: 30,
+        brightness: 1.0,
+    });
+    blurWidget.add_effect(blurEffect);
+
+    blurBackgroundGroup.insert_child_at_index(blurWidget, 0);
+    panelBox.insert_child_at_index(blurBackgroundGroup, 0);
+
+    // Size/position the blur widget to match the panel
+    _updateBlurSize();
+
+    // Track panel position/size changes
+    blurSizeSignals.push(
+        panel.connect('notify::position', _updateBlurSize),
+        panel.connect('notify::size', _updateBlurSize),
+    );
+    blurSizeSignals.push(
+        panelBox.connect('notify::size', _updateBlurSize),
+        panelBox.connect('notify::position', _updateBlurSize),
+    );
+
+    // Force blur repaint when background actors repaint.
+    // Shell.BlurEffect with BACKGROUND mode relies on reading the framebuffer
+    // beneath the widget, but the compositor's clipped-redraws optimization
+    // often skips repainting the blur when only the background changes.
+    // This is the same workaround used by blur-my-shell (GNOME Shell #2857).
+    _connectPaintSignals();
+}
+
+function _connectPaintSignals() {
+    _disconnectPaintSignals();
+    if (!blurEffect) return;
+
+    const backgroundGroup = Main.layoutManager._backgroundGroup;
+    if (!backgroundGroup) return;
+
+    // Connect to each current background actor
+    for (const bg of backgroundGroup) {
+        _connectBgActor(bg);
+    }
+
+    // Re-connect when background actors are added/removed (monitor or wallpaper changes)
+    const addId = backgroundGroup.connect('child-added', (_group, child) => {
+        _connectBgActor(child);
+    });
+    const removeId = backgroundGroup.connect('child-removed', (_group, child) => {
+        // Remove entries for the departing actor (don't disconnect — it's already gone)
+        blurPaintSignals = blurPaintSignals.filter(s => s.actor !== child);
+    });
+    blurPaintSignals.push({ actor: backgroundGroup, id: addId });
+    blurPaintSignals.push({ actor: backgroundGroup, id: removeId });
+
+    // Also repaint when the stage is painted (catches remaining cases)
+    const stage = global.stage;
+    if (stage) {
+        const id = stage.connect('after-paint', () => {
+            if (blurEffect && blurWidget?.visible)
+                blurEffect.queue_repaint();
+        });
+        blurPaintSignals.push({ actor: stage, id });
+    }
+}
+
+function _connectBgActor(bg) {
+    const contentId = bg.connect('notify::content', () => {
+        if (blurEffect) blurEffect.queue_repaint();
+    });
+    // Auto-cleanup when the actor is destroyed (avoids accessing disposed objects)
+    const destroyId = bg.connect('destroy', () => {
+        blurPaintSignals = blurPaintSignals.filter(s => s.actor !== bg);
+    });
+    blurPaintSignals.push({ actor: bg, id: contentId });
+    blurPaintSignals.push({ actor: bg, id: destroyId });
+}
+
+function _disconnectPaintSignals() {
+    // Copy and clear first so destroy-signal callbacks don't mutate mid-iteration
+    const signals = blurPaintSignals;
+    blurPaintSignals = [];
+    for (const { actor, id } of signals) {
+        try { actor.disconnect(id); } catch (_) {}
+    }
+}
+
+function _updateBlurSize() {
+    const panel = Main.panel;
+    if (!blurWidget || !panel) return;
+
+    blurWidget.set_position(panel.x, panel.y);
+    blurWidget.set_size(panel.width, panel.height);
+}
+
+function destroyBlurEffect() {
+    const panel = Main.panel;
+    const panelBox = panel?.get_parent();
+
+    // Disconnect size tracking signals
+    if (blurSizeSignals.length > 0) {
+        // First two signals are on the panel, last two on panelBox
+        if (panel) {
+            try { panel.disconnect(blurSizeSignals[0]); } catch (_) {}
+            try { panel.disconnect(blurSizeSignals[1]); } catch (_) {}
+        }
+        if (panelBox) {
+            try { panelBox.disconnect(blurSizeSignals[2]); } catch (_) {}
+            try { panelBox.disconnect(blurSizeSignals[3]); } catch (_) {}
+        }
+        blurSizeSignals = [];
+    }
+
+    _disconnectPaintSignals();
+
+    if (blurBackgroundGroup) {
+        if (panelBox) {
+            try { panelBox.remove_child(blurBackgroundGroup); } catch (_) {}
+        }
+        blurBackgroundGroup.destroy_all_children();
+        blurBackgroundGroup.destroy();
+        blurBackgroundGroup = null;
+    }
+    blurWidget = null;
+    blurEffect = null;
+}
+
+function updateBlurVisibility(visible) {
+    if (blurWidget) {
+        blurWidget.visible = visible;
+    }
+}
 
 // Panel color fix helper
 function applyPanelColorFix() {
@@ -96,9 +259,10 @@ function updatePanelStyle(alpha = null) {
             }
         }
         
-        // In overview, always transparent
+        // In overview, always transparent — hide blur
         if (Main.overview.visible) {
             panel.set_style('background-color: transparent !important;');
+            updateBlurVisibility(false);
             panel.queue_redraw();
             return;
         }
@@ -107,6 +271,7 @@ function updatePanelStyle(alpha = null) {
         if (fullscreenNow) {
             // Clear any inline style to let CSS rule take effect
             panel.set_style('');
+            updateBlurVisibility(false);
             panel.queue_redraw();
             return;
         }
@@ -122,6 +287,7 @@ function updatePanelStyle(alpha = null) {
 
         if (!settings?.get_boolean('panel-transparency')) {
             panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
+            updateBlurVisibility(false);
             panel.queue_redraw();
             return;
         }
@@ -132,6 +298,10 @@ function updatePanelStyle(alpha = null) {
         const opacity = (alpha !== null ? alpha : (lastForcedAlpha !== null ? lastForcedAlpha : settings.get_int('panel-transparency-level') / 100));
         const newStyle = `background-color: rgba(${r}, ${g}, ${b}, ${opacity}) !important;`;
         
+        // Show/hide blur regardless of whether style string changed
+        const blurEnabled = settings?.get_boolean('panel-blur');
+        updateBlurVisibility(blurEnabled && opacity < 1.0);
+
         if (panel.get_style() !== newStyle) {
             panel.set_style(newStyle);
             panel.queue_redraw();
@@ -291,6 +461,14 @@ function setupSignals() {
         }),
         settings.connect('changed::panel-color-inherit', () => {
             applyPanelColorFix();
+        }),
+        settings.connect('changed::panel-blur', () => {
+            if (settings.get_boolean('panel-blur')) {
+                createBlurEffect();
+                checkWindowTouchingPanel();
+            } else {
+                destroyBlurEffect();
+            }
         })
     ];
 
@@ -398,6 +576,11 @@ export function enable(_settings) {
     // Apply panel color fix on startup
     applyPanelColorFix();
 
+    // Create blur effect if blur is enabled
+    if (settings.get_boolean('panel-blur')) {
+        createBlurEffect();
+    }
+
     timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         checkWindowTouchingPanel();
         timeoutId = null;
@@ -434,6 +617,9 @@ export function disable() {
         interfaceSettingsSignal = null;
     }
     interfaceSettings = null;
+
+    // Destroy blur effect
+    destroyBlurEffect();
 
     // Remove CSS class and force opaque restore
     const panel = Main.panel;
