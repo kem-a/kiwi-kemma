@@ -25,6 +25,7 @@ let blurEffect = null;
 let blurBackgroundGroup = null;
 let blurWidget = null;
 let blurSizeSignals = [];
+let blurPaintSignals = []; // paint signal connections to force blur repaint
 
 // --- Panel blur helpers ---
 // Uses the same approach as blur-my-shell: a Meta.BackgroundGroup (width/height 0)
@@ -71,6 +72,68 @@ function createBlurEffect() {
         panelBox.connect('notify::size', _updateBlurSize),
         panelBox.connect('notify::position', _updateBlurSize),
     );
+
+    // Force blur repaint when background actors repaint.
+    // Shell.BlurEffect with BACKGROUND mode relies on reading the framebuffer
+    // beneath the widget, but the compositor's clipped-redraws optimization
+    // often skips repainting the blur when only the background changes.
+    // This is the same workaround used by blur-my-shell (GNOME Shell #2857).
+    _connectPaintSignals();
+}
+
+function _connectPaintSignals() {
+    _disconnectPaintSignals();
+    if (!blurEffect) return;
+
+    const backgroundGroup = Main.layoutManager._backgroundGroup;
+    if (!backgroundGroup) return;
+
+    // Connect to each current background actor
+    for (const bg of backgroundGroup) {
+        _connectBgActor(bg);
+    }
+
+    // Re-connect when background actors are added/removed (monitor or wallpaper changes)
+    const addId = backgroundGroup.connect('child-added', (_group, child) => {
+        _connectBgActor(child);
+    });
+    const removeId = backgroundGroup.connect('child-removed', (_group, child) => {
+        // Remove entries for the departing actor (don't disconnect — it's already gone)
+        blurPaintSignals = blurPaintSignals.filter(s => s.actor !== child);
+    });
+    blurPaintSignals.push({ actor: backgroundGroup, id: addId });
+    blurPaintSignals.push({ actor: backgroundGroup, id: removeId });
+
+    // Also repaint when the stage is painted (catches remaining cases)
+    const stage = global.stage;
+    if (stage) {
+        const id = stage.connect('after-paint', () => {
+            if (blurEffect && blurWidget?.visible)
+                blurEffect.queue_repaint();
+        });
+        blurPaintSignals.push({ actor: stage, id });
+    }
+}
+
+function _connectBgActor(bg) {
+    const contentId = bg.connect('notify::content', () => {
+        if (blurEffect) blurEffect.queue_repaint();
+    });
+    // Auto-cleanup when the actor is destroyed (avoids accessing disposed objects)
+    const destroyId = bg.connect('destroy', () => {
+        blurPaintSignals = blurPaintSignals.filter(s => s.actor !== bg);
+    });
+    blurPaintSignals.push({ actor: bg, id: contentId });
+    blurPaintSignals.push({ actor: bg, id: destroyId });
+}
+
+function _disconnectPaintSignals() {
+    // Copy and clear first so destroy-signal callbacks don't mutate mid-iteration
+    const signals = blurPaintSignals;
+    blurPaintSignals = [];
+    for (const { actor, id } of signals) {
+        try { actor.disconnect(id); } catch (_) {}
+    }
 }
 
 function _updateBlurSize() {
@@ -98,6 +161,8 @@ function destroyBlurEffect() {
         }
         blurSizeSignals = [];
     }
+
+    _disconnectPaintSignals();
 
     if (blurBackgroundGroup) {
         if (panelBox) {
