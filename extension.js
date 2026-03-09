@@ -38,6 +38,7 @@ import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNot
 import { enable as quickSettingsMediaEnable, disable as quickSettingsMediaDisable } from './apps/quickSettingsMedia.js';
 import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
 import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './apps/launchpadApp.js';
+import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -168,6 +169,12 @@ export default class KiwiExtension extends Extension {
         else
             keyboardIndicatorDisable();
 
+        // Dock blur
+        if (this._settings.get_boolean('dock-blur'))
+            dockBlurEnable();
+        else
+            dockBlurDisable();
+
         // Launchpad app
         if (this._settings.get_boolean('enable-launchpad-app'))
             launchpadAppEnable(this, gettextFunc);
@@ -218,6 +225,7 @@ export default class KiwiExtension extends Extension {
         quickSettingsMediaDisable();
         quickSettingsNotificationsDisable();
         launchpadAppDisable();
+        dockBlurDisable();
         this._settings = null;
     }
 }

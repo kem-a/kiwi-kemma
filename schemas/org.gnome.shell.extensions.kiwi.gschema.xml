@@ -153,6 +153,13 @@
         <description>Apply a blur effect behind the top panel when it is transparent.</description>
       </key>
       
+      <!-- Dock blur -->
+      <key name="dock-blur" type="b">
+        <default>false</default>
+        <summary>Dock Blur</summary>
+        <description>Apply a blur effect behind the Dash-to-Dock background.</description>
+      </key>
+
       <!-- Launchpad app -->
       <key name="enable-launchpad-app" type="b">
         <default>false</default>
