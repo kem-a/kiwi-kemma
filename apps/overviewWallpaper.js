@@ -70,7 +70,7 @@ function _cleanupCache() {
 }
 
 // Toggleable lightweight logger (kept silent by default to meet guideline: no excessive logging)
-function logDebug(_msg) { /* enable for troubleshooting: print(`[kiwi overview wallpaper] ${_msg}`); */ }
+function logDebug(_msg) {}
 
 function _ensureTargetDir() {
     try {
