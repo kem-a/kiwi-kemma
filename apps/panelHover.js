@@ -23,7 +23,7 @@ let windowCreatedHandler = null;
 let workspaceChangedHandler = null;
 let overviewShowingHandler = null;
 let overviewHiddenHandler = null;
-let activeWorkspaceHasFullscreen = false;
+let wsHasFullscreen = false;
 let hotCorner = null;
 let _enabled = false;
 let _hideTimeoutId = null;
@@ -71,7 +71,7 @@ function _cancelPeriodicCheck() {
 function _startPeriodicCheck() {
     _cancelPeriodicCheck();
     _periodCheckId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-        if (!_enabled || !activeWorkspaceHasFullscreen) {
+        if (!_enabled || !wsHasFullscreen) {
             _periodCheckId = null;
             return GLib.SOURCE_REMOVE;
         }
@@ -112,7 +112,7 @@ function _startPeriodicCheck() {
 }
 
 function _scheduleHideAfterDelay(force = false) {
-    if (!activeWorkspaceHasFullscreen) return;
+    if (!wsHasFullscreen) return;
     _cancelHideTimeout();
     _hideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, HIDE_DELAY_MS, () => {
         _hideTimeoutId = null;
@@ -288,13 +288,13 @@ function _createHoverArea() {
     // 3. Not needed since we want hover-based reveal, not pressure-based
 
     hoverArea.connect('enter-event', () => {
-        if (activeWorkspaceHasFullscreen) {
+        if (wsHasFullscreen) {
             _showPanelAnimated();
         }
     });
 
     hoverArea.connect('leave-event', () => {
-        if (activeWorkspaceHasFullscreen) {
+        if (wsHasFullscreen) {
             _scheduleHideAfterDelay();
         }
     });
@@ -374,7 +374,7 @@ function _recomputeFullscreenState() {
     }
 
     const hasFS = fullscreenWindows.size > 0;
-    activeWorkspaceHasFullscreen = hasFS;
+    wsHasFullscreen = hasFS;
     
     // Update panel behavior based on fullscreen state and overview visibility
     // Track idle source so it can be cancelled on disable
@@ -392,7 +392,7 @@ function _recomputeFullscreenState() {
                 _animating = false;
                 _setPanelAutoHide(false);
                 if (hotCorner) hotCorner.hide();
-            } else if (activeWorkspaceHasFullscreen) {
+            } else if (wsHasFullscreen) {
                 // In fullscreen, enable auto-hide and show hover area
                 _panelRevealed = false;
                 _animating = false;
@@ -470,12 +470,12 @@ export function enable() {
                 _cancelHideTimeout();
             });
             _panelBoxLeaveId = panelBox.connect('leave-event', () => {
-                if (activeWorkspaceHasFullscreen)
+                if (wsHasFullscreen)
                     _scheduleHideAfterDelay();
             });
             // If a panel button was clicked but doesn't open a menu, hide after release
             _panelBoxButtonReleaseId = panelBox.connect('button-release-event', () => {
-                if (activeWorkspaceHasFullscreen)
+                if (wsHasFullscreen)
                     _scheduleHideAfterDelay(true);
             });
         }
@@ -484,7 +484,7 @@ export function enable() {
     // Global stage capture to detect clicks outside panel
     try {
         _stageButtonReleaseId = global.stage.connect('button-release-event', (stage, event) => {
-            if (!activeWorkspaceHasFullscreen || !_panelRevealed) return Clutter.EVENT_PROPAGATE;
+            if (!wsHasFullscreen || !_panelRevealed) return Clutter.EVENT_PROPAGATE;
             
             // Check if any menu is actually open before hiding
             let menuActuallyOpen = false;
@@ -577,7 +577,7 @@ export function disable() {
     
     windowSignals.clear();
     fullscreenWindows.clear();
-    activeWorkspaceHasFullscreen = false;
+    wsHasFullscreen = false;
     _panelRevealed = false;
     _animating = false;
 

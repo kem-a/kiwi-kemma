@@ -13,8 +13,8 @@ let originalFormatFunction;
 let originalParent;
 let originalParentIndex;
 let originalMenuBoxStyle;
-let originalShouldShowNotificationSection;
-let originalShouldShowMediaSection;
+let origShowNotifSection;
+let origShowMediaSection;
 let removedSections = null; // { notification:{actor,index}, media:{actor,index}, messages:{actor,index} }
 let originalBannerBinProps; // { x_align, y_align, x_expand }
 let calendarActorRef; // preserved calendar actor to ensure visibility
@@ -189,10 +189,10 @@ export function enable() {
         detachOrHideSection('messages', '_messageList');
 
         // Preserve originals only once
-        if (!originalShouldShowNotificationSection)
-            originalShouldShowNotificationSection = dateMenu._shouldShowNotificationSection;
-        if (!originalShouldShowMediaSection)
-            originalShouldShowMediaSection = dateMenu._shouldShowMediaSection;
+        if (!origShowNotifSection)
+            origShowNotifSection = dateMenu._shouldShowNotificationSection;
+        if (!origShowMediaSection)
+            origShowMediaSection = dateMenu._shouldShowMediaSection;
 
         dateMenu._shouldShowNotificationSection = () => false;
         dateMenu._shouldShowMediaSection = () => false;
@@ -304,13 +304,13 @@ export function disable() {
     }
 
     // Restore predicate methods
-    if (originalShouldShowNotificationSection) {
-        dateMenu._shouldShowNotificationSection = originalShouldShowNotificationSection;
-        originalShouldShowNotificationSection = null;
+    if (origShowNotifSection) {
+        dateMenu._shouldShowNotificationSection = origShowNotifSection;
+        origShowNotifSection = null;
     }
-    if (originalShouldShowMediaSection) {
-        dateMenu._shouldShowMediaSection = originalShouldShowMediaSection;
-        originalShouldShowMediaSection = null;
+    if (origShowMediaSection) {
+        dateMenu._shouldShowMediaSection = origShowMediaSection;
+        origShowMediaSection = null;
     }
 
     // Restore style
@@ -385,10 +385,10 @@ function checkForNotifications() {
 
     // Also check if the original notification section would be visible
     // (this is the state before our calendar module hides it)
-    if (originalShouldShowNotificationSection && 
-        typeof originalShouldShowNotificationSection === 'function') {
+    if (origShowNotifSection && 
+        typeof origShowNotifSection === 'function') {
         try {
-            return originalShouldShowNotificationSection.call(dateMenu);
+            return origShowNotifSection.call(dateMenu);
         } catch (e) {
             // If there's an error, assume no notifications
         }

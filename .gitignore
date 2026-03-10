@@ -8,3 +8,5 @@ locale/
 *.png
 .github/*.md
 .vscode/
+icons/gtk3.css
+icons/gtk4.css
