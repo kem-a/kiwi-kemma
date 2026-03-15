@@ -480,6 +480,15 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         buttonsExpander.add_row(firefoxStylingSwitch);
         settings.bind('enable-firefox-styling', firefoxStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        // Thunderbird styling switch
+        const thunderbirdStylingSwitch = new Adw.SwitchRow({
+            title: _("Thunderbird Styling"),
+            subtitle: _("Apply macOS window control styling for Thunderbird."),
+            active: settings.get_boolean('enable-thunderbird-styling'),
+        });
+        buttonsExpander.add_row(thunderbirdStylingSwitch);
+        settings.bind('enable-thunderbird-styling', thunderbirdStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
         // No need to manage visibility; expander controls reveal
 
         // Button Type toggle group with round style
@@ -554,6 +563,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
                     settings.set_boolean('show-window-controls', false);
                 if (settings.get_boolean('enable-firefox-styling'))
                     settings.set_boolean('enable-firefox-styling', false);
+                if (settings.get_boolean('enable-thunderbird-styling'))
+                    settings.set_boolean('enable-thunderbird-styling', false);
             }
         });
 

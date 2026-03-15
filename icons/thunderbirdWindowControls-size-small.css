@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Thunderbird Window Controls - Small size overrides (14px) */
+
+#titlebar .titlebar-button {
+  background-size: 14px 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+#titlebar .titlebar-buttonbox,
+#titlebar .titlebar-buttonbox-container {
+  gap: 10px !important;
+}

@@ -1,0 +1,130 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Thunderbird Window Controls Theming (Kiwi - alt set) */
+
+/* Ensure the button box aligns items centrally */
+#titlebar .titlebar-buttonbox,
+#titlebar .titlebar-buttonbox-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 11px !important;
+  padding-inline-start: 8px;
+  padding-inline-end: 8px;
+}
+
+/* Reset native look and hide built-in icons to avoid double rendering */
+#titlebar .titlebar-button {
+  appearance: none !important;
+  -moz-appearance: none !important;
+  background: none !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: 16px 16px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  list-style-image: none !important;
+  width: 16px !important;
+  height: 16px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  -moz-window-dragging: drag !important;
+}
+#titlebar .titlebar-button .toolbarbutton-icon,
+#titlebar .titlebar-button image {
+  display: none !important;
+}
+
+/* Base images */
+#titlebar .titlebar-close {
+  background-image: image-set(
+    url("titlebuttons/button-close.png") 1x,
+    url("titlebuttons/button-close@2.png") 2x
+  ) !important;
+}
+#titlebar .titlebar-max {
+  background-image: image-set(
+    url("titlebuttons/button-maximize.png") 1x,
+    url("titlebuttons/button-maximize@2.png") 2x
+  ) !important;
+}
+#titlebar .titlebar-min {
+  background-image: image-set(
+    url("titlebuttons/button-minimize.png") 1x,
+    url("titlebuttons/button-minimize@2.png") 2x
+  ) !important;
+}
+#titlebar .titlebar-restore,
+:root[sizemode="maximized"] #titlebar .titlebar-max {
+  background-image: image-set(
+    url("titlebuttons/button-restore.png") 1x,
+    url("titlebuttons/button-restore@2.png") 2x
+  ) !important;
+}
+
+/* Only show restore when maximized; hide maximize then */
+#titlebar .titlebar-restore { display: none !important; }
+
+:root[sizemode="maximized"] #titlebar .titlebar-restore { display: inline-block !important; }
+
+:root[sizemode="maximized"] #titlebar .titlebar-max { display: none !important; }
+
+/* Per-button hover */
+#titlebar .titlebar-close:hover {
+  background-image: image-set(
+    url("titlebuttons/button-close-hover-alt.png") 1x,
+    url("titlebuttons/button-close-hover-alt@2.png") 2x
+  ) !important;
+}
+#titlebar .titlebar-max:hover {
+  background-image: image-set(
+    url("titlebuttons/button-maximize-hover-alt.png") 1x,
+    url("titlebuttons/button-maximize-hover-alt@2.png") 2x
+  ) !important;
+}
+#titlebar .titlebar-min:hover {
+  background-image: image-set(
+    url("titlebuttons/button-minimize-hover.png") 1x,
+    url("titlebuttons/button-minimize-hover@2.png") 2x
+  ) !important;
+}
+#titlebar .titlebar-restore:hover,
+:root[sizemode="maximized"] #titlebar .titlebar-max:hover {
+  background-image: image-set(
+    url("titlebuttons/button-restore-hover-alt.png") 1x,
+    url("titlebuttons/button-restore-hover-alt@2.png") 2x
+  ) !important;
+}
+
+/* Group hover (hovering any button hovers them all) */
+#titlebar .titlebar-buttonbox-container:hover .titlebar-close,
+#titlebar .titlebar-buttonbox:hover .titlebar-close {
+  background-image: image-set(
+    url("titlebuttons/button-close-hover-alt.png") 1x,
+    url("titlebuttons/button-close-hover-alt@2.png") 2x
+  ) !important;
+}
+#titlebar .titlebar-buttonbox-container:hover .titlebar-min,
+#titlebar .titlebar-buttonbox:hover .titlebar-min {
+  background-image: image-set(
+    url("titlebuttons/button-minimize-hover.png") 1x,
+    url("titlebuttons/button-minimize-hover@2.png") 2x
+  ) !important;
+}
+#titlebar .titlebar-buttonbox-container:hover .titlebar-max,
+#titlebar .titlebar-buttonbox:hover .titlebar-max {
+  background-image: image-set(
+    url("titlebuttons/button-maximize-hover-alt.png") 1x,
+    url("titlebuttons/button-maximize-hover-alt@2.png") 2x
+  ) !important;
+}
+#titlebar .titlebar-buttonbox-container:hover .titlebar-restore,
+#titlebar .titlebar-buttonbox:hover .titlebar-restore,
+:root[sizemode="maximized"] #titlebar .titlebar-buttonbox-container:hover .titlebar-max,
+:root[sizemode="maximized"] #titlebar .titlebar-buttonbox:hover .titlebar-max {
+  background-image: image-set(
+    url("titlebuttons/button-restore-hover-alt.png") 1x,
+    url("titlebuttons/button-restore-hover-alt@2.png") 2x
+  ) !important;
+}
