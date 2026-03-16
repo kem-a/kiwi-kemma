@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Thunderbird Hide Window Controls when Maximized (Kiwi) */
+
+:root[sizemode="maximized"] #titlebar .titlebar-buttonbox-container .titlebar-buttonbox {
+  display: none !important;
+}
+
+:root[sizemode="maximized"] #titlebar .titlebar-buttonbox-container {
+  padding-inline-start: 0px !important;
+  padding-inline-end: 0px !important;
+}
+
+:root[sizemode="maximized"] #titlebar .titlebar-spacer {
+  width: 0px !important;
+}

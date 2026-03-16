@@ -139,6 +139,13 @@
         <description>Manage Firefox userChrome.css to apply Kiwi window controls styling and hide Firefox window buttons when panel controls are shown.</description>
       </key>
 
+      <!-- Thunderbird integration -->
+      <key name="enable-thunderbird-styling" type="b">
+        <default>false</default>
+        <summary>Enable Thunderbird Styling</summary>
+        <description>Manage Thunderbird userChrome.css to apply Kiwi window controls styling and hide Thunderbird window buttons when panel controls are shown.</description>
+      </key>
+
       <!-- Panel color fix -->
       <key name="panel-color-inherit" type="b">
         <default>false</default>

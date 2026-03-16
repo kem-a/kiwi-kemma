@@ -31,6 +31,7 @@ import { enable as panelTransparencyEnable, disable as panelTransparencyDisable 
 import { enable as hideMinimizedWindowsEnable, disable as hideMinimizedWindowsDisable } from './apps/hideMinimizedWindows.js';
 import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } from './apps/gtkThemeManager.js';
 import { enable as firefoxThemeManagerEnable, disable as firefoxThemeManagerDisable } from './apps/firefoxThemeManager.js';
+import { enable as thunderbirdThemeManagerEnable, disable as thunderbirdThemeManagerDisable } from './apps/thunderbirdThemeManager.js';
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
@@ -163,6 +164,12 @@ export default class KiwiExtension extends Extension {
         else
             firefoxThemeManagerDisable();
 
+        // Thunderbird styling manager
+        if (this._settings.get_boolean('enable-thunderbird-styling'))
+            thunderbirdThemeManagerEnable(this);
+        else
+            thunderbirdThemeManagerDisable();
+
         // Keyboard indicator module (idempotent apply on general refresh)
         if (this._settings.get_boolean('keyboard-indicator'))
             keyboardIndicatorEnable(this._settings);
@@ -191,6 +198,9 @@ export default class KiwiExtension extends Extension {
         // Enable Firefox theme manager based on setting
         if (this._settings.get_boolean('enable-firefox-styling'))
             firefoxThemeManagerEnable(this);
+        // Enable Thunderbird theme manager based on setting
+        if (this._settings.get_boolean('enable-thunderbird-styling'))
+            thunderbirdThemeManagerEnable(this);
 
         focusLaunchedWindowEnable();
         
@@ -222,6 +232,7 @@ export default class KiwiExtension extends Extension {
         keyboardIndicatorDisable();
         gtkThemeManagerDisable();
         firefoxThemeManagerDisable();
+        thunderbirdThemeManagerDisable();
         quickSettingsMediaDisable();
         quickSettingsNotificationsDisable();
         launchpadAppDisable();
