@@ -404,7 +404,7 @@ class FullscreenWorkspaceManager {
     _cancelWorkspaceCleanup(workspaceIndex) {
         const sourceId = this._pendingCleanup.get(workspaceIndex);
         if (sourceId) {
-            GLib.source_remove(sourceId);
+            GLib.Source.remove(sourceId);
             this._pendingCleanup.delete(workspaceIndex);
         }
     }
@@ -624,7 +624,7 @@ class FullscreenWorkspaceManager {
     _cancelPendingIsolation(window) {
         const sourceId = this._pendingIsolation.get(window);
         if (sourceId) {
-            GLib.source_remove(sourceId);
+            GLib.Source.remove(sourceId);
             this._pendingIsolation.delete(window);
         }
     }
@@ -868,7 +868,7 @@ class FullscreenWorkspaceManager {
     _cancelPendingRestore(window) {
         const sourceId = this._pendingRestore.get(window);
         if (sourceId) {
-            GLib.source_remove(sourceId);
+            GLib.Source.remove(sourceId);
             this._pendingRestore.delete(window);
         }
     }
@@ -1055,37 +1055,37 @@ class FullscreenWorkspaceManager {
 
         // Cancel pending workspace check
         if (this._checkWorkspacesId !== 0) {
-            GLib.source_remove(this._checkWorkspacesId);
+            GLib.Source.remove(this._checkWorkspacesId);
             this._checkWorkspacesId = 0;
         }
 
         // Cancel all pending isolation timeouts
         for (const [, sourceId] of this._pendingIsolation) {
-            GLib.source_remove(sourceId);
+            GLib.Source.remove(sourceId);
         }
         this._pendingIsolation.clear();
 
         // Cancel all pending restore timeouts
         for (const [, sourceId] of this._pendingRestore) {
-            GLib.source_remove(sourceId);
+            GLib.Source.remove(sourceId);
         }
         this._pendingRestore.clear();
 
         // Cancel all pending cleanup timeouts
         for (const [, sourceId] of this._pendingCleanup) {
-            GLib.source_remove(sourceId);
+            GLib.Source.remove(sourceId);
         }
         this._pendingCleanup.clear();
 
         // Cancel all pending window created idle sources
         for (const [, sourceId] of this._pendingWindowCreated) {
-            GLib.source_remove(sourceId);
+            GLib.Source.remove(sourceId);
         }
         this._pendingWindowCreated.clear();
 
         // Cancel all pending window unmanaged idle sources
         for (const [, sourceId] of this._pendingWindowUnmanaged) {
-            GLib.source_remove(sourceId);
+            GLib.Source.remove(sourceId);
         }
         this._pendingWindowUnmanaged.clear();
 

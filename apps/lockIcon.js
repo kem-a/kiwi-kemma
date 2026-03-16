@@ -101,7 +101,7 @@ class LockIcon extends PanelMenu.Button {
 
     destroy() {
         if (this._timeoutId) {
-            GLib.source_remove(this._timeoutId);
+            GLib.Source.remove(this._timeoutId);
             this._timeoutId = null;
         }
         if (this._keymapChangedId) {

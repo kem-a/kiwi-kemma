@@ -254,7 +254,7 @@ function _disconnect() {
         _state.visibilityChangedId = 0;
     }
     if (_state?.idleId) {
-        GLib.source_remove(_state.idleId);
+        GLib.Source.remove(_state.idleId);
         _state.idleId = 0;
     }
 }

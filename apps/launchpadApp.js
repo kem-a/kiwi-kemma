@@ -62,7 +62,7 @@ function _queueIdle(callback) {
 
 function _clearMainLoopSources() {
     for (const id of _mainLoopSources)
-        GLib.source_remove(id);
+        GLib.Source.remove(id);
     _mainLoopSources.clear();
 }
 

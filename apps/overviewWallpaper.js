@@ -388,7 +388,7 @@ function _applyStylesheet() {
 
 function _queueRegenerate() {
     if (_timeoutId) {
-        GLib.source_remove(_timeoutId);
+        GLib.Source.remove(_timeoutId);
         _timeoutId = 0;
     }
     // Debounce multiple quick changes
@@ -402,7 +402,7 @@ function _queueRegenerate() {
 
 function _queueRegenerateAllVariants() {
     if (_timeoutAllId) {
-        GLib.source_remove(_timeoutAllId);
+        GLib.Source.remove(_timeoutAllId);
         _timeoutAllId = 0;
     }
     _timeoutAllId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
@@ -481,7 +481,7 @@ export function refresh() {
 
 export function disable() {
     if (_timeoutId) {
-        GLib.source_remove(_timeoutId);
+        GLib.Source.remove(_timeoutId);
         _timeoutId = 0;
     }
     // Disconnect wallpaper signals
@@ -512,7 +512,7 @@ export function disable() {
     }
     _currentAppliedPath = null;
     if (_timeoutAllId) {
-        GLib.source_remove(_timeoutAllId);
+        GLib.Source.remove(_timeoutAllId);
         _timeoutAllId = 0;
     }
     // Clear cached blurred images & meta files

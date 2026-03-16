@@ -442,7 +442,7 @@ function setupSignals() {
         lastForcedAlpha = null;
                 // Stop periodic checks before applying opaque style
                 if (safetyIntervalId) {
-                    GLib.source_remove(safetyIntervalId);
+                    GLib.Source.remove(safetyIntervalId);
                     safetyIntervalId = null;
                 }
                 setOpaqueImmediately();
@@ -597,11 +597,11 @@ export function enable(_settings) {
 
 export function disable() {
     if (timeoutId) {
-        GLib.source_remove(timeoutId);
+        GLib.Source.remove(timeoutId);
         timeoutId = null;
     }
     if (safetyIntervalId) {
-        GLib.source_remove(safetyIntervalId);
+        GLib.Source.remove(safetyIntervalId);
         safetyIntervalId = null;
     }
     

@@ -54,7 +54,7 @@ function setupNotificationIndicator() {
 function cleanupNotificationIndicator() {
     // Disconnect signals and clear intervals
     if (indicatorInsertTimeoutId) {
-        GLib.source_remove(indicatorInsertTimeoutId);
+        GLib.Source.remove(indicatorInsertTimeoutId);
         indicatorInsertTimeoutId = null;
     }
     notificationSignals.forEach(signal => {

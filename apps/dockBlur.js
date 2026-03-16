@@ -213,7 +213,7 @@ export function enable() {
 
 export function disable() {
     if (dockSearchId) {
-        GLib.source_remove(dockSearchId);
+        GLib.Source.remove(dockSearchId);
         dockSearchId = null;
     }
 

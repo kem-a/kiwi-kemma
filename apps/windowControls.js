@@ -169,7 +169,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
                 // When screen is unlocked, re-evaluate window state after a short delay
                 if (!this._screenShield.active) {
                     if (this._screenShieldTimeoutId) {
-                    GLib.source_remove(this._screenShieldTimeoutId);
+                    GLib.Source.remove(this._screenShieldTimeoutId);
                     this._screenShieldTimeoutId = null;
                 }
                     this._screenShieldTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
@@ -480,7 +480,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
 
     _clearCloseButtonDelay() {
         if (this._closeDelayTimeoutId) {
-            GLib.source_remove(this._closeDelayTimeoutId);
+            GLib.Source.remove(this._closeDelayTimeoutId);
             this._closeDelayTimeoutId = null;
         }
         if (this._closeButtonDelayActive) {
@@ -572,7 +572,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         if (this._overviewShowingId) Main.overview.disconnect(this._overviewShowingId);
         if (this._overviewHiddenId) Main.overview.disconnect(this._overviewHiddenId);
         if (this._screenShieldActiveId && this._screenShield) this._screenShield.disconnect(this._screenShieldActiveId);
-    if (this._screenShieldTimeoutId) { GLib.source_remove(this._screenShieldTimeoutId); this._screenShieldTimeoutId = null; }
+    if (this._screenShieldTimeoutId) { GLib.Source.remove(this._screenShieldTimeoutId); this._screenShieldTimeoutId = null; }
 
         if (this._focusWindow) {
             if (this._focusWindowMaximizeHorizSignal) this._focusWindow.disconnect(this._focusWindowMaximizeHorizSignal);
