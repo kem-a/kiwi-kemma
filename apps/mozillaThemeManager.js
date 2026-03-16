@@ -30,7 +30,7 @@ export class MozillaThemeManager {
         if (!this._settings) {
             this._settings = this._extension.getSettings();
             this._settingsChangedId = this._settings.connect('changed', (_settings, key) => {
-                if (key === this._config.settingsKey || key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
+                if (key === this._config.settingsKey || key === 'enable-app-window-buttons' || key === 'window-button-style' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
                     this.updateCss().catch(e => console.error(`[Kiwi] ${this._config.logPrefix} update error: ${e}`));
                 }
             });
@@ -54,7 +54,8 @@ export class MozillaThemeManager {
             return;
         }
         const enableStyling = this._settings.get_boolean(this._config.settingsKey);
-        const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
+        const windowButtonStyle = this._settings.get_string('window-button-style');
+        const enableAppButtons = windowButtonStyle !== 'off';
         const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
         const buttonType = this._settings.get_string('button-type');
         const buttonSize = this._settings.get_string('button-size');

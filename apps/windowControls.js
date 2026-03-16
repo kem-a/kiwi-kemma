@@ -30,7 +30,10 @@ class WindowControlsIndicator extends PanelMenu.Button {
         super._init(0.0, 'window-controls', false);
 
         this._settings = _extension.getSettings();
-        this._useMacosIcons = this._settings.get_boolean('enable-app-window-buttons');
+        this._windowButtonStyle = this._settings.get_string('window-button-style');
+        this._useMacosIcons = this._windowButtonStyle === 'macos';
+        this._useKdeIcons = this._windowButtonStyle === 'kde';
+        this._useCustomIcons = this._useMacosIcons || this._useKdeIcons;
         this._settingsChangedId = this._settings.connect('changed', (_, key) => {
             if (key === 'button-type') this._updateAllIcons();
             else if (key === 'button-size') this._updateButtonSizeClass();
@@ -106,12 +109,17 @@ class WindowControlsIndicator extends PanelMenu.Button {
                 if (this._useMacosIcons) {
                     this._isContainerHovered = true;
                     this._updateAllIcons();
+                } else if (this._useKdeIcons) {
+                    // KDE mode: per-button hover only, update just this button
+                    this._updateButtonIcon(buttonType);
                 }
             });
             button.connect('leave-event', () => {
                 if (this._useMacosIcons) {
                     this._isContainerHovered = false;
                     this._updateAllIcons();
+                } else if (this._useKdeIcons) {
+                    this._updateButtonIcon(buttonType);
                 }
             });
         });
@@ -232,16 +240,21 @@ class WindowControlsIndicator extends PanelMenu.Button {
             maximize: this._maximizeButton,
         };
 
-        if (this._useMacosIcons) {
-            // macOS mode: follow system button-layout order and enabled buttons
+        if (this._useCustomIcons) {
+            // macOS/KDE mode: follow system button-layout order and enabled buttons
             for (const name of this._buttonLayout)
                 this._box.add_child(buttonMap[name]);
             this._box.remove_style_class_name('system-mode');
+            if (this._useKdeIcons)
+                this._box.add_style_class_name('kde-mode');
+            else
+                this._box.remove_style_class_name('kde-mode');
         } else {
             // System mode: follow WM button-layout order exactly
             for (const name of this._buttonLayout)
                 this._box.add_child(buttonMap[name]);
             this._box.add_style_class_name('system-mode');
+            this._box.remove_style_class_name('kde-mode');
         }
     }
 
@@ -314,7 +327,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
             // Force base icon, ignore hover/active state
             button.reactive = false; // makes it "insensitive" visually via St
             button.remove_style_pseudo_class('active');
-            if (this._useMacosIcons) {
+            if (this._useCustomIcons) {
                 const iconName = 'button-minimize-backdrop.png';
                 this._setButtonIcon(button, iconName);
             } else {
@@ -331,9 +344,12 @@ class WindowControlsIndicator extends PanelMenu.Button {
         // For maximize button: show restore icon when window is maximized OR fullscreen
         const buttonName = (buttonType === 'maximize' && (isMaximized || isFullscreen)) ? 'restore' : buttonType;
 
-        if (this._useMacosIcons) {
-            // macOS mode: file-based PNG icons with container hover
-            let isHovered = button.hover || this._isContainerHovered;
+        if (this._useCustomIcons) {
+            // macOS/KDE mode: file-based PNG icons
+            let isHovered = button.hover;
+            // macOS: container hover shows all buttons hovered; KDE: per-button only
+            if (this._useMacosIcons)
+                isHovered = isHovered || this._isContainerHovered;
             if (this._suppressHoverUntilPointerMove)
                 isHovered = false;
             const state = button.has_style_pseudo_class('active') ? '-active' : isHovered ? '-hover' : '';
@@ -516,7 +532,12 @@ class WindowControlsIndicator extends PanelMenu.Button {
     _getIconFile(iconName, scaleFactor = 1) {
         const buttonType = this._settings.get_string('button-type');
         const isAltTheme = buttonType === 'titlebuttons-alt';
-        const baseFolder = isAltTheme ? 'titlebuttons' : buttonType;
+        let baseFolder;
+        if (this._useKdeIcons) {
+            baseFolder = 'titlebuttons-kde';
+        } else {
+            baseFolder = isAltTheme ? 'titlebuttons' : buttonType;
+        }
         const basePath = `${this._iconsRootPath}/${baseFolder}`;
 
         const getScaledName = (name) => {
@@ -526,7 +547,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
             return name;
         };
 
-        if (isAltTheme) {
+        if (isAltTheme && !this._useKdeIcons) {
             const altName = this._getAltVariant(iconName);
             if (altName) {
                 const scaledAltName = getScaledName(altName);

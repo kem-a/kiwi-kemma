@@ -62,13 +62,13 @@ export default class KiwiExtension extends Extension {
             }
         }
 
-        if ((key === 'button-type' || key === 'enable-app-window-buttons') && this._settings.get_boolean('show-window-controls')) {
+        if ((key === 'button-type' || key === 'enable-app-window-buttons' || key === 'window-button-style') && this._settings.get_boolean('show-window-controls')) {
             windowControlsDisable();
             windowControlsEnable(this);
         }
 
     // GTK theme updates are handled by gtkThemeManager module
-        // No need to handle 'enable-app-window-buttons' or 'button-type' here for GTK updates
+        // No need to handle 'enable-app-window-buttons', 'window-button-style' or 'button-type' here for GTK updates
 
         if (this._settings.get_boolean('move-window-to-new-workspace')) {
             moveFullscreenEnable();

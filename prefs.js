@@ -444,44 +444,48 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         settingsPage.add(buttonTypeGroup);
 
-        // Main toggle as an expander with sub-options
-        const buttonsExpander = new Adw.ExpanderRow({
-            title: _("Enable macOS Window Buttons"),
-            subtitle: _("Replace window control buttons in application windows with macOS style"),
-            expanded: settings.get_boolean('enable-app-window-buttons'),
-            show_enable_switch: true,
-            enable_expansion: settings.get_boolean('enable-app-window-buttons'),
+        // Main style selector: Off / macOS / KDE
+        const styleRow = new Adw.ActionRow({
+            title: _("Window Button Style"),
         });
-        buttonTypeGroup.add(buttonsExpander);
-        // Keep expander in sync with setting
-        settings.bind('enable-app-window-buttons', buttonsExpander, 'expanded', Gio.SettingsBindFlags.GET);
-        buttonsExpander.enable_expansion = settings.get_boolean('enable-app-window-buttons');
-        buttonsExpander.connect('notify::enable-expansion', () => {
-            const enabled = buttonsExpander.enable_expansion;
-            if (settings.get_boolean('enable-app-window-buttons') !== enabled)
-                settings.set_boolean('enable-app-window-buttons', enabled);
+
+        const styleToggleGroup = new Adw.ToggleGroup({
+            homogeneous: true,
+            valign: Gtk.Align.CENTER,
         });
+        styleToggleGroup.add_css_class('round');
+
+        const offToggle = new Adw.Toggle({ label: _('Off'), name: 'off' });
+        const macosToggle = new Adw.Toggle({ label: _('macOS'), name: 'macos' });
+        const kdeToggle = new Adw.Toggle({ label: _('KDE'), name: 'kde' });
+
+        styleToggleGroup.add(offToggle);
+        styleToggleGroup.add(macosToggle);
+        styleToggleGroup.add(kdeToggle);
+        styleToggleGroup.set_active_name(settings.get_string('window-button-style'));
+
+        styleRow.add_suffix(styleToggleGroup);
+        buttonTypeGroup.add(styleRow);
 
         // Firefox styling switch
         const firefoxStylingSwitch = new Adw.SwitchRow({
             title: _("Firefox Styling"),
-            subtitle: _("Apply macOS window control styling for Firefox. Recommended to use with vertical tabs."),
+            subtitle: _("Apply window control styling for Firefox. Recommended to use with vertical tabs."),
             active: settings.get_boolean('enable-firefox-styling'),
         });
-        buttonsExpander.add_row(firefoxStylingSwitch);
+        buttonTypeGroup.add(firefoxStylingSwitch);
         settings.bind('enable-firefox-styling', firefoxStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         // Thunderbird styling switch
         const thunderbirdStylingSwitch = new Adw.SwitchRow({
             title: _("Thunderbird Styling"),
-            subtitle: _("Apply macOS window control styling for Thunderbird."),
+            subtitle: _("Apply window control styling for Thunderbird."),
             active: settings.get_boolean('enable-thunderbird-styling'),
         });
-        buttonsExpander.add_row(thunderbirdStylingSwitch);
+        buttonTypeGroup.add(thunderbirdStylingSwitch);
         settings.bind('enable-thunderbird-styling', thunderbirdStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
-        // No need to manage visibility; expander controls reveal
 
-        // Button Type toggle group with round style
+        // Button Type toggle group with round style (macOS only)
         const buttonTypeRow = new Adw.ActionRow({
             title: _('Button Type'),
             subtitle: _('Choose the button icon set'),
@@ -507,16 +511,15 @@ export default class KiwiPreferences extends ExtensionPreferences {
         buttonTypeToggleGroup.set_active_name(settings.get_string('button-type'));
 
         buttonTypeRow.add_suffix(buttonTypeToggleGroup);
-        buttonsExpander.add_row(buttonTypeRow);
+        buttonTypeGroup.add(buttonTypeRow);
 
         buttonTypeToggleGroup.connect('notify::active-name', (group) => {
             settings.set_string('button-type', group.active_name);
         });
 
-        // Button Size toggle group with round style
+        // Button Size toggle group with round style (macOS only)
         const buttonSizeRow = new Adw.ActionRow({
             title: _('Button Size'),
-            subtitle: _('Choose button size'),
         });
 
         const buttonSizeToggleGroup = new Adw.ToggleGroup({
@@ -539,16 +542,37 @@ export default class KiwiPreferences extends ExtensionPreferences {
         buttonSizeToggleGroup.set_active_name(settings.get_string('button-size'));
 
         buttonSizeRow.add_suffix(buttonSizeToggleGroup);
-        buttonsExpander.add_row(buttonSizeRow);
+        buttonTypeGroup.add(buttonSizeRow);
 
         buttonSizeToggleGroup.connect('notify::active-name', (group) => {
             settings.set_string('button-size', group.active_name);
         });
 
-        // When the main switch is turned off, also turn off Firefox styling
-        settings.connect('changed::enable-app-window-buttons', () => {
-            const enabled = settings.get_boolean('enable-app-window-buttons');
-            if (!enabled) {
+        // Update visibility of sub-options based on selected style
+        const updateStyleVisibility = () => {
+            const style = styleToggleGroup.active_name;
+            const isEnabled = style !== 'off';
+            const isMacos = style === 'macos';
+
+            firefoxStylingSwitch.visible = isEnabled;
+            thunderbirdStylingSwitch.visible = isEnabled;
+            buttonTypeRow.visible = isMacos;
+            buttonSizeRow.visible = isEnabled;
+        };
+        updateStyleVisibility();
+
+        styleToggleGroup.connect('notify::active-name', (group) => {
+            const style = group.active_name;
+            settings.set_string('window-button-style', style);
+            // Keep legacy boolean in sync
+            settings.set_boolean('enable-app-window-buttons', style !== 'off');
+            updateStyleVisibility();
+        });
+
+        // When style is turned off, also turn off Firefox/Thunderbird styling
+        settings.connect('changed::window-button-style', () => {
+            const style = settings.get_string('window-button-style');
+            if (style === 'off') {
                 if (settings.get_boolean('enable-firefox-styling'))
                     settings.set_boolean('enable-firefox-styling', false);
                 if (settings.get_boolean('enable-thunderbird-styling'))

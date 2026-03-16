@@ -213,6 +213,11 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   spacing: 4px;
 }
 
+/* KDE mode: tighter spacing matching Breeze theme */
+.window-controls-box.kde-mode {
+  spacing: 4px;
+}
+
 .window-controls-box.system-mode .window-control-button {
   padding: 4px;
   border-radius: 99px;

@@ -102,7 +102,12 @@
       <key name="enable-app-window-buttons" type="b">
         <default>true</default>
         <summary>Enable Application Window Buttons</summary>
-        <description>Enable or disable window control buttons in application windows (affects GTK theming).</description>
+        <description>Enable or disable window control buttons in application windows (affects GTK theming). Deprecated: use window-button-style instead.</description>
+      </key>
+      <key name="window-button-style" type="s">
+        <default>'macos'</default>
+        <summary>Window Button Style</summary>
+        <description>Determines the window control button style in application windows: off, macos, or kde.</description>
       </key>
       <key name="hide-activities-button" type="b">
         <default>false</default>

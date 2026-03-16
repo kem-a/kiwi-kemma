@@ -17,7 +17,8 @@ class GtkThemeManager {
 
     async updateGtkCss() {
         const extension = this._extension;
-        const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
+        const windowButtonStyle = this._settings.get_string('window-button-style');
+        const enableAppButtons = windowButtonStyle !== 'off';
         const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
         const buttonType = this._settings.get_string('button-type');
         const buttonSize = this._settings.get_string('button-size');
@@ -28,7 +29,10 @@ class GtkThemeManager {
     
     // Add titlebuttons CSS only if app window buttons are enabled
     if (enableAppButtons) {
-        if (buttonType === 'titlebuttons-alt') {
+        if (windowButtonStyle === 'kde') {
+            gtk3Content += `@import 'titlebuttons-kde3.css';\n`;
+            gtk4Content += `@import 'titlebuttons-kde4.css';\n`;
+        } else if (buttonType === 'titlebuttons-alt') {
             gtk3Content += `@import 'titlebuttons-alt3.css';\n`;
             gtk4Content += `@import 'titlebuttons-alt4.css';\n`;
         } else {
@@ -39,8 +43,13 @@ class GtkThemeManager {
 
         // Add button size overrides if small size is selected
         if (buttonSize === 'small') {
-            gtk3Content += `@import 'titlebuttons-size-small3.css';\n`;
-            gtk4Content += `@import 'titlebuttons-size-small4.css';\n`;
+            if (windowButtonStyle === 'kde') {
+                gtk3Content += `@import 'titlebuttons-kde-size-small3.css';\n`;
+                gtk4Content += `@import 'titlebuttons-kde-size-small4.css';\n`;
+            } else {
+                gtk3Content += `@import 'titlebuttons-size-small3.css';\n`;
+                gtk4Content += `@import 'titlebuttons-size-small4.css';\n`;
+            }
         }
     }
     
@@ -70,7 +79,7 @@ class GtkThemeManager {
         // Update user GTK config files with imports
         await this.createUserGtkConfig();
         
-        console.log(`[Kiwi] Updated GTK CSS files. App buttons: ${enableAppButtons}, Button type: ${buttonType}, Button size: ${buttonSize}, Panel controls: ${showControlsOnPanel}`);
+        console.log(`[Kiwi] Updated GTK CSS files. Style: ${windowButtonStyle}, Button type: ${buttonType}, Button size: ${buttonSize}, Panel controls: ${showControlsOnPanel}`);
     } catch (error) {
         console.error(`[Kiwi] Error updating GTK CSS files: ${error}`);
     }
@@ -179,7 +188,7 @@ class GtkThemeManager {
         if (!this._settings) {
             this._settings = this._extension.getSettings();
             this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
-                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
+                if (key === 'enable-app-window-buttons' || key === 'window-button-style' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
                     this.updateGtkCss().catch(error => {
                         console.error(`[Kiwi] Error in settings changed handler: ${error}`);
                     });

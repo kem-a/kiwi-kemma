@@ -1,0 +1,19 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* GTK3 - Small size overrides for KDE window control buttons (16px) */
+
+headerbar button.titlebutton,
+.titlebar button.titlebutton {
+  min-width: 16px;
+  min-height: 16px;
+  background-size: 16px 16px;
+  padding: 0px;
+}
+
+headerbar button > image {
+  padding: 0 1px;
+}
+
+headerbar.titlebar {
+  padding-left: 10px;
+}

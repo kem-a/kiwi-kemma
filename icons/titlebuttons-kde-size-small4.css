@@ -1,0 +1,13 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* GTK4 - Small size overrides for KDE window control buttons (16px) */
+
+windowcontrols button {
+  min-width: 16px;
+  min-height: 16px;
+  background-size: 16px 16px;
+}
+
+windowcontrols button > image {
+  padding: 0 1px;
+}
