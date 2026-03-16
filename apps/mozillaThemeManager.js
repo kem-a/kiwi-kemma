@@ -49,16 +49,17 @@ export class MozillaThemeManager {
     }
 
     async updateCss() {
-        if (!this._settings || !this._settings.get_boolean(this._config.settingsKey)) {
+        if (!this._settings) {
             await this.removeCss();
             return;
         }
+        const enableStyling = this._settings.get_boolean(this._config.settingsKey);
         const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
         const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
         const buttonType = this._settings.get_string('button-type');
         const buttonSize = this._settings.get_string('button-size');
 
-        if (!enableAppButtons && !showControlsOnPanel) {
+        if (!enableStyling && !showControlsOnPanel) {
             await this.removeCss();
             return;
         }
@@ -92,7 +93,7 @@ export class MozillaThemeManager {
             GLib.mkdir_with_parents(chromeDir, 0o755);
 
             const imports = [];
-            if (enableAppButtons) {
+            if (enableStyling && enableAppButtons) {
                 const themingPath = `${iconsRoot}/${prefix}.css`;
                 const altThemingPath = `${iconsRoot}/${prefix}.alt.css`;
                 if (buttonType === 'titlebuttons-alt')

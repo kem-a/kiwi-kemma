@@ -159,13 +159,13 @@ export default class KiwiExtension extends Extension {
         }
 
         // Firefox styling manager
-        if (this._settings.get_boolean('enable-firefox-styling'))
+        if (this._settings.get_boolean('enable-firefox-styling') || this._settings.get_boolean('show-window-controls'))
             firefoxThemeManagerEnable(this);
         else
             firefoxThemeManagerDisable();
 
         // Thunderbird styling manager
-        if (this._settings.get_boolean('enable-thunderbird-styling'))
+        if (this._settings.get_boolean('enable-thunderbird-styling') || this._settings.get_boolean('show-window-controls'))
             thunderbirdThemeManagerEnable(this);
         else
             thunderbirdThemeManagerDisable();
@@ -196,10 +196,10 @@ export default class KiwiExtension extends Extension {
         // Enable GTK theme manager
         gtkThemeManagerEnable(this);
         // Enable Firefox theme manager based on setting
-        if (this._settings.get_boolean('enable-firefox-styling'))
+        if (this._settings.get_boolean('enable-firefox-styling') || this._settings.get_boolean('show-window-controls'))
             firefoxThemeManagerEnable(this);
         // Enable Thunderbird theme manager based on setting
-        if (this._settings.get_boolean('enable-thunderbird-styling'))
+        if (this._settings.get_boolean('enable-thunderbird-styling') || this._settings.get_boolean('show-window-controls'))
             thunderbirdThemeManagerEnable(this);
 
         focusLaunchedWindowEnable();
