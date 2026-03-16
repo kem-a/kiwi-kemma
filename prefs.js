@@ -437,6 +437,22 @@ export default class KiwiPreferences extends ExtensionPreferences {
             window._settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
         });
 
+        // Panel window controls as an independent toggle
+        const panelControlsGroup = new Adw.PreferencesGroup({
+            title: _('Panel Window Controls'),
+            description: _('Show window control buttons in the top panel and hide titlebars when maximized'),
+        });
+        settingsPage.add(panelControlsGroup);
+
+        const windowControlsPanelSwitch = new Adw.SwitchRow({
+            title: _("Show Window Controls on Panel"),
+            subtitle: _("Display close, minimize, maximize buttons in the top panel when window is maximized"),
+            active: settings.get_boolean('show-window-controls'),
+        });
+        panelControlsGroup.add(windowControlsPanelSwitch);
+        settings.bind('show-window-controls', windowControlsPanelSwitch, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+
         const buttonTypeGroup = new Adw.PreferencesGroup({
             title: _('Window Control Button Style'),
             description: _('Choose the window control button style. Log out to apply it across all apps.'),
@@ -446,7 +462,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Main toggle as an expander with sub-options
         const buttonsExpander = new Adw.ExpanderRow({
             title: _("Enable macOS Window Buttons"),
-            subtitle: _("Show window control buttons in application windows"),
+            subtitle: _("Replace window control buttons in application windows with macOS style"),
             expanded: settings.get_boolean('enable-app-window-buttons'),
             show_enable_switch: true,
             enable_expansion: settings.get_boolean('enable-app-window-buttons'),
@@ -461,18 +477,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
                 settings.set_boolean('enable-app-window-buttons', enabled);
         });
 
-        // Add merged window controls switch for panel
-        const windowControlsPanelSwitch = new Adw.SwitchRow({
-            title: _("Show Window Controls on Panel"),
-            subtitle: _("Display window control buttons in the top panel when window is maximized"),
-            active: settings.get_boolean('show-window-controls'),
-        });
-        buttonsExpander.add_row(windowControlsPanelSwitch);
-        settings.bind('show-window-controls', windowControlsPanelSwitch, 'active', 
-            Gio.SettingsBindFlags.DEFAULT);
-        // No need to manage visibility; expander controls reveal
-
-        // Firefox styling switch (moved here from Extras)
+        // Firefox styling switch
         const firefoxStylingSwitch = new Adw.SwitchRow({
             title: _("Firefox Styling"),
             subtitle: _("Apply macOS window control styling for Firefox. Recommended to use with vertical tabs."),
@@ -555,12 +560,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
             settings.set_string('button-size', group.active_name);
         });
 
-        // When the main switch is turned off, also turn off sub-toggles to avoid complications
+        // When the main switch is turned off, also turn off Firefox styling
         settings.connect('changed::enable-app-window-buttons', () => {
             const enabled = settings.get_boolean('enable-app-window-buttons');
             if (!enabled) {
-                if (settings.get_boolean('show-window-controls'))
-                    settings.set_boolean('show-window-controls', false);
                 if (settings.get_boolean('enable-firefox-styling'))
                     settings.set_boolean('enable-firefox-styling', false);
                 if (settings.get_boolean('enable-thunderbird-styling'))

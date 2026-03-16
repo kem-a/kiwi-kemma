@@ -1,15 +1,24 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-/* Hide GTK4 app titlebar and buttons when maximized */
+/* Hide GTK4 window control buttons when maximized or fullscreen */
 
-/* Completely hide the titlebar when maximized and in fullscreen*/
-.maximized .titlebar,
-.fullscreen .titlebar {
-  margin-top: -100px;
+/* Shift left-side window controls off-screen */
+.maximized headerbar windowcontrols.start,
+.fullscreen headerbar windowcontrols.start {
+  margin: 0 0 0 -200px;
+  opacity: 0;
 }
 
-/* Completely hide window controls when maximized and in fullscreen*/
-.maximized headerbar windowcontrols,
-.fullscreen headerbar windowcontrols {
-  margin-left: -100px;
+/* Shift right-side window controls off-screen */
+.maximized headerbar windowcontrols.end,
+.fullscreen headerbar windowcontrols.end {
+  margin: 0 -200px 0 0;
+  opacity: 0;
+}
+
+/* Hide default decoration titlebar (electron / SSD apps) */
+.maximized .titlebar.default-decoration,
+.fullscreen .titlebar.default-decoration {
+  margin: -200px 0 0;
+  opacity: 0;
 }

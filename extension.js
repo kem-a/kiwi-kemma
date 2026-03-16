@@ -62,7 +62,7 @@ export default class KiwiExtension extends Extension {
             }
         }
 
-        if (key === 'button-type' && this._settings.get_boolean('show-window-controls')) {
+        if ((key === 'button-type' || key === 'enable-app-window-buttons') && this._settings.get_boolean('show-window-controls')) {
             windowControlsDisable();
             windowControlsEnable(this);
         }
@@ -116,7 +116,7 @@ export default class KiwiExtension extends Extension {
             windowTitleDisable();
         }
 
-        if (this._settings.get_boolean('show-window-controls') && this._settings.get_boolean('enable-app-window-buttons')) {
+        if (this._settings.get_boolean('show-window-controls')) {
             windowControlsEnable(this);
         } else {
             windowControlsDisable();
