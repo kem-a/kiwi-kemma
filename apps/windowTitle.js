@@ -3,6 +3,7 @@
 
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
+import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
@@ -10,6 +11,7 @@ import GLib from 'gi://GLib';
 import { AppMenu } from 'resource:///org/gnome/shell/ui/appMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 let indicator = null;
 
@@ -46,8 +48,12 @@ class WindowTitleIndicator extends PanelMenu.Button {
         
         this._onFocusedWindowChanged();
 
+        this._restoreSeparator = null;
+        this._restoreMenuItem = null;
+
         this._menu.connect('open-state-changed', (menu, isOpen) => {
             if (isOpen) {
+                this._updateRestoreMenuItem();
                 GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
                     this._syncMenuAlignment();
                     return GLib.SOURCE_REMOVE;
@@ -148,6 +154,70 @@ class WindowTitleIndicator extends PanelMenu.Button {
         });
     }
 
+    _updateRestoreMenuItem() {
+        if (this._restoreMenuItem) {
+            this._restoreMenuItem.destroy();
+            this._restoreMenuItem = null;
+        }
+        if (this._restoreSeparator) {
+            this._restoreSeparator.destroy();
+            this._restoreSeparator = null;
+        }
+
+        const win = this._focusWindow;
+        if (!win) return;
+
+        let isMaximized = false;
+        if (win.maximized_horizontally && win.maximized_vertically) {
+            isMaximized = true;
+        } else if (typeof win.get_maximized === 'function') {
+            const flags = win.get_maximized();
+            if ((flags & Meta.MaximizeFlags.HORIZONTAL) && (flags & Meta.MaximizeFlags.VERTICAL))
+                isMaximized = true;
+        }
+
+        const isFullscreen = typeof win.is_fullscreen === 'function' && win.is_fullscreen();
+
+        if (!isMaximized && !isFullscreen) return;
+
+        // Find position of "App Details" item to insert just above it
+        let position = -1;
+        const menuItems = this._menu._getMenuItems();
+        for (let i = 0; i < menuItems.length; i++) {
+            if (menuItems[i] === this._menu._detailsItem) {
+                position = i;
+                break;
+            }
+        }
+
+        this._restoreMenuItem = new PopupMenu.PopupMenuItem('Restore Window');
+        this._restoreMenuItem.connect('activate', () => {
+            if (isMaximized) {
+                try {
+                    win.unmaximize();
+                } catch (e) {
+                    win.unmaximize(Meta.MaximizeFlags.BOTH);
+                }
+            }
+            if (isFullscreen)
+                win.unmake_fullscreen();
+        });
+
+        if (position >= 0) {
+            // Check if the item above "App Details" is already a separator
+            const needsSeparator = position === 0 ||
+                !(menuItems[position - 1] instanceof PopupMenu.PopupSeparatorMenuItem);
+
+            this._menu.addMenuItem(this._restoreMenuItem, position);
+            if (needsSeparator) {
+                this._restoreSeparator = new PopupMenu.PopupSeparatorMenuItem();
+                this._menu.addMenuItem(this._restoreSeparator, position + 1);
+            }
+        } else {
+            this._menu.addMenuItem(this._restoreMenuItem);
+        }
+    }
+
     _clearDisplay(resetMenu = true) {
         this._label.text = '';
         this._icon.gicon = null;
@@ -184,6 +254,14 @@ class WindowTitleIndicator extends PanelMenu.Button {
     }
 
     destroy() {
+        if (this._restoreMenuItem) {
+            this._restoreMenuItem.destroy();
+            this._restoreMenuItem = null;
+        }
+        if (this._restoreSeparator) {
+            this._restoreSeparator.destroy();
+            this._restoreSeparator = null;
+        }
         if (this._overviewShowingId) {
             Main.overview.disconnect(this._overviewShowingId);
         }
