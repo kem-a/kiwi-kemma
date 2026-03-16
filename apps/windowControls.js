@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Adds macOS-style window control buttons to the GNOME top panel.
+// Adds window control buttons to the GNOME top panel.
+// Uses macOS-style PNG icons when app window buttons are enabled,
+// or system symbolic icons respecting the WM button layout otherwise.
 
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
@@ -14,16 +16,41 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 let controlsIndicator = null;
 let _extension = null;
 
+// Symbolic icon names for system mode
+const SYMBOLIC_ICONS = {
+    close: 'window-close-symbolic',
+    minimize: 'window-minimize-symbolic',
+    maximize: 'window-maximize-symbolic',
+    restore: 'window-restore-symbolic',
+};
+
 const WindowControlsIndicator = GObject.registerClass(
 class WindowControlsIndicator extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'window-controls', false);
 
         this._settings = _extension.getSettings();
+        this._useMacosIcons = this._settings.get_boolean('enable-app-window-buttons');
         this._settingsChangedId = this._settings.connect('changed', (_, key) => {
             if (key === 'button-type') this._updateAllIcons();
             else if (key === 'button-size') this._updateButtonSizeClass();
-            else if (key === 'show-window-controls' || key === 'enable-app-window-buttons') this._updateVisibility();
+            else if (key === 'show-window-controls') this._updateVisibility();
+        });
+
+        // Read system WM button layout
+        this._wmSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.wm.preferences' });
+        const parsed = this._parseButtonLayout(this._wmSettings.get_string('button-layout'));
+        this._buttonLayout = parsed.buttons;
+        this._buttonSide = parsed.side;
+        this._wmLayoutChangedId = this._wmSettings.connect('changed::button-layout', () => {
+            const newParsed = this._parseButtonLayout(this._wmSettings.get_string('button-layout'));
+            const sideChanged = this._buttonSide !== newParsed.side;
+            this._buttonLayout = newParsed.buttons;
+            this._buttonSide = newParsed.side;
+            if (sideChanged)
+                _replaceIndicatorOnPanel();
+            else
+                this._rebuildButtons();
         });
 
     this._iconPath = _extension.path;
@@ -31,7 +58,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._box = new St.BoxLayout({ style_class: 'window-controls-box' });
         this.add_child(this._box);
         
-        // Track hover state for all-buttons-hover effect
+        // Track hover state for all-buttons-hover effect (macOS mode only)
         this._isContainerHovered = false;
 
         this._closeButton = new St.Button({ style_class: 'window-control-button close', track_hover: true });
@@ -71,17 +98,21 @@ class WindowControlsIndicator extends PanelMenu.Button {
                 button.remove_style_pseudo_class('active');
                 this._updateButtonIcon(buttonType);
             });
-            // Add enter/leave events for all-buttons-hover effect
+            // Add enter/leave events for all-buttons-hover effect (macOS mode)
             button.connect('enter-event', () => {
                 if (this._suppressHoverUntilPointerMove) {
                     this._suppressHoverUntilPointerMove = false;
                 }
-                this._isContainerHovered = true;
-                this._updateAllIcons();
+                if (this._useMacosIcons) {
+                    this._isContainerHovered = true;
+                    this._updateAllIcons();
+                }
             });
             button.connect('leave-event', () => {
-                this._isContainerHovered = false;
-                this._updateAllIcons();
+                if (this._useMacosIcons) {
+                    this._isContainerHovered = false;
+                    this._updateAllIcons();
+                }
             });
         });
 
@@ -120,9 +151,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
             if (window) window.delete(global.get_current_time());
         });
 
-        this._box.add_child(this._closeButton);
-        this._box.add_child(this._minimizeButton);
-        this._box.add_child(this._maximizeButton);
+        this._buildButtonLayout();
 
         this._updateAllIcons();
         
@@ -155,6 +184,70 @@ class WindowControlsIndicator extends PanelMenu.Button {
         
         this._updateVisibility();
         this._updateButtonSizeClass();
+    }
+
+    _parseButtonLayout(layoutStr) {
+        // Parse 'appmenu:minimize,maximize,close' or 'close,minimize,maximize:' etc.
+        const validButtons = ['close', 'minimize', 'maximize'];
+        const parts = (layoutStr || '').split(':');
+        const leftPart = parts[0] || '';
+        const rightPart = parts[1] || '';
+
+        const leftButtons = leftPart.split(',').map(b => b.trim()).filter(b => validButtons.includes(b));
+        const rightButtons = rightPart.split(',').map(b => b.trim()).filter(b => validButtons.includes(b));
+
+        // Determine side: whichever side has more control buttons wins;
+        // if equal, prefer right (GNOME default)
+        let side, ordered;
+        if (leftButtons.length >= rightButtons.length && leftButtons.length > 0) {
+            side = 'left';
+            ordered = leftButtons;
+        } else if (rightButtons.length > 0) {
+            side = 'right';
+            ordered = rightButtons;
+        } else {
+            side = 'right';
+            ordered = ['minimize', 'maximize', 'close'];
+        }
+
+        // Deduplicate while preserving order
+        const seen = new Set();
+        const result = [];
+        for (const b of ordered) {
+            if (!seen.has(b)) { seen.add(b); result.push(b); }
+        }
+        return { buttons: result, side };
+    }
+
+    _buildButtonLayout() {
+        // Remove all buttons from box first
+        [this._closeButton, this._minimizeButton, this._maximizeButton].forEach(btn => {
+            if (btn.get_parent() === this._box)
+                this._box.remove_child(btn);
+        });
+
+        const buttonMap = {
+            close: this._closeButton,
+            minimize: this._minimizeButton,
+            maximize: this._maximizeButton,
+        };
+
+        if (this._useMacosIcons) {
+            // macOS mode: follow system button-layout order and enabled buttons
+            for (const name of this._buttonLayout)
+                this._box.add_child(buttonMap[name]);
+            this._box.remove_style_class_name('system-mode');
+        } else {
+            // System mode: follow WM button-layout order exactly
+            for (const name of this._buttonLayout)
+                this._box.add_child(buttonMap[name]);
+            this._box.add_style_class_name('system-mode');
+        }
+    }
+
+    _rebuildButtons() {
+        this._buildButtonLayout();
+        this._updateAllIcons();
     }
 
     _updateButtonSizeClass() {
@@ -217,29 +310,39 @@ class WindowControlsIndicator extends PanelMenu.Button {
     }
     const isFullscreen = !!win && typeof win.is_fullscreen === 'function' && win.is_fullscreen();
         // When in fullscreen, the minimize button should be disabled (non-reactive) and not show hover/active variants
-        if (buttonType === 'minimize' && isFullscreen && this._settings.get_boolean('enable-app-window-buttons') && this._settings.get_boolean('show-window-controls')) {
+        if (buttonType === 'minimize' && isFullscreen && this._settings.get_boolean('show-window-controls')) {
             // Force base icon, ignore hover/active state
             button.reactive = false; // makes it "insensitive" visually via St
             button.remove_style_pseudo_class('active');
-            // Use backdrop variant to visually indicate disabled state
-            const iconName = 'button-minimize-backdrop.png';
-            this._setButtonIcon(button, iconName);
+            if (this._useMacosIcons) {
+                const iconName = 'button-minimize-backdrop.png';
+                this._setButtonIcon(button, iconName);
+            } else {
+                this._setSystemIcon(button, 'minimize');
+                button.opacity = 100;
+            }
             return;
         } else if (buttonType === 'minimize') {
             // Restore reactivity when leaving fullscreen
             button.reactive = true;
+            button.opacity = 255;
         }
-        
-        // Use hover state if the button is individually hovered OR if the container is hovered
-        let isHovered = button.hover || this._isContainerHovered;
-        if (this._suppressHoverUntilPointerMove)
-            isHovered = false; // force neutral until user actually moves pointer
-        const state = button.has_style_pseudo_class('active') ? '-active' : isHovered ? '-hover' : '';
-        
+
         // For maximize button: show restore icon when window is maximized OR fullscreen
         const buttonName = (buttonType === 'maximize' && (isMaximized || isFullscreen)) ? 'restore' : buttonType;
-        const iconName = `button-${buttonName}${state}.png`;
-        this._setButtonIcon(button, iconName);
+
+        if (this._useMacosIcons) {
+            // macOS mode: file-based PNG icons with container hover
+            let isHovered = button.hover || this._isContainerHovered;
+            if (this._suppressHoverUntilPointerMove)
+                isHovered = false;
+            const state = button.has_style_pseudo_class('active') ? '-active' : isHovered ? '-hover' : '';
+            const iconName = `button-${buttonName}${state}.png`;
+            this._setButtonIcon(button, iconName);
+        } else {
+            // System mode: symbolic icons, only update if icon actually changed
+            this._setSystemIcon(button, buttonName);
+        }
     }
 
     _updateAllIcons() {
@@ -297,7 +400,6 @@ class WindowControlsIndicator extends PanelMenu.Button {
         }
 
         this.visible = !Main.overview.visible && focusWindow && 
-            this._settings.get_boolean('enable-app-window-buttons') && 
             this._settings.get_boolean('show-window-controls') && 
             (isMaximized || isFullscreen);
 
@@ -399,6 +501,18 @@ class WindowControlsIndicator extends PanelMenu.Button {
         });
     }
 
+    _setSystemIcon(button, buttonName) {
+        const iconName = SYMBOLIC_ICONS[buttonName] || SYMBOLIC_ICONS.close;
+        // Avoid recreating the icon if it's already showing the correct one
+        if (button._currentSystemIcon === iconName)
+            return;
+        button._currentSystemIcon = iconName;
+        button.child = new St.Icon({
+            icon_name: iconName,
+            style_class: 'window-control-icon',
+        });
+    }
+
     _getIconFile(iconName, scaleFactor = 1) {
         const buttonType = this._settings.get_string('button-type');
         const isAltTheme = buttonType === 'titlebuttons-alt';
@@ -453,6 +567,8 @@ class WindowControlsIndicator extends PanelMenu.Button {
     destroy() {
         if (this._focusWindowSignal) global.display.disconnect(this._focusWindowSignal);
         if (this._settingsChangedId) this._settings.disconnect(this._settingsChangedId);
+        if (this._wmLayoutChangedId) this._wmSettings.disconnect(this._wmLayoutChangedId);
+        this._wmSettings = null;
         if (this._overviewShowingId) Main.overview.disconnect(this._overviewShowingId);
         if (this._overviewHiddenId) Main.overview.disconnect(this._overviewHiddenId);
         if (this._screenShieldActiveId && this._screenShield) this._screenShield.disconnect(this._screenShieldActiveId);
@@ -470,19 +586,49 @@ class WindowControlsIndicator extends PanelMenu.Button {
     }
 });
 
+function _getPlacementSide() {
+    if (!controlsIndicator)
+        return 'left';
+    return controlsIndicator._buttonSide || 'left';
+}
+
+function _replaceIndicatorOnPanel() {
+    if (!controlsIndicator || !_extension)
+        return;
+    // Remove from panel without destroying
+    const container = controlsIndicator.container;
+    const parent = container.get_parent();
+    if (parent)
+        parent.remove_child(container);
+
+    controlsIndicator._rebuildButtons();
+    const side = _getPlacementSide();
+    if (side === 'right') {
+        const rightBoxChildren = Main.panel._rightBox.get_children();
+        Main.panel._rightBox.insert_child_at_index(container, rightBoxChildren.length);
+    } else {
+        const leftBoxChildren = Main.panel._leftBox.get_children();
+        const position = Math.max(0, leftBoxChildren.length - 1);
+        Main.panel._leftBox.insert_child_at_index(container, position);
+    }
+}
+
 export function enable(ext) {
     if (ext) _extension = ext;
     if (!controlsIndicator) {
         controlsIndicator = new WindowControlsIndicator();
-        
-        // Count total elements in the left side of the panel
-        const leftBoxChildren = Main.panel._leftBox.get_children();
-        const totalElements = leftBoxChildren.length;
-        
-        // Place window controls at second-to-last position (since window title is last)
-        const position = Math.max(0, totalElements - 1);
-        
-        Main.panel.addToStatusArea('window-controls', controlsIndicator, position, 'left');
+
+        const side = _getPlacementSide();
+        if (side === 'right') {
+            // Place at far right (last position in right box)
+            const rightBoxChildren = Main.panel._rightBox.get_children();
+            Main.panel.addToStatusArea('window-controls', controlsIndicator, rightBoxChildren.length, 'right');
+        } else {
+            // Place on left, second-to-last (since window title is last)
+            const leftBoxChildren = Main.panel._leftBox.get_children();
+            const position = Math.max(0, leftBoxChildren.length - 1);
+            Main.panel.addToStatusArea('window-controls', controlsIndicator, position, 'left');
+        }
     }
 }
 
