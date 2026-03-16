@@ -4,6 +4,8 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
+Gio._promisify(Gio.File.prototype, 'load_contents_async', 'load_contents_finish');
+
 let gtkThemeManager = null;
 
 class GtkThemeManager {
@@ -114,20 +116,8 @@ class GtkThemeManager {
         
         // Read existing content if file exists
         if (file.query_exists(null)) {
-            const [success, contents] = await new Promise((resolve, reject) => {
-                file.load_contents_async(null, (source, result) => {
-                    try {
-                        const [success, contents] = source.load_contents_finish(result);
-                        resolve([success, contents]);
-                    } catch (error) {
-                        reject(error);
-                    }
-                });
-            });
-            
-            if (success) {
-                existingContent = new TextDecoder().decode(contents);
-            }
+            const [contents] = await file.load_contents_async(null);
+            existingContent = new TextDecoder().decode(contents);
         }
         
         // Check if our import is already present
@@ -158,30 +148,18 @@ class GtkThemeManager {
             try {
                 const file = Gio.File.new_for_path(path);
                 if (file.query_exists(null)) {
-                    const [success, contents] = await new Promise((resolve, reject) => {
-                        file.load_contents_async(null, (source, result) => {
-                            try {
-                                const [success, contents] = source.load_contents_finish(result);
-                                resolve([success, contents]);
-                            } catch (error) {
-                                reject(error);
-                            }
-                        });
-                    });
+                    const [contents] = await file.load_contents_async(null);
+                    let content = new TextDecoder().decode(contents);
                     
-                    if (success) {
-                        let content = new TextDecoder().decode(contents);
-                        
-                        // Remove any kiwi@kemma imports
-                        const kiwieImportRegex = /@import\s+['"][^'"]*kiwi@kemma[^'"]*['"];\s*\n?/g;
-                        content = content.replace(kiwieImportRegex, '');
-                        
-                        // If there's remaining content, write it back, otherwise delete the file
-                        if (content.trim()) {
-                            file.replace_contents(content, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
-                        } else {
-                            file.delete(null);
-                        }
+                    // Remove any kiwi@kemma imports
+                    const kiwieImportRegex = /@import\s+['"][^'"]*kiwi@kemma[^'"]*['"];\s*\n?/g;
+                    content = content.replace(kiwieImportRegex, '');
+                    
+                    // If there's remaining content, write it back, otherwise delete the file
+                    if (content.trim()) {
+                        file.replace_contents(content, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
+                    } else {
+                        file.delete(null);
                     }
                 }
             } catch (e) {

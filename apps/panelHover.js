@@ -39,7 +39,7 @@ let _ghostMenu = null;
 let _originalTrackFullscreen = null;
 
 function _debug(msg) {
-    log(`[PanelHover] ${msg}`);
+    console.debug(`[PanelHover] ${msg}`);
 }
 
 function _getPanelBox() {
