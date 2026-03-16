@@ -1,13 +1,37 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
-/* Hide GTK3 window control buttons (and left box) when maximized or fullscreen */
+/* Hide GTK3 window control buttons when maximized or fullscreen */
 
-.maximized headerbar .titlebutton,
-.maximized headerbar > box.horizontal.left,
-.maximized headerbar.default-decoration.titlebar,
-.fullscreen headerbar .titlebutton,
-.fullscreen headerbar > box.horizontal.left,
-.fullscreen headerbar.default-decoration.titlebar {
-  margin-left: -100px;
-  margin-top: -100px;
+/* Remove headerbar padding that reserves space for buttons */
+.maximized headerbar.titlebar,
+.maximized .titlebar,
+.fullscreen headerbar.titlebar,
+.fullscreen .titlebar {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Shift left-side button container off-screen */
+.maximized headerbar > box.left,
+.maximized .titlebar > box.left,
+.fullscreen headerbar > box.left,
+.fullscreen .titlebar > box.left {
+  margin: 0 0 0 -200px;
+  opacity: 0;
+}
+
+/* Shift right-side button container off-screen */
+.maximized headerbar > box.right,
+.maximized .titlebar > box.right,
+.fullscreen headerbar > box.right,
+.fullscreen .titlebar > box.right {
+  margin: 0 -200px 0 0;
+  opacity: 0;
+}
+
+/* Hide default decoration titlebar (electron / SSD apps) */
+.maximized .titlebar.default-decoration,
+.fullscreen .titlebar.default-decoration {
+  margin: -200px 0 0;
+  opacity: 0;
 }

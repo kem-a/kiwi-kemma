@@ -208,6 +208,34 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   box-shadow: none !important;
 }
 
+/* System mode: symbolic icons follow panel style */
+.window-controls-box.system-mode {
+  spacing: 4px;
+}
+
+.window-controls-box.system-mode .window-control-button {
+  padding: 4px;
+  border-radius: 99px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.window-controls-box.system-mode .window-control-button.close:hover,
+.window-controls-box.system-mode .window-control-button.minimize:hover,
+.window-controls-box.system-mode .window-control-button.maximize:hover {
+  background-color: rgba(128, 128, 128, 0.25) !important;
+}
+
+.window-controls-box.system-mode .window-control-button.close:active,
+.window-controls-box.system-mode .window-control-button.minimize:active,
+.window-controls-box.system-mode .window-control-button.maximize:active {
+  background-color: rgba(128, 128, 128, 0.40) !important;
+}
+
+.window-controls-box.system-mode .window-control-icon {
+  icon-size: 16px;
+}
+
 
 /*###############################################*/
 /*          Popup Menu Accent Styling           */
