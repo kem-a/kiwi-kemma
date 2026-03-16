@@ -415,6 +415,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'move-calendar-right', title: _("Move Calendar to Right"), subtitle: _("Move calendar to right side and hide notifications") },
             { key: 'show-window-title', title: _("Show Window Title"), subtitle: _("Display current window title in the top panel") },
             { key: 'panel-hover-fullscreen', title: _("Show Panel on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
+            { key: 'show-window-controls', title: _("Show Window Controls on Panel"), subtitle: _("Display close, minimize, maximize buttons in the top panel when window is maximized") },
             { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Blur"), subtitle: _("Use blurred current wallpaper as overview background (requires ImageMagick)") },
             { key: 'dock-blur', title: _("Dock Blur"), subtitle: _("Blur the background behind Dash-to-Dock") },
         ];
@@ -436,22 +437,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
             group.add(switchRow);
             window._settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
         });
-
-        // Panel window controls as an independent toggle
-        const panelControlsGroup = new Adw.PreferencesGroup({
-            title: _('Panel Window Controls'),
-            description: _('Show window control buttons in the top panel and hide titlebars when maximized'),
-        });
-        settingsPage.add(panelControlsGroup);
-
-        const windowControlsPanelSwitch = new Adw.SwitchRow({
-            title: _("Show Window Controls on Panel"),
-            subtitle: _("Display close, minimize, maximize buttons in the top panel when window is maximized"),
-            active: settings.get_boolean('show-window-controls'),
-        });
-        panelControlsGroup.add(windowControlsPanelSwitch);
-        settings.bind('show-window-controls', windowControlsPanelSwitch, 'active',
-            Gio.SettingsBindFlags.DEFAULT);
 
         const buttonTypeGroup = new Adw.PreferencesGroup({
             title: _('Window Control Button Style'),
