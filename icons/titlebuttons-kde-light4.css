@@ -1,0 +1,162 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Custom theme GTK4 - Window Controls KDE Breeze Style (Light theme variant)
+ * Dark icons for light backgrounds. */
+
+windowcontrols button {
+  min-width: 20px;
+  min-height: 20px;
+  background-repeat: no-repeat;
+  background-size: 20px 20px;
+  background-position: center;
+  margin: 0px;
+  padding: 1px;
+}
+
+windowcontrols button > image {
+  padding: 0 3px;
+}
+
+windowcontrols {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+windowcontrols button.close,
+windowcontrols button.maximize,
+windowcontrols button.minimize {
+  border-color: transparent;
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+  color: transparent;
+}
+
+windowcontrols button.close:backdrop,
+windowcontrols button.maximize:backdrop,
+windowcontrols button.minimize:backdrop {
+  opacity: 1;
+}
+
+/* Close Button */
+windowcontrols button.close {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-close.png"),
+    url("titlebuttons-kde-light/button-close@2.png")
+  );
+}
+windowcontrols button.close:backdrop {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-close-backdrop.png"),
+    url("titlebuttons-kde-light/button-close-backdrop@2.png")
+  );
+}
+windowcontrols button.close:hover,
+windowcontrols button.close:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-close-hover.png"),
+    url("titlebuttons-kde-light/button-close-hover@2.png")
+  );
+}
+
+/* Minimize Button */
+windowcontrols button.minimize {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-minimize.png"),
+    url("titlebuttons-kde-light/button-minimize@2.png")
+  );
+}
+windowcontrols button.minimize:backdrop {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-minimize-backdrop.png"),
+    url("titlebuttons-kde-light/button-minimize-backdrop@2.png")
+  );
+}
+windowcontrols button.minimize:hover,
+windowcontrols button.minimize:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-minimize-hover.png"),
+    url("titlebuttons-kde-light/button-minimize-hover@2.png")
+  );
+}
+
+/* Maximize Button (unmaximized state) */
+windowcontrols button.maximize {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-maximize.png"),
+    url("titlebuttons-kde-light/button-maximize@2.png")
+  );
+}
+windowcontrols button.maximize:backdrop {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-maximize-backdrop.png"),
+    url("titlebuttons-kde-light/button-maximize-backdrop@2.png")
+  );
+}
+windowcontrols button.maximize:hover,
+windowcontrols button.maximize:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-maximize-hover.png"),
+    url("titlebuttons-kde-light/button-maximize-hover@2.png")
+  );
+}
+
+/* Restore (when maximized/fullscreen) */
+.fullscreen windowcontrols button.maximize,
+.maximized windowcontrols button.maximize {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-restore.png"),
+    url("titlebuttons-kde-light/button-restore@2.png")
+  );
+}
+.fullscreen windowcontrols button.maximize:backdrop,
+.maximized windowcontrols button.maximize:backdrop {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-restore-backdrop.png"),
+    url("titlebuttons-kde-light/button-restore-backdrop@2.png")
+  );
+}
+.fullscreen windowcontrols button.maximize:hover,
+.maximized windowcontrols button.maximize:hover,
+.fullscreen windowcontrols button.maximize:backdrop:hover,
+.maximized windowcontrols button.maximize:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-restore-hover.png"),
+    url("titlebuttons-kde-light/button-restore-hover@2.png")
+  );
+}
+
+/* --- ACTIVE STATES --- */
+windowcontrols button.close:active {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-close-active.png"),
+    url("titlebuttons-kde-light/button-close-active@2.png")
+  );
+}
+
+windowcontrols button.minimize:active {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-minimize-active.png"),
+    url("titlebuttons-kde-light/button-minimize-active@2.png")
+  );
+}
+
+windowcontrols button.maximize:active {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-maximize-active.png"),
+    url("titlebuttons-kde-light/button-maximize-active@2.png")
+  );
+}
+
+.fullscreen windowcontrols button.maximize:active,
+.maximized windowcontrols button.maximize:active {
+  background-image: -gtk-scaled(
+    url("titlebuttons-kde-light/button-restore-active.png"),
+    url("titlebuttons-kde-light/button-restore-active@2.png")
+  );
+}
+
+headerbar .title {
+  margin-left: 6px;
+  margin-right: 6px;
+}

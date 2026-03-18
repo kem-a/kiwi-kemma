@@ -13,6 +13,24 @@ class GtkThemeManager {
         this._extension = ext;
         this._settings = null;
         this._settingsChangedId = null;
+        this._interfaceSettings = null;
+        this._colorSchemeChangedId = null;
+        this._gtkThemeChangedId = null;
+    }
+
+    _isDarkTheme() {
+        if (!this._interfaceSettings)
+            return false;
+
+        const colorScheme = this._interfaceSettings.get_string('color-scheme');
+        if (colorScheme === 'prefer-dark')
+            return true;
+        if (colorScheme === 'prefer-light')
+            return false;
+
+        // Fallback: check GTK theme name for "-dark" suffix
+        const gtkTheme = this._interfaceSettings.get_string('gtk-theme');
+        return gtkTheme.toLowerCase().includes('-dark');
     }
 
     async updateGtkCss() {
@@ -30,8 +48,9 @@ class GtkThemeManager {
     // Add titlebuttons CSS only if app window buttons are enabled
     if (enableAppButtons) {
         if (windowButtonStyle === 'kde') {
-            gtk3Content += `@import 'titlebuttons-kde3.css';\n`;
-            gtk4Content += `@import 'titlebuttons-kde4.css';\n`;
+            const variant = this._isDarkTheme() ? 'dark' : 'light';
+            gtk3Content += `@import 'titlebuttons-kde-${variant}3.css';\n`;
+            gtk4Content += `@import 'titlebuttons-kde-${variant}4.css';\n`;
         } else if (buttonType === 'titlebuttons-alt') {
             gtk3Content += `@import 'titlebuttons-alt3.css';\n`;
             gtk4Content += `@import 'titlebuttons-alt4.css';\n`;
@@ -194,6 +213,16 @@ class GtkThemeManager {
                     });
                 }
             });
+
+            // Watch GNOME desktop interface settings for theme changes
+            this._interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+            const onThemeChanged = () => {
+                this.updateGtkCss().catch(error => {
+                    console.error(`[Kiwi] Error in theme changed handler: ${error}`);
+                });
+            };
+            this._colorSchemeChangedId = this._interfaceSettings.connect('changed::color-scheme', onThemeChanged);
+            this._gtkThemeChangedId = this._interfaceSettings.connect('changed::gtk-theme', onThemeChanged);
             
             // Initial update
             this.updateGtkCss().catch(error => {
@@ -207,6 +236,18 @@ class GtkThemeManager {
             this._settings.disconnect(this._settingsChangedId);
             this._settingsChangedId = null;
             this._settings = null;
+        }
+
+        if (this._interfaceSettings) {
+            if (this._colorSchemeChangedId) {
+                this._interfaceSettings.disconnect(this._colorSchemeChangedId);
+                this._colorSchemeChangedId = null;
+            }
+            if (this._gtkThemeChangedId) {
+                this._interfaceSettings.disconnect(this._gtkThemeChangedId);
+                this._gtkThemeChangedId = null;
+            }
+            this._interfaceSettings = null;
         }
         
         // Remove our imports from user GTK config files

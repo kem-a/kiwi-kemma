@@ -385,10 +385,10 @@ function checkForNotifications() {
 
     // Also check if the original notification section would be visible
     // (this is the state before our calendar module hides it)
-    if (originalShouldShowNotificationSection && 
-        typeof originalShouldShowNotificationSection === 'function') {
+    if (origShowNotifSection && 
+        typeof origShowNotifSection === 'function') {
         try {
-            return originalShouldShowNotificationSection.call(dateMenu);
+            return origShowNotifSection.call(dateMenu);
         } catch (e) {
             // If there's an error, assume no notifications
         }

@@ -534,7 +534,16 @@ class WindowControlsIndicator extends PanelMenu.Button {
         const isAltTheme = buttonType === 'titlebuttons-alt';
         let baseFolder;
         if (this._useKdeIcons) {
-            baseFolder = 'titlebuttons-kde';
+            const interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+            const colorScheme = interfaceSettings.get_string('color-scheme');
+            let isDark;
+            if (colorScheme === 'prefer-dark')
+                isDark = true;
+            else if (colorScheme === 'prefer-light')
+                isDark = false;
+            else
+                isDark = interfaceSettings.get_string('gtk-theme').toLowerCase().includes('-dark');
+            baseFolder = isDark ? 'titlebuttons-kde-dark' : 'titlebuttons-kde-light';
         } else {
             baseFolder = isAltTheme ? 'titlebuttons' : buttonType;
         }
