@@ -1,0 +1,209 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Thunderbird Window Controls Theming (Kiwi - KDE Breeze style)
+ * Per-button hover only (no group hover).
+ * Uses @media (prefers-color-scheme) to pick light/dark icon variants. */
+
+/* Button box layout — KDE uses tighter spacing */
+#titlebar .titlebar-buttonbox,
+#titlebar .titlebar-buttonbox-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding-inline-start: 8px;
+  padding-inline-end: 8px;
+}
+
+/* Reset native look */
+#titlebar .titlebar-button {
+  appearance: none !important;
+  -moz-appearance: none !important;
+  background: none !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: 20px 20px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  list-style-image: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  -moz-window-dragging: drag !important;
+}
+#titlebar .titlebar-button .toolbarbutton-icon,
+#titlebar .titlebar-button image {
+  display: none !important;
+}
+
+/* --- Light theme icons --- */
+
+@media (prefers-color-scheme: light) {
+  #titlebar .titlebar-close {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-close.png") 1x,
+      url("titlebuttons-kde-light/button-close@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-max {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-maximize.png") 1x,
+      url("titlebuttons-kde-light/button-maximize@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-min {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-minimize.png") 1x,
+      url("titlebuttons-kde-light/button-minimize@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-restore,
+  :root[sizemode="maximized"] #titlebar .titlebar-max {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-restore.png") 1x,
+      url("titlebuttons-kde-light/button-restore@2.png") 2x
+    ) !important;
+  }
+
+  #titlebar .titlebar-close:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-close-hover.png") 1x,
+      url("titlebuttons-kde-light/button-close-hover@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-max:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-maximize-hover.png") 1x,
+      url("titlebuttons-kde-light/button-maximize-hover@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-min:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-minimize-hover.png") 1x,
+      url("titlebuttons-kde-light/button-minimize-hover@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-restore:hover,
+  :root[sizemode="maximized"] #titlebar .titlebar-max:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-restore-hover.png") 1x,
+      url("titlebuttons-kde-light/button-restore-hover@2.png") 2x
+    ) !important;
+  }
+
+  #titlebar .titlebar-close:active {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-close-active.png") 1x,
+      url("titlebuttons-kde-light/button-close-active@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-min:active {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-minimize-active.png") 1x,
+      url("titlebuttons-kde-light/button-minimize-active@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-max:active {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-maximize-active.png") 1x,
+      url("titlebuttons-kde-light/button-maximize-active@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-restore:active,
+  :root[sizemode="maximized"] #titlebar .titlebar-max:active {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-restore-active.png") 1x,
+      url("titlebuttons-kde-light/button-restore-active@2.png") 2x
+    ) !important;
+  }
+}
+
+/* --- Dark theme icons --- */
+
+@media (prefers-color-scheme: dark) {
+  #titlebar .titlebar-close {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-close.png") 1x,
+      url("titlebuttons-kde-dark/button-close@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-max {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-maximize.png") 1x,
+      url("titlebuttons-kde-dark/button-maximize@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-min {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-minimize.png") 1x,
+      url("titlebuttons-kde-dark/button-minimize@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-restore,
+  :root[sizemode="maximized"] #titlebar .titlebar-max {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-restore.png") 1x,
+      url("titlebuttons-kde-dark/button-restore@2.png") 2x
+    ) !important;
+  }
+
+  #titlebar .titlebar-close:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-close-hover.png") 1x,
+      url("titlebuttons-kde-dark/button-close-hover@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-max:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-maximize-hover.png") 1x,
+      url("titlebuttons-kde-dark/button-maximize-hover@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-min:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-minimize-hover.png") 1x,
+      url("titlebuttons-kde-dark/button-minimize-hover@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-restore:hover,
+  :root[sizemode="maximized"] #titlebar .titlebar-max:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-restore-hover.png") 1x,
+      url("titlebuttons-kde-dark/button-restore-hover@2.png") 2x
+    ) !important;
+  }
+
+  #titlebar .titlebar-close:active {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-close-active.png") 1x,
+      url("titlebuttons-kde-dark/button-close-active@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-min:active {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-minimize-active.png") 1x,
+      url("titlebuttons-kde-dark/button-minimize-active@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-max:active {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-maximize-active.png") 1x,
+      url("titlebuttons-kde-dark/button-maximize-active@2.png") 2x
+    ) !important;
+  }
+  #titlebar .titlebar-restore:active,
+  :root[sizemode="maximized"] #titlebar .titlebar-max:active {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-restore-active.png") 1x,
+      url("titlebuttons-kde-dark/button-restore-active@2.png") 2x
+    ) !important;
+  }
+}
+
+/* --- Restore/maximize toggle --- */
+
+#titlebar .titlebar-restore { display: none !important; }
+:root[sizemode="maximized"] #titlebar .titlebar-restore { display: inline-block !important; }
+:root[sizemode="maximized"] #titlebar .titlebar-max { display: none !important; }

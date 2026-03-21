@@ -1,0 +1,388 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Firefox Window Controls Theming (Kiwi - KDE Breeze style)
+ * Per-button hover only (no group hover).
+ * Uses @media (prefers-color-scheme) to pick light/dark icon variants. */
+@namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+/* Button box layout — KDE uses tighter spacing */
+#nav-bar .titlebar-buttonbox,
+#TabsToolbar .titlebar-buttonbox,
+#toolbar-menubar .titlebar-buttonbox,
+#TabsToolbar .titlebar-buttonbox-container,
+#nav-bar .titlebar-buttonbox-container,
+#toolbar-menubar .titlebar-buttonbox-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding-inline-start: 8px;
+  padding-inline-end: 8px;
+}
+
+#nav-bar .titlebar-spacer {
+  width: 6px !important;
+}
+
+#nav-bar {
+  padding-left: 4px !important;
+}
+
+#menubar-items {
+  padding: 6px;
+}
+
+#TabsToolbar .toolbar-items {
+  padding: 0 10px !important;
+}
+
+/* --- Toolbar visibility logic (same as macOS variant) --- */
+
+:root[tabsintitlebar] #nav-bar .titlebar-buttonbox-container,
+:root[tabsintitlebar] #nav-bar .titlebar-buttonbox {
+  display: none !important;
+}
+:root[tabsintitlebar] #TabsToolbar .titlebar-buttonbox-container,
+:root[tabsintitlebar] #TabsToolbar .titlebar-buttonbox {
+  display: flex !important;
+  z-index: 1 !important;
+  align-items: stretch !important;
+}
+
+:root[tabsintitlebar] #nav-bar .titlebar-button,
+:root[tabsintitlebar] #nav-bar .titlebar-close,
+:root[tabsintitlebar] #nav-bar .titlebar-min,
+:root[tabsintitlebar] #nav-bar .titlebar-max,
+:root[tabsintitlebar] #nav-bar .titlebar-restore {
+  display: none !important;
+}
+
+:root[tabsintitlebar] #nav-bar > :is(.titlebar-buttonbox-container, .titlebar-spacer),
+:root[tabsintitlebar] #nav-bar .titlebar-buttonbox,
+:root[tabsintitlebar] #nav-bar .titlebar-button {
+  display: none !important;
+}
+
+#navigator-toolbox:not([tabs-hidden]) > #nav-bar > :is(.titlebar-buttonbox-container, .titlebar-spacer) {
+  display: none !important;
+}
+#navigator-toolbox:not([tabs-hidden]) > #TabsToolbar > :is(.titlebar-buttonbox-container, .titlebar-spacer) {
+  display: flex !important;
+}
+
+#navigator-toolbox[tabs-hidden] > #TabsToolbar > :is(.titlebar-buttonbox-container, .titlebar-spacer) {
+  display: none !important;
+}
+#navigator-toolbox[tabs-hidden] > #nav-bar > :is(.titlebar-buttonbox-container, .titlebar-spacer) {
+  display: flex !important;
+}
+
+:root:not([chromehidden~="menubar"], [inFullscreen])
+  #toolbar-menubar:not([autohide], [collapsed])
+  > :is(.titlebar-buttonbox-container, .titlebar-spacer) {
+  display: flex !important;
+}
+
+:root:not([chromehidden~="menubar"], [inFullscreen])
+  #toolbar-menubar:not([autohide], [collapsed])
+  ~ :is(#TabsToolbar, #nav-bar)
+  > :is(.titlebar-buttonbox-container, .titlebar-spacer) {
+  display: none !important;
+}
+
+:root:not([customtitlebar]) :is(#toolbar-menubar, #TabsToolbar, #nav-bar)
+  > :is(.titlebar-buttonbox-container, .titlebar-spacer),
+:root:not([customtitlebar]) :is(#toolbar-menubar, #TabsToolbar, #nav-bar)
+  .titlebar-buttonbox,
+:root:not([customtitlebar]) :is(#toolbar-menubar, #TabsToolbar, #nav-bar)
+  .titlebar-button {
+  display: none !important;
+}
+
+@supports selector(:has(*)) {
+  :root[tabsintitlebar]:has(#TabsToolbar[hidden]),
+  :root[tabsintitlebar]:has(#TabsToolbar[collapsed="true"]),
+  :root[tabsintitlebar]:has(#TabsToolbar[style*="display: none"]),
+  :root[tabsintitlebar][verticaltabs],
+  :root[tabsintitlebar]:not(:has(#TabsToolbar)) {
+    #nav-bar .titlebar-buttonbox-container,
+    #nav-bar .titlebar-buttonbox {
+      display: flex !important;
+    }
+    #TabsToolbar .titlebar-buttonbox-container,
+    #TabsToolbar .titlebar-buttonbox {
+      display: none !important;
+    }
+  }
+}
+
+/* --- Reset native look --- */
+
+#nav-bar .titlebar-button,
+#toolbar-menubar .titlebar-button,
+#TabsToolbar .titlebar-button {
+  appearance: none !important;
+  -moz-appearance: none !important;
+  background: none !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: 20px 20px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  list-style-image: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  -moz-window-dragging: drag !important;
+}
+#nav-bar .titlebar-button .toolbarbutton-icon,
+#toolbar-menubar .titlebar-button .toolbarbutton-icon,
+#TabsToolbar .titlebar-button .toolbarbutton-icon {
+  display: none !important;
+}
+
+/* --- Light theme icons (dark icons on light bg) --- */
+
+@media (prefers-color-scheme: light) {
+  /* Base */
+  #nav-bar .titlebar-close,
+  #toolbar-menubar .titlebar-close,
+  #TabsToolbar .titlebar-close {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-close.png") 1x,
+      url("titlebuttons-kde-light/button-close@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-max,
+  #toolbar-menubar .titlebar-max,
+  #TabsToolbar .titlebar-max {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-maximize.png") 1x,
+      url("titlebuttons-kde-light/button-maximize@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-min,
+  #toolbar-menubar .titlebar-min,
+  #TabsToolbar .titlebar-min {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-minimize.png") 1x,
+      url("titlebuttons-kde-light/button-minimize@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-restore,
+  #toolbar-menubar .titlebar-restore,
+  #TabsToolbar .titlebar-restore,
+  :root[sizemode="maximized"] #nav-bar .titlebar-max,
+  :root[sizemode="maximized"] #toolbar-menubar .titlebar-max,
+  :root[sizemode="maximized"] #TabsToolbar .titlebar-max {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-restore.png") 1x,
+      url("titlebuttons-kde-light/button-restore@2.png") 2x
+    ) !important;
+  }
+
+  /* Per-button hover */
+  #nav-bar .titlebar-close:hover,
+  #toolbar-menubar .titlebar-close:hover,
+  #TabsToolbar .titlebar-close:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-close-hover.png") 1x,
+      url("titlebuttons-kde-light/button-close-hover@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-max:hover,
+  #toolbar-menubar .titlebar-max:hover,
+  #TabsToolbar .titlebar-max:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-maximize-hover.png") 1x,
+      url("titlebuttons-kde-light/button-maximize-hover@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-min:hover,
+  #toolbar-menubar .titlebar-min:hover,
+  #TabsToolbar .titlebar-min:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-minimize-hover.png") 1x,
+      url("titlebuttons-kde-light/button-minimize-hover@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-restore:hover,
+  #toolbar-menubar .titlebar-restore:hover,
+  #TabsToolbar .titlebar-restore:hover,
+  :root[sizemode="maximized"] #nav-bar .titlebar-max:hover,
+  :root[sizemode="maximized"] #toolbar-menubar .titlebar-max:hover,
+  :root[sizemode="maximized"] #TabsToolbar .titlebar-max:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-restore-hover.png") 1x,
+      url("titlebuttons-kde-light/button-restore-hover@2.png") 2x
+    ) !important;
+  }
+
+  /* Active */
+  #nav-bar .titlebar-close:active,
+  #toolbar-menubar .titlebar-close:active,
+  #TabsToolbar .titlebar-close:active {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-close-active.png") 1x,
+      url("titlebuttons-kde-light/button-close-active@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-min:active,
+  #toolbar-menubar .titlebar-min:active,
+  #TabsToolbar .titlebar-min:active {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-minimize-active.png") 1x,
+      url("titlebuttons-kde-light/button-minimize-active@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-max:active,
+  #toolbar-menubar .titlebar-max:active,
+  #TabsToolbar .titlebar-max:active {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-maximize-active.png") 1x,
+      url("titlebuttons-kde-light/button-maximize-active@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-restore:active,
+  #toolbar-menubar .titlebar-restore:active,
+  #TabsToolbar .titlebar-restore:active,
+  :root[sizemode="maximized"] #nav-bar .titlebar-max:active,
+  :root[sizemode="maximized"] #toolbar-menubar .titlebar-max:active,
+  :root[sizemode="maximized"] #TabsToolbar .titlebar-max:active {
+    background-image: image-set(
+      url("titlebuttons-kde-light/button-restore-active.png") 1x,
+      url("titlebuttons-kde-light/button-restore-active@2.png") 2x
+    ) !important;
+  }
+}
+
+/* --- Dark theme icons (light icons on dark bg) --- */
+
+@media (prefers-color-scheme: dark) {
+  /* Base */
+  #nav-bar .titlebar-close,
+  #toolbar-menubar .titlebar-close,
+  #TabsToolbar .titlebar-close {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-close.png") 1x,
+      url("titlebuttons-kde-dark/button-close@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-max,
+  #toolbar-menubar .titlebar-max,
+  #TabsToolbar .titlebar-max {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-maximize.png") 1x,
+      url("titlebuttons-kde-dark/button-maximize@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-min,
+  #toolbar-menubar .titlebar-min,
+  #TabsToolbar .titlebar-min {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-minimize.png") 1x,
+      url("titlebuttons-kde-dark/button-minimize@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-restore,
+  #toolbar-menubar .titlebar-restore,
+  #TabsToolbar .titlebar-restore,
+  :root[sizemode="maximized"] #nav-bar .titlebar-max,
+  :root[sizemode="maximized"] #toolbar-menubar .titlebar-max,
+  :root[sizemode="maximized"] #TabsToolbar .titlebar-max {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-restore.png") 1x,
+      url("titlebuttons-kde-dark/button-restore@2.png") 2x
+    ) !important;
+  }
+
+  /* Per-button hover */
+  #nav-bar .titlebar-close:hover,
+  #toolbar-menubar .titlebar-close:hover,
+  #TabsToolbar .titlebar-close:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-close-hover.png") 1x,
+      url("titlebuttons-kde-dark/button-close-hover@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-max:hover,
+  #toolbar-menubar .titlebar-max:hover,
+  #TabsToolbar .titlebar-max:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-maximize-hover.png") 1x,
+      url("titlebuttons-kde-dark/button-maximize-hover@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-min:hover,
+  #toolbar-menubar .titlebar-min:hover,
+  #TabsToolbar .titlebar-min:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-minimize-hover.png") 1x,
+      url("titlebuttons-kde-dark/button-minimize-hover@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-restore:hover,
+  #toolbar-menubar .titlebar-restore:hover,
+  #TabsToolbar .titlebar-restore:hover,
+  :root[sizemode="maximized"] #nav-bar .titlebar-max:hover,
+  :root[sizemode="maximized"] #toolbar-menubar .titlebar-max:hover,
+  :root[sizemode="maximized"] #TabsToolbar .titlebar-max:hover {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-restore-hover.png") 1x,
+      url("titlebuttons-kde-dark/button-restore-hover@2.png") 2x
+    ) !important;
+  }
+
+  /* Active */
+  #nav-bar .titlebar-close:active,
+  #toolbar-menubar .titlebar-close:active,
+  #TabsToolbar .titlebar-close:active {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-close-active.png") 1x,
+      url("titlebuttons-kde-dark/button-close-active@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-min:active,
+  #toolbar-menubar .titlebar-min:active,
+  #TabsToolbar .titlebar-min:active {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-minimize-active.png") 1x,
+      url("titlebuttons-kde-dark/button-minimize-active@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-max:active,
+  #toolbar-menubar .titlebar-max:active,
+  #TabsToolbar .titlebar-max:active {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-maximize-active.png") 1x,
+      url("titlebuttons-kde-dark/button-maximize-active@2.png") 2x
+    ) !important;
+  }
+  #nav-bar .titlebar-restore:active,
+  #toolbar-menubar .titlebar-restore:active,
+  #TabsToolbar .titlebar-restore:active,
+  :root[sizemode="maximized"] #nav-bar .titlebar-max:active,
+  :root[sizemode="maximized"] #toolbar-menubar .titlebar-max:active,
+  :root[sizemode="maximized"] #TabsToolbar .titlebar-max:active {
+    background-image: image-set(
+      url("titlebuttons-kde-dark/button-restore-active.png") 1x,
+      url("titlebuttons-kde-dark/button-restore-active@2.png") 2x
+    ) !important;
+  }
+}
+
+/* --- Restore/maximize toggle --- */
+
+#nav-bar .titlebar-restore,
+#toolbar-menubar .titlebar-restore,
+#TabsToolbar .titlebar-restore { display: none !important; }
+
+:root[sizemode="maximized"] #nav-bar .titlebar-restore,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-restore,
+:root[sizemode="maximized"] #TabsToolbar .titlebar-restore { display: inline-block !important; }
+
+:root[sizemode="maximized"] #nav-bar .titlebar-max,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-max,
+:root[sizemode="maximized"] #TabsToolbar .titlebar-max { display: none !important; }

@@ -218,6 +218,14 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   spacing: 4px;
 }
 
+.window-controls-box.kde-mode .window-control-icon {
+  icon-size: 20px;
+}
+
+.window-controls-box.kde-mode.small-size .window-control-icon {
+  icon-size: 16px;
+}
+
 .window-controls-box.system-mode .window-control-button {
   padding: 4px;
   border-radius: 99px;

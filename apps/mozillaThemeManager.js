@@ -95,12 +95,17 @@ export class MozillaThemeManager {
 
             const imports = [];
             if (enableStyling && enableAppButtons) {
-                const themingPath = `${iconsRoot}/${prefix}.css`;
-                const altThemingPath = `${iconsRoot}/${prefix}.alt.css`;
-                if (buttonType === 'titlebuttons-alt')
-                    imports.push(`@import url("file://${altThemingPath}");`);
-                else
-                    imports.push(`@import url("file://${themingPath}");`);
+                if (windowButtonStyle === 'kde') {
+                    const kdeThemingPath = `${iconsRoot}/${prefix}.kde.css`;
+                    imports.push(`@import url("file://${kdeThemingPath}");`);
+                } else {
+                    const themingPath = `${iconsRoot}/${prefix}.css`;
+                    const altThemingPath = `${iconsRoot}/${prefix}.alt.css`;
+                    if (buttonType === 'titlebuttons-alt')
+                        imports.push(`@import url("file://${altThemingPath}");`);
+                    else
+                        imports.push(`@import url("file://${themingPath}");`);
+                }
 
                 if (buttonSize === 'small') {
                     const smallSizePath = `${iconsRoot}/${prefix}-size-small.css`;
