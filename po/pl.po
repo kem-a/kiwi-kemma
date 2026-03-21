@@ -402,6 +402,14 @@ msgstr ""
 "Dodaj do doku niestandardową ikonę Launchpad, która otwiera podgląd "
 "aplikacji. Zaleca się ukrycie domyślnego programu uruchamiającego."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Niestandardowy przycisk Nie przeszkadzać"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Zastępuje systemowy przycisk Nie przeszkadzać własną implementacją Kiwi"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Stylizuj wskaźnik klawiatury"

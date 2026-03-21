@@ -386,6 +386,14 @@ msgid ""
 "Recommended to hide default app launcher."
 msgstr "在 Dock 中添加自定义 Launchpad 图标以打开应用概览。建议隐藏默认启动器。"
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "自定义勿扰按钮"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "将系统勿扰按钮替换为 Kiwi 的自定义实现"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "美化键盘指示器"

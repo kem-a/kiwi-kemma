@@ -396,6 +396,14 @@ msgstr ""
 "Lisa dokki kohandatud Launchpadi ikoon, mis avab rakenduste ülevaate. "
 "Soovitatav on peita vaikimisi käivitaja."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Kohandatud mitte segada nupp"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Asendab süsteemi mitte segada nupu Kiwi kohandatud toteutusega"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Kohanda klaviatuuri indikaatorit"

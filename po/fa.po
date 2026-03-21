@@ -401,6 +401,14 @@ msgstr ""
 "یک آیکون سفارشی لانچ‌پد به داک اضافه کن که نمای برنامه‌ها را باز کند. توصیه "
 "می‌شود لانچر پیش‌فرض پنهان شود."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "دکمه سفارشی عدم مزاحمت"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "دکمه پیش‌فرض عدم مزاحمت سیستم را با پیاده‌سازی سفارشی Kiwi جایگزین می‌کند"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "استایل‌دهی به نشانگر صفحه‌کلید"

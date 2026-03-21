@@ -400,6 +400,14 @@ msgstr ""
 "Eigenes Launchpad-Symbol zum Dock hinzufügen, das die Anwendungsübersicht "
 "öffnet. Es wird empfohlen, den Standard-App-Starter auszublenden."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Benutzerdefinierter Nicht-stören-Button"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Ersetzt den System-Nicht-stören-Button durch Kiwis eigene Implementierung"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Tastaturindikator gestalten"

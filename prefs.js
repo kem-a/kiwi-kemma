@@ -581,6 +581,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
             { key: 'enable-launchpad-app', title: _("Launchpad Application"), subtitle: _("Add custom Launchpad icon to dock that opens application overview. Recommended to hide default app launcher.") },
+            { key: 'custom-dnd-button', title: _("Custom Do Not Disturb Button"), subtitle: _("Replace the system Do Not Disturb button with Kiwi's custom implementation") },
         ];
 
         extrasSwitchList.forEach((item) => {

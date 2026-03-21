@@ -394,6 +394,14 @@ msgstr ""
 "Pridėti į doką pasirinktą Launchpad piktogramą, kuri atidaro programų "
 "apžvalgą. Rekomenduojama paslėpti numatytą paleidiklį."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Tinkintasis Netrukdyti mygtukas"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Pakeičia sistemos Netrukdyti mygtuką Kiwi tinkinta įgyvendinimu"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Pagražinti klaviatūros indikatorių"

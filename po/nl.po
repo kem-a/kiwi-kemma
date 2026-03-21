@@ -400,6 +400,14 @@ msgstr ""
 "Voeg een aangepast Launchpad-pictogram toe aan de dock dat het "
 "toepassingsoverzicht opent. Aanbevolen om de standaardstarter te verbergen."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Aangepaste Niet storen-knop"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Vervangt de systeemknop Niet storen door de aangepaste implementatie van Kiwi"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Toetsenbordindicator stijlen"

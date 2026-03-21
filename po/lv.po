@@ -398,6 +398,14 @@ msgstr ""
 "Pievienot dokam pielāgotu Launchpad ikonu, kas atver lietotņu pārskatu. "
 "Ieteicams paslēpt noklusējuma palaidēju."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Pielāgota poga Netraucēt"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Aizstāj sistēmas pogu Netraucēt ar Kiwi pielāgoto variantu"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Noformēt tastatūras indikatoru"

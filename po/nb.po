@@ -396,6 +396,14 @@ msgstr ""
 "Legg til et tilpasset Launchpad-ikon i dokken som åpner programoversikten. "
 "Anbefales å skjule standardstarteren."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Egendefinert Ikke forstyrr-knapp"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Erstatter systemets Ikke forstyrr-knapp med Kiwis egendefinerte implementering"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Stilsett tastaturindikatoren"

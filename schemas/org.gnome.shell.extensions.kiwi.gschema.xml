@@ -173,5 +173,12 @@
         <summary>Enable Launchpad Application</summary>
         <description>Adds a custom Launchpad icon to dock that opens the application overview.</description>
       </key>
+
+      <!-- Custom DND button -->
+      <key name="custom-dnd-button" type="b">
+        <default>true</default>
+        <summary>Custom Do Not Disturb Button</summary>
+        <description>Replace the system Do Not Disturb quick settings button with Kiwi's custom implementation.</description>
+      </key>
     </schema>
 </schemalist>

@@ -102,7 +102,7 @@ export default class KiwiExtension extends Extension {
 
          if (this._settings.get_boolean('move-calendar-right')) {
             calendarEnable();
-            quickSettingsNotificationsEnable(gettextFunc);
+            quickSettingsNotificationsEnable(gettextFunc, this._settings);
             quickSettingsMediaEnable(gettextFunc);
         } else {
             calendarDisable();

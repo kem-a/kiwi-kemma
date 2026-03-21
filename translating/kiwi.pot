@@ -385,6 +385,14 @@ msgid ""
 "Recommended to hide default app launcher."
 msgstr ""
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr ""
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr ""
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr ""

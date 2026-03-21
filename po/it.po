@@ -404,6 +404,14 @@ msgstr ""
 "Aggiungi al dock un’icona Launchpad personalizzata che apre la panoramica "
 "delle applicazioni. Si consiglia di nascondere il launcher predefinito."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Pulsante Non disturbare personalizzato"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi’s custom implementation"
+msgstr "Sostituisce il pulsante Non disturbare del sistema con l’implementazione personalizzata di Kiwi"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Personalizza l’indicatore della tastiera"

@@ -386,6 +386,14 @@ msgid ""
 "Recommended to hide default app launcher."
 msgstr "도크에 맞춤 런치패드 아이콘을 추가하여 애플리케이션 개요를 열게 합니다. 기본 실행기를 숨기는 것이 좋습니다."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "사용자 정의 방해 금지 버튼"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "시스템 방해 금지 버튼을 Kiwi의 사용자 정의 구현으로 교체합니다"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "키보드 표시기 스타일 조정"

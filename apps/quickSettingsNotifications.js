@@ -46,6 +46,8 @@ let _dateMenuMessageListIndex = -1;
 let _dateMenuMessageListWasVisible = null;
 let _dateMenuMessageListPlaceholder = null;
 let _dateMenuSuppressed = false;
+let _kiwiSettings = null;
+let _kiwiSettingsChangedId = null;
 
 
 // Get QuickSettings grid
@@ -621,8 +623,27 @@ GObject.registerClass(NotificationWidget);
 
 // #endregion Notification Classes
 
-export function enable(gettext) {
+function _applyCustomDndSetting() {
+    if (!enabled)
+        return;
+
+    const useCustom = _kiwiSettings?.get_boolean('custom-dnd-button') !== false;
+    if (useCustom) {
+        if (SHELL_HAS_SYSTEM_DND)
+            suppressBuiltinDndToggle();
+        suppressBuiltinDndIndicator();
+        ensureDndButtonWithRetry();
+    } else {
+        destroyDndButton();
+        restoreBuiltinDndIndicator();
+        if (SHELL_HAS_SYSTEM_DND)
+            restoreBuiltinDndToggle();
+    }
+}
+
+export function enable(gettext, settings) {
     gettextFunc = typeof gettext === 'function' ? gettext : (message) => message;
+    _kiwiSettings = settings ?? null;
     if (enabled) return;
 
     // Delay to ensure quicksettings is fully loaded
@@ -653,11 +674,16 @@ export function enable(gettext) {
             _dateMenuSuppressed = false;
         }
 
-        // On GNOME 49+, hide built-in quick settings DND toggle; always hide panel indicator
-        if (SHELL_HAS_SYSTEM_DND)
-            suppressBuiltinDndToggle();
-        suppressBuiltinDndIndicator();
-        ensureDndButtonWithRetry();
+        // Conditionally suppress built-in DND UI and add custom button
+        if (_kiwiSettings?.get_boolean('custom-dnd-button') !== false) {
+            if (SHELL_HAS_SYSTEM_DND)
+                suppressBuiltinDndToggle();
+            suppressBuiltinDndIndicator();
+            ensureDndButtonWithRetry();
+        }
+
+        if (_kiwiSettings && !_kiwiSettingsChangedId)
+            _kiwiSettingsChangedId = _kiwiSettings.connect('changed::custom-dnd-button', _applyCustomDndSetting);
 
         enabled = true;
         _initTimeoutId = null;
@@ -697,6 +723,12 @@ export function disable() {
             notificationWidget = null;
         }
     }
+
+    if (_kiwiSettings && _kiwiSettingsChangedId) {
+        _kiwiSettings.disconnect(_kiwiSettingsChangedId);
+        _kiwiSettingsChangedId = null;
+    }
+    _kiwiSettings = null;
 
     enabled = false;
     gettextFunc = (message) => message;

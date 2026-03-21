@@ -398,6 +398,14 @@ msgstr ""
 "Lisää telakkaan mukautettu Launchpad-kuvake, joka avaa sovellusnäkymän. "
 "Suositellaan piilottamaan oletuslaukaisin."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Mukautettu Älä häiritse -painike"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Korvaa järjestelmän Älä häiritse -painikkeen Kiwin omalla toteutuksella"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Tyylittele näppäimistöindikaattori"

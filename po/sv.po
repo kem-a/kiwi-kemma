@@ -397,6 +397,14 @@ msgstr ""
 "Lägg till en anpassad Launchpad-ikon i dockan som öppnar programöversikten. "
 "Rekommenderas att dölja standardstartaren."
 
+#: prefs.js:584
+msgid "Custom Do Not Disturb Button"
+msgstr "Anpassad Stör ej-knapp"
+
+#: prefs.js:584
+msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Ersätter systemets Stör ej-knapp med Kiwis anpassade implementering"
+
 #: prefs.js:647
 msgid "Style Keyboard Indicator"
 msgstr "Styla tangentbordsindikatorn"
