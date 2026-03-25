@@ -35,7 +35,7 @@ const INTERFACE_SCHEMA = 'org.gnome.desktop.interface';
 const COLOR_SCHEME_KEY = 'color-scheme'; // values: 'default', 'prefer-dark'
 const SCHEMES = ['default', 'prefer-dark'];
 
-const TARGET_DIR = GLib.build_filenamev([GLib.get_home_dir(), '.cache', 'kiwi']);
+const TARGET_DIR = GLib.build_filenamev([GLib.get_user_cache_dir(), 'kiwi']);
 const TARGET_FILE_LIGHT = GLib.build_filenamev([TARGET_DIR, 'overview-blurred-wallpaper-light.jpg']);
 const META_FILE_LIGHT = GLib.build_filenamev([TARGET_DIR, 'overview-blurred-wallpaper-light.meta']);
 const TARGET_FILE_DARK = GLib.build_filenamev([TARGET_DIR, 'overview-blurred-wallpaper-dark.jpg']);
