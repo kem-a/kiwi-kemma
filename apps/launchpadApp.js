@@ -264,8 +264,23 @@ export function enable(extension, gettext) {
     GLib.mkdir_with_parents(desktopDir, 0o755);
 
     const desktopPath = GLib.build_filenamev([desktopDir, LAUNCHPAD_DESKTOP_ID]);
-    const iconFile = extension.dir.resolve_relative_path(ICON_RELATIVE_PATH);
-    const iconPath = iconFile ? iconFile.get_path() : null;
+
+    // Determine icon path: use custom icon if set and valid, otherwise default
+    const settings = extension.getSettings();
+    const customIconPath = settings.get_string('launchpad-app-custom-icon');
+    let iconPath = null;
+
+    if (customIconPath) {
+        const customFile = Gio.File.new_for_path(customIconPath);
+        if (customFile.query_exists(null))
+            iconPath = customIconPath;
+    }
+
+    if (!iconPath) {
+        const iconFile = extension.dir.resolve_relative_path(ICON_RELATIVE_PATH);
+        iconPath = iconFile ? iconFile.get_path() : null;
+    }
+
     if (!iconPath) {
         console.error('Launchpad: Failed to resolve icon path');
         return;

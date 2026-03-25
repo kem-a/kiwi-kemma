@@ -580,7 +580,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
-            { key: 'enable-launchpad-app', title: _("Launchpad Application"), subtitle: _("Add custom Launchpad icon to dock that opens application overview. Recommended to hide default app launcher.") },
             { key: 'custom-dnd-button', title: _("Custom Do Not Disturb Button"), subtitle: _("Replace the system Do Not Disturb button with Kiwi's custom implementation") },
         ];
 
@@ -592,6 +591,118 @@ export default class KiwiPreferences extends ExtensionPreferences {
             });
             extrasGroup.add(switchRow);
             window._settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        });
+
+        // Launchpad Application with custom icon option
+        const launchpadExpander = new Adw.ExpanderRow({
+            title: _("Launchpad Application"),
+            subtitle: _("Add custom Launchpad icon to dock that opens application overview. Recommended to hide default app launcher."),
+            show_enable_switch: true,
+            enable_expansion: settings.get_boolean('enable-launchpad-app'),
+        });
+
+        launchpadExpander.enable_expansion = settings.get_boolean('enable-launchpad-app');
+        launchpadExpander.connect('notify::enable-expansion', () => {
+            const enabled = launchpadExpander.enable_expansion;
+            if (settings.get_boolean('enable-launchpad-app') !== enabled)
+                settings.set_boolean('enable-launchpad-app', enabled);
+        });
+        settings.connect('changed::enable-launchpad-app', () => {
+            launchpadExpander.enable_expansion = settings.get_boolean('enable-launchpad-app');
+        });
+
+        const customIconPath = settings.get_string('launchpad-app-custom-icon');
+        const launchpadIconRow = new Adw.ActionRow({
+            title: _("Custom Icon"),
+            subtitle: customIconPath
+                ? GLib.path_get_basename(customIconPath)
+                : _("Using default icon"),
+            sensitive: settings.get_boolean('enable-launchpad-app'),
+        });
+        settings.bind('enable-launchpad-app', launchpadIconRow, 'sensitive', Gio.SettingsBindFlags.GET);
+
+        const clearIconButton = new Gtk.Button({
+            icon_name: 'edit-clear-symbolic',
+            valign: Gtk.Align.CENTER,
+            tooltip_text: _("Reset to default icon"),
+            visible: customIconPath !== '',
+        });
+        clearIconButton.add_css_class('flat');
+        clearIconButton.connect('clicked', () => {
+            settings.set_string('launchpad-app-custom-icon', '');
+        });
+
+        const browseButton = new Gtk.Button({
+            icon_name: 'document-open-symbolic',
+            valign: Gtk.Align.CENTER,
+            tooltip_text: _("Browse for icon"),
+        });
+        browseButton.add_css_class('flat');
+        browseButton.connect('clicked', () => {
+            const dialog = new Gtk.FileDialog({
+                title: _("Select Launchpad Icon"),
+            });
+
+            const filter = new Gtk.FileFilter();
+            filter.set_name(_("Images (PNG, SVG)"));
+            filter.add_mime_type('image/png');
+            filter.add_mime_type('image/svg+xml');
+
+            const filters = Gio.ListStore.new(Gtk.FileFilter);
+            filters.append(filter);
+            dialog.set_filters(filters);
+            dialog.set_default_filter(filter);
+
+            dialog.open(window, null, (source, result) => {
+                try {
+                    const file = source.open_finish(result);
+                    if (!file)
+                        return;
+
+                    const filePath = file.get_path();
+                    const lowerPath = filePath.toLowerCase();
+
+                    if (!lowerPath.endsWith('.png') && !lowerPath.endsWith('.svg')) {
+                        return;
+                    }
+
+                    // Validate PNG dimensions
+                    if (lowerPath.endsWith('.png')) {
+                        try {
+                            const pixbuf = GdkPixbuf.Pixbuf.new_from_file(filePath);
+                            if (pixbuf.get_width() > 512 || pixbuf.get_height() > 512) {
+                                const errorDialog = new Adw.AlertDialog({
+                                    heading: _("Icon Too Large"),
+                                    body: _("The selected image exceeds 512×512 pixels. Please choose a smaller image."),
+                                });
+                                errorDialog.add_response('ok', _("OK"));
+                                errorDialog.present(window);
+                                return;
+                            }
+                        } catch (e) {
+                            console.error('Launchpad: Failed to validate icon:', e);
+                            return;
+                        }
+                    }
+
+                    settings.set_string('launchpad-app-custom-icon', filePath);
+                } catch (e) {
+                    // User cancelled the dialog
+                }
+            });
+        });
+
+        launchpadIconRow.add_suffix(clearIconButton);
+        launchpadIconRow.add_suffix(browseButton);
+        launchpadExpander.add_row(launchpadIconRow);
+        extrasGroup.add(launchpadExpander);
+
+        settings.connect('changed::launchpad-app-custom-icon', () => {
+            const path = settings.get_string('launchpad-app-custom-icon');
+            launchpadIconRow.subtitle = path
+                ? GLib.path_get_basename(path)
+                : _("Using default icon");
+            clearIconButton.visible = path !== '';
         });
 
         // Keyboard indicator feature with sub-options

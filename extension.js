@@ -183,10 +183,14 @@ export default class KiwiExtension extends Extension {
             dockBlurDisable();
 
         // Launchpad app
-        if (this._settings.get_boolean('enable-launchpad-app'))
-            launchpadAppEnable(this, gettextFunc);
-        else
+        if (key === 'launchpad-app-custom-icon' && this._settings.get_boolean('enable-launchpad-app')) {
             launchpadAppDisable();
+            launchpadAppEnable(this, gettextFunc);
+        } else if (this._settings.get_boolean('enable-launchpad-app')) {
+            launchpadAppEnable(this, gettextFunc);
+        } else {
+            launchpadAppDisable();
+        }
     }
 
     enable() {
