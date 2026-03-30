@@ -272,7 +272,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 
 .notification-badge {
   color: red;
-  icon-size: 12px;
+  icon-size: 10px;
   padding: 0px;
 }
 
