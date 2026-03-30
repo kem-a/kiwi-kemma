@@ -17,6 +17,12 @@ headerbar box.horizontal.left {
 .geary-main-layout treeview.sidebar {
   padding: 4px;
 }
+.geary-main-layout treeview.sidebar:selected {
+  background-color: alpha(@accent_bg_color,0.3);
+}
+.geary-main-layout viewport>list>row:selected {
+  background-color: alpha(@accent_bg_color,0.3);
+}
 .geary-main-layout.vertical .titlebar.windowhandle {
   background: transparent;
   border: none;
@@ -28,7 +34,7 @@ button.thin-button {
   border: none;
   background: transparent;
 }
-S button.image-button:hover,
+button.image-button:hover,
 button.thin-button:hover,
 box.horizontal.linked.raised > button:hover {
   background-color: alpha(currentColor, 0.15);
