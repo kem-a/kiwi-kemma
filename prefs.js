@@ -254,7 +254,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const rightColumn = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 12,
-            halign: Gtk.Align.FILL,
+            halign: Gtk.Align.CENTER,
             valign: Gtk.Align.START,
             margin_top: 35,
             hexpand: true,
@@ -269,6 +269,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const qrImage = new Gtk.Image({
             gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/qrcode-symbolic.svg`) }),
             pixel_size: 128,
+            halign: Gtk.Align.CENTER,
+            valign: Gtk.Align.CENTER,
         });
         qrButton.set_child(qrImage);
         qrButton.connect('clicked', () => {
