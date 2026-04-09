@@ -38,8 +38,8 @@ let _recomputeIdleId = null;
 let _ghostMenu = null;
 let _originalTrackFullscreen = null;
 
-function _debug(msg) {
-    console.debug(`[PanelHover] ${msg}`);
+function _debug(_msg) {
+    // Enable for troubleshooting: console.debug(`[PanelHover] ${_msg}`);
 }
 
 function _getPanelBox() {

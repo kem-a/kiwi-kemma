@@ -70,7 +70,6 @@ class GtkThemeManager {
         // Update user GTK config files with imports
         await this.createUserGtkConfig();
         
-        console.log(`[Kiwi] Updated GTK CSS files. App buttons: ${enableAppButtons}, Button type: ${buttonType}, Button size: ${buttonSize}, Panel controls: ${showControlsOnPanel}`);
     } catch (error) {
         console.error(`[Kiwi] Error updating GTK CSS files: ${error}`);
     }
@@ -101,8 +100,6 @@ class GtkThemeManager {
         
         // Process GTK 4 config
         await this.processUserGtkFile(gtk4UserPath, gtk4ImportLine);
-        
-        console.log('[Kiwi] Added imports to user GTK config files');
         
     } catch (error) {
         console.error(`[Kiwi] Error creating user GTK config: ${error}`);
@@ -164,11 +161,8 @@ class GtkThemeManager {
                 }
             } catch (e) {
                 // File might not exist or be inaccessible, continue
-                console.log(`[Kiwi] Could not process ${path}: ${e.message}`);
             }
         }
-        
-        console.log('[Kiwi] Removed kiwi imports from user GTK config files');
         
     } catch (error) {
         console.error(`[Kiwi] Error removing user GTK config: ${error}`);
