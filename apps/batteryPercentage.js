@@ -176,6 +176,20 @@ class BatteryPercentage {
         });
     }
 
+    destroy() {
+        if (this._propertiesChangedId && this._batteryProxy) {
+            this._batteryProxy.disconnect(this._propertiesChangedId);
+            this._propertiesChangedId = null;
+        }
+        if (this._batteryProxy) {
+            this._batteryProxy = null;
+        }
+        if (this._batteryLabel) {
+            this._batteryLabel.destroy();
+            this._batteryLabel = null;
+        }
+    }
+
     _animateOut() {
         // Animate the label sliding out to the right and then hide it
         this._batteryLabel.ease({
@@ -203,22 +217,11 @@ export const enable = () => {
 export const disable = () => {
     // Disable the battery percentage indicator and remove it from the panel
     if (batteryPercentageInstance) {
-        Main.panel.statusArea.quickSettings._indicators.remove_child(batteryPercentageInstance._batteryLabel);
-        
-        // Properly destroy the label
-        batteryPercentageInstance._batteryLabel.destroy();
-        
-        // Disconnect properties-changed signal if connected
-        if (batteryPercentageInstance._propertiesChangedId && batteryPercentageInstance._batteryProxy) {
-            batteryPercentageInstance._batteryProxy.disconnect(batteryPercentageInstance._propertiesChangedId);
-            batteryPercentageInstance._propertiesChangedId = null;
+        if (batteryPercentageInstance._batteryLabel && batteryPercentageInstance._batteryLabel.get_parent()) {
+            Main.panel.statusArea.quickSettings._indicators.remove_child(batteryPercentageInstance._batteryLabel);
         }
         
-        // Properly dispose of the proxy
-        if (batteryPercentageInstance._batteryProxy) {
-            batteryPercentageInstance._batteryProxy = null;
-        }
-        
+        batteryPercentageInstance.destroy();
         batteryPercentageInstance = null;
     }
 };

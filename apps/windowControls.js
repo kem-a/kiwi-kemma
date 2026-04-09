@@ -72,34 +72,35 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._lastIsFullscreen = false;
         this._lastIsMaximized = false; // track maximized state changes
         this._fullscreenWindowSerial = 0; // increment when fullscreen window context changes
-        this._box.connect('motion-event', () => {
+        this._clutterSignalIds = [];
+        this._clutterSignalIds.push([this._box, this._box.connect('motion-event', () => {
             if (this._suppressHoverUntilPointerMove) {
                 this._suppressHoverUntilPointerMove = false;
                 this._updateAllIcons();
             }
             return Clutter.EVENT_PROPAGATE;
-        });
+        })]);
         
         // Add leave event for the main container to reset hover state
-        this._box.connect('leave-event', () => {
+        this._clutterSignalIds.push([this._box, this._box.connect('leave-event', () => {
             this._isContainerHovered = false;
             this._updateAllIcons();
             return Clutter.EVENT_PROPAGATE;
-        });
+        })]);
 
         ['minimize', 'maximize', 'close'].forEach(buttonType => {
             const button = this[`_${buttonType}Button`];
-            button.connect('notify::hover', () => this._updateButtonIcon(buttonType));
-            button.connect('button-press-event', () => {
+            this._clutterSignalIds.push([button, button.connect('notify::hover', () => this._updateButtonIcon(buttonType))]);
+            this._clutterSignalIds.push([button, button.connect('button-press-event', () => {
                 button.add_style_pseudo_class('active');
                 this._updateButtonIcon(buttonType);
-            });
-            button.connect('button-release-event', () => {
+            })]);
+            this._clutterSignalIds.push([button, button.connect('button-release-event', () => {
                 button.remove_style_pseudo_class('active');
                 this._updateButtonIcon(buttonType);
-            });
+            })]);
             // Add enter/leave events for all-buttons-hover effect (macOS mode)
-            button.connect('enter-event', () => {
+            this._clutterSignalIds.push([button, button.connect('enter-event', () => {
                 if (this._suppressHoverUntilPointerMove) {
                     this._suppressHoverUntilPointerMove = false;
                 }
@@ -107,21 +108,21 @@ class WindowControlsIndicator extends PanelMenu.Button {
                     this._isContainerHovered = true;
                     this._updateAllIcons();
                 }
-            });
-            button.connect('leave-event', () => {
+            })]);
+            this._clutterSignalIds.push([button, button.connect('leave-event', () => {
                 if (this._useMacosIcons) {
                     this._isContainerHovered = false;
                     this._updateAllIcons();
                 }
-            });
+            })]);
         });
 
-        this._minimizeButton.connect('clicked', () => {
+        this._clutterSignalIds.push([this._minimizeButton, this._minimizeButton.connect('clicked', () => {
             const window = global.display.focus_window;
             if (window) window.minimize();
-        });
+        })]);
 
-        this._maximizeButton.connect('clicked', () => {
+        this._clutterSignalIds.push([this._maximizeButton, this._maximizeButton.connect('clicked', () => {
             const window = global.display.focus_window;
             if (window) {
                 if (window.is_fullscreen()) {
@@ -144,12 +145,12 @@ class WindowControlsIndicator extends PanelMenu.Button {
                     }
                 }
             }
-        });
+        })]);
 
-        this._closeButton.connect('clicked', () => {
+        this._clutterSignalIds.push([this._closeButton, this._closeButton.connect('clicked', () => {
             const window = global.display.focus_window;
             if (window) window.delete(global.get_current_time());
-        });
+        })]);
 
         this._buildButtonLayout();
 
@@ -579,6 +580,12 @@ class WindowControlsIndicator extends PanelMenu.Button {
             if (this._focusWindowMaximizeVertSignal) this._focusWindow.disconnect(this._focusWindowMaximizeVertSignal);
             if (this._focusWindowFullscreenSignal) this._focusWindow.disconnect(this._focusWindowFullscreenSignal);
         }
+
+        this._clutterSignalIds.forEach(([obj, id]) => obj.disconnect(id));
+        this._clutterSignalIds = [];
+
+        this._clutterSignalIds.forEach(([obj, id]) => obj.disconnect(id));
+        this._clutterSignalIds = [];
 
     this._clearCloseButtonDelay();
 

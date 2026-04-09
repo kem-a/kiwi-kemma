@@ -51,7 +51,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._restoreSeparator = null;
         this._restoreMenuItem = null;
 
-        this._menu.connect('open-state-changed', (menu, isOpen) => {
+        this._menuOpenStateId = this._menu.connect('open-state-changed', (menu, isOpen) => {
             if (isOpen) {
                 this._updateRestoreMenuItem();
                 GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
@@ -156,6 +156,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
 
     _updateRestoreMenuItem() {
         if (this._restoreMenuItem) {
+            if (this._restoreMenuActId) this._restoreMenuItem.disconnect(this._restoreMenuActId);
+            this._restoreMenuActId = null;
             this._restoreMenuItem.destroy();
             this._restoreMenuItem = null;
         }
@@ -191,7 +193,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
         }
 
         this._restoreMenuItem = new PopupMenu.PopupMenuItem('Restore Window');
-        this._restoreMenuItem.connect('activate', () => {
+        this._restoreMenuActId = this._restoreMenuItem.connect('activate', () => {
             if (isMaximized) {
                 try {
                     win.unmaximize();
@@ -255,6 +257,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
 
     destroy() {
         if (this._restoreMenuItem) {
+            if (this._restoreMenuActId) this._restoreMenuItem.disconnect(this._restoreMenuActId);
+            this._restoreMenuActId = null;
             this._restoreMenuItem.destroy();
             this._restoreMenuItem = null;
         }
@@ -264,6 +268,18 @@ class WindowTitleIndicator extends PanelMenu.Button {
         }
         if (this._overviewShowingId) {
             Main.overview.disconnect(this._overviewShowingId);
+        }
+        if (this._menuOpenStateId) {
+            this._menu.disconnect(this._menuOpenStateId);
+        }
+        if (this._restoreMenuItem && this._restoreMenuActId) {
+            this._restoreMenuItem.disconnect(this._restoreMenuActId);
+        }
+        if (this._menuOpenStateId) {
+            this._menu.disconnect(this._menuOpenStateId);
+        }
+        if (this._restoreMenuItem && this._restoreMenuActId) {
+            this._restoreMenuItem.disconnect(this._restoreMenuActId);
         }
         if (this._focusWindowSignal) {
             global.display.disconnect(this._focusWindowSignal);
