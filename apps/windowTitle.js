@@ -20,6 +20,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'window-title', true);
 
+        this._syncMenuIdleId = null;
+
         this._menu = new AppMenu(this);
         this.setMenu(this._menu);
         Main.panel.menuManager.addMenu(this._menu);
@@ -54,8 +56,13 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._menuOpenStateId = this._menu.connect('open-state-changed', (menu, isOpen) => {
             if (isOpen) {
                 this._updateRestoreMenuItem();
-                GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+                if (this._syncMenuIdleId) {
+                    GLib.Source.remove(this._syncMenuIdleId);
+                    this._syncMenuIdleId = null;
+                }
+                this._syncMenuIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
                     this._syncMenuAlignment();
+                    this._syncMenuIdleId = null;
                     return GLib.SOURCE_REMOVE;
                 });
             }
@@ -148,8 +155,13 @@ class WindowTitleIndicator extends PanelMenu.Button {
             this.show();
         }
 
-        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        if (this._syncMenuIdleId) {
+            GLib.Source.remove(this._syncMenuIdleId);
+            this._syncMenuIdleId = null;
+        }
+        this._syncMenuIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
             this._syncMenuAlignment();
+            this._syncMenuIdleId = null;
             return GLib.SOURCE_REMOVE;
         });
     }
@@ -256,6 +268,11 @@ class WindowTitleIndicator extends PanelMenu.Button {
     }
 
     destroy() {
+        if (this._syncMenuIdleId) {
+            GLib.Source.remove(this._syncMenuIdleId);
+            this._syncMenuIdleId = null;
+        }
+
         if (this._restoreMenuItem) {
             if (this._restoreMenuActId) this._restoreMenuItem.disconnect(this._restoreMenuActId);
             this._restoreMenuActId = null;
