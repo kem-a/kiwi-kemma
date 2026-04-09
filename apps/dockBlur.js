@@ -1,30 +1,83 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Adds a blur effect behind Dash-to-Dock / Ubuntu Dock background.
 // Approach based on blur-my-shell: insert blur inside the dock's own actor tree,
-// sized to the dash-background pill, with a custom Clutter.Effect for repaint.
+// sized to the dash-background pill, with event-driven repaints.
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import GLib from 'gi://GLib';
-import GObject from 'gi://GObject';
 import St from 'gi://St';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
-import Clutter from 'gi://Clutter';
 
 let dockSearchId = null;
 let dashes = []; // array of per-dash state objects
+let blurRepaintSignals = []; // global event signal connections for blur repaints
+let blurRepaintIdleId = 0; // idle source for coalesced blur repaints
 
-// Custom Clutter.Effect that emits a signal on every vfunc_paint, used
-// to force the blur effect to repaint (workaround for GNOME Shell #2857)
-const RepaintSignalEffect = GObject.registerClass({
-    GTypeName: 'KiwiRepaintSignalEffect',
-    Signals: { 'repaint': {} },
-}, class RepaintSignalEffect extends Clutter.Effect {
-    vfunc_paint(node, paintContext, paintFlags) {
-        this.emit('repaint');
-        super.vfunc_paint(node, paintContext, paintFlags);
+function _scheduleBlurRepaint() {
+    if (blurRepaintIdleId || dashes.length === 0) return;
+    blurRepaintIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        blurRepaintIdleId = 0;
+        for (const info of dashes) {
+            if (info.blurEffect && info.blurWidget?.visible) {
+                try { info.blurEffect.queue_repaint(); } catch (_) {}
+            }
+        }
+        return GLib.SOURCE_REMOVE;
+    });
+}
+
+function _connectRepaintSignals() {
+    _disconnectRepaintSignals();
+
+    // Window stacking changes
+    const restackedId = global.display.connect('restacked', _scheduleBlurRepaint);
+    blurRepaintSignals.push({ obj: global.display, id: restackedId });
+
+    // Window lifecycle events
+    const wmSignals = ['map', 'destroy', 'minimize', 'unminimize', 'switch-workspace'];
+    for (const sigName of wmSignals) {
+        try {
+            const id = global.window_manager.connect(sigName, _scheduleBlurRepaint);
+            blurRepaintSignals.push({ obj: global.window_manager, id });
+        } catch (_) {}
     }
-});
+
+    // Background/wallpaper changes
+    const backgroundGroup = Main.layoutManager?._backgroundGroup;
+    if (backgroundGroup) {
+        for (const bg of backgroundGroup) {
+            const id = bg.connect('notify::content', _scheduleBlurRepaint);
+            blurRepaintSignals.push({ obj: bg, id });
+        }
+        const addId = backgroundGroup.connect('child-added', (_group, child) => {
+            const id = child.connect('notify::content', _scheduleBlurRepaint);
+            blurRepaintSignals.push({ obj: child, id });
+        });
+        const removeId = backgroundGroup.connect('child-removed', (_group, child) => {
+            blurRepaintSignals = blurRepaintSignals.filter(s => s.obj !== child);
+        });
+        blurRepaintSignals.push({ obj: backgroundGroup, id: addId });
+        blurRepaintSignals.push({ obj: backgroundGroup, id: removeId });
+    }
+
+    // Overview transitions
+    const showId = Main.overview.connect('showing', _scheduleBlurRepaint);
+    const hideId = Main.overview.connect('hidden', _scheduleBlurRepaint);
+    blurRepaintSignals.push({ obj: Main.overview, id: showId });
+    blurRepaintSignals.push({ obj: Main.overview, id: hideId });
+}
+
+function _disconnectRepaintSignals() {
+    for (const { obj, id } of blurRepaintSignals) {
+        try { obj.disconnect(id); } catch (_) {}
+    }
+    blurRepaintSignals = [];
+    if (blurRepaintIdleId) {
+        GLib.Source.remove(blurRepaintIdleId);
+        blurRepaintIdleId = 0;
+    }
+}
 
 function _findDockContainers() {
     // Dash-to-Dock adds containers with name 'dashtodockContainer' to Main.uiGroup
@@ -86,14 +139,6 @@ function _tryBlurDock(dockContainer) {
     // Insert at index 0 of dashBox (behind the dash content)
     dashBox.insert_child_at_index(backgroundGroup, 0);
 
-    // Repaint signal effect — attached to the blur widget itself,
-    // triggers queue_repaint on the blur effect every paint cycle
-    const repaintEffect = new RepaintSignalEffect();
-    const repaintId = repaintEffect.connect('repaint', () => {
-        try { blurEffect.queue_repaint(); } catch (_) {}
-    });
-    blurWidget.add_effect(repaintEffect);
-
     // Size and position the blur and border widgets to match the dash-background
     const updateSize = () => {
         if (!blurWidget || !dashBackground) return;
@@ -105,6 +150,7 @@ function _tryBlurDock(dockContainer) {
         blurWidget.set_position(x, y);
         borderWidget.set_size(w, h);
         borderWidget.set_position(x, y);
+        _scheduleBlurRepaint();
     };
     updateSize();
 
@@ -128,8 +174,6 @@ function _tryBlurDock(dockContainer) {
         backgroundGroup,
         blurWidget,
         blurEffect,
-        repaintEffect,
-        repaintId,
         signals,
         destroyId: null,
     };
@@ -138,6 +182,10 @@ function _tryBlurDock(dockContainer) {
     info.destroyId = dash.connect('destroy', () => _removeDashBlur(info, false));
 
     dashes.push(info);
+
+    // Connect global repaint signals when first dash is blurred
+    if (dashes.length === 1)
+        _connectRepaintSignals();
 }
 
 function _removeDashBlur(info, disconnectDestroy = true) {
@@ -152,11 +200,6 @@ function _removeDashBlur(info, disconnectDestroy = true) {
     }
     info.destroyId = null;
 
-    // Disconnect repaint signal
-    if (info.repaintEffect && info.repaintId) {
-        try { info.repaintEffect.disconnect(info.repaintId); } catch (_) {}
-    }
-
     // Remove blur group from dock tree
     if (info.backgroundGroup && info.dashBox) {
         try { info.dashBox.remove_child(info.backgroundGroup); } catch (_) {}
@@ -168,11 +211,14 @@ function _removeDashBlur(info, disconnectDestroy = true) {
     info.backgroundGroup = null;
     info.blurWidget = null;
     info.blurEffect = null;
-    info.repaintEffect = null;
 
     // Remove from dashes array
     const idx = dashes.indexOf(info);
     if (idx >= 0) dashes.splice(idx, 1);
+
+    // Disconnect global signals when no more blurred dashes
+    if (dashes.length === 0)
+        _disconnectRepaintSignals();
 }
 
 function _blurExistingDocks() {
@@ -223,4 +269,5 @@ export function disable() {
     }
 
     _removeAllBlurs();
+    _disconnectRepaintSignals(); // safety, in case _removeAllBlurs didn't trigger it
 }

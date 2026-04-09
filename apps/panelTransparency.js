@@ -26,6 +26,7 @@ let blurBackgroundGroup = null;
 let blurWidget = null;
 let blurSizeSignals = [];
 let blurPaintSignals = []; // paint signal connections to force blur repaint
+let blurRepaintIdleId = 0; // idle source for coalesced blur repaints
 
 // --- Panel blur helpers ---
 // Uses the same approach as blur-my-shell: a Meta.BackgroundGroup (width/height 0)
@@ -81,6 +82,16 @@ function createBlurEffect() {
     _connectPaintSignals();
 }
 
+function _scheduleBlurRepaint() {
+    if (blurRepaintIdleId || !blurEffect) return;
+    blurRepaintIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        blurRepaintIdleId = 0;
+        if (blurEffect && blurWidget?.visible)
+            blurEffect.queue_repaint();
+        return GLib.SOURCE_REMOVE;
+    });
+}
+
 function _connectPaintSignals() {
     _disconnectPaintSignals();
     if (!blurEffect) return;
@@ -104,21 +115,26 @@ function _connectPaintSignals() {
     blurPaintSignals.push({ actor: backgroundGroup, id: addId });
     blurPaintSignals.push({ actor: backgroundGroup, id: removeId });
 
-    // Also repaint when the stage is painted (catches remaining cases)
-    const stage = global.stage;
-    if (stage) {
-        const id = stage.connect('after-paint', () => {
-            if (blurEffect && blurWidget?.visible)
-                blurEffect.queue_repaint();
-        });
-        blurPaintSignals.push({ actor: stage, id });
+    // Event-driven repaint: only queue repaint when content actually changes
+    const restackedId = global.display.connect('restacked', _scheduleBlurRepaint);
+    blurPaintSignals.push({ actor: global.display, id: restackedId });
+
+    const wmSignals = ['map', 'destroy', 'minimize', 'unminimize', 'switch-workspace'];
+    for (const sigName of wmSignals) {
+        try {
+            const id = global.window_manager.connect(sigName, _scheduleBlurRepaint);
+            blurPaintSignals.push({ actor: global.window_manager, id });
+        } catch (_) {}
     }
+
+    const showId = Main.overview.connect('showing', _scheduleBlurRepaint);
+    const hideId = Main.overview.connect('hidden', _scheduleBlurRepaint);
+    blurPaintSignals.push({ actor: Main.overview, id: showId });
+    blurPaintSignals.push({ actor: Main.overview, id: hideId });
 }
 
 function _connectBgActor(bg) {
-    const contentId = bg.connect('notify::content', () => {
-        if (blurEffect) blurEffect.queue_repaint();
-    });
+    const contentId = bg.connect('notify::content', _scheduleBlurRepaint);
     // Auto-cleanup when the actor is destroyed (avoids accessing disposed objects)
     const destroyId = bg.connect('destroy', () => {
         blurPaintSignals = blurPaintSignals.filter(s => s.actor !== bg);
@@ -134,6 +150,10 @@ function _disconnectPaintSignals() {
     for (const { actor, id } of signals) {
         try { actor.disconnect(id); } catch (_) {}
     }
+    if (blurRepaintIdleId) {
+        GLib.Source.remove(blurRepaintIdleId);
+        blurRepaintIdleId = 0;
+    }
 }
 
 function _updateBlurSize() {
@@ -142,6 +162,7 @@ function _updateBlurSize() {
 
     blurWidget.set_position(panel.x, panel.y);
     blurWidget.set_size(panel.width, panel.height);
+    _scheduleBlurRepaint();
 }
 
 function destroyBlurEffect() {
