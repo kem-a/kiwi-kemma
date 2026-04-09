@@ -185,9 +185,11 @@ class WindowTitleIndicator extends PanelMenu.Button {
         if (win.maximized_horizontally && win.maximized_vertically) {
             isMaximized = true;
         } else if (typeof win.get_maximized === 'function') {
-            const flags = win.get_maximized();
-            if ((flags & Meta.MaximizeFlags.HORIZONTAL) && (flags & Meta.MaximizeFlags.VERTICAL))
-                isMaximized = true;
+            try {
+                const flags = win.get_maximized();
+                if ((flags & Meta.MaximizeFlags.HORIZONTAL) && (flags & Meta.MaximizeFlags.VERTICAL))
+                    isMaximized = true;
+            } catch (_) {}
         }
 
         const isFullscreen = typeof win.is_fullscreen === 'function' && win.is_fullscreen();
