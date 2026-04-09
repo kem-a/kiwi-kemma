@@ -64,7 +64,7 @@ export class MozillaThemeManager {
             return;
         }
 
-        const profile = this._getDefaultProfile();
+        const profile = await this._getDefaultProfile();
         if (!profile)
             return;
 
@@ -118,7 +118,7 @@ export class MozillaThemeManager {
             userChromeFile.replace_contents(userChromeContent, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
 
             this._markChromeAsKiwiManaged(chromeDir);
-            this._ensureLegacyPref(profile);
+            await this._ensureLegacyPref(profile);
         } catch (e) {
             console.error(`[Kiwi] ${this._config.logPrefix} write failed for profile ${profile}: ${e}`);
         }
@@ -126,7 +126,7 @@ export class MozillaThemeManager {
 
     async removeCss() {
         try {
-            const profile = this._getDefaultProfile();
+            const profile = await this._getDefaultProfile();
             if (!profile)
                 return;
 
@@ -164,13 +164,13 @@ export class MozillaThemeManager {
         }
     }
 
-    _ensureLegacyPref(profileDir) {
+    async _ensureLegacyPref(profileDir) {
         try {
             const userJsPath = GLib.build_filenamev([profileDir, 'user.js']);
             const file = Gio.File.new_for_path(userJsPath);
             let content = '';
             if (file.query_exists(null))
-                content = this._readFileSync(file);
+                content = await this._readFileAsync(file);
 
             const prefLine = 'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);';
             if (!content.includes(prefLine)) {
@@ -186,21 +186,21 @@ export class MozillaThemeManager {
      * Locate the default profile directory.
      * Tries installs.ini first, falls back to profiles.ini.
      */
-    _getDefaultProfile() {
+    async _getDefaultProfile() {
         const home = GLib.get_home_dir();
         const baseDir = GLib.build_filenamev([home, ...this._config.profileBaseDir.split('/')]);
 
-        return this._getProfileFromInstallsIni(baseDir)
-            ?? this._getProfileFromProfilesIni(baseDir);
+        return (await this._getProfileFromInstallsIni(baseDir))
+            ?? (await this._getProfileFromProfilesIni(baseDir));
     }
 
-    _getProfileFromInstallsIni(baseDir) {
+    async _getProfileFromInstallsIni(baseDir) {
         try {
             const installsIni = Gio.File.new_for_path(`${baseDir}/installs.ini`);
             if (!installsIni.query_exists(null))
                 return null;
 
-            const sections = this._parseIniFile(installsIni);
+            const sections = await this._parseIniFile(installsIni);
 
             let chosen = sections.find(sec => sec.data.Default && sec.data.Locked === '1');
             if (!chosen)
@@ -216,13 +216,13 @@ export class MozillaThemeManager {
         }
     }
 
-    _getProfileFromProfilesIni(baseDir) {
+    async _getProfileFromProfilesIni(baseDir) {
         try {
             const profilesIni = Gio.File.new_for_path(`${baseDir}/profiles.ini`);
             if (!profilesIni.query_exists(null))
                 return null;
 
-            const sections = this._parseIniFile(profilesIni);
+            const sections = await this._parseIniFile(profilesIni);
 
             // Find the profile marked as Default=1
             let chosen = sections.find(sec => sec.name.startsWith('Profile') && sec.data.Default === '1');
@@ -240,8 +240,8 @@ export class MozillaThemeManager {
         }
     }
 
-    _parseIniFile(file) {
-        const text = this._readFileSync(file);
+    async _parseIniFile(file) {
+        const text = await this._readFileAsync(file);
         const lines = text.split(/\r?\n/);
         const sections = [];
         let s = {name: '', data: {}};
@@ -274,8 +274,16 @@ export class MozillaThemeManager {
         dirFile.delete(null);
     }
 
-    _readFileSync(file) {
-        const [, bytes] = file.load_contents(null);
-        return new TextDecoder().decode(bytes);
+    _readFileAsync(file) {
+        return new Promise((resolve, reject) => {
+            file.load_contents_async(null, (fileObj, res) => {
+                try {
+                    const [, bytes] = fileObj.load_contents_finish(res);
+                    resolve(new TextDecoder().decode(bytes));
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
     }
 }

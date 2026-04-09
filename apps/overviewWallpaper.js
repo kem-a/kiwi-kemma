@@ -103,13 +103,29 @@ function _imagemagickAvailable() {
     return GLib.find_program_in_path('magick') !== null;
 }
 
-function _readMetaPath(metaPath) {
+function _readFileAsync(file) {
+    return new Promise((resolve, reject) => {
+        file.load_contents_async(null, (fileObj, res) => {
+            try {
+                const [ok, bytes] = fileObj.load_contents_finish(res);
+                if (ok) {
+                    resolve(new TextDecoder().decode(bytes));
+                } else {
+                    reject(new Error('failed to read'));
+                }
+            } catch (e) {
+                reject(e);
+            }
+        });
+    });
+}
+
+async function _readMetaPath(metaPath) {
     try {
         const file = Gio.File.new_for_path(metaPath);
         if (!file.query_exists(null)) return null;
-        const [ok, bytes] = file.load_contents(null);
-        if (!ok) return null;
-        return new TextDecoder().decode(bytes).trim() || null;
+        const text = await _readFileAsync(file);
+        return text.trim() || null;
     } catch (_) { return null; }
 }
 
@@ -141,17 +157,15 @@ function _isXmlPath(path) {
     return path && path.toLowerCase().endsWith('.xml');
 }
 
-function _resolveTimedWallpaper(xmlPath, scheme) {
+async function _resolveTimedWallpaper(xmlPath, scheme) {
     if (!_isXmlPath(xmlPath)) return xmlPath;
     
     try {
         const file = Gio.File.new_for_path(xmlPath);
         if (!file.query_exists(null)) return null;
         
-        const [ok, bytes] = file.load_contents(null);
-        if (!ok) return null;
-        
-        const xml = new TextDecoder().decode(bytes);
+        const xml = await _readFileAsync(file);
+        if (!xml) return null;
         const xmlDir = GLib.path_get_dirname(xmlPath);
         
         // Extract image paths from <file>, <from>, <to> tags
@@ -212,11 +226,11 @@ function _isImageFile(path) {
            ext.endsWith('.tif') || ext.endsWith('.jxl');
 }
 
-function _needsRegenerationVariant(srcPath, scheme) {
+async function _needsRegenerationVariant(srcPath, scheme) {
     const { target, meta } = _targetInfoForScheme(scheme);
     if (_fileMTime(target) === 0)
         return true; // no blurred file yet
-    if (_readMetaPath(meta) !== srcPath)
+    if ((await _readMetaPath(meta)) !== srcPath)
         return true; // wallpaper path changed (covers rename, different dark/light file etc.)
     if (_fileMTime(srcPath) > _fileMTime(target))
         return true; // source updated (usually user replaced file contents)
@@ -251,16 +265,16 @@ function _processGenerationQueue() {
     if (_pendingGeneration || !_generationQueue.length)
         return;
     const [scheme, applyAfter] = _generationQueue.shift();
-    _generateVariant(scheme, applyAfter);
+    _generateVariant(scheme, applyAfter).catch(e => logDebug(`Generation error: ${e}`));
 }
 
-function _generateVariant(scheme, applyAfter = false) {
+async function _generateVariant(scheme, applyAfter = false) {
     if (!_imagemagickAvailable()) return;
     let src = _getWallpaperPathForScheme(scheme);
     if (!src) return;
     
     // Resolve XML timed wallpapers to actual image files
-    src = _resolveTimedWallpaper(src, scheme);
+    src = await _resolveTimedWallpaper(src, scheme);
     if (!src) {
         logDebug('Failed to resolve wallpaper path for scheme: ' + scheme);
         return;
@@ -270,7 +284,7 @@ function _generateVariant(scheme, applyAfter = false) {
         _generationQueue.push([scheme, applyAfter]);
         return;
     }
-    if (!_needsRegenerationVariant(src, scheme)) {
+    if (!(await _needsRegenerationVariant(src, scheme))) {
         if (applyAfter)
             _applyStylesheet();
         return;
@@ -407,14 +421,17 @@ function _queueRegenerateAllVariants() {
     }
     _timeoutAllId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
         _timeoutAllId = 0;
-        SCHEMES.forEach(scheme => {
-            let src = _getWallpaperPathForScheme(scheme);
-            if (src) {
-                src = _resolveTimedWallpaper(src, scheme);
-                if (src && _needsRegenerationVariant(src, scheme))
-                    _generateVariant(scheme, scheme === _currentScheme());
+        (async () => {
+            for (const scheme of SCHEMES) {
+                let src = _getWallpaperPathForScheme(scheme);
+                if (src) {
+                    src = await _resolveTimedWallpaper(src, scheme);
+                    if (src && (await _needsRegenerationVariant(src, scheme))) {
+                        await _generateVariant(scheme, scheme === _currentScheme());
+                    }
+                }
             }
-        });
+        })().catch(e => logDebug(`Regenerate error: ${e}`));
         return GLib.SOURCE_REMOVE;
     });
 }
@@ -455,28 +472,33 @@ export function enable(settings) {
     // Apply any existing cached variant immediately (no animation first time)
     _applyStylesheet();
     // Pre-generate / refresh both variants if needed
-    SCHEMES.forEach(scheme => {
-        let src = _getWallpaperPathForScheme(scheme);
-        if (src) {
-            src = _resolveTimedWallpaper(src, scheme);
-            if (src && _needsRegenerationVariant(src, scheme))
-                _generateVariant(scheme, scheme === _currentScheme());
+    (async () => {
+        for (const scheme of SCHEMES) {
+            let src = _getWallpaperPathForScheme(scheme);
+            if (src) {
+                src = await _resolveTimedWallpaper(src, scheme);
+                if (src && (await _needsRegenerationVariant(src, scheme))) {
+                    await _generateVariant(scheme, scheme === _currentScheme());
+                }
+            }
         }
-    });
+    })().catch(e => logDebug(`Init generation error: ${e}`));
 }
 
 export function refresh() {
     if (!_settings || !_settings.get_boolean('overview-wallpaper-background')) return;
     // Refresh only current scheme variant
     const scheme = _currentScheme();
-    let src = _getWallpaperPathForScheme(scheme);
-    if (src) {
-        src = _resolveTimedWallpaper(src, scheme);
-        if (src && _needsRegenerationVariant(src, scheme))
-            _generateVariant(scheme, true);
-        else
-            _applyStylesheet();
-    }
+    (async () => {
+        let src = _getWallpaperPathForScheme(scheme);
+        if (src) {
+            src = await _resolveTimedWallpaper(src, scheme);
+            if (src && (await _needsRegenerationVariant(src, scheme)))
+                await _generateVariant(scheme, true);
+            else
+                _applyStylesheet();
+        }
+    })().catch(e => logDebug(`Refresh error: ${e}`));
 }
 
 export function disable() {
