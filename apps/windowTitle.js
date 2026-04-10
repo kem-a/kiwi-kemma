@@ -291,15 +291,6 @@ class WindowTitleIndicator extends PanelMenu.Button {
         if (this._menuOpenStateId) {
             this._menu.disconnect(this._menuOpenStateId);
         }
-        if (this._restoreMenuItem && this._restoreMenuActId) {
-            this._restoreMenuItem.disconnect(this._restoreMenuActId);
-        }
-        if (this._menuOpenStateId) {
-            this._menu.disconnect(this._menuOpenStateId);
-        }
-        if (this._restoreMenuItem && this._restoreMenuActId) {
-            this._restoreMenuItem.disconnect(this._restoreMenuActId);
-        }
         if (this._focusWindowSignal) {
             global.display.disconnect(this._focusWindowSignal);
         }
