@@ -42,6 +42,11 @@
         <summary>Notification Indicator Style</summary>
         <description>Color style of the top-panel notification indicator dot: default (red), accent (follows accent color), or symbolic (theme foreground).</description>
       </key>
+      <key name="keep-notification-panel" type="b">
+        <default>false</default>
+        <summary>Keep GNOME Notification Panel</summary>
+        <description>When Move Calendar to Right is enabled, keep the native notification/calendar combined layout (only the panel position changes).</description>
+      </key>
 
       <key name="transparent-on-moving" type="b">
         <default>true</default>

@@ -100,10 +100,21 @@ export default class KiwiExtension extends Extension {
             batteryPercentageDisable();
         }
 
-         if (this._settings.get_boolean('move-calendar-right')) {
+        if (key === 'keep-notification-panel' && this._settings.get_boolean('move-calendar-right')) {
+            calendarDisable();
+            quickSettingsNotificationsDisable();
+            quickSettingsMediaDisable();
+        }
+
+        if (this._settings.get_boolean('move-calendar-right')) {
             calendarEnable(this);
-            quickSettingsNotificationsEnable(gettextFunc, this._settings);
-            quickSettingsMediaEnable(gettextFunc);
+            if (!this._settings.get_boolean('keep-notification-panel')) {
+                quickSettingsNotificationsEnable(gettextFunc, this._settings);
+                quickSettingsMediaEnable(gettextFunc);
+            } else {
+                quickSettingsNotificationsDisable();
+                quickSettingsMediaDisable();
+            }
         } else {
             calendarDisable();
             quickSettingsNotificationsDisable();

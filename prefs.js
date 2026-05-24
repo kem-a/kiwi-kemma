@@ -441,6 +441,13 @@ export default class KiwiPreferences extends ExtensionPreferences {
                         settings.set_boolean('move-calendar-right', v);
                 });
 
+                const keepPanelRow = new Adw.SwitchRow({
+                    title: _("Keep GNOME Notification Panel"),
+                    subtitle: _("Don't split notification and calendar layout"),
+                });
+                calendarExpander.add_row(keepPanelRow);
+                settings.bind('keep-notification-panel', keepPanelRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
                 const indicatorStyleRow = new Adw.ActionRow({
                     title: _('Indicator Style'),
                     subtitle: _('Notification dot recolor'),

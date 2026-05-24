@@ -22,8 +22,8 @@ let calendarActorRef; // preserved calendar actor to ensure visibility
 
 // Notification indicator state
 let notificationIndicator = null;
+let notificationIndicatorParent = null;
 let notificationSignals = [];
-let quickSettings = null;
 let indicatorInsertTimeoutId = null; // timeout id for delayed indicator insertion
 let kiwiExtension = null;
 let kiwiSettings = null;
@@ -31,24 +31,32 @@ let indicatorStyleSignalId = 0;
 
 function applyIndicatorStyle(style) {
     if (!notificationIndicator) return;
+    // Add right padding only when placed directly in the panel right box,
+    // so the dot isn't flush against the screen edge.
+    const margin = notificationIndicatorParent === Main.panel._rightBox
+        ? ' margin-right: 12px;'
+        : '';
     switch (style) {
         case 'accent':
-            notificationIndicator.style = 'color: -st-accent-color;';
+            notificationIndicator.style = 'color: -st-accent-color;' + margin;
             break;
         case 'symbolic':
-            notificationIndicator.style = null; // let panel theme color cascade
+            notificationIndicator.style = margin || null; // let panel theme color cascade
             break;
         case 'default':
         default:
-            notificationIndicator.style = 'color: red;';
+            notificationIndicator.style = 'color: red;' + margin;
             break;
     }
 }
 
 function setupNotificationIndicator() {
     if (notificationIndicator) return;
-    quickSettings = Main.panel.statusArea.quickSettings;
-    if (!quickSettings) return;
+    const keep = kiwiSettings ? kiwiSettings.get_boolean('keep-notification-panel') : false;
+    notificationIndicatorParent = keep
+        ? Main.panel._rightBox
+        : (Main.panel.statusArea.quickSettings && Main.panel.statusArea.quickSettings._indicators);
+    if (!notificationIndicatorParent) return;
 
     const initialStyle = kiwiSettings ? kiwiSettings.get_string('notification-indicator-style') : 'default';
 
@@ -63,9 +71,8 @@ function setupNotificationIndicator() {
     // Add small delay to ensure all other indicators are added first
     indicatorInsertTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
         indicatorInsertTimeoutId = null; // clear reference on fire
-        const indicatorsContainer = quickSettings._indicators;
-        const lastIndex = indicatorsContainer.get_n_children();
-        indicatorsContainer.insert_child_at_index(notificationIndicator, lastIndex);
+        const lastIndex = notificationIndicatorParent.get_n_children();
+        notificationIndicatorParent.insert_child_at_index(notificationIndicator, lastIndex);
         return GLib.SOURCE_REMOVE;
     });
 
@@ -102,15 +109,14 @@ function cleanupNotificationIndicator() {
     });
     notificationSignals = [];
 
-    if (notificationIndicator && quickSettings) {
-        const indicatorsContainer = quickSettings._indicators;
-        if (indicatorsContainer) {
-            indicatorsContainer.remove_child(notificationIndicator);
+    if (notificationIndicator) {
+        if (notificationIndicatorParent && notificationIndicator.get_parent() === notificationIndicatorParent) {
+            notificationIndicatorParent.remove_child(notificationIndicator);
         }
         notificationIndicator.destroy();
         notificationIndicator = null;
     }
-    quickSettings = null;
+    notificationIndicatorParent = null;
 }
 
 function connectNotificationSignals() {
@@ -191,8 +197,12 @@ export function enable(extension) {
         Main.panel._rightBox.insert_child_at_index(dateMenu.container, Main.panel._rightBox.get_children().length);
     }
 
+    const keepNotificationPanel = kiwiSettings
+        ? kiwiSettings.get_boolean('keep-notification-panel')
+        : false;
+
     // Non-destructively remove other sections & override visibility predicates
-    if (dateMenu.menu?.box) {
+    if (!keepNotificationPanel && dateMenu.menu?.box) {
         originalMenuBoxStyle = originalMenuBoxStyle ?? dateMenu.menu.box.style;
         removedSections = {};
 
@@ -268,7 +278,7 @@ export function enable(extension) {
     }
 
     // Adjust notification banner alignment without destroying the actor
-    if (Main.messageTray?._bannerBin) {
+    if (!keepNotificationPanel && Main.messageTray?._bannerBin) {
         const bin = Main.messageTray._bannerBin;
         originalBannerBinProps = originalBannerBinProps || {
             x_align: bin.x_align,
