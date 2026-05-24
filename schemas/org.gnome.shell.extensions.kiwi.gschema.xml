@@ -32,6 +32,16 @@
         <summary>Move Calendar to Right</summary>
         <description>Move the calendar to the right side of the top panel and hide the notifications panel.</description>
       </key>
+      <key name="notification-indicator-style" type="s">
+        <choices>
+          <choice value="default"/>
+          <choice value="accent"/>
+          <choice value="symbolic"/>
+        </choices>
+        <default>'default'</default>
+        <summary>Notification Indicator Style</summary>
+        <description>Color style of the top-panel notification indicator dot: default (red), accent (follows accent color), or symbolic (theme foreground).</description>
+      </key>
 
       <key name="transparent-on-moving" type="b">
         <default>true</default>

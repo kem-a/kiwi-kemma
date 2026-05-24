@@ -5,6 +5,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 
 // State holders so we can fully restore on disable
 let dateMenu;
@@ -24,19 +25,41 @@ let notificationIndicator = null;
 let notificationSignals = [];
 let quickSettings = null;
 let indicatorInsertTimeoutId = null; // timeout id for delayed indicator insertion
+let kiwiExtension = null;
+let kiwiSettings = null;
+let indicatorStyleSignalId = 0;
+
+function applyIndicatorStyle(style) {
+    if (!notificationIndicator) return;
+    switch (style) {
+        case 'accent':
+            notificationIndicator.style = 'color: -st-accent-color;';
+            break;
+        case 'symbolic':
+            notificationIndicator.style = null; // let panel theme color cascade
+            break;
+        case 'default':
+        default:
+            notificationIndicator.style = 'color: red;';
+            break;
+    }
+}
 
 function setupNotificationIndicator() {
     if (notificationIndicator) return;
     quickSettings = Main.panel.statusArea.quickSettings;
     if (!quickSettings) return;
 
-    // Create a simple widget like the username example
+    const initialStyle = kiwiSettings ? kiwiSettings.get_string('notification-indicator-style') : 'default';
+
+    const iconFile = kiwiExtension?.dir.get_child('icons/message-indicator-symbolic.svg');
     notificationIndicator = new St.Icon({
-        icon_name: 'media-record-symbolic',
+        gicon: iconFile ? Gio.FileIcon.new(iconFile) : null,
         style_class: 'notification-badge',
         visible: false,
     });
-    
+    applyIndicatorStyle(initialStyle);
+
     // Add small delay to ensure all other indicators are added first
     indicatorInsertTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
         indicatorInsertTimeoutId = null; // clear reference on fire
@@ -45,6 +68,13 @@ function setupNotificationIndicator() {
         indicatorsContainer.insert_child_at_index(notificationIndicator, lastIndex);
         return GLib.SOURCE_REMOVE;
     });
+
+    // Update style live when the setting changes
+    if (kiwiSettings) {
+        indicatorStyleSignalId = kiwiSettings.connect('changed::notification-indicator-style', () => {
+            applyIndicatorStyle(kiwiSettings.get_string('notification-indicator-style'));
+        });
+    }
 
     // Connect to notification signals and update visibility
     connectNotificationSignals();
@@ -57,6 +87,12 @@ function cleanupNotificationIndicator() {
         GLib.Source.remove(indicatorInsertTimeoutId);
         indicatorInsertTimeoutId = null;
     }
+    if (indicatorStyleSignalId && kiwiSettings) {
+        kiwiSettings.disconnect(indicatorStyleSignalId);
+    }
+    indicatorStyleSignalId = 0;
+    kiwiSettings = null;
+    kiwiExtension = null;
     notificationSignals.forEach(signal => {
         if (signal.obj === 'interval') {
             GLib.Source.remove(signal.id);
@@ -112,9 +148,11 @@ function updateNotificationIndicator() {
     }
 }
 
-export function enable() {
+export function enable(extension) {
     if (enabled)
         return; // Prevent double-application
+    kiwiExtension = extension || null;
+    kiwiSettings = kiwiExtension ? kiwiExtension.getSettings() : null;
 
     dateMenu = Main.panel.statusArea.dateMenu;
     if (!dateMenu)
