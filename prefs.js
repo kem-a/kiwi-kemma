@@ -423,6 +423,62 @@ export default class KiwiPreferences extends ExtensionPreferences {
         ];
 
         switchList.forEach((item) => {
+            if (item.key === 'move-calendar-right') {
+                // Expander with notification indicator style sub-option
+                const calendarExpander = new Adw.ExpanderRow({
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    expanded: settings.get_boolean('move-calendar-right'),
+                    show_enable_switch: true,
+                    enable_expansion: settings.get_boolean('move-calendar-right'),
+                });
+                group.add(calendarExpander);
+
+                settings.bind('move-calendar-right', calendarExpander, 'expanded', Gio.SettingsBindFlags.GET);
+                calendarExpander.connect('notify::enable-expansion', () => {
+                    const v = calendarExpander.enable_expansion;
+                    if (settings.get_boolean('move-calendar-right') !== v)
+                        settings.set_boolean('move-calendar-right', v);
+                });
+
+                const indicatorStyleRow = new Adw.ActionRow({
+                    title: _('Indicator Style'),
+                    subtitle: _('Notification dot recolor'),
+                });
+
+                const indicatorStyleToggleGroup = new Adw.ToggleGroup({
+                    homogeneous: true,
+                    valign: Gtk.Align.CENTER,
+                });
+                indicatorStyleToggleGroup.add_css_class('round');
+
+                const indicatorDefaultToggle = new Adw.Toggle({
+                    label: _('Default'),
+                    name: 'default',
+                });
+                const indicatorAccentToggle = new Adw.Toggle({
+                    label: _('Accent'),
+                    name: 'accent',
+                });
+                const indicatorSymbolicToggle = new Adw.Toggle({
+                    label: _('Symbolic'),
+                    name: 'symbolic',
+                });
+
+                indicatorStyleToggleGroup.add(indicatorDefaultToggle);
+                indicatorStyleToggleGroup.add(indicatorAccentToggle);
+                indicatorStyleToggleGroup.add(indicatorSymbolicToggle);
+                indicatorStyleToggleGroup.set_active_name(settings.get_string('notification-indicator-style'));
+
+                indicatorStyleRow.add_suffix(indicatorStyleToggleGroup);
+                calendarExpander.add_row(indicatorStyleRow);
+
+                indicatorStyleToggleGroup.connect('notify::active-name', (g) => {
+                    settings.set_string('notification-indicator-style', g.active_name);
+                });
+                return;
+            }
+
             const switchRow = new Adw.SwitchRow({
                 title: item.title,
                 subtitle: item.subtitle,
