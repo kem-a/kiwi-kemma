@@ -11,24 +11,24 @@
 
 | Language | Code | Status | Completion |
 | -------- | ---- | ------ | ---------- |
-| Chinese (Simplified) | zh_CN | 🟢 Complete | 99/99 (100%) |
-| German | de | 🟢 Complete | 99/99 (100%) |
-| Spanish | es | 🟢 Complete | 99/99 (100%) |
-| Estonian | et | 🟢 Complete | 99/99 (100%) |
-| Persian | fa | 🟢 Complete | 99/99 (100%) |
-| Finnish | fi | 🟢 Complete | 99/99 (100%) |
-| French | fr | 🟢 Complete | 99/99 (100%) |
-| Italian | it | 🟢 Complete | 99/99 (100%) |
-| Korean | ko | 🟡 Needs review | 97/99 (97.9%) |
-| Lithuanian | lt | 🟢 Complete | 99/99 (100%) |
-| Latvian | lv | 🟢 Complete | 99/99 (100%) |
-| Norwegian Bokmål | nb | 🟢 Complete | 99/99 (100%) |
-| Dutch | nl | 🟢 Complete | 99/99 (100%) |
-| Polish | pl | 🟢 Complete | 99/99 (100%) |
-| Portuguese | pt | 🟢 Complete | 99/99 (100%) |
-| Swedish | sv | 🟢 Complete | 99/99 (100%) |
+| Chinese (Simplified) | zh_CN | 🟡 In progress | 122/125 (97%) |
+| German | de | 🟡 In progress | 122/125 (97%) |
+| Spanish | es | 🟡 In progress | 122/125 (97%) |
+| Estonian | et | 🟡 In progress | 122/125 (97%) |
+| Persian | fa | 🟡 In progress | 122/125 (97%) |
+| Finnish | fi | 🟡 In progress | 122/125 (97%) |
+| French | fr | 🟡 In progress | 122/125 (97%) |
+| Italian | it | 🟡 In progress | 122/125 (97%) |
+| Korean | ko | 🟡 In progress | 122/125 (97%) |
+| Lithuanian | lt | 🟡 In progress | 122/125 (97%) |
+| Latvian | lv | 🟡 In progress | 122/125 (97%) |
+| Norwegian Bokmål | nb | 🟡 In progress | 122/125 (97%) |
+| Dutch | nl | 🟡 In progress | 122/125 (97%) |
+| Polish | pl | 🟡 In progress | 122/125 (97%) |
+| Portuguese | pt | 🟡 In progress | 122/125 (97%) |
+| Swedish | sv | 🟡 In progress | 122/125 (97%) |
 
-*Stats generated on 2025‑12‑01 via `msgfmt --statistics`. The few untranslated entries in Korean are new Kiwi strings awaiting native review. Obsolete `#~` entries were removed for clarity.*
+*Stats generated on 2026‑05‑25 via `msgfmt --statistics`.*
 
 ## Note
 

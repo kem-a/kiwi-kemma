@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Kiwi Menu 1.0\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-01 18:20+0200\n"
+"Report-Msgid-Bugs-To: https://github.com/kem-a/kiwi-kemma/issues\n"
+"POT-Creation-Date: 2026-05-25 15:41+0300\n"
 "PO-Revision-Date: 2025-11-10 14:28+0900\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Poedit 3.8\n"
 
-#: apps/launchpadApp.js:283
+#: apps/launchpadApp.js:291
 msgid "Launchpad"
 msgstr "런치패드"
 
-#: apps/launchpadApp.js:284
+#: apps/launchpadApp.js:292
 msgid "Open Application Overview"
 msgstr "애플리케이션 개요 열기"
 
@@ -29,467 +29,576 @@ msgstr "애플리케이션 개요 열기"
 msgid "Media"
 msgstr "미디어"
 
-#: apps/quickSettingsMedia/player.js:167
-msgid "Unknown artist"
-msgstr "알 수 없는 아티스트"
-
-#: apps/quickSettingsMedia/player.js:172
-msgid "Unknown title"
-msgstr "알 수 없는 제목"
-
-#: apps/quickSettingsNotifications.js:95
+#: apps/quickSettingsNotifications.js:97
 msgid "Disable Do Not Disturb"
 msgstr "방해 금지 끄기"
 
-#: apps/quickSettingsNotifications.js:95
-#: apps/quickSettingsNotifications.js:150
+#: apps/quickSettingsNotifications.js:97 apps/quickSettingsNotifications.js:152
 msgid "Enable Do Not Disturb"
 msgstr "방해 금지 켜기"
 
-#: apps/quickSettingsNotifications.js:146
+#: apps/quickSettingsNotifications.js:148
 msgid "Do Not Disturb"
 msgstr "방해 금지"
 
-#: apps/quickSettingsNotifications.js:550
+#: apps/quickSettingsNotifications.js:548
 msgid "Notifications"
 msgstr "알림"
 
-#: apps/quickSettingsNotifications.js:560
+#: apps/quickSettingsNotifications.js:558
 msgid "Clear"
 msgstr "지우기"
 
-#: apps/quickSettingsNotifications.js:565
+#: apps/quickSettingsNotifications.js:563
 msgid "Clear all notifications"
 msgstr "모든 알림 지우기"
 
-#: apps/quickSettingsNotifications.js:722
+#: apps/quickSettingsNotifications.js:752
 msgid "Do Not Disturb Indicator"
 msgstr "방해 금지 표시기"
 
-#: prefs.js:35
+#: prefs.js:50
 msgid "Kiwi is not Apple"
-msgstr "Kiwi는 Apple이 아닙니다"
+msgstr "Kiwi is not Apple"
 
-#: prefs.js:86
+#: prefs.js:78
 msgid "About"
 msgstr "정보"
 
-#: prefs.js:146 prefs.js:160
+#: prefs.js:138 prefs.js:152
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: prefs.js:153
+#: prefs.js:145
 msgid "Change log"
 msgstr "변경 로그"
 
-#: prefs.js:193
+#: prefs.js:184
 msgid "Website"
 msgstr "웹사이트"
 
-#: prefs.js:203
+#: prefs.js:188
 msgid "Report an Issue"
 msgstr "문제 보고"
 
-#: prefs.js:215 prefs.js:230
+#: prefs.js:193
 msgid "Credits"
 msgstr "저작 정보"
 
-#: prefs.js:256
-msgid "Recommended Extensions"
-msgstr "추천 확장 기능"
-
-#: prefs.js:257
-msgid "Extensions that are compatible with Kiwi"
-msgstr "Kiwi와 호환되는 확장 기능"
-
-#: prefs.js:295 prefs.js:310
+#: prefs.js:196 prefs.js:211
 msgid "Legal"
 msgstr "법적 정보"
 
-#: prefs.js:318
+#: prefs.js:219
 msgid "License"
 msgstr "라이센스"
 
-#: prefs.js:319
+#: prefs.js:220
 msgid "Kiwi is not Apple is free and open source software"
 msgstr "Kiwi is not Apple은 자유로운 오픈 소스 소프트웨어입니다"
 
-#: prefs.js:324
+#: prefs.js:225
 msgid "GNU General Public License v3.0"
-msgstr ""
+msgstr "GNU 일반 공중 사용 허가서 v3.0"
 
-#: prefs.js:325
+#: prefs.js:227
 msgid "View the full license text on GitHub"
 msgstr "GitHub에서 전체 라이선스 전문 보기"
 
-#: prefs.js:336
+#: prefs.js:234
 msgid "Copyright"
-msgstr ""
+msgstr "저작권"
 
-#: prefs.js:337
+#: prefs.js:235
 msgid ""
-"Copyright © 2025 Arnis Kemlers\n"
+"Copyright © 2026 Arnis Kemlers\n"
 "\n"
-"This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+"This program is free software: you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation, either version 3 of the License, or (at your option) "
+"any later version."
 msgstr ""
-"저작권 © 2025 Arnis Kemlers\n"
+"저작권 © 2026 Arnis Kemlers\n"
 "\n"
-"이 프로그램은 자유 소프트웨어입니다. Free Software Foundation이 발표한 GNU 일반 공중 라이선스의 조건(버전 3 또는 선택한 이후 버전)에 따라 재배포하거나 수정할 수 있습니다."
+"이 프로그램은 자유 소프트웨어입니다. Free Software Foundation이 발표한 GNU 일"
+"반 공중 라이선스의 조건(버전 3 또는 선택한 이후 버전)에 따라 재배포하거나 수"
+"정할 수 있습니다."
 
-#: prefs.js:390
-msgid "Support the project"
-msgstr "프로젝트 후원하기"
+#: prefs.js:289
+msgid "Become a sponsor on GitHub"
+msgstr "GitHub에서 스폰서 되기"
 
-#: prefs.js:403
-msgid "Buy Me a Coffee"
-msgstr "커피 한 잔 사주기"
+#: prefs.js:302
+msgid "Sponsor Me ♡"
+msgstr "후원하기 ♡"
 
-#: prefs.js:420
+#: prefs.js:319
 msgid "Options"
 msgstr "옵션"
 
-#: prefs.js:425
+#: prefs.js:324
 msgid "Kiwi"
 msgstr "Kiwi"
 
-#: prefs.js:426
+#: prefs.js:325
 msgid ""
-"Kiwi is not like Apple, it's free open source project that brings macOS-like"
-" feel for GNOME"
-msgstr "Kiwi는 Apple과 다릅니다. GNOME에 macOS와 비슷한 감성을 더해 주는 자유 오픈 소스 프로젝트입니다"
+"Kiwi is not like Apple, it's free open source project that brings macOS-like "
+"feel for GNOME"
+msgstr ""
+"Kiwi는 Apple과 다릅니다. GNOME에 macOS와 비슷한 감성을 더해 주는 자유 오픈 소"
+"스 프로젝트입니다"
 
-#: prefs.js:432 prefs.js:439
+#: prefs.js:331 prefs.js:338
 msgid "Panel Transparency"
 msgstr "패널 투명도"
 
-#: prefs.js:433
+#: prefs.js:332
 msgid "Configure panel transparency and appearance"
 msgstr "패널의 투명도와 모양을 설정합니다"
 
-#: prefs.js:440
+#: prefs.js:339
 msgid "Make the top panel transparent"
 msgstr "상단 패널을 투명하게 만들기"
 
-#: prefs.js:448
+#: prefs.js:347
 msgid "Transparency Level"
 msgstr "투명도 수준"
 
-#: prefs.js:449
+#: prefs.js:348
 msgid "Set panel transparency (0-100)"
 msgstr "패널 투명도 설정 (0~100)"
 
-#: prefs.js:463
+#: prefs.js:362
 msgid "Opaque When Window Touches"
 msgstr "창이 닿으면 불투명"
 
-#: prefs.js:464
+#: prefs.js:363
 msgid "Make panel opaque when a window touches it"
 msgstr "창이 닿을 때 패널을 불투명하게 전환"
 
-#: prefs.js:472
+#: prefs.js:371
+msgid "Panel Blur"
+msgstr "패널 흐림 효과"
+
+#: prefs.js:372
+msgid "Blur the background behind the panel"
+msgstr "패널 뒤 배경 흐리게"
+
+#: prefs.js:380
 msgid "Panel Color Fix"
 msgstr "패널 색상 수정"
 
-#: prefs.js:473
+#: prefs.js:381
 msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
 msgstr "일부 테마(예: Ubuntu Yaru)에서 흰색으로 보이는 패널을 수정"
 
-#: prefs.js:502
+#: prefs.js:414
 msgid "Move Window to New Workspace"
 msgstr "창을 새 작업 공간으로 이동"
 
-#: prefs.js:502
+#: prefs.js:414
 msgid "Move fullscreen window to a new workspace"
 msgstr "전체 화면 창을 새 작업 공간으로 이동"
 
-#: prefs.js:503
+#: prefs.js:415
 msgid "Transparent Move"
 msgstr "투명 이동"
 
-#: prefs.js:503
+#: prefs.js:415
 msgid "Move window with transparency"
 msgstr "창을 투명하게 이동"
 
-#: prefs.js:504
+#: prefs.js:416
 msgid "Battery Percentage"
 msgstr "배터리 퍼센트"
 
-#: prefs.js:504
+#: prefs.js:416
 msgid "Show battery percentage in the top bar when below 20%"
 msgstr "배터리가 20% 아래로 내려가면 상단 막대에 퍼센트를 표시"
 
-#: prefs.js:505
+#: prefs.js:417
 msgid "Move Calendar to Right"
 msgstr "캘린더를 오른쪽으로 이동"
 
-#: prefs.js:505
+#: prefs.js:417
 msgid "Move calendar to right side and hide notifications"
 msgstr "캘린더를 오른쪽으로 옮기고 알림을 숨김"
 
-#: prefs.js:506
+#: prefs.js:418
 msgid "Show Window Title"
 msgstr "창 제목 표시"
 
-#: prefs.js:506
+#: prefs.js:418
 msgid "Display current window title in the top panel"
 msgstr "현재 창 제목을 상단 패널에 표시"
 
-#: prefs.js:507
+#: prefs.js:419
 msgid "Show Panel on Hover"
 msgstr "마우스를 올리면 패널 표시"
 
-#: prefs.js:507
+#: prefs.js:419
 msgid ""
 "Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
-msgstr "전체 화면에서 마우스가 상단 가장자리 근처에 있을 때 패널을 표시합니다. GTK4 앱에서는 문제가 있을 수 있습니다."
+msgstr ""
+"전체 화면에서 마우스가 상단 가장자리 근처에 있을 때 패널을 표시합니다. GTK4 "
+"앱에서는 문제가 있을 수 있습니다."
 
-#: prefs.js:508
+#: prefs.js:420
+msgid "Show Window Controls on Panel"
+msgstr "패널에 창 제어 버튼 표시"
+
+#: prefs.js:420
+msgid ""
+"Display close, minimize, maximize buttons in the top panel when window is "
+"maximized"
+msgstr "창이 최대화되었을 때 상단 패널에 닫기, 최소화, 최대화 버튼 표시"
+
+#: prefs.js:421
 msgid "Overview Wallpaper Blur"
 msgstr "개요 배경 흐림"
 
-#: prefs.js:508
+#: prefs.js:421
 msgid ""
 "Use blurred current wallpaper as overview background (requires ImageMagick)"
 msgstr "현재 배경을 흐리게 처리하여 개요 배경으로 사용 (ImageMagick 필요)"
 
-#: prefs.js:521
-msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
-msgstr "ImageMagick가 설치되어 있지 않습니다 (사용하려면 \"imagemagick\" 패키지를 설치하세요)"
+#: prefs.js:422
+msgid "Dock Blur"
+msgstr "Dock 흐림 효과"
 
-#: prefs.js:530
-msgid "Window Control Button Style"
-msgstr "창 제어 버튼 스타일"
+#: prefs.js:422
+msgid "Blur the background behind Dash-to-Dock"
+msgstr "Dash-to-Dock 뒤 배경 흐리게"
 
-#: prefs.js:531
-msgid ""
-"Choose the window control button style. Log out to apply it across all apps."
-msgstr "창 제어 버튼 스타일을 선택하세요. 모든 앱에 적용하려면 로그아웃해야 합니다."
+#: prefs.js:445
+msgid "Keep GNOME Notification Panel"
+msgstr "GNOME 알림 패널 유지"
 
-#: prefs.js:537
-msgid "Enable macOS Window Buttons"
-msgstr "macOS 창 버튼 사용"
+#: prefs.js:446
+msgid "Don't split notification and calendar layout"
+msgstr "알림과 달력 레이아웃을 분리하지 않음"
 
-#: prefs.js:538
-msgid "Show window control buttons in application windows"
-msgstr "애플리케이션 창에 제어 버튼 표시"
+#: prefs.js:452
+msgid "Indicator Style"
+msgstr "표시기 스타일"
 
-#: prefs.js:555
-msgid "Show Window Controls on Panel"
-msgstr "패널에 창 제어 버튼 표시"
+#: prefs.js:453
+msgid "Notification dot recolor"
+msgstr "알림 점 색상 변경"
 
-#: prefs.js:556
-msgid ""
-"Display window control buttons in the top panel when window is maximized"
-msgstr "창이 최대화될 때 상단 패널에 제어 버튼 표시"
-
-#: prefs.js:566
-msgid "Firefox Styling"
-msgstr "Firefox 스타일"
-
-#: prefs.js:567
-msgid ""
-"Apply macOS window control styling for Firefox. Recommended to use with "
-"vertical tabs."
-msgstr "Firefox에 macOS 스타일 제어 버튼을 적용합니다. 세로 탭과 함께 사용할 것을 권장합니다."
-
-#: prefs.js:544
-msgid "Button Type"
-msgstr "버튼 종류"
-
-#: prefs.js:545
-msgid "Choose the button icon set"
-msgstr "버튼 아이콘 세트를 선택"
-
-#: prefs.js:556
+#: prefs.js:463 prefs.js:562
 msgid "Default"
 msgstr "기본"
 
-#: prefs.js:560
+#: prefs.js:467
+msgid "Accent"
+msgstr "강조색"
+
+#: prefs.js:471
+msgid "Symbolic"
+msgstr "심볼릭"
+
+#: prefs.js:498
+msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+msgstr ""
+"ImageMagick가 설치되어 있지 않습니다 (사용하려면 \"imagemagick\" 패키지를 설"
+"치하세요)"
+
+#: prefs.js:507
+msgid "Window Control Button Style"
+msgstr "창 제어 버튼 스타일"
+
+#: prefs.js:508
+msgid ""
+"Choose the window control button style. Log out to apply it across all apps."
+msgstr ""
+"창 제어 버튼 스타일을 선택하세요. 모든 앱에 적용하려면 로그아웃해야 합니다."
+
+#: prefs.js:514
+msgid "Enable macOS Window Buttons"
+msgstr "macOS 창 버튼 사용"
+
+#: prefs.js:515
+msgid "Replace window control buttons in application windows with macOS style"
+msgstr "응용 프로그램 창의 창 제어 버튼을 macOS 스타일로 교체"
+
+#: prefs.js:532
+msgid "Firefox Styling"
+msgstr "Firefox 스타일"
+
+#: prefs.js:533
+msgid ""
+"Apply macOS window control styling for Firefox. Recommended to use with "
+"vertical tabs."
+msgstr ""
+"Firefox에 macOS 스타일 제어 버튼을 적용합니다. 세로 탭과 함께 사용할 것을 권"
+"장합니다."
+
+#: prefs.js:541
+msgid "Thunderbird Styling"
+msgstr "Thunderbird 스타일"
+
+#: prefs.js:542
+msgid "Apply macOS window control styling for Thunderbird."
+msgstr "Thunderbird에 macOS 창 제어 스타일을 적용합니다."
+
+#: prefs.js:551
+msgid "Button Type"
+msgstr "버튼 종류"
+
+#: prefs.js:552
+msgid "Choose the button icon set"
+msgstr "버튼 아이콘 세트를 선택"
+
+#: prefs.js:566
 msgid "Alternative"
 msgstr "대체"
 
-#: prefs.js:576
+#: prefs.js:583
 msgid "Button Size"
 msgstr "버튼 크기"
 
-#: prefs.js:577
+#: prefs.js:584
 msgid "Choose button size"
 msgstr "버튼 크기 선택"
 
-#: prefs.js:587
+#: prefs.js:594
 msgid "Small"
 msgstr "작게"
 
-#: prefs.js:591
+#: prefs.js:598
 msgid "Normal"
 msgstr "보통"
 
-#: prefs.js:615
+#: prefs.js:631
 msgid "Extras"
 msgstr "추가기능"
 
-#: prefs.js:621
+#: prefs.js:637
 msgid "Extra Features"
 msgstr "추가 기능"
 
-#: prefs.js:622
+#: prefs.js:638
 msgid "Additional customization options and utilities"
 msgstr "추가 사용자 지정 옵션과 도구"
 
-#: prefs.js:627
+#: prefs.js:643
 msgid "Add Username"
 msgstr "사용자 이름 추가"
 
-#: prefs.js:627
+#: prefs.js:643
 msgid "Add username to the quick menu"
 msgstr "사용자 이름을 빠른 메뉴에 추가"
 
-#: prefs.js:628
+#: prefs.js:644
 msgid "Caps Lock and Num Lock"
 msgstr "Caps Lock 및 Num Lock"
 
-#: prefs.js:628
+#: prefs.js:644
 msgid "Show Caps Lock and Num Lock icon"
 msgstr "Caps Lock/Num Lock 아이콘 표시"
 
-#: prefs.js:629
+#: prefs.js:645
 msgid "Hide Activities Button"
 msgstr "활동 버튼 숨기기"
 
-#: prefs.js:629
+#: prefs.js:645
 msgid "Hide the Activities button in the top panel"
 msgstr "상단 패널의 활동 버튼을 숨깁니다"
 
-#: prefs.js:630
+#: prefs.js:646
 msgid "Hide Minimized Windows"
 msgstr "최소화된 창 숨기기"
 
-#: prefs.js:630
+#: prefs.js:646
 msgid "Hide minimized windows in the overview"
 msgstr "개요 화면에서 최소화된 창을 숨김"
 
-#: prefs.js:631
+#: prefs.js:647
 msgid "Skip to Desktop"
 msgstr "바로 바탕화면으로 이동"
 
-#: prefs.js:631
+#: prefs.js:647
 msgid "Do not show the overview when logging in. Animation is still visible"
 msgstr "로그인 시 개요를 표시하지 않습니다. 애니메이션은 그대로 보입니다."
 
-#: prefs.js:632
-msgid "Launchpad Application"
-msgstr "런치패드 애플리케이션"
-
-#: prefs.js:632
-msgid ""
-"Add custom Launchpad icon to dock that opens application overview. "
-"Recommended to hide default app launcher."
-msgstr "도크에 맞춤 런치패드 아이콘을 추가하여 애플리케이션 개요를 열게 합니다. 기본 실행기를 숨기는 것이 좋습니다."
-
-#: prefs.js:584
+#: prefs.js:648
 msgid "Custom Do Not Disturb Button"
 msgstr "사용자 정의 방해 금지 버튼"
 
-#: prefs.js:584
-msgid "Replace the system Do Not Disturb button with Kiwi's custom implementation"
+#: prefs.js:648
+msgid ""
+"Replace the system Do Not Disturb button with Kiwi's custom implementation"
 msgstr "시스템 방해 금지 버튼을 Kiwi의 사용자 정의 구현으로 교체합니다"
 
-#: prefs.js:647
+#: prefs.js:663
+msgid "Launchpad Application"
+msgstr "런치패드 애플리케이션"
+
+#: prefs.js:664
+msgid ""
+"Add custom Launchpad icon to dock that opens application overview. "
+"Recommended to hide default app launcher."
+msgstr ""
+"도크에 맞춤 런치패드 아이콘을 추가하여 애플리케이션 개요를 열게 합니다. 기본 "
+"실행기를 숨기는 것이 좋습니다."
+
+#: prefs.js:681
+msgid "Custom Icon"
+msgstr "사용자 지정 아이콘"
+
+#: prefs.js:684 prefs.js:769
+msgid "Using default icon"
+msgstr "기본 아이콘 사용 중"
+
+#: prefs.js:692
+msgid "Reset to default icon"
+msgstr "기본 아이콘으로 재설정"
+
+#: prefs.js:703
+msgid "Browse for icon"
+msgstr "아이콘 찾아보기"
+
+#: prefs.js:708
+msgid "Select Launchpad Icon"
+msgstr "Launchpad 아이콘 선택"
+
+#: prefs.js:712
+msgid "Images (PNG, SVG)"
+msgstr "이미지 (PNG, SVG)"
+
+#: prefs.js:740
+msgid "Icon Too Large"
+msgstr "아이콘이 너무 큼"
+
+#: prefs.js:741
+msgid ""
+"The selected image exceeds 512×512 pixels. Please choose a smaller image."
+msgstr ""
+"선택한 이미지가 512×512 픽셀을 초과합니다. 더 작은 이미지를 선택하세요."
+
+#: prefs.js:743
+msgid "OK"
+msgstr "확인"
+
+#: prefs.js:775
 msgid "Style Keyboard Indicator"
 msgstr "키보드 표시기 스타일 조정"
 
-#: prefs.js:648
+#: prefs.js:776
 msgid ""
 "Slightly style keyboard/input source indicator by converting to uppercase "
 "and adding border"
-msgstr "키보드/입력 소스 표시기를 대문자로 바꾸고 테두리를 추가하여 약간 꾸밉니다"
+msgstr ""
+"키보드/입력 소스 표시기를 대문자로 바꾸고 테두리를 추가하여 약간 꾸밉니다"
 
-#: prefs.js:656
+#: prefs.js:784
 msgid "Hide keyboard indicator"
 msgstr "키보드 표시기 숨기기"
 
-#: prefs.js:657
+#: prefs.js:785
 msgid "Completely hide the indicator from the panel"
 msgstr "표시기를 패널에서 완전히 숨기기"
 
-#: prefs.js:683
+#: prefs.js:821
 msgid "Advanced"
 msgstr "고급"
 
-#: prefs.js:713
+#: prefs.js:851
 msgid "Titlebuttons Hover Effect for GTK3 apps"
 msgstr "GTK3 앱용 창 버튼 호버 효과"
 
-#: prefs.js:724
+#: prefs.js:862
 msgid ""
-"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
+"The titlebuttons hover module provides macOS-like hover effects for window "
+"controls in GTK3 applications. GTK3 apps cannot natively show hover effects "
+"on all three window controls simultaneously, requiring this custom library "
+"to achieve the desired behavior.\n"
 "\n"
-"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
+"This binary code cannot be distributed through the GNOME Extensions platform "
+"due to security policies regarding native libraries, but manual installation "
+"is possible."
 msgstr ""
-"타이틀 버튼 호버 모듈은 GTK3 애플리케이션의 창 제어 버튼에 macOS와 비슷한 호버 효과를 제공합니다. GTK3 앱은 기본적으로 세 개의 버튼 모두에 동시에 호버 효과를 줄 수 없으므로 원하는 동작을 위해 이 라이브러리가 필요합니다.\n"
+"타이틀 버튼 호버 모듈은 GTK3 애플리케이션의 창 제어 버튼에 macOS와 비슷한 호"
+"버 효과를 제공합니다. GTK3 앱은 기본적으로 세 개의 버튼 모두에 동시에 호버 효"
+"과를 줄 수 없으므로 원하는 동작을 위해 이 라이브러리가 필요합니다.\n"
 "\n"
-"이 바이너리는 네이티브 라이브러리에 대한 보안 정책 때문에 GNOME 확장 플랫폼에서 배포할 수 없지만 수동 설치는 가능합니다."
+"이 바이너리는 네이티브 라이브러리에 대한 보안 정책 때문에 GNOME 확장 플랫폼에"
+"서 배포할 수 없지만 수동 설치는 가능합니다."
 
-#: prefs.js:738
+#: prefs.js:874
 msgid "Installation Guide on GitHub"
 msgstr "GitHub 설치 안내"
 
-#: prefs.js:739
+#: prefs.js:876
 msgid "Open the advanced module build instructions"
 msgstr "고급 모듈 빌드 안내 열기"
 
-#: prefs.js:752
+#: prefs.js:881
 msgid "Even more..."
 msgstr "더 많은 기능…"
 
-#: prefs.js:755
-msgid "MacTahoe Icon Pack"
-msgstr "MacTahoe 아이콘 팩"
+#: prefs.js:885
+msgid "AppManager"
+msgstr ""
 
-#: prefs.js:756
+#: prefs.js:887
+msgid "MacOS style AppImage installer and management application"
+msgstr "MacOS 스타일 AppImage 설치 및 관리 애플리케이션"
+
+#: prefs.js:890
+msgid "MacTahoe Icon Pack"
+msgstr ""
+
+#: prefs.js:892
 msgid "macOS Tahoe icon theme for Linux"
 msgstr "리눅스를 위한 macOS Tahoe 아이콘 테마"
 
-#: prefs.js
-msgid "Become a sponsor on GitHub"
-msgstr "GitHub에서 스폰서 되기"
+#: prefs.js:895
+msgid "GDM Wallpaper"
+msgstr ""
 
-#: prefs.js
-msgid "Sponsor Me ♡"
-msgstr "후원하기 ♡"
+#: prefs.js:897
+msgid "Set custom GDM login screen wallpaper"
+msgstr "GDM 로그인 화면에 사용자 지정 배경화면 설정"
 
+#: prefs.js:905
+msgid "Recommended Extensions"
+msgstr "추천 확장 기능"
 
+#: prefs.js:906
+msgid "Extensions that are compatible with Kiwi"
+msgstr "Kiwi와 호환되는 확장 기능"
 
+#~ msgid "Unknown artist"
+#~ msgstr "알 수 없는 아티스트"
 
+#~ msgid "Unknown title"
+#~ msgstr "알 수 없는 제목"
 
+#~ msgid ""
+#~ "Copyright © 2025 Arnis Kemlers\n"
+#~ "\n"
+#~ "This program is free software: you can redistribute it and/or modify it "
+#~ "under the terms of the GNU General Public License as published by the "
+#~ "Free Software Foundation, either version 3 of the License, or (at your "
+#~ "option) any later version."
+#~ msgstr ""
+#~ "저작권 © 2025 Arnis Kemlers\n"
+#~ "\n"
+#~ "이 프로그램은 자유 소프트웨어입니다. Free Software Foundation이 발표한 "
+#~ "GNU 일반 공중 라이선스의 조건(버전 3 또는 선택한 이후 버전)에 따라 재배포"
+#~ "하거나 수정할 수 있습니다."
 
+#~ msgid "Support the project"
+#~ msgstr "프로젝트 후원하기"
 
+#~ msgid "Buy Me a Coffee"
+#~ msgstr "커피 한 잔 사주기"
 
+#~ msgid "Show window control buttons in application windows"
+#~ msgstr "애플리케이션 창에 제어 버튼 표시"
 
-
-
-
-#, javascript-format
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#~ msgid ""
+#~ "Display window control buttons in the top panel when window is maximized"
+#~ msgstr "창이 최대화될 때 상단 패널에 제어 버튼 표시"
