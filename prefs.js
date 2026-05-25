@@ -92,17 +92,16 @@ export default class KiwiPreferences extends ExtensionPreferences {
             halign: Gtk.Align.CENTER,
         });
 
-        // Logo centered
+        // Logo centered — Gtk.Picture scales with the window (matches kiwi-menu)
         try {
             const logoPath = this.path + '/icons/kiwi_logo.png';
             const logoFile = Gio.File.new_for_path(logoPath);
             if (logoFile.query_exists(null)) {
-                const pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(logoPath, 128, 128, true);
-                const texture = Gdk.Texture.new_for_pixbuf(pixbuf);
-                const logoImage = new Gtk.Image({
-                    // Gtk4: use paintable for Gdk.Texture
-                    paintable: texture,
-                    pixel_size: 128,
+                const logoImage = new Gtk.Picture({
+                    file: logoFile,
+                    width_request: 128,
+                    height_request: 128,
+                    content_fit: Gtk.ContentFit.CONTAIN,
                     halign: Gtk.Align.CENTER,
                 });
                 headerBox.append(logoImage);
