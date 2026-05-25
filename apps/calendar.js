@@ -31,8 +31,10 @@ let indicatorStyleSignalId = 0;
 
 function applyIndicatorStyle(style) {
     if (!notificationIndicator) return;
-    // Add right padding only when placed directly in the panel right box,
-    // so the dot isn't flush against the screen edge.
+    // When attached to the panel right box (Keep Notification Panel mode),
+    // the indicator sits after the clock and may become the rightmost panel
+    // element when window controls are hidden — add right padding so the dot
+    // isn't flush against the screen edge.
     const margin = notificationIndicatorParent === Main.panel._rightBox
         ? ' margin-right: 12px;'
         : '';
@@ -71,8 +73,16 @@ function setupNotificationIndicator() {
     // Add small delay to ensure all other indicators are added first
     indicatorInsertTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
         indicatorInsertTimeoutId = null; // clear reference on fire
-        const lastIndex = notificationIndicatorParent.get_n_children();
-        notificationIndicatorParent.insert_child_at_index(notificationIndicator, lastIndex);
+        let insertIndex = notificationIndicatorParent.get_n_children();
+        // When attached directly to the panel right box (Keep Notification
+        // Panel mode), keep the indicator adjacent to the clock instead of
+        // letting it land at the far right of the panel.
+        if (notificationIndicatorParent === Main.panel._rightBox && dateMenu?.container) {
+            const dateIdx = notificationIndicatorParent.get_children().indexOf(dateMenu.container);
+            if (dateIdx >= 0)
+                insertIndex = dateIdx + 1;
+        }
+        notificationIndicatorParent.insert_child_at_index(notificationIndicator, insertIndex);
         return GLib.SOURCE_REMOVE;
     });
 
@@ -277,8 +287,10 @@ export function enable(extension) {
         }
     }
 
-    // Adjust notification banner alignment without destroying the actor
-    if (!keepNotificationPanel && Main.messageTray?._bannerBin) {
+    // Adjust notification banner alignment without destroying the actor.
+    // Apply in both modes so banners appear top-right regardless of whether
+    // the GNOME notification panel is kept.
+    if (Main.messageTray?._bannerBin) {
         const bin = Main.messageTray._bannerBin;
         originalBannerBinProps = originalBannerBinProps || {
             x_align: bin.x_align,

@@ -121,6 +121,14 @@ export default class KiwiExtension extends Extension {
             quickSettingsMediaDisable();
         }
 
+        // Calendar (re-)enable moves dateMenu to the end of _rightBox, which
+        // pushes window controls out of the last position. Tear down so the
+        // re-enable below re-attaches them at the far right.
+        if ((key === 'keep-notification-panel' || key === 'move-calendar-right')
+            && this._settings.get_boolean('show-window-controls')) {
+            windowControlsDisable();
+        }
+
         if (this._settings.get_boolean('show-window-title')) {
             windowTitleEnable();
         } else {

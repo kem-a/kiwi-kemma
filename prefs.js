@@ -49,8 +49,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         window._settings = settings;
         const extensionTitle = _('Kiwi is not Apple');
         window.title = extensionTitle;
-        window.set_default_size(500, 710);
-        window.set_size_request(420, 550);
+        window.set_default_size(550, 700);
+        window.set_size_request(550, 600);
         // Enable built-in libadwaita search (adds search button automatically)
         if (window.set_search_enabled)
             window.set_search_enabled(true);
@@ -200,8 +200,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         legalRow.connect('activated', () => {
             // Create a dialog with slide-up presentation
             const legalDialog = new Adw.Dialog({
-                content_width: 450,
-                content_height: 600,
+                content_width: 420,
+                content_height: 560,
                 presentation_mode: Adw.DialogPresentationMode.BOTTOM_SHEET,
             });
 
