@@ -49,7 +49,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         window._settings = settings;
         const extensionTitle = _('Kiwi is not Apple');
         window.title = extensionTitle;
-        window.set_default_size(530, 700);
+        window.set_default_size(510, 700);
         window.set_size_request(380, 500);
         // Enable built-in libadwaita search (adds search button automatically)
         if (window.set_search_enabled)
