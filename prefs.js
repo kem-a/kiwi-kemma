@@ -49,8 +49,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         window._settings = settings;
         const extensionTitle = _('Kiwi is not Apple');
         window.title = extensionTitle;
-        window.set_default_size(550, 700);
-        window.set_size_request(550, 600);
+        window.set_default_size(530, 700);
+        window.set_size_request(380, 500);
         // Enable built-in libadwaita search (adds search button automatically)
         if (window.set_search_enabled)
             window.set_search_enabled(true);
@@ -160,15 +160,17 @@ export default class KiwiPreferences extends ExtensionPreferences {
         aboutPage.add(headerGroup);
 
         // Content group with two columns: links (left) and QR + coffee (right)
+        // Uses a horizontal Box that flips to vertical via Adw.Breakpoint when narrow.
         const contentGroup = new Adw.PreferencesGroup();
-        const contentGrid = new Gtk.Grid({
-            column_spacing: 24,
-            row_spacing: 12,
+        const contentBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 24,
             margin_top: 8,
             margin_bottom: 16,
             margin_start: 16,
             margin_end: 16,
             hexpand: true,
+            homogeneous: true,
         });
 
         // Left column: link groups styled with ActionRows
@@ -248,7 +250,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         leftColumn.append(infoGroup);
 
-        contentGrid.attach(leftColumn, 0, 0, 1, 1);
+        contentBox.append(leftColumn);
 
         // Right column: QR + coffee button
         const rightColumn = new Gtk.Box({
@@ -307,10 +309,19 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         rightColumn.append(coffeeButton);
 
-        contentGrid.attach(rightColumn, 1, 0, 1, 1);
+        contentBox.append(rightColumn);
 
-        contentGroup.add(contentGrid);
+        contentGroup.add(contentBox);
         aboutPage.add(contentGroup);
+
+        // Responsive breakpoint: stack columns vertically when window is narrow.
+        const aboutBreakpoint = new Adw.Breakpoint({
+            condition: Adw.BreakpointCondition.parse('max-width: 500sp'),
+        });
+        aboutBreakpoint.add_setter(contentBox, 'orientation', Gtk.Orientation.VERTICAL);
+        aboutBreakpoint.add_setter(contentBox, 'homogeneous', false);
+        aboutBreakpoint.add_setter(rightColumn, 'margin-top', 0);
+        window.add_breakpoint(aboutBreakpoint);
 
         //
         // Options Page
@@ -455,6 +466,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
                 const indicatorStyleToggleGroup = new Adw.ToggleGroup({
                     homogeneous: true,
+                    can_shrink: true,
                     valign: Gtk.Align.CENTER,
                 });
                 indicatorStyleToggleGroup.add_css_class('round');
@@ -554,6 +566,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const buttonTypeToggleGroup = new Adw.ToggleGroup({
             homogeneous: true,
+            can_shrink: true,
             valign: Gtk.Align.CENTER,
         });
         buttonTypeToggleGroup.add_css_class('round');
@@ -586,6 +599,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         const buttonSizeToggleGroup = new Adw.ToggleGroup({
             homogeneous: true,
+            can_shrink: true,
             valign: Gtk.Align.CENTER,
         });
         buttonSizeToggleGroup.add_css_class('round');
@@ -881,6 +895,11 @@ export default class KiwiPreferences extends ExtensionPreferences {
             title: _('Even more...'),
         });
 
+        moreGroup.add(this._createLinkRow(
+            _('AppManager'),
+            'https://github.com/kem-a/AppManager',
+            _('MacOS style AppImage installer and management application')
+        ));
         moreGroup.add(this._createLinkRow(
             _('MacTahoe Icon Pack'),
             'https://github.com/vinceliuice/MacTahoe-icon-theme',
