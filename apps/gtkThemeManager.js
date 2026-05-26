@@ -19,6 +19,7 @@ class GtkThemeManager {
         const extension = this._extension;
         const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
         const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
+        const fullscreenOnly = this._settings.get_boolean('show-window-controls-fullscreen-only');
         const buttonType = this._settings.get_string('button-type');
         const buttonSize = this._settings.get_string('button-size');
     
@@ -46,8 +47,13 @@ class GtkThemeManager {
     
     // Add hide-titlebar CSS if window controls should be shown in panel
     if (showControlsOnPanel) {
-        gtk3Content += `@import 'hide-titlebar3.css';\n`;
-        gtk4Content += `@import 'hide-titlebar4.css';\n`;
+        if (fullscreenOnly) {
+            gtk3Content += `@import 'hide-titlebar-fullscreen3.css';\n`;
+            gtk4Content += `@import 'hide-titlebar-fullscreen4.css';\n`;
+        } else {
+            gtk3Content += `@import 'hide-titlebar3.css';\n`;
+            gtk4Content += `@import 'hide-titlebar4.css';\n`;
+        }
     }
     
     // Always add fixes CSS at the end
@@ -173,7 +179,7 @@ class GtkThemeManager {
         if (!this._settings) {
             this._settings = this._extension.getSettings();
             this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
-                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
+                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls' || key === 'show-window-controls-fullscreen-only') {
                     this.updateGtkCss().catch(error => {
                         console.error(`[Kiwi] Error in settings changed handler: ${error}`);
                     });

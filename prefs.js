@@ -344,10 +344,15 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settingsPage.add(transparencyGroup);
 
         // Panel transparency expander with sub-options
+        const transparencyHasNonDefault =
+            settings.get_int('panel-transparency-level') !== 50 ||
+            settings.get_boolean('panel-opaque-on-window') ||
+            settings.get_boolean('panel-blur') ||
+            settings.get_boolean('panel-color-inherit');
         const transparencyExpander = new Adw.ExpanderRow({
             title: _("Panel Transparency"),
             subtitle: _("Make the top panel transparent"),
-            expanded: settings.get_boolean('panel-transparency'),
+            expanded: settings.get_boolean('panel-transparency') && transparencyHasNonDefault,
             show_enable_switch: true,
             enable_expansion: settings.get_boolean('panel-transparency'),
         });
@@ -396,7 +401,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
         transparencyGroup.add(transparencyExpander);
 
         // Bindings for expander
-        settings.bind('panel-transparency', transparencyExpander, 'expanded', Gio.SettingsBindFlags.GET);
         transparencyExpander.enable_expansion = settings.get_boolean('panel-transparency');
         transparencyExpander.connect('notify::enable-expansion', () => {
             const enabled = transparencyExpander.enable_expansion;
@@ -435,16 +439,18 @@ export default class KiwiPreferences extends ExtensionPreferences {
         switchList.forEach((item) => {
             if (item.key === 'move-calendar-right') {
                 // Expander with notification indicator style sub-option
+                const calendarHasNonDefault =
+                    settings.get_boolean('keep-notification-panel') ||
+                    settings.get_string('notification-indicator-style') !== 'default';
                 const calendarExpander = new Adw.ExpanderRow({
                     title: item.title,
                     subtitle: item.subtitle,
-                    expanded: settings.get_boolean('move-calendar-right'),
+                    expanded: settings.get_boolean('move-calendar-right') && calendarHasNonDefault,
                     show_enable_switch: true,
                     enable_expansion: settings.get_boolean('move-calendar-right'),
                 });
                 group.add(calendarExpander);
 
-                settings.bind('move-calendar-right', calendarExpander, 'expanded', Gio.SettingsBindFlags.GET);
                 calendarExpander.connect('notify::enable-expansion', () => {
                     const v = calendarExpander.enable_expansion;
                     if (settings.get_boolean('move-calendar-right') !== v)
@@ -497,6 +503,33 @@ export default class KiwiPreferences extends ExtensionPreferences {
                 return;
             }
 
+            if (item.key === 'show-window-controls') {
+                // Expander with "Only when Fullscreen" sub-option
+                const controlsHasNonDefault = settings.get_boolean('show-window-controls-fullscreen-only');
+                const controlsExpander = new Adw.ExpanderRow({
+                    title: item.title,
+                    subtitle: item.subtitle,
+                    expanded: settings.get_boolean('show-window-controls') && controlsHasNonDefault,
+                    show_enable_switch: true,
+                    enable_expansion: settings.get_boolean('show-window-controls'),
+                });
+                group.add(controlsExpander);
+
+                controlsExpander.connect('notify::enable-expansion', () => {
+                    const v = controlsExpander.enable_expansion;
+                    if (settings.get_boolean('show-window-controls') !== v)
+                        settings.set_boolean('show-window-controls', v);
+                });
+
+                const fullscreenOnlyRow = new Adw.SwitchRow({
+                    title: _("Only when Fullscreen"),
+                    subtitle: _("Hide titlebars and show panel controls only for fullscreen windows, not maximized"),
+                });
+                controlsExpander.add_row(fullscreenOnlyRow);
+                settings.bind('show-window-controls-fullscreen-only', fullscreenOnlyRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+                return;
+            }
+
             const switchRow = new Adw.SwitchRow({
                 title: item.title,
                 subtitle: item.subtitle,
@@ -521,16 +554,20 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settingsPage.add(buttonTypeGroup);
 
         // Main toggle as an expander with sub-options
+        const buttonsHasNonDefault =
+            settings.get_boolean('enable-firefox-styling') ||
+            settings.get_boolean('enable-thunderbird-styling') ||
+            settings.get_string('button-type') !== 'titlebuttons' ||
+            settings.get_string('button-size') !== 'small';
         const buttonsExpander = new Adw.ExpanderRow({
             title: _("Enable macOS Window Buttons"),
             subtitle: _("Replace window control buttons in application windows with macOS style"),
-            expanded: settings.get_boolean('enable-app-window-buttons'),
+            expanded: settings.get_boolean('enable-app-window-buttons') && buttonsHasNonDefault,
             show_enable_switch: true,
             enable_expansion: settings.get_boolean('enable-app-window-buttons'),
         });
         buttonTypeGroup.add(buttonsExpander);
-        // Keep expander in sync with setting
-        settings.bind('enable-app-window-buttons', buttonsExpander, 'expanded', Gio.SettingsBindFlags.GET);
+        // Keep expander enable state in sync with setting
         buttonsExpander.enable_expansion = settings.get_boolean('enable-app-window-buttons');
         buttonsExpander.connect('notify::enable-expansion', () => {
             const enabled = buttonsExpander.enable_expansion;
@@ -672,9 +709,11 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
 
         // Launchpad Application with custom icon option
+        const launchpadHasNonDefault = settings.get_string('launchpad-app-custom-icon') !== '';
         const launchpadExpander = new Adw.ExpanderRow({
             title: _("Launchpad Application"),
             subtitle: _("Add custom Launchpad icon to dock that opens application overview. Recommended to hide default app launcher."),
+            expanded: settings.get_boolean('enable-launchpad-app') && launchpadHasNonDefault,
             show_enable_switch: true,
             enable_expansion: settings.get_boolean('enable-launchpad-app'),
         });
@@ -784,10 +823,11 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
 
         // Keyboard indicator feature with sub-options
+        const kbHasNonDefault = settings.get_boolean('hide-keyboard-indicator');
         const kbExpander = new Adw.ExpanderRow({
             title: _("Style Keyboard Indicator"),
             subtitle: _("Slightly style keyboard/input source indicator by converting to uppercase and adding border"),
-            expanded: settings.get_boolean('keyboard-indicator'),
+            expanded: settings.get_boolean('keyboard-indicator') && kbHasNonDefault,
             show_enable_switch: true,
             enable_expansion: settings.get_boolean('keyboard-indicator'),
         });
@@ -803,8 +843,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
         extrasGroup.add(kbExpander);
 
         // Bindings
-        // Keep expander expansion in sync
-        settings.bind('keyboard-indicator', kbExpander, 'expanded', Gio.SettingsBindFlags.GET);
         // Reflect settings to the enable switch and write back on change
         kbExpander.enable_expansion = settings.get_boolean('keyboard-indicator');
         kbExpander.connect('notify::enable-expansion', () => {

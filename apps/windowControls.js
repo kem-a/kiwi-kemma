@@ -35,6 +35,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
             if (key === 'button-type') this._updateAllIcons();
             else if (key === 'button-size') this._updateButtonSizeClass();
             else if (key === 'show-window-controls') this._updateVisibility();
+            else if (key === 'show-window-controls-fullscreen-only') this._updateVisibility();
         });
 
         // Read system WM button layout
@@ -400,9 +401,10 @@ class WindowControlsIndicator extends PanelMenu.Button {
             }
         }
 
-        this.visible = !Main.overview.visible && focusWindow && 
-            this._settings.get_boolean('show-window-controls') && 
-            (isMaximized || isFullscreen);
+        const fullscreenOnly = this._settings.get_boolean('show-window-controls-fullscreen-only');
+        this.visible = !Main.overview.visible && focusWindow &&
+            this._settings.get_boolean('show-window-controls') &&
+            (fullscreenOnly ? isFullscreen : (isMaximized || isFullscreen));
 
         // Reset hover state when window state changes or when becoming visible/hidden
         if (this.visible !== wasVisible || isMaximized !== wasMaximized) {

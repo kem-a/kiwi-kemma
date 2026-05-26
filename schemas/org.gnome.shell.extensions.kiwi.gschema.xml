@@ -78,6 +78,11 @@
         <summary>Show Window Controls on Panel</summary>
         <description>Display window control buttons in the top panel when window is maximized.</description>
       </key>
+      <key name="show-window-controls-fullscreen-only" type="b">
+        <default>false</default>
+        <summary>Show Window Controls on Panel only when Fullscreen</summary>
+        <description>When enabled, panel window controls and titlebar hiding apply only to fullscreen windows, not maximized.</description>
+      </key>
       <key name="button-type" type="s">
         <default>'titlebuttons'</default>
         <summary>Button icon set</summary>

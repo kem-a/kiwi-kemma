@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Hide GTK4 window control buttons only when fullscreen */
+
+/* Shift left-side window controls off-screen */
+.fullscreen headerbar windowcontrols.start {
+  margin: 0 0 0 -200px;
+  opacity: 0;
+}
+
+/* Shift right-side window controls off-screen */
+.fullscreen headerbar windowcontrols.end {
+  margin: 0 -200px 0 0;
+  opacity: 0;
+}
+
+/* Hide default decoration titlebar (electron / SSD apps) */
+.fullscreen .titlebar.default-decoration {
+  margin: -200px 0 0;
+  opacity: 0;
+}
