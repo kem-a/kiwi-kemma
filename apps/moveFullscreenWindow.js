@@ -89,15 +89,11 @@ class FullscreenWorkspaceManager {
     }
 
     /**
-     * Activate the target workspace while keeping `movingWindow` visually fixed.
-     *
-     * GNOME's workspace-switch animation renders the "moving window" in a sticky
-     * group that does NOT slide, while the background workspaces slide behind it
-     * (the same mechanism used when dragging a window across workspaces). This
-     * keeps the fullscreen app in focus and stationary instead of having a second
-     * copy slide in. The animation is also slowed for a smoother transition.
+     * Temporarily raise GNOME's animation slow-down factor, restoring it after
+     * `resetDelay` ms. Calls stack safely: the real factor is captured only when
+     * not already raised, and a pending reset is rescheduled rather than doubled.
      */
-    _activateWorkspaceWithSlowAnimation(targetWs, movingWindow) {
+    _raiseSlowdown(resetDelay) {
         const settings = St.Settings.get();
 
         // Capture the real factor only when not already slowed (avoid stacking)
@@ -110,6 +106,25 @@ class FullscreenWorkspaceManager {
 
         settings.slow_down_factor = FULLSCREEN_ANIMATION_SLOWDOWN;
 
+        this._slowdownResetId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, resetDelay, () => {
+            St.Settings.get().slow_down_factor = this._originalSlowDownFactor;
+            this._slowdownResetId = 0;
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    /**
+     * Activate the target workspace while keeping `movingWindow` visually fixed.
+     *
+     * GNOME's workspace-switch animation renders the "moving window" in a sticky
+     * group that does NOT slide, while the background workspaces slide behind it
+     * (the same mechanism used when dragging a window across workspaces). This
+     * keeps the fullscreen app in focus and stationary instead of having a second
+     * copy slide in. The animation is also slowed for a smoother transition.
+     */
+    _activateWorkspaceWithSlowAnimation(targetWs, movingWindow) {
+        this._raiseSlowdown(SLOWDOWN_RESET_DELAY);
+
         const animation = Main.wm?._workspaceAnimation;
         if (movingWindow && animation) {
             // Pin the window so it stays fixed while the background slides
@@ -118,12 +133,6 @@ class FullscreenWorkspaceManager {
         } else {
             targetWs.activate(global.get_current_time());
         }
-
-        this._slowdownResetId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, SLOWDOWN_RESET_DELAY, () => {
-            St.Settings.get().slow_down_factor = this._originalSlowDownFactor;
-            this._slowdownResetId = 0;
-            return GLib.SOURCE_REMOVE;
-        });
     }
 
     // =========================================================================
