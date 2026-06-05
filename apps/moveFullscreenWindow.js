@@ -13,6 +13,8 @@
 
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import St from 'gi://St';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 // Minimum number of workspaces to maintain (main + 1 empty)
 const MIN_WORKSPACES = 2;
@@ -33,6 +35,14 @@ const WORKSPACE_CLEANUP_DELAY = 600;
 // Maximum number of workspaces allowed (GNOME schema limit)
 // org.gnome.desktop.wm.preferences.num-workspaces has range 1-36
 const MAX_WORKSPACES = 36;
+
+// Multiply GNOME's animation duration while the fullscreen workspace switch plays
+// (slows the workspace-switch transition for a smoother enter/exit fullscreen)
+const FULLSCREEN_ANIMATION_SLOWDOWN = 3;
+
+// How long to keep the slow-down factor raised before restoring it (ms)
+// Must outlast the workspace-switch animation
+const SLOWDOWN_RESET_DELAY = 700;
 
 
 class FullscreenWorkspaceManager {
@@ -72,6 +82,48 @@ class FullscreenWorkspaceManager {
         // Settings for workspace mode detection
         this._mutterSettings = null;  // For dynamic-workspaces
         this._wmPreferences = null;   // For num-workspaces
+
+        // Slow-down animation state
+        this._slowdownResetId = 0;
+        this._originalSlowDownFactor = 1;
+    }
+
+    /**
+     * Activate the target workspace while keeping `movingWindow` visually fixed.
+     *
+     * GNOME's workspace-switch animation renders the "moving window" in a sticky
+     * group that does NOT slide, while the background workspaces slide behind it
+     * (the same mechanism used when dragging a window across workspaces). This
+     * keeps the fullscreen app in focus and stationary instead of having a second
+     * copy slide in. The animation is also slowed for a smoother transition.
+     */
+    _activateWorkspaceWithSlowAnimation(targetWs, movingWindow) {
+        const settings = St.Settings.get();
+
+        // Capture the real factor only when not already slowed (avoid stacking)
+        if (this._slowdownResetId === 0) {
+            this._originalSlowDownFactor = settings.slow_down_factor;
+        } else {
+            GLib.Source.remove(this._slowdownResetId);
+            this._slowdownResetId = 0;
+        }
+
+        settings.slow_down_factor = FULLSCREEN_ANIMATION_SLOWDOWN;
+
+        const animation = Main.wm?._workspaceAnimation;
+        if (movingWindow && animation) {
+            // Pin the window so it stays fixed while the background slides
+            animation.movingWindow = movingWindow;
+            targetWs.activate_with_focus(movingWindow, global.get_current_time());
+        } else {
+            targetWs.activate(global.get_current_time());
+        }
+
+        this._slowdownResetId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, SLOWDOWN_RESET_DELAY, () => {
+            St.Settings.get().slow_down_factor = this._originalSlowDownFactor;
+            this._slowdownResetId = 0;
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     // =========================================================================
@@ -781,8 +833,9 @@ class FullscreenWorkspaceManager {
         // Move window to the target workspace
         window.change_workspace(targetWs);
 
-        // Activate the workspace
-        targetWs.activate(global.get_current_time());
+        // Activate the workspace, keeping the fullscreen window fixed in focus
+        // while the background slides
+        this._activateWorkspaceWithSlowAnimation(targetWs, window);
 
         // Track the fullscreen workspace
         window._kiwi_isolated = true;
@@ -892,7 +945,8 @@ class FullscreenWorkspaceManager {
         const targetWs = wm.get_workspace_by_index(targetIndex);
         if (targetWs) {
             window.change_workspace(targetWs);
-            targetWs.activate(global.get_current_time());
+            // Keep the window fixed in focus while the background slides
+            this._activateWorkspaceWithSlowAnimation(targetWs, window);
         }
 
         // Clear original workspace tracking
@@ -931,10 +985,11 @@ class FullscreenWorkspaceManager {
                 return GLib.SOURCE_REMOVE;
 
             // Try to activate original workspace if valid and not already active
+            // (slowed slide; no moving window since this one is being destroyed)
             if (originalIndex !== undefined && originalIndex >= 0 && originalIndex < wm.n_workspaces) {
                 const ws = wm.get_workspace_by_index(originalIndex);
                 if (ws && !ws.active) {
-                    ws.activate(global.get_current_time());
+                    this._activateWorkspaceWithSlowAnimation(ws);
                 }
             }
 
@@ -1057,6 +1112,13 @@ class FullscreenWorkspaceManager {
         if (this._checkWorkspacesId !== 0) {
             GLib.Source.remove(this._checkWorkspacesId);
             this._checkWorkspacesId = 0;
+        }
+
+        // Restore animation slow-down factor and cancel its pending reset
+        if (this._slowdownResetId !== 0) {
+            GLib.Source.remove(this._slowdownResetId);
+            this._slowdownResetId = 0;
+            St.Settings.get().slow_down_factor = this._originalSlowDownFactor;
         }
 
         // Cancel all pending isolation timeouts
