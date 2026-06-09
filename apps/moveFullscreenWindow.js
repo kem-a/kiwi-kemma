@@ -993,9 +993,11 @@ class FullscreenWorkspaceManager {
             if (!wm)
                 return GLib.SOURCE_REMOVE;
 
-            // Try to activate original workspace if valid and not already active
+            // Only return to the original workspace when a fullscreen-isolated
+            // window was closed; closing a regular window must not switch workspaces
             // (slowed slide; no moving window since this one is being destroyed)
-            if (originalIndex !== undefined && originalIndex >= 0 && originalIndex < wm.n_workspaces) {
+            if (fullscreenWsIndex !== undefined &&
+                originalIndex !== undefined && originalIndex >= 0 && originalIndex < wm.n_workspaces) {
                 const ws = wm.get_workspace_by_index(originalIndex);
                 if (ws && !ws.active) {
                     this._activateWorkspaceWithSlowAnimation(ws);
