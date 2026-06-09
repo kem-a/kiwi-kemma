@@ -8,6 +8,8 @@ import Gio from 'gi://Gio';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 
+import { connectPaintSignal } from './blurPaintSignal.js';
+
 let settings;
 let windowSignals = [];
 let settingsSignals = [];
@@ -57,6 +59,11 @@ function createBlurEffect() {
         brightness: 1.0,
     });
     blurWidget.add_effect(blurEffect);
+
+    // Force throttled blur repaints when content above the blur repaints
+    // (panel button hover, shadows) — fixes lingering squared artifacts
+    // (GNOME Shell #2857).
+    connectPaintSignal(blurWidget, () => blurEffect);
 
     blurBackgroundGroup.insert_child_at_index(blurWidget, 0);
     panelBox.insert_child_at_index(blurBackgroundGroup, 0);

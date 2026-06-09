@@ -9,6 +9,8 @@ import St from 'gi://St';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 
+import { connectPaintSignal } from './blurPaintSignal.js';
+
 let dockSearchId = null;
 let dashes = []; // array of per-dash state objects
 let blurRepaintSignals = []; // global event signal connections for blur repaints
@@ -125,6 +127,10 @@ function _tryBlurDock(dockContainer) {
     blurWidget.add_effect(blurEffect);
     backgroundGroup.insert_child_at_index(blurWidget, 0);
 
+    // Force throttled blur repaints when content above the blur repaints
+    // (button hover, icon shadows) — fixes lingering squared artifacts.
+    connectPaintSignal(blurWidget, () => blurEffect);
+
     // Border overlay matching the dash-background pill shape
     const themeNode = dashBackground.get_theme_node();
     const borderRadius = themeNode
@@ -155,6 +161,10 @@ function _tryBlurDock(dockContainer) {
     updateSize();
 
     const signals = [];
+    // Allocation signals catch geometry settling that the x/y/width/height
+    // notifications can miss (dock created mid-layout, resume from sleep).
+    signals.push({ actor: dash, id: dash.connect('notify::allocation', updateSize) });
+    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::allocation', updateSize) });
     signals.push({ actor: dash, id: dash.connect('notify::width', updateSize) });
     signals.push({ actor: dash, id: dash.connect('notify::height', updateSize) });
     signals.push({ actor: dash, id: dash.connect('notify::y', updateSize) });
@@ -231,8 +241,24 @@ function _removeAllBlurs() {
 }
 
 let childAddedId = null;
+let startupCompleteId = null;
 
 export function enable() {
+    // During shell startup the dock geometry is unreliable (startup animation,
+    // layout not settled) — blurring then yields a mis-sized blur bar.
+    // Defer until startup completes, like blur-my-shell does.
+    if (Main.layoutManager._startingUp) {
+        startupCompleteId = Main.layoutManager.connect('startup-complete', () => {
+            Main.layoutManager.disconnect(startupCompleteId);
+            startupCompleteId = null;
+            _enable();
+        });
+        return;
+    }
+    _enable();
+}
+
+function _enable() {
     // Watch for new dock containers being added (e.g., dock enabled after us)
     childAddedId = Main.uiGroup.connect('child-added', (_group, actor) => {
         if (actor.name === 'dashtodockContainer')
@@ -258,6 +284,11 @@ export function enable() {
 }
 
 export function disable() {
+    if (startupCompleteId) {
+        Main.layoutManager.disconnect(startupCompleteId);
+        startupCompleteId = null;
+    }
+
     if (dockSearchId) {
         GLib.Source.remove(dockSearchId);
         dockSearchId = null;
