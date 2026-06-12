@@ -10,11 +10,13 @@
 
 Kiwi is a GNOME Shell extension that mimics various macOS features. This extension provides a collection of small quality-of-life functionalities such as moving windows to new workspaces, adding the username to the quick menu, focusing launched windows, and more.
 
+<img src="https://extensions.gnome.org/extension-data/screenshots/screenshot_8276_to4T5k0.png" />
+
 ## Features
 
 - **Under the hood restyling**: very minimal Gnome shell and GTK/Adwaita app restyling keeping maximum look and compatibility. Reduced menu item spacing; menu item accent colors; uniform top panel status icon padding and more...
 - **Window Control Button Style**: Set macOS window control button styles and sizes.
-- **Firefox Styling**: Apply macOS window control styling for Firefox.
+- **Firefox and Thunderbird Styling**: Apply macOS window control styling for Firefox.
 - **Show Window Controls in Panel**: Move buttons to top panel for maximized windows and remove window titlebars for maximum space.
 - **Show Window title**: Display current window title in the top panel
 - **Show Panel on Hover**: Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.
@@ -23,7 +25,8 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Transparent Move**: Make windows slightly transparent when moving.
 - **Battery Percentage**: Show battery percentage in the system menu when below 20% and on battery.
 - **Move calendar to the right**: Move calendar to right side and hide and add notifications and media controls to Quick Settings.
-- **Overview Wallpaper Background blur**. Use blurred current wallpaper as overview background (requires **ImageMagick**).
+- **Overview Wallpaper Background blur**: Use blurred current wallpaper as overview background (requires **ImageMagick**).
+- **Panel and Dash-to-Dock dynamic blur**: Add dynamic blur to top panel or Dash-to-Dock.
 - **Multilingual UI**: Ships with translations for 16 languages (de, es, et, fa, fi, fr, it, ko, lt, lv, nb, nl, pl, pt, sv, zh_CN, tr) and is easy to extend via `po/` files.
 
 <details> <summary> <H3> Extras </H3> <b>(click to open)</b> </summary>
@@ -41,12 +44,12 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
   
 ## Recommended Extensions for better experience
 
+- **[Kiwi Menu](https://extensions.gnome.org/extension/8697/)** by kem-a (Me)
 - **[Dash to Dock](https://extensions.gnome.org/extension/307/)** by michele_g
 - **[Compiz alike magic lamp effect](https://extensions.gnome.org/extension/3740/)** by hermes83
-- **[Kiwi Menu](https://extensions.gnome.org/extension/8697/)** by kem-a (Me)
 - **[AppIndicator Support](https://extensions.gnome.org/extension/615/)** by 3v1n0
-- **[Gtk4 Desktop Icons NG (DING)](https://extensions.gnome.org/extension/5263/)** by smedius
 - **[Clipboard Indicator](https://extensions.gnome.org/extension/779/)** by Tudmotu
+- **[Gtk4 Desktop Icons NG (DING)](https://extensions.gnome.org/extension/5263/)** by smedius
 - **[Light Style](https://extensions.gnome.org/extension/6198/)** by fmuellner
 - **[Weather or Not](https://extensions.gnome.org/extension/5660/)** by somepaulo
 
@@ -81,7 +84,3 @@ The `advanced/` folder contains additional features that cannot be distributed t
 - **Titlebuttons Hover Effect**: Provides macOS-like hover effects for window controls for GTK3 apps
 - Requires manual compilation and installation
 - See [advanced/README.md](advanced/README.md) for detailed installation instructions
-
-## License
-
-GPL-3.0-or-later. See [LICENSE](./LICENSE).
