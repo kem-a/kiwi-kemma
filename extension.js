@@ -40,6 +40,7 @@ import { enable as quickSettingsMediaEnable, disable as quickSettingsMediaDisabl
 import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
 import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './apps/launchpadApp.js';
 import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
+import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -201,6 +202,12 @@ export default class KiwiExtension extends Extension {
         else
             dockBlurDisable();
 
+        // Reduce window open/close animations (macOS-style scale + fade)
+        if (this._settings.get_boolean('reduce-window-animations'))
+            reduceWindowAnimationsEnable();
+        else
+            reduceWindowAnimationsDisable();
+
         // Launchpad app
         if (key === 'launchpad-app-custom-icon' && this._settings.get_boolean('enable-launchpad-app')) {
             launchpadAppDisable();
@@ -260,6 +267,7 @@ export default class KiwiExtension extends Extension {
         quickSettingsNotificationsDisable();
         launchpadAppDisable();
         dockBlurDisable();
+        reduceWindowAnimationsDisable();
         this._settings = null;
     }
 }

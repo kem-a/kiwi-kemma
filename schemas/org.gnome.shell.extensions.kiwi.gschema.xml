@@ -206,5 +206,12 @@
         <summary>Custom Do Not Disturb Button</summary>
         <description>Replace the system Do Not Disturb quick settings button with Kiwi's custom implementation.</description>
       </key>
+
+      <!-- Reduce window open/close animations -->
+      <key name="reduce-window-animations" type="b">
+        <default>false</default>
+        <summary>Reduce Window Open/Close Animations</summary>
+        <description>Replace the default window opening and closing animation with a subtle macOS-style scale and fade.</description>
+      </key>
     </schema>
 </schemalist>

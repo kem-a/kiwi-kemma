@@ -696,6 +696,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
             { key: 'custom-dnd-button', title: _("Custom Do Not Disturb Button"), subtitle: _("Replace the system Do Not Disturb button with Kiwi's custom implementation") },
+            { key: 'reduce-window-animations', title: _("Reduce App Animations"), subtitle: _("Mimic macOS window opening and closing with a subtle scale and fade") },
         ];
 
         extrasSwitchList.forEach((item) => {
