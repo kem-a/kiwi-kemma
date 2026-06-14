@@ -665,6 +665,24 @@ export function enable(gettext, settings) {
             notificationWidget = new NotificationWidget();
             grid.add_child(notificationWidget);
             grid.layout_manager.child_set_property(grid, notificationWidget, 'column-span', 2);
+
+            // Dismiss the quick settings popup when a notification shown inside it is
+            // activated, so the menu does not overlay (and block focus of) the launched
+            // window. Notifications emit 'activated' on click; cleanup is tied to the
+            // widget's lifetime via connectObject's owner.
+            const closeMenuOnActivate = () => {
+                const qs = Main.panel.statusArea.quickSettings;
+                if (qs?.menu?.isOpen)
+                    qs.menu.close();
+            };
+            const watchNotification = (notification) =>
+                notification.connectObject('activated', closeMenuOnActivate, notificationWidget);
+            const watchSource = (source) => {
+                source.connectObject('notification-added', (_s, n) => watchNotification(n), notificationWidget);
+                source.notifications?.forEach(watchNotification);
+            };
+            Main.messageTray.connectObject('source-added', (_mt, source) => watchSource(source), notificationWidget);
+            Main.messageTray.getSources().forEach(watchSource);
         }
 
         if (HAS_MESSAGE_LIST_SECTION) {
