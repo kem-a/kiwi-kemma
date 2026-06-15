@@ -50,7 +50,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
         const extensionTitle = _('Kiwi is not Apple');
         window.title = extensionTitle;
         window.set_default_size(510, 700);
-        window.set_size_request(380, 500);
         // Enable built-in libadwaita search (adds search button automatically)
         if (window.set_search_enabled)
             window.set_search_enabled(true);
@@ -905,6 +904,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
             label: `<b>${GLib.markup_escape_text(hoverTitle, -1)}</b>`,
             use_markup: true,
             halign: Gtk.Align.START,
+            wrap: true,
+            xalign: 0,
         }));
 
         advancedInfoBox.append(warningHeaderBox);
