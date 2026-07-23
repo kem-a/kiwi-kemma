@@ -1,11 +1,8 @@
-# samples folder of knowledge
+*ns.md
+*JavaScript.md
+.vscode
 samples
-.venv/
+.c[a-z]*/
 *.log
-stylesheet-test.css
-stylesheet-backup.css
-locale/
-*.png
-.github/*.md
-.vscode/
-.claude/
+locale
+*.compiled
