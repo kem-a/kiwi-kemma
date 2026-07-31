@@ -437,20 +437,55 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 /*###############################################*/
 
 #panel .kiwi-input-themed {
-  border: 1px solid -st-accent-color;
+  border-width: 1px;
+  border-style: solid;
   border-radius: 6px;
-  padding: 6px;
-  margin: 6px;
+  margin: 0.32em 0.27em;
   box-sizing: border-box;
+  /* Width lever: PanelMenu.ButtonBox sizes itself from its child plus these,
+     ignoring CSS min-width/padding entirely. */
+  -natural-hpadding: 8px;
+  -minimum-hpadding: 6px;
+}
+
+/* Border tint follows the shell light/dark stylesheet variant */
+#panel .kiwi-input-dark {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+#panel .kiwi-input-light {
+  border-color: rgba(0, 0, 0, 0.7);
 }
 
 /* When EN is mapped to A, fill background for emphasis */
-#panel .kiwi-input-en {
-  background-color: alpha(-st-accent-color, 0.2);
+#panel .kiwi-input-dark.kiwi-input-en {
+  background-color: rgba(255, 255, 255, 0.90);
+}
+
+#panel .kiwi-input-light.kiwi-input-en {
+  background-color: rgba(0, 0, 0, 0.90);
+}
+
+/* Invert the glyph against the fill; drop the panel text-shadow that fights it */
+#panel .kiwi-input-dark.kiwi-input-en StLabel {
+  color: #000000;
+  text-shadow: none;
+}
+
+#panel .kiwi-input-light.kiwi-input-en StLabel {
+  color: #ffffff;
+  text-shadow: none;
 }
 
 /* Slightly smaller text for the indicator when themed */
 #panel .kiwi-input-themed StLabel {
-  font-size: 0.80em;
+  font-family: monospace;
+  font-size: 0.90em;
   font-weight: 600;
+  /* Hard-fixes the box width. Must be `width`, not `min-width`: the container
+     reports max-of-children while only one label is visible, so a floor left
+     the box able to track the active label. `width` makes every label report
+     the same size regardless. Two monospace chars measure 14px at this size. */
+  width: 1.35em;
+  text-align: center;
 }

@@ -8,6 +8,9 @@ import * as Keyboard from 'resource:///org/gnome/shell/ui/status/keyboard.js';
 
 let _state = null;
 
+// Label shown when the active source is English, mirroring macOS
+const EN_LABEL = 'A';
+
 function _syncIndicatorState() {
     if (!_state?.indicator)
         return;
@@ -35,6 +38,11 @@ function _getCurrentInputSource() {
 function _onInputSourceChanged() {
     // Called when system input source changes via InputSourceManager
     _updateLabel();
+}
+
+function _isDarkVariant() {
+    // Mirrors the shell's own stylesheet choice (gnome-shell-dark.css / -light.css)
+    return Main.getStyleVariant() !== 'light';
 }
 
 function _getIndicator() {
@@ -141,9 +149,14 @@ function _applyTheme(isVisible = _state?.indicator?.visible ?? false) {
     if (!isVisible) {
         _state.indicator.remove_style_class_name('kiwi-input-themed');
         _state.indicator.remove_style_class_name('kiwi-input-en');
+        _state.indicator.remove_style_class_name('kiwi-input-dark');
+        _state.indicator.remove_style_class_name('kiwi-input-light');
         return;
     }
     _state.indicator.add_style_class_name('kiwi-input-themed');
+    const dark = _isDarkVariant();
+    _state.indicator.remove_style_class_name(dark ? 'kiwi-input-light' : 'kiwi-input-dark');
+    _state.indicator.add_style_class_name(dark ? 'kiwi-input-dark' : 'kiwi-input-light');
 }
 
 function _updateLabel() {
@@ -185,9 +198,9 @@ function _updateLabel() {
     const codeLower = _normalizeSourceId(code);
 
     if (codeLower && EN_SET.has(codeLower)) {
-        if (!alphaText || EN_SET.has(lowerText)) {
-            // Both system and label indicate EN (or label empty); map to 'A'
-            nextText = 'A';
+        if (!alphaText || EN_SET.has(lowerText) || alphaText === EN_LABEL) {
+            // Both system and label indicate EN (or label empty, or already mapped); map to 'A'
+            nextText = EN_LABEL;
             _state.indicator.add_style_class_name('kiwi-input-en');
         } else if (alphaText.length <= 3) {
             // Label shows a different layout explicitly; trust label and uppercase it
@@ -231,6 +244,10 @@ function _connect() {
     if (inputSourceManager && !_state.inputManagerChangedId) {
         _state.inputManagerChangedId = inputSourceManager.connect('current-source-changed', _onInputSourceChanged);
     }
+    // Re-pick border/background colors when the user switches light/dark mode
+    if (!_state.colorSchemeChangedId) {
+        _state.colorSchemeChangedId = St.Settings.get().connect('notify::color-scheme', () => _syncIndicatorState());
+    }
 }
 
 function _disconnect() {
@@ -248,6 +265,10 @@ function _disconnect() {
             inputSourceManager.disconnect(_state.inputManagerChangedId);
         }
         _state.inputManagerChangedId = 0;
+    }
+    if (_state?.colorSchemeChangedId) {
+        St.Settings.get().disconnect(_state.colorSchemeChangedId);
+        _state.colorSchemeChangedId = 0;
     }
     if (_state?.visibilityChangedId && _state.indicator) {
         _state.indicator.disconnect(_state.visibilityChangedId);
@@ -273,6 +294,7 @@ export function enable(settings) {
         labelDestroyId: 0,
         inputManagerChangedId: 0,
         visibilityChangedId: 0,
+        colorSchemeChangedId: 0,
         shellVisible: indicator.visible,
         updatingVisibility: false,
         idleId: 0,
@@ -308,6 +330,8 @@ export function disable() {
             _state.indicator._kiwiOriginalVisible = undefined;
         _state.indicator.remove_style_class_name('kiwi-input-themed');
         _state.indicator.remove_style_class_name('kiwi-input-en');
+        _state.indicator.remove_style_class_name('kiwi-input-dark');
+        _state.indicator.remove_style_class_name('kiwi-input-light');
     }
     _state = null;
 }
