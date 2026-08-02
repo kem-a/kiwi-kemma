@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Kiwi Menu 1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/kem-a/kiwi-kemma/issues\n"
-"POT-Creation-Date: 2026-05-25 15:41+0300\n"
+"POT-Creation-Date: 2026-08-02 23:40+0300\n"
 "PO-Revision-Date: 2025-11-02 10:45+0800\n"
 "Last-Translator: Markson Hosben <marksonhosben@proton.me>\n"
 "Language-Team: Chinese\n"
@@ -28,6 +28,14 @@ msgstr "打开应用概览"
 #: apps/quickSettingsMedia.js:414
 msgid "Media"
 msgstr "媒体"
+
+#: apps/quickSettingsMedia/player.js:167
+msgid "Unknown artist"
+msgstr "未知艺人"
+
+#: apps/quickSettingsMedia/player.js:172
+msgid "Unknown title"
+msgstr "未知标题"
 
 #: apps/quickSettingsNotifications.js:97
 msgid "Disable Do Not Disturb"
@@ -53,264 +61,274 @@ msgstr "清除"
 msgid "Clear all notifications"
 msgstr "清除所有通知"
 
-#: apps/quickSettingsNotifications.js:752
+#: apps/quickSettingsNotifications.js:770
 msgid "Do Not Disturb Indicator"
 msgstr "勿扰模式指示器"
 
-#: prefs.js:50
+#: prefs.js:55
+msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+msgstr "未安装 ImageMagick（安装 “imagemagick” 软件包以启用）"
+
+#: prefs.js:66
 msgid "Kiwi is not Apple"
 msgstr "Kiwi is not Apple"
 
-#: prefs.js:78
+#: prefs.js:93
 msgid "About"
 msgstr "关于"
 
-#: prefs.js:138 prefs.js:152
+#: prefs.js:152 prefs.js:166
 msgid "Unknown"
 msgstr "未知"
 
-#: prefs.js:145
+#: prefs.js:159
 msgid "Change log"
 msgstr "更新日志"
 
-#: prefs.js:184
+#: prefs.js:200
 msgid "Website"
 msgstr "网站"
 
-#: prefs.js:188
+#: prefs.js:204
 msgid "Report an Issue"
 msgstr "报告一个问题"
 
-#: prefs.js:193
+#: prefs.js:209
 msgid "Credits"
 msgstr "致谢"
 
-#: prefs.js:196 prefs.js:211
+#: prefs.js:212 prefs.js:227
 msgid "Legal"
 msgstr "法律"
 
-#: prefs.js:219
+#: prefs.js:235
 msgid "License"
 msgstr "许可"
 
-#: prefs.js:220
+#: prefs.js:236
 msgid "Kiwi is not Apple is free and open source software"
 msgstr "Kiwi is not Apple 是一款自由且开源的软件"
 
-#: prefs.js:225
+#: prefs.js:241
 msgid "GNU General Public License v3.0"
 msgstr "GNU 通用公共许可证第 3 版"
 
-#: prefs.js:227
+#: prefs.js:243
 msgid "View the full license text on GitHub"
 msgstr "在 GitHub 查看完整许可文本"
 
-#: prefs.js:234
+#: prefs.js:250
 msgid "Copyright"
 msgstr "版权"
 
-#: prefs.js:235
+#: prefs.js:251
 msgid ""
-"Copyright © 2026 Arnis Kemlers\n"
-"\n"
 "This program is free software: you can redistribute it and/or modify it "
 "under the terms of the GNU General Public License as published by the Free "
 "Software Foundation, either version 3 of the License, or (at your option) "
 "any later version."
-msgstr ""
-"版权 © 2026 Arnis Kemlers\n"
-"\n"
-"本程序为自由软件；你可以在 GNU 通用公共许可证第 3 版或（可选）任意更新版本的"
-"条款下重新发布和/或修改，它由自由软件基金会发布。"
+msgstr "本程序为自由软件；你可以在 GNU 通用公共许可证第 3 版或（可选）任意更新版本的条款下重新发布和/或修改，它由自由软件基金会发布。"
 
-#: prefs.js:289
+#: prefs.js:305
 msgid "Become a sponsor on GitHub"
 msgstr "在 GitHub 上成为赞助者"
 
-#: prefs.js:302
+#: prefs.js:318
 msgid "Sponsor Me ♡"
 msgstr "赞助我 ♡"
 
-#: prefs.js:319
+#: prefs.js:344
 msgid "Options"
 msgstr "选项"
 
-#: prefs.js:324
+#: prefs.js:350
 msgid "Kiwi"
 msgstr "Kiwi"
 
-#: prefs.js:325
+#: prefs.js:351
 msgid ""
 "Kiwi is not like Apple, it's free open source project that brings macOS-like "
 "feel for GNOME"
 msgstr "Kiwi 不是 Apple；它是一个自由开源项目，让 GNOME 拥有类似 macOS 的体验"
 
-#: prefs.js:331 prefs.js:338
-msgid "Panel Transparency"
-msgstr "面板透明度"
-
-#: prefs.js:332
-msgid "Configure panel transparency and appearance"
-msgstr "配置面板透明度与外观"
-
-#: prefs.js:339
-msgid "Make the top panel transparent"
-msgstr "使顶部面板透明"
-
-#: prefs.js:347
-msgid "Transparency Level"
-msgstr "透明度"
-
-#: prefs.js:348
-msgid "Set panel transparency (0-100)"
-msgstr "设置面板透明度 (0–100)"
-
-#: prefs.js:362
-msgid "Opaque When Window Touches"
-msgstr "窗口触碰时变为不透明"
-
-#: prefs.js:363
-msgid "Make panel opaque when a window touches it"
-msgstr "当窗口碰到面板时让其变为不透明"
-
-#: prefs.js:371
-msgid "Panel Blur"
-msgstr "面板模糊"
-
-#: prefs.js:372
-msgid "Blur the background behind the panel"
-msgstr "模糊面板后面的背景"
-
-#: prefs.js:380
-msgid "Panel Color Fix"
-msgstr "面板颜色修正"
-
-#: prefs.js:381
-msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
-msgstr "修复某些主题（如 Ubuntu Yaru）中出现的白色面板"
-
-#: prefs.js:414
-msgid "Move Window to New Workspace"
-msgstr "将窗口移动到新的工作区"
-
-#: prefs.js:414
-msgid "Move fullscreen window to a new workspace"
-msgstr "把全屏窗口移动到新的工作区"
-
-#: prefs.js:415
-msgid "Transparent Move"
-msgstr "透明移动"
-
-#: prefs.js:415
-msgid "Move window with transparency"
-msgstr "以透明效果移动窗口"
-
-#: prefs.js:416
-msgid "Battery Percentage"
-msgstr "电量百分比"
-
-#: prefs.js:416
-msgid "Show battery percentage in the top bar when below 20%"
-msgstr "当电量低于 20% 时在顶部栏显示电量百分比"
-
-#: prefs.js:417
-msgid "Move Calendar to Right"
-msgstr "将日历移到右侧"
-
-#: prefs.js:417
-msgid "Move calendar to right side and hide notifications"
-msgstr "把日历移动到右侧并隐藏通知"
-
-#: prefs.js:418
+#: prefs.js:356
 msgid "Show Window Title"
 msgstr "显示窗口标题"
 
-#: prefs.js:418
+#: prefs.js:356
 msgid "Display current window title in the top panel"
 msgstr "在顶部面板显示当前窗口标题"
 
-#: prefs.js:419
-msgid "Show Panel on Hover"
-msgstr "悬停时显示面板"
-
-#: prefs.js:419
-msgid ""
-"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
-msgstr "当鼠标在全屏模式下靠近顶部边缘时显示面板。GTK4 应用存在问题。"
-
-#: prefs.js:420
-msgid "Show Window Controls on Panel"
-msgstr "在面板显示窗口控制按钮"
-
-#: prefs.js:420
-msgid ""
-"Display close, minimize, maximize buttons in the top panel when window is "
-"maximized"
-msgstr "窗口最大化时，在顶部面板显示关闭、最小化、最大化按钮"
-
-#: prefs.js:421
+#: prefs.js:357
 msgid "Overview Wallpaper Blur"
 msgstr "概览壁纸模糊"
 
-#: prefs.js:421
+#: prefs.js:357
 msgid ""
 "Use blurred current wallpaper as overview background (requires ImageMagick)"
 msgstr "将当前壁纸的模糊版本用作概览背景（需要 ImageMagick）"
 
-#: prefs.js:422
-msgid "Dock Blur"
-msgstr "Dock 模糊"
+#: prefs.js:358
+msgid "Skip to Desktop"
+msgstr "跳过至桌面"
 
-#: prefs.js:422
-msgid "Blur the background behind Dash-to-Dock"
-msgstr "模糊 Dash-to-Dock 后面的背景"
+#: prefs.js:358
+msgid "Do not show the overview when logging in. Animation is still visible"
+msgstr "登录时不显示概览。动画依然可见。"
 
-#: prefs.js:445
+#: prefs.js:359
+msgid "Hide Minimized Windows"
+msgstr "隐藏最小化窗口"
+
+#: prefs.js:359
+msgid "Hide minimized windows in the overview"
+msgstr "在概览中隐藏已最小化的窗口"
+
+#: prefs.js:360
+msgid "Move Window to New Workspace"
+msgstr "将窗口移动到新的工作区"
+
+#: prefs.js:360
+msgid "Move fullscreen window to a new workspace"
+msgstr "把全屏窗口移动到新的工作区"
+
+#: prefs.js:368
+msgid "Move Calendar to Right"
+msgstr "将日历移到右侧"
+
+#: prefs.js:369
+msgid "Move calendar to right side and hide notifications"
+msgstr "把日历移动到右侧并隐藏通知"
+
+#: prefs.js:383
 msgid "Keep GNOME Notification Panel"
 msgstr "保留 GNOME 通知面板"
 
-#: prefs.js:446
+#: prefs.js:384
 msgid "Don't split notification and calendar layout"
 msgstr "不要拆分通知和日历布局"
 
-#: prefs.js:452
+#: prefs.js:390
 msgid "Indicator Style"
 msgstr "指示器样式"
 
-#: prefs.js:453
+#: prefs.js:391
 msgid "Notification dot recolor"
 msgstr "通知圆点重新着色"
 
-#: prefs.js:463 prefs.js:562
+#: prefs.js:402 prefs.js:563
 msgid "Default"
 msgstr "默认"
 
-#: prefs.js:467
+#: prefs.js:406
 msgid "Accent"
 msgstr "强调色"
 
-#: prefs.js:471
+#: prefs.js:410
 msgid "Symbolic"
 msgstr "符号"
 
-#: prefs.js:498
-msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
-msgstr "未安装 ImageMagick（安装 “imagemagick” 软件包以启用）"
+#: prefs.js:427
+msgid "Battery Percentage"
+msgstr "电量百分比"
 
-#: prefs.js:507
+#: prefs.js:427
+msgid "Show battery percentage in the top bar when below 20%"
+msgstr "当电量低于 20% 时在顶部栏显示电量百分比"
+
+#: prefs.js:428
+msgid "Add Username"
+msgstr "添加用户名"
+
+#: prefs.js:428
+msgid "Add username to the quick menu"
+msgstr "将用户名添加到快速菜单"
+
+#: prefs.js:429
+msgid "Caps Lock and Num Lock"
+msgstr "大写锁定和数字锁定"
+
+#: prefs.js:429
+msgid "Show Caps Lock and Num Lock icon"
+msgstr "显示大写锁定和数字锁定图标"
+
+#: prefs.js:436
+#, fuzzy
+#| msgid "Firefox Styling"
+msgid "Styling"
+msgstr "Firefox 样式"
+
+#: prefs.js:441
+msgid "Hide Activities Button"
+msgstr "隐藏活动按钮"
+
+#: prefs.js:441
+msgid "Hide the Activities button in the top panel"
+msgstr "在顶部面板隐藏“活动”按钮"
+
+#: prefs.js:442
+msgid "Reduce App Animations"
+msgstr ""
+
+#: prefs.js:442
+msgid "Mimic macOS window opening and closing with a subtle scale and fade"
+msgstr ""
+
+#: prefs.js:443
+msgid "Transparent Move"
+msgstr "透明移动"
+
+#: prefs.js:443
+msgid "Move window with transparency"
+msgstr "以透明效果移动窗口"
+
+#: prefs.js:449
+msgid "Style Keyboard Indicator"
+msgstr "美化键盘指示器"
+
+#: prefs.js:450
+msgid ""
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
+msgstr "对键盘/输入源指示器做轻微美化，将其转换为大写并添加边框"
+
+#: prefs.js:458
+msgid "Hide keyboard indicator"
+msgstr "隐藏键盘指示器"
+
+#: prefs.js:459
+msgid "Completely hide the indicator from the panel"
+msgstr "从面板中完全隐藏该指示器"
+
+#: prefs.js:490
+msgid "Custom Do Not Disturb Button"
+msgstr "自定义勿扰按钮"
+
+#: prefs.js:490
+msgid ""
+"Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "将系统勿扰按钮替换为 Kiwi 的自定义实现"
+
+#: prefs.js:497
+#, fuzzy
+#| msgid "Button Type"
+msgid "Buttons"
+msgstr "按钮类型"
+
+#: prefs.js:503
 msgid "Window Control Button Style"
 msgstr "窗口控制按钮样式"
 
-#: prefs.js:508
+#: prefs.js:504
 msgid ""
 "Choose the window control button style. Log out to apply it across all apps."
 msgstr "选择窗口控制按钮样式。注销后可在所有应用中生效。"
 
-#: prefs.js:514
+#: prefs.js:515
 msgid "Enable macOS Window Buttons"
 msgstr "启用 macOS 风格窗口按钮"
 
-#: prefs.js:515
+#: prefs.js:516
 msgid "Replace window control buttons in application windows with macOS style"
 msgstr "将应用程序窗口中的窗口控件按钮替换为 macOS 样式"
 
@@ -340,162 +358,190 @@ msgstr "按钮类型"
 msgid "Choose the button icon set"
 msgstr "选择按钮图标集"
 
-#: prefs.js:566
+#: prefs.js:567
 msgid "Alternative"
 msgstr "替代"
 
-#: prefs.js:583
+#: prefs.js:584
 msgid "Button Size"
 msgstr "按钮大小"
 
-#: prefs.js:584
+#: prefs.js:585
 msgid "Choose button size"
 msgstr "选择按钮大小"
 
-#: prefs.js:594
+#: prefs.js:596
 msgid "Small"
 msgstr "小"
 
-#: prefs.js:598
+#: prefs.js:600
 msgid "Normal"
 msgstr "正常"
 
-#: prefs.js:631
-msgid "Extras"
-msgstr "额外功能"
+#: prefs.js:632
+msgid "Show Window Controls on Panel"
+msgstr "在面板显示窗口控制按钮"
 
-#: prefs.js:637
-msgid "Extra Features"
-msgstr "额外特性"
-
-#: prefs.js:638
-msgid "Additional customization options and utilities"
-msgstr "额外的自定义选项和工具"
-
-#: prefs.js:643
-msgid "Add Username"
-msgstr "添加用户名"
-
-#: prefs.js:643
-msgid "Add username to the quick menu"
-msgstr "将用户名添加到快速菜单"
-
-#: prefs.js:644
-msgid "Caps Lock and Num Lock"
-msgstr "大写锁定和数字锁定"
-
-#: prefs.js:644
-msgid "Show Caps Lock and Num Lock icon"
-msgstr "显示大写锁定和数字锁定图标"
-
-#: prefs.js:645
-msgid "Hide Activities Button"
-msgstr "隐藏活动按钮"
-
-#: prefs.js:645
-msgid "Hide the Activities button in the top panel"
-msgstr "在顶部面板隐藏“活动”按钮"
-
-#: prefs.js:646
-msgid "Hide Minimized Windows"
-msgstr "隐藏最小化窗口"
-
-#: prefs.js:646
-msgid "Hide minimized windows in the overview"
-msgstr "在概览中隐藏已最小化的窗口"
+#: prefs.js:633
+msgid ""
+"Display close, minimize, maximize buttons in the top panel when window is "
+"maximized"
+msgstr "窗口最大化时，在顶部面板显示关闭、最小化、最大化按钮"
 
 #: prefs.js:647
-msgid "Skip to Desktop"
-msgstr "跳过至桌面"
-
-#: prefs.js:647
-msgid "Do not show the overview when logging in. Animation is still visible"
-msgstr "登录时不显示概览。动画依然可见。"
-
-#: prefs.js:648
-msgid "Custom Do Not Disturb Button"
-msgstr "自定义勿扰按钮"
+msgid "Only when Fullscreen"
+msgstr ""
 
 #: prefs.js:648
 msgid ""
-"Replace the system Do Not Disturb button with Kiwi's custom implementation"
-msgstr "将系统勿扰按钮替换为 Kiwi 的自定义实现"
+"Hide titlebars and show panel controls only for fullscreen windows, not "
+"maximized"
+msgstr ""
 
-#: prefs.js:663
+#: prefs.js:657
+#, fuzzy
+#| msgid "Panel Blur"
+msgid "Panel"
+msgstr "面板模糊"
+
+#: prefs.js:663 prefs.js:675
+msgid "Panel Transparency"
+msgstr "面板透明度"
+
+#: prefs.js:664
+msgid "Configure panel transparency and appearance"
+msgstr "配置面板透明度与外观"
+
+#: prefs.js:676
+msgid "Make the top panel transparent"
+msgstr "使顶部面板透明"
+
+#: prefs.js:684
+msgid "Transparency Level"
+msgstr "透明度"
+
+#: prefs.js:685
+msgid "Set panel transparency (0-100)"
+msgstr "设置面板透明度 (0–100)"
+
+#: prefs.js:699
+msgid "Opaque When Window Touches"
+msgstr "窗口触碰时变为不透明"
+
+#: prefs.js:700
+msgid "Make panel opaque when a window touches it"
+msgstr "当窗口碰到面板时让其变为不透明"
+
+#: prefs.js:708
+msgid "Panel Blur"
+msgstr "面板模糊"
+
+#: prefs.js:709
+msgid "Blur the background behind the panel"
+msgstr "模糊面板后面的背景"
+
+#: prefs.js:717
+msgid "Panel Color Fix"
+msgstr "面板颜色修正"
+
+#: prefs.js:718
+msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
+msgstr "修复某些主题（如 Ubuntu Yaru）中出现的白色面板"
+
+#: prefs.js:753
+#, fuzzy
+#| msgid "Show Panel on Hover"
+msgid "Show Panel in Fullscreen on Hover"
+msgstr "悬停时显示面板"
+
+#: prefs.js:753
+msgid ""
+"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
+msgstr "当鼠标在全屏模式下靠近顶部边缘时显示面板。GTK4 应用存在问题。"
+
+#: prefs.js:760
+#, fuzzy
+#| msgid "Dock Blur"
+msgid "Dock"
+msgstr "Dock 模糊"
+
+#: prefs.js:769
+msgid "Dock Blur"
+msgstr "Dock 模糊"
+
+#: prefs.js:769
+msgid "Blur the background behind Dash-to-Dock"
+msgstr "模糊 Dash-to-Dock 后面的背景"
+
+#: prefs.js:770
+#, fuzzy
+#| msgid "Hide Minimized Windows"
+msgid "Minimize Windows to Dock"
+msgstr "隐藏最小化窗口"
+
+#: prefs.js:770
+msgid ""
+"Park minimized windows as thumbnails in Dash-to-Dock, after the apps and "
+"before the trash"
+msgstr ""
+
+#: prefs.js:776
 msgid "Launchpad Application"
 msgstr "Launchpad 应用"
 
-#: prefs.js:664
+#: prefs.js:777
 msgid ""
 "Add custom Launchpad icon to dock that opens application overview. "
 "Recommended to hide default app launcher."
 msgstr ""
 "在 Dock 中添加自定义 Launchpad 图标以打开应用概览。建议隐藏默认启动器。"
 
-#: prefs.js:681
+#: prefs.js:795
 msgid "Custom Icon"
 msgstr "自定义图标"
 
-#: prefs.js:684 prefs.js:769
+#: prefs.js:798 prefs.js:883
 msgid "Using default icon"
 msgstr "使用默认图标"
 
-#: prefs.js:692
+#: prefs.js:806
 msgid "Reset to default icon"
 msgstr "重置为默认图标"
 
-#: prefs.js:703
+#: prefs.js:817
 msgid "Browse for icon"
 msgstr "浏览图标"
 
-#: prefs.js:708
+#: prefs.js:822
 msgid "Select Launchpad Icon"
 msgstr "选择 Launchpad 图标"
 
-#: prefs.js:712
+#: prefs.js:826
 msgid "Images (PNG, SVG)"
 msgstr "图像 (PNG, SVG)"
 
-#: prefs.js:740
+#: prefs.js:854
 msgid "Icon Too Large"
 msgstr "图标过大"
 
-#: prefs.js:741
+#: prefs.js:855
 msgid ""
 "The selected image exceeds 512×512 pixels. Please choose a smaller image."
 msgstr "所选图像超过 512×512 像素。请选择较小的图像。"
 
-#: prefs.js:743
+#: prefs.js:857
 msgid "OK"
 msgstr "确定"
 
-#: prefs.js:775
-msgid "Style Keyboard Indicator"
-msgstr "美化键盘指示器"
-
-#: prefs.js:776
-msgid ""
-"Slightly style keyboard/input source indicator by converting to uppercase "
-"and adding border"
-msgstr "对键盘/输入源指示器做轻微美化，将其转换为大写并添加边框"
-
-#: prefs.js:784
-msgid "Hide keyboard indicator"
-msgstr "隐藏键盘指示器"
-
-#: prefs.js:785
-msgid "Completely hide the indicator from the panel"
-msgstr "从面板中完全隐藏该指示器"
-
-#: prefs.js:821
+#: prefs.js:891
 msgid "Advanced"
 msgstr "高级"
 
-#: prefs.js:851
+#: prefs.js:921
 msgid "Titlebuttons Hover Effect for GTK3 apps"
 msgstr "GTK3 应用窗口按钮悬停效果"
 
-#: prefs.js:862
+#: prefs.js:934
 msgid ""
 "The titlebuttons hover module provides macOS-like hover effects for window "
 "controls in GTK3 applications. GTK3 apps cannot natively show hover effects "
@@ -512,55 +558,73 @@ msgstr ""
 "由于 GNOME 扩展平台对本地库的安全策略，此二进制文件无法通过平台分发，但可以手"
 "动安装。"
 
-#: prefs.js:874
+#: prefs.js:946
 msgid "Installation Guide on GitHub"
 msgstr "GitHub 上的安装指南"
 
-#: prefs.js:876
+#: prefs.js:948
 msgid "Open the advanced module build instructions"
 msgstr "打开高级模块的构建说明"
 
-#: prefs.js:881
-msgid "Even more..."
-msgstr "更多内容…"
+#: prefs.js:953
+msgid "More of my work..."
+msgstr ""
 
-#: prefs.js:885
+#: prefs.js:957
+#, fuzzy
+#| msgid "Kiwi"
+msgid "Kiwi Menu"
+msgstr "Kiwi"
+
+#: prefs.js:957
+msgid "MacOS style menu for GNOME"
+msgstr ""
+
+#: prefs.js:958
 msgid "AppManager"
 msgstr ""
 
-#: prefs.js:887
+#: prefs.js:958
 msgid "MacOS style AppImage installer and management application"
 msgstr "MacOS 风格的 AppImage 安装和管理应用程序"
 
-#: prefs.js:890
-msgid "MacTahoe Icon Pack"
+#: prefs.js:959
+msgid "Catalina Reloaded Icon Pack"
 msgstr ""
 
-#: prefs.js:892
+#: prefs.js:959
 msgid "macOS Tahoe icon theme for Linux"
 msgstr "适用于 Linux 的 macOS Tahoe 图标主题"
 
-#: prefs.js:895
+#: prefs.js:960
 msgid "GDM Wallpaper"
 msgstr ""
 
-#: prefs.js:897
+#: prefs.js:960
 msgid "Set custom GDM login screen wallpaper"
 msgstr "设置自定义 GDM 登录屏幕壁纸"
 
-#: prefs.js:905
-msgid "Recommended Extensions"
+#: prefs.js:972
+#, fuzzy
+#| msgid "Recommended Extensions"
+msgid "Other Recommended Extensions"
 msgstr "推荐扩展"
 
-#: prefs.js:906
+#: prefs.js:973
 msgid "Extensions that are compatible with Kiwi"
 msgstr "与 Kiwi 兼容的扩展"
 
-#~ msgid "Unknown artist"
-#~ msgstr "未知艺人"
+#~ msgid "Extras"
+#~ msgstr "额外功能"
 
-#~ msgid "Unknown title"
-#~ msgstr "未知标题"
+#~ msgid "Extra Features"
+#~ msgstr "额外特性"
+
+#~ msgid "Additional customization options and utilities"
+#~ msgstr "额外的自定义选项和工具"
+
+#~ msgid "Even more..."
+#~ msgstr "更多内容…"
 
 #~ msgid ""
 #~ "Copyright © 2025 Arnis Kemlers\n"

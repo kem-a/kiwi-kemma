@@ -1,14 +1,14 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Translation template for Kiwi is not Apple.
+# Copyright (C) 2025 Arnis Kemlers
 # This file is distributed under the same license as the Kiwi is not Apple package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Arnis Kemlers, 2025.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Kiwi is not Apple 1.6.3\n"
+"Project-Id-Version: Kiwi is not Apple 1.8.0\n"
 "Report-Msgid-Bugs-To: https://github.com/kem-a/kiwi-kemma/issues\n"
-"POT-Creation-Date: 2026-05-25 15:41+0300\n"
+"POT-Creation-Date: 2026-08-02 23:40+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,6 +27,14 @@ msgstr ""
 
 #: apps/quickSettingsMedia.js:414
 msgid "Media"
+msgstr ""
+
+#: apps/quickSettingsMedia/player.js:167
+msgid "Unknown artist"
+msgstr ""
+
+#: apps/quickSettingsMedia/player.js:172
+msgid "Unknown title"
 msgstr ""
 
 #: apps/quickSettingsNotifications.js:97
@@ -53,260 +61,270 @@ msgstr ""
 msgid "Clear all notifications"
 msgstr ""
 
-#: apps/quickSettingsNotifications.js:752
+#: apps/quickSettingsNotifications.js:770
 msgid "Do Not Disturb Indicator"
 msgstr ""
 
-#: prefs.js:50
+#: prefs.js:55
+msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+msgstr ""
+
+#: prefs.js:66
 msgid "Kiwi is not Apple"
 msgstr ""
 
-#: prefs.js:78
+#: prefs.js:93
 msgid "About"
 msgstr ""
 
-#: prefs.js:138 prefs.js:152
+#: prefs.js:152 prefs.js:166
 msgid "Unknown"
 msgstr ""
 
-#: prefs.js:145
+#: prefs.js:159
 msgid "Change log"
 msgstr ""
 
-#: prefs.js:184
+#: prefs.js:200
 msgid "Website"
 msgstr ""
 
-#: prefs.js:188
+#: prefs.js:204
 msgid "Report an Issue"
 msgstr ""
 
-#: prefs.js:193
+#: prefs.js:209
 msgid "Credits"
 msgstr ""
 
-#: prefs.js:196 prefs.js:211
+#: prefs.js:212 prefs.js:227
 msgid "Legal"
 msgstr ""
 
-#: prefs.js:219
+#: prefs.js:235
 msgid "License"
 msgstr ""
 
-#: prefs.js:220
+#: prefs.js:236
 msgid "Kiwi is not Apple is free and open source software"
 msgstr ""
 
-#: prefs.js:225
+#: prefs.js:241
 msgid "GNU General Public License v3.0"
 msgstr ""
 
-#: prefs.js:227
+#: prefs.js:243
 msgid "View the full license text on GitHub"
 msgstr ""
 
-#: prefs.js:234
+#: prefs.js:250
 msgid "Copyright"
 msgstr ""
 
-#: prefs.js:235
+#: prefs.js:251
 msgid ""
-"Copyright © 2026 Arnis Kemlers\n"
-"\n"
 "This program is free software: you can redistribute it and/or modify it "
 "under the terms of the GNU General Public License as published by the Free "
 "Software Foundation, either version 3 of the License, or (at your option) "
 "any later version."
 msgstr ""
 
-#: prefs.js:289
+#: prefs.js:305
 msgid "Become a sponsor on GitHub"
 msgstr ""
 
-#: prefs.js:302
+#: prefs.js:318
 msgid "Sponsor Me ♡"
 msgstr ""
 
-#: prefs.js:319
+#: prefs.js:344
 msgid "Options"
 msgstr ""
 
-#: prefs.js:324
+#: prefs.js:350
 msgid "Kiwi"
 msgstr ""
 
-#: prefs.js:325
+#: prefs.js:351
 msgid ""
 "Kiwi is not like Apple, it's free open source project that brings macOS-like "
 "feel for GNOME"
 msgstr ""
 
-#: prefs.js:331 prefs.js:338
-msgid "Panel Transparency"
-msgstr ""
-
-#: prefs.js:332
-msgid "Configure panel transparency and appearance"
-msgstr ""
-
-#: prefs.js:339
-msgid "Make the top panel transparent"
-msgstr ""
-
-#: prefs.js:347
-msgid "Transparency Level"
-msgstr ""
-
-#: prefs.js:348
-msgid "Set panel transparency (0-100)"
-msgstr ""
-
-#: prefs.js:362
-msgid "Opaque When Window Touches"
-msgstr ""
-
-#: prefs.js:363
-msgid "Make panel opaque when a window touches it"
-msgstr ""
-
-#: prefs.js:371
-msgid "Panel Blur"
-msgstr ""
-
-#: prefs.js:372
-msgid "Blur the background behind the panel"
-msgstr ""
-
-#: prefs.js:380
-msgid "Panel Color Fix"
-msgstr ""
-
-#: prefs.js:381
-msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
-msgstr ""
-
-#: prefs.js:414
-msgid "Move Window to New Workspace"
-msgstr ""
-
-#: prefs.js:414
-msgid "Move fullscreen window to a new workspace"
-msgstr ""
-
-#: prefs.js:415
-msgid "Transparent Move"
-msgstr ""
-
-#: prefs.js:415
-msgid "Move window with transparency"
-msgstr ""
-
-#: prefs.js:416
-msgid "Battery Percentage"
-msgstr ""
-
-#: prefs.js:416
-msgid "Show battery percentage in the top bar when below 20%"
-msgstr ""
-
-#: prefs.js:417
-msgid "Move Calendar to Right"
-msgstr ""
-
-#: prefs.js:417
-msgid "Move calendar to right side and hide notifications"
-msgstr ""
-
-#: prefs.js:418
+#: prefs.js:356
 msgid "Show Window Title"
 msgstr ""
 
-#: prefs.js:418
+#: prefs.js:356
 msgid "Display current window title in the top panel"
 msgstr ""
 
-#: prefs.js:419
-msgid "Show Panel on Hover"
-msgstr ""
-
-#: prefs.js:419
-msgid ""
-"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
-msgstr ""
-
-#: prefs.js:420
-msgid "Show Window Controls on Panel"
-msgstr ""
-
-#: prefs.js:420
-msgid ""
-"Display close, minimize, maximize buttons in the top panel when window is "
-"maximized"
-msgstr ""
-
-#: prefs.js:421
+#: prefs.js:357
 msgid "Overview Wallpaper Blur"
 msgstr ""
 
-#: prefs.js:421
+#: prefs.js:357
 msgid ""
 "Use blurred current wallpaper as overview background (requires ImageMagick)"
 msgstr ""
 
-#: prefs.js:422
-msgid "Dock Blur"
+#: prefs.js:358
+msgid "Skip to Desktop"
 msgstr ""
 
-#: prefs.js:422
-msgid "Blur the background behind Dash-to-Dock"
+#: prefs.js:358
+msgid "Do not show the overview when logging in. Animation is still visible"
 msgstr ""
 
-#: prefs.js:445
+#: prefs.js:359
+msgid "Hide Minimized Windows"
+msgstr ""
+
+#: prefs.js:359
+msgid "Hide minimized windows in the overview"
+msgstr ""
+
+#: prefs.js:360
+msgid "Move Window to New Workspace"
+msgstr ""
+
+#: prefs.js:360
+msgid "Move fullscreen window to a new workspace"
+msgstr ""
+
+#: prefs.js:368
+msgid "Move Calendar to Right"
+msgstr ""
+
+#: prefs.js:369
+msgid "Move calendar to right side and hide notifications"
+msgstr ""
+
+#: prefs.js:383
 msgid "Keep GNOME Notification Panel"
 msgstr ""
 
-#: prefs.js:446
+#: prefs.js:384
 msgid "Don't split notification and calendar layout"
 msgstr ""
 
-#: prefs.js:452
+#: prefs.js:390
 msgid "Indicator Style"
 msgstr ""
 
-#: prefs.js:453
+#: prefs.js:391
 msgid "Notification dot recolor"
 msgstr ""
 
-#: prefs.js:463 prefs.js:562
+#: prefs.js:402 prefs.js:563
 msgid "Default"
 msgstr ""
 
-#: prefs.js:467
+#: prefs.js:406
 msgid "Accent"
 msgstr ""
 
-#: prefs.js:471
+#: prefs.js:410
 msgid "Symbolic"
 msgstr ""
 
-#: prefs.js:498
-msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+#: prefs.js:427
+msgid "Battery Percentage"
 msgstr ""
 
-#: prefs.js:507
+#: prefs.js:427
+msgid "Show battery percentage in the top bar when below 20%"
+msgstr ""
+
+#: prefs.js:428
+msgid "Add Username"
+msgstr ""
+
+#: prefs.js:428
+msgid "Add username to the quick menu"
+msgstr ""
+
+#: prefs.js:429
+msgid "Caps Lock and Num Lock"
+msgstr ""
+
+#: prefs.js:429
+msgid "Show Caps Lock and Num Lock icon"
+msgstr ""
+
+#: prefs.js:436
+msgid "Styling"
+msgstr ""
+
+#: prefs.js:441
+msgid "Hide Activities Button"
+msgstr ""
+
+#: prefs.js:441
+msgid "Hide the Activities button in the top panel"
+msgstr ""
+
+#: prefs.js:442
+msgid "Reduce App Animations"
+msgstr ""
+
+#: prefs.js:442
+msgid "Mimic macOS window opening and closing with a subtle scale and fade"
+msgstr ""
+
+#: prefs.js:443
+msgid "Transparent Move"
+msgstr ""
+
+#: prefs.js:443
+msgid "Move window with transparency"
+msgstr ""
+
+#: prefs.js:449
+msgid "Style Keyboard Indicator"
+msgstr ""
+
+#: prefs.js:450
+msgid ""
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
+msgstr ""
+
+#: prefs.js:458
+msgid "Hide keyboard indicator"
+msgstr ""
+
+#: prefs.js:459
+msgid "Completely hide the indicator from the panel"
+msgstr ""
+
+#: prefs.js:490
+msgid "Custom Do Not Disturb Button"
+msgstr ""
+
+#: prefs.js:490
+msgid ""
+"Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr ""
+
+#: prefs.js:497
+msgid "Buttons"
+msgstr ""
+
+#: prefs.js:503
 msgid "Window Control Button Style"
 msgstr ""
 
-#: prefs.js:508
+#: prefs.js:504
 msgid ""
 "Choose the window control button style. Log out to apply it across all apps."
 msgstr ""
 
-#: prefs.js:514
+#: prefs.js:515
 msgid "Enable macOS Window Buttons"
 msgstr ""
 
-#: prefs.js:515
+#: prefs.js:516
 msgid "Replace window control buttons in application windows with macOS style"
 msgstr ""
 
@@ -336,161 +354,181 @@ msgstr ""
 msgid "Choose the button icon set"
 msgstr ""
 
-#: prefs.js:566
+#: prefs.js:567
 msgid "Alternative"
 msgstr ""
 
-#: prefs.js:583
+#: prefs.js:584
 msgid "Button Size"
 msgstr ""
 
-#: prefs.js:584
+#: prefs.js:585
 msgid "Choose button size"
 msgstr ""
 
-#: prefs.js:594
+#: prefs.js:596
 msgid "Small"
 msgstr ""
 
-#: prefs.js:598
+#: prefs.js:600
 msgid "Normal"
 msgstr ""
 
-#: prefs.js:631
-msgid "Extras"
+#: prefs.js:632
+msgid "Show Window Controls on Panel"
 msgstr ""
 
-#: prefs.js:637
-msgid "Extra Features"
-msgstr ""
-
-#: prefs.js:638
-msgid "Additional customization options and utilities"
-msgstr ""
-
-#: prefs.js:643
-msgid "Add Username"
-msgstr ""
-
-#: prefs.js:643
-msgid "Add username to the quick menu"
-msgstr ""
-
-#: prefs.js:644
-msgid "Caps Lock and Num Lock"
-msgstr ""
-
-#: prefs.js:644
-msgid "Show Caps Lock and Num Lock icon"
-msgstr ""
-
-#: prefs.js:645
-msgid "Hide Activities Button"
-msgstr ""
-
-#: prefs.js:645
-msgid "Hide the Activities button in the top panel"
-msgstr ""
-
-#: prefs.js:646
-msgid "Hide Minimized Windows"
-msgstr ""
-
-#: prefs.js:646
-msgid "Hide minimized windows in the overview"
+#: prefs.js:633
+msgid ""
+"Display close, minimize, maximize buttons in the top panel when window is "
+"maximized"
 msgstr ""
 
 #: prefs.js:647
-msgid "Skip to Desktop"
-msgstr ""
-
-#: prefs.js:647
-msgid "Do not show the overview when logging in. Animation is still visible"
-msgstr ""
-
-#: prefs.js:648
-msgid "Custom Do Not Disturb Button"
+msgid "Only when Fullscreen"
 msgstr ""
 
 #: prefs.js:648
 msgid ""
-"Replace the system Do Not Disturb button with Kiwi's custom implementation"
+"Hide titlebars and show panel controls only for fullscreen windows, not "
+"maximized"
 msgstr ""
 
-#: prefs.js:663
-msgid "Launchpad Application"
+#: prefs.js:657
+msgid "Panel"
+msgstr ""
+
+#: prefs.js:663 prefs.js:675
+msgid "Panel Transparency"
 msgstr ""
 
 #: prefs.js:664
+msgid "Configure panel transparency and appearance"
+msgstr ""
+
+#: prefs.js:676
+msgid "Make the top panel transparent"
+msgstr ""
+
+#: prefs.js:684
+msgid "Transparency Level"
+msgstr ""
+
+#: prefs.js:685
+msgid "Set panel transparency (0-100)"
+msgstr ""
+
+#: prefs.js:699
+msgid "Opaque When Window Touches"
+msgstr ""
+
+#: prefs.js:700
+msgid "Make panel opaque when a window touches it"
+msgstr ""
+
+#: prefs.js:708
+msgid "Panel Blur"
+msgstr ""
+
+#: prefs.js:709
+msgid "Blur the background behind the panel"
+msgstr ""
+
+#: prefs.js:717
+msgid "Panel Color Fix"
+msgstr ""
+
+#: prefs.js:718
+msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
+msgstr ""
+
+#: prefs.js:753
+msgid "Show Panel in Fullscreen on Hover"
+msgstr ""
+
+#: prefs.js:753
+msgid ""
+"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
+msgstr ""
+
+#: prefs.js:760
+msgid "Dock"
+msgstr ""
+
+#: prefs.js:769
+msgid "Dock Blur"
+msgstr ""
+
+#: prefs.js:769
+msgid "Blur the background behind Dash-to-Dock"
+msgstr ""
+
+#: prefs.js:770
+msgid "Minimize Windows to Dock"
+msgstr ""
+
+#: prefs.js:770
+msgid ""
+"Park minimized windows as thumbnails in Dash-to-Dock, after the apps and "
+"before the trash"
+msgstr ""
+
+#: prefs.js:776
+msgid "Launchpad Application"
+msgstr ""
+
+#: prefs.js:777
 msgid ""
 "Add custom Launchpad icon to dock that opens application overview. "
 "Recommended to hide default app launcher."
 msgstr ""
 
-#: prefs.js:681
+#: prefs.js:795
 msgid "Custom Icon"
 msgstr ""
 
-#: prefs.js:684 prefs.js:769
+#: prefs.js:798 prefs.js:883
 msgid "Using default icon"
 msgstr ""
 
-#: prefs.js:692
+#: prefs.js:806
 msgid "Reset to default icon"
 msgstr ""
 
-#: prefs.js:703
+#: prefs.js:817
 msgid "Browse for icon"
 msgstr ""
 
-#: prefs.js:708
+#: prefs.js:822
 msgid "Select Launchpad Icon"
 msgstr ""
 
-#: prefs.js:712
+#: prefs.js:826
 msgid "Images (PNG, SVG)"
 msgstr ""
 
-#: prefs.js:740
+#: prefs.js:854
 msgid "Icon Too Large"
 msgstr ""
 
-#: prefs.js:741
+#: prefs.js:855
 msgid ""
 "The selected image exceeds 512×512 pixels. Please choose a smaller image."
 msgstr ""
 
-#: prefs.js:743
+#: prefs.js:857
 msgid "OK"
 msgstr ""
 
-#: prefs.js:775
-msgid "Style Keyboard Indicator"
-msgstr ""
-
-#: prefs.js:776
-msgid ""
-"Slightly style keyboard/input source indicator by converting to uppercase "
-"and adding border"
-msgstr ""
-
-#: prefs.js:784
-msgid "Hide keyboard indicator"
-msgstr ""
-
-#: prefs.js:785
-msgid "Completely hide the indicator from the panel"
-msgstr ""
-
-#: prefs.js:821
+#: prefs.js:891
 msgid "Advanced"
 msgstr ""
 
-#: prefs.js:851
+#: prefs.js:921
 msgid "Titlebuttons Hover Effect for GTK3 apps"
 msgstr ""
 
-#: prefs.js:862
+#: prefs.js:934
 msgid ""
 "The titlebuttons hover module provides macOS-like hover effects for window "
 "controls in GTK3 applications. GTK3 apps cannot natively show hover effects "
@@ -502,46 +540,54 @@ msgid ""
 "is possible."
 msgstr ""
 
-#: prefs.js:874
+#: prefs.js:946
 msgid "Installation Guide on GitHub"
 msgstr ""
 
-#: prefs.js:876
+#: prefs.js:948
 msgid "Open the advanced module build instructions"
 msgstr ""
 
-#: prefs.js:881
-msgid "Even more..."
+#: prefs.js:953
+msgid "More of my work..."
 msgstr ""
 
-#: prefs.js:885
+#: prefs.js:957
+msgid "Kiwi Menu"
+msgstr ""
+
+#: prefs.js:957
+msgid "MacOS style menu for GNOME"
+msgstr ""
+
+#: prefs.js:958
 msgid "AppManager"
 msgstr ""
 
-#: prefs.js:887
+#: prefs.js:958
 msgid "MacOS style AppImage installer and management application"
 msgstr ""
 
-#: prefs.js:890
-msgid "MacTahoe Icon Pack"
+#: prefs.js:959
+msgid "Catalina Reloaded Icon Pack"
 msgstr ""
 
-#: prefs.js:892
+#: prefs.js:959
 msgid "macOS Tahoe icon theme for Linux"
 msgstr ""
 
-#: prefs.js:895
+#: prefs.js:960
 msgid "GDM Wallpaper"
 msgstr ""
 
-#: prefs.js:897
+#: prefs.js:960
 msgid "Set custom GDM login screen wallpaper"
 msgstr ""
 
-#: prefs.js:905
-msgid "Recommended Extensions"
+#: prefs.js:972
+msgid "Other Recommended Extensions"
 msgstr ""
 
-#: prefs.js:906
+#: prefs.js:973
 msgid "Extensions that are compatible with Kiwi"
 msgstr ""

@@ -248,7 +248,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             // Copyright section
             const copyrightGroup = new Adw.PreferencesGroup({
                 title: _('Copyright'),
-                description: _('Copyright © 2026 Arnis Kemlers\n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.'),
+                description: `${_('Copyright')} © 2025 Arnis Kemlers\n\n${_('This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.')}`,
             });
             legalContent.add(copyrightGroup);
 
