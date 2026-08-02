@@ -40,6 +40,7 @@ import { enable as quickSettingsMediaEnable, disable as quickSettingsMediaDisabl
 import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
 import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './apps/launchpadApp.js';
 import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
+import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } from './apps/minimizedToDock.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
 
 export default class KiwiExtension extends Extension {
@@ -154,10 +155,19 @@ export default class KiwiExtension extends Extension {
             panelTransparencyDisable();
         }
 
-        if (this._settings.get_boolean('hide-minimized-windows')) {
+        const minimizeToDock = this._settings.get_boolean('minimize-to-dock');
+
+        // A window parked in the dock should not also show up in the overview
+        if (this._settings.get_boolean('hide-minimized-windows') || minimizeToDock) {
             hideMinimizedWindowsEnable();
         } else {
             hideMinimizedWindowsDisable();
+        }
+
+        if (minimizeToDock) {
+            minimizedToDockEnable();
+        } else {
+            minimizedToDockDisable();
         }
 
         if (this._settings.get_boolean('hide-activities-button')) {
@@ -267,6 +277,7 @@ export default class KiwiExtension extends Extension {
         quickSettingsNotificationsDisable();
         launchpadAppDisable();
         dockBlurDisable();
+        minimizedToDockDisable();
         reduceWindowAnimationsDisable();
         this._settings = null;
     }
