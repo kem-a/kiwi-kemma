@@ -27,6 +27,7 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Move calendar to the right**: Move calendar to right side and hide and add notifications and media controls to Quick Settings.
 - **Overview Wallpaper Background blur**: Use blurred current wallpaper as overview background (requires **ImageMagick**).
 - **Panel and Dash-to-Dock dynamic blur**: Add dynamic blur to top panel or Dash-to-Dock.
+- **Minimize Windows to Dock**: Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash, macOS style. Minimize and restore animations run to and from the thumbnail.
 - **Multilingual UI**: Fully translatable interface and is easy to extend via `po/` files.
 
 <details> <summary> <H3> Extras </H3> <b>(click to open)</b> </summary>

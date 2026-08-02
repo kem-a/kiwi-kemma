@@ -454,3 +454,22 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   font-size: 0.80em;
   font-weight: 600;
 }
+
+/*###############################################*/
+/*        Minimized Windows in the Dock         */
+/*###############################################*/
+
+#kiwi-minimized-strip {
+  spacing: 8px;
+}
+
+.kiwi-minimized-tile {
+  padding: 0;
+  border-radius: 6px;
+  transition: background-color 150ms ease;
+}
+
+.kiwi-minimized-tile:hover,
+.kiwi-minimized-tile:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+}

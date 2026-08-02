@@ -187,6 +187,13 @@
         <description>Apply a blur effect behind the Dash-to-Dock background.</description>
       </key>
 
+      <!-- Minimized windows in the dock -->
+      <key name="minimize-to-dock" type="b">
+        <default>false</default>
+        <summary>Minimize Windows to Dock</summary>
+        <description>Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash.</description>
+      </key>
+
       <!-- Launchpad app -->
       <key name="enable-launchpad-app" type="b">
         <default>false</default>

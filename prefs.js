@@ -433,6 +433,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'show-window-controls', title: _("Show Window Controls on Panel"), subtitle: _("Display close, minimize, maximize buttons in the top panel when window is maximized") },
             { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Blur"), subtitle: _("Use blurred current wallpaper as overview background (requires ImageMagick)") },
             { key: 'dock-blur', title: _("Dock Blur"), subtitle: _("Blur the background behind Dash-to-Dock") },
+            { key: 'minimize-to-dock', title: _("Minimize Windows to Dock"), subtitle: _("Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash") },
         ];
 
         switchList.forEach((item) => {
