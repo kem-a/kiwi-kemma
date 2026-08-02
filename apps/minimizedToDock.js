@@ -9,6 +9,7 @@
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
 import Meta from 'gi://Meta';
 import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
@@ -19,9 +20,12 @@ import { DashItemContainer } from 'resource:///org/gnome/shell/ui/dash.js';
 const D2D_SCHEMA = 'org.gnome.shell.extensions.dash-to-dock';
 // Proportions measured off a macOS dock: every tile is the same fixed box, a
 // little wider than an icon along the dock, with the thumbnail centred in it and
-// the app icon always in the same corner, so the icons line up in one row.
+// the app icon always in the same corner, so the icons line up in one row. The
+// tile box holds the thumbnail alone; the selector around it is the padding on
+// .kiwi-minimized-tile, mirroring how .overview-icon frames an app icon.
 const TILE_ALONG = 1.15;      // tile box along the dock, in dash icon sizes
 const TILE_ACROSS = 1;        // tile box across the dock, in dash icon sizes
+const THUMBNAIL_RADIUS = 4;   // px of corner rounding on a thumbnail, scaled
 const BADGE_FRACTION = 0.4;   // app icon badge, fraction of the dash icon size
 const RESTORE_GRACE = 500;    // ms to leave a restoring window's target alone
 const GEOMETRY_SETTLE = 100;  // ms of a still dock before recomputing targets
@@ -37,13 +41,14 @@ let snapshots = new Map();      // Meta.Window -> { content, width, height }
 let windowSignals = new Map();  // Meta.Window -> [signal ids]
 let globalSignals = [];         // [[object, id]]
 let restoring = new Set();      // windows whose restore animation is still running
-let dockSearchId = 0;
-let restoreGraceId = 0;
-let geometryUpdateId = 0;
-let trashAdoptionId = 0;
-let startupCompleteId = 0;
-let childAddedId = 0;
 let d2dSettings = null;
+const sources = { dockSearch: 0, restoreGrace: 0, geometryUpdate: 0, trashAdoption: 0 };
+
+function _disconnectAll(pairs) {
+    for (const [object, id] of pairs) {
+        try { object.disconnect(id); } catch (_) {}
+    }
+}
 
 /* -------------------------------------------------------------- snapshots */
 
@@ -141,10 +146,10 @@ function _removeWindow(win) {
 function _holdGeometry(win) {
     restoring.add(win);
 
-    if (restoreGraceId)
-        GLib.Source.remove(restoreGraceId);
-    restoreGraceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, RESTORE_GRACE, () => {
-        restoreGraceId = 0;
+    if (sources.restoreGrace)
+        GLib.Source.remove(sources.restoreGrace);
+    sources.restoreGrace = GLib.timeout_add(GLib.PRIORITY_DEFAULT, RESTORE_GRACE, () => {
+        sources.restoreGrace = 0;
         restoring.clear();
         _queueIconGeometry();
         return GLib.SOURCE_REMOVE;
@@ -153,17 +158,81 @@ function _holdGeometry(win) {
 
 /* ------------------------------------------------------------------ tiles */
 
+// Alpha to zero outside the corner arcs, with a half-pixel feather so the
+// curve does not stair-step. Clutter binds the source texture to 'tex' itself.
+const RoundedCornersEffect = GObject.registerClass(
+class RoundedCornersEffect extends Clutter.ShaderEffect {
+    constructor() {
+        super();
+        this.set_shader_source(`
+            uniform sampler2D tex;
+            uniform float width;
+            uniform float height;
+            uniform float radius;
+
+            void main() {
+                vec2 size = vec2(width, height);
+                vec2 uv = cogl_tex_coord_in[0].xy;
+                // How far the pixel reaches past the corner arc, 0 while inside
+                vec2 d = max(vec2(radius) - min(uv * size, size - uv * size),
+                             vec2(0.0));
+                float a = clamp(radius - length(d) + 0.5, 0.0, 1.0);
+                cogl_color_out = texture2D(tex, uv) * a;
+            }
+        `);
+    }
+});
+
 function _scaleFactor() {
     return St.ThemeContext.get_for_stage(global.stage).scaleFactor;
 }
 
 function _tileBox(dash) {
-    const base = dash.iconSize * _scaleFactor();
+    const scale = _scaleFactor();
     const isHorizontal = dash._isHorizontal ?? true;
-    return [
-        Math.round(base * (isHorizontal ? TILE_ALONG : TILE_ACROSS)),
-        Math.round(base * (isHorizontal ? TILE_ACROSS : TILE_ALONG)),
-    ];
+    const along = Math.round(dash.iconSize * TILE_ALONG * scale);
+    const across = Math.round(dash.iconSize * TILE_ACROSS * scale);
+    return isHorizontal ? [along, across] : [across, along];
+}
+
+/**
+ * Cut the corners off a thumbnail. A window texture is square, and the window's
+ * own rounding shrinks to nothing at this size, so the corners are rounded in
+ * screen space the way macOS rounds them.
+ *
+ * @param actor the thumbnail actor, already at its final size
+ */
+function _roundCorners(actor) {
+    const effect = new RoundedCornersEffect();
+    actor.add_effect(effect);
+
+    const { width, height } = actor;
+    const radius = Math.min(THUMBNAIL_RADIUS * _scaleFactor(), width / 2, height / 2);
+    // Nudged off whole numbers so GJS marshals doubles, which is what the
+    // shader's float uniforms expect
+    effect.set_uniform_value('width', width - 1e-6);
+    effect.set_uniform_value('height', height - 1e-6);
+    effect.set_uniform_value('radius', radius - 1e-6);
+}
+
+/**
+ * How far an app icon sits off the centre of its slot. Dash-to-Dock pads its
+ * icon buttons unevenly so that the icons come out centred in the dock
+ * background, which is itself shorter than the slot; tiles have to take the
+ * same step or they hang below the background.
+ *
+ * @param dash the Dash-to-Dock dash actor
+ */
+function _iconOffset(dash) {
+    const button = dash._box.get_children().find(c => c.child?._delegate?.icon)?.child;
+    if (!button)
+        return 0;
+
+    button.ensure_style();
+    const node = button.get_theme_node();
+    const [near, far] = (dash._isHorizontal ?? true)
+        ? [St.Side.TOP, St.Side.BOTTOM] : [St.Side.LEFT, St.Side.RIGHT];
+    return Math.round((node.get_padding(near) - node.get_padding(far)) / 2);
 }
 
 function _makeWindowTile(win, dash) {
@@ -171,10 +240,23 @@ function _makeWindowTile(win, dash) {
         style_class: 'kiwi-minimized-tile',
         can_focus: true,
         track_hover: true,
+        // The badge expands to reach its corner and setChild() forces y_expand;
+        // Clutter propagates both up from the children, so with the default FILL
+        // the selector would stretch over the whole slot and hang out of the
+        // dock. Anything but FILL keeps it at the tile box plus its padding.
+        x_align: Clutter.ActorAlign.CENTER,
+        y_align: Clutter.ActorAlign.CENTER,
     });
     const app = Shell.WindowTracker.get_default().get_window_app(win);
     const snapshot = snapshots.get(win);
     const [boxWidth, boxHeight] = _tileBox(dash);
+
+    // Sit where an app icon sits rather than in the middle of the slot
+    const offset = _iconOffset(dash);
+    if (dash._isHorizontal ?? true)
+        button.translation_y = offset;
+    else
+        button.translation_x = offset;
 
     // Every tile is the same box, so the app icons line up across the strip
     const box = new St.Widget({
@@ -195,6 +277,7 @@ function _makeWindowTile(win, dash) {
         // filter; mipmaps are built once and stay cheap while the tile animates
         thumbnail.set_content_scaling_filters(
             Clutter.ScalingFilter.TRILINEAR, Clutter.ScalingFilter.LINEAR);
+        _roundCorners(thumbnail);
         box.add_child(thumbnail);
     } else {
         box.add_child(app
@@ -390,26 +473,35 @@ function _adoptTrash(info) {
     info.trashItem?.destroy();
     info.dash._box.remove_child(item);
     info.strip.add_child(item);
+    // Undo the hiding from the child-added handler; item.show() would not,
+    // DashItemContainer shadows it with the scale animation
+    item.visible = true;
     info.trashItem = item;
     _syncDock(info);
 }
 
 function _queueTrashAdoption() {
-    if (trashAdoptionId || !enabled)
+    if (sources.trashAdoption || !enabled)
         return;
     // Never restructure the dash while Dash-to-Dock is in the middle of a redisplay
-    trashAdoptionId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-        trashAdoptionId = 0;
+    sources.trashAdoption = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        sources.trashAdoption = 0;
         docks.forEach(_adoptTrash);
         return GLib.SOURCE_REMOVE;
     });
 }
 
 function _releaseTrash(info, removeActors) {
+    // A rebuilt trash item hidden for an adoption that is not going to happen
+    // now would stay invisible; hand that one back instead of our older copy
+    const pending = removeActors ? _findTrashItem(info.dash) : null;
+    if (pending)
+        pending.visible = true;
+
     if (!info.trashItem)
         return;
 
-    if (removeActors) {
+    if (removeActors && !pending) {
         info.strip.remove_child(info.trashItem);
         info.dash._box.add_child(info.trashItem);
     }
@@ -511,20 +603,13 @@ function _queueIconGeometry() {
     if (!enabled)
         return;
 
-    if (geometryUpdateId)
-        GLib.Source.remove(geometryUpdateId);
-    geometryUpdateId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, GEOMETRY_SETTLE, () => {
-        geometryUpdateId = 0;
+    if (sources.geometryUpdate)
+        GLib.Source.remove(sources.geometryUpdate);
+    sources.geometryUpdate = GLib.timeout_add(GLib.PRIORITY_DEFAULT, GEOMETRY_SETTLE, () => {
+        sources.geometryUpdate = 0;
         _applyIconGeometry();
         return GLib.SOURCE_REMOVE;
     });
-}
-
-function _findDockContainers() {
-    // Dash-to-Dock adds containers with name 'dashtodockContainer' to Main.uiGroup
-    return Main.uiGroup.get_children().filter(child =>
-        child.name === 'dashtodockContainer'
-    );
 }
 
 function _attachDock(dockContainer) {
@@ -569,10 +654,14 @@ function _attachDock(dockContainer) {
         });
     info.signals.push([dash._box, sizeId]);
 
-    // Dash-to-Dock rebuilds its trash item on every redisplay; take it over again
+    // Dash-to-Dock rebuilds its trash item on every redisplay; take it over
+    // again. Hide it at once, or it widens the dash for the few frames until
+    // the idle-time adoption and the whole dock shifts and shifts back.
     const addedId = dash._box.connect('child-added', (_box, child) => {
-        if (child.child?._delegate?.app?.isTrash)
+        if (child.child?._delegate?.app?.isTrash) {
+            child.hide();
             _queueTrashAdoption();
+        }
     });
     info.signals.push([dash._box, addedId]);
 
@@ -585,9 +674,7 @@ function _attachDock(dockContainer) {
 }
 
 function _detachDock(info, removeActors = true) {
-    for (const [object, id] of info.signals) {
-        try { object.disconnect(id); } catch (_) {}
-    }
+    _disconnectAll(info.signals);
     info.signals = [];
 
     _releaseTrash(info, removeActors);
@@ -601,10 +688,12 @@ function _detachDock(info, removeActors = true) {
 }
 
 function _attachExistingDocks() {
-    _findDockContainers().forEach(container => _attachDock(container));
+    // Dash-to-Dock adds containers with name 'dashtodockContainer' to Main.uiGroup
+    for (const child of Main.uiGroup.get_children()) {
+        if (child.name === 'dashtodockContainer')
+            _attachDock(child);
+    }
 }
-
-/* ------------------------------------------------------------------ trash */
 
 /* ----------------------------------------------------------- entry points */
 
@@ -639,32 +728,29 @@ export function enable() {
 
     // During startup the dock is not laid out yet, same caveat as dockBlur
     if (Main.layoutManager._startingUp) {
-        startupCompleteId = Main.layoutManager.connect('startup-complete', () => {
-            Main.layoutManager.disconnect(startupCompleteId);
-            startupCompleteId = 0;
-            _watchDocks();
-        });
+        const startupId = Main.layoutManager.connect('startup-complete', () => _watchDocks());
+        globalSignals.push([Main.layoutManager, startupId]);
         return;
     }
     _watchDocks();
 }
 
 function _watchDocks() {
-    childAddedId = Main.uiGroup.connect('child-added', (_group, actor) => {
+    const uiGroupId = Main.uiGroup.connect('child-added', (_group, actor) => {
         if (actor.name === 'dashtodockContainer')
             _attachDock(actor);
     });
+    globalSignals.push([Main.uiGroup, uiGroupId]);
 
     _attachExistingDocks();
 
     // The dock may still be loading, retry for a while
     if (docks.length === 0) {
         let attempts = 0;
-        dockSearchId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-            attempts++;
+        sources.dockSearch = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
             _attachExistingDocks();
-            if (docks.length > 0 || attempts >= 10) {
-                dockSearchId = 0;
+            if (docks.length > 0 || ++attempts >= 10) {
+                sources.dockSearch = 0;
                 return GLib.SOURCE_REMOVE;
             }
             return GLib.SOURCE_CONTINUE;
@@ -677,34 +763,13 @@ export function disable() {
         return;
     enabled = false;
 
-    if (startupCompleteId) {
-        Main.layoutManager.disconnect(startupCompleteId);
-        startupCompleteId = 0;
-    }
-    if (dockSearchId) {
-        GLib.Source.remove(dockSearchId);
-        dockSearchId = 0;
-    }
-    if (geometryUpdateId) {
-        GLib.Source.remove(geometryUpdateId);
-        geometryUpdateId = 0;
-    }
-    if (restoreGraceId) {
-        GLib.Source.remove(restoreGraceId);
-        restoreGraceId = 0;
-    }
-    if (trashAdoptionId) {
-        GLib.Source.remove(trashAdoptionId);
-        trashAdoptionId = 0;
-    }
-    if (childAddedId) {
-        Main.uiGroup.disconnect(childAddedId);
-        childAddedId = 0;
+    for (const key of Object.keys(sources)) {
+        if (sources[key])
+            GLib.Source.remove(sources[key]);
+        sources[key] = 0;
     }
 
-    for (const [object, id] of globalSignals) {
-        try { object.disconnect(id); } catch (_) {}
-    }
+    _disconnectAll(globalSignals);
     globalSignals = [];
 
     [...docks].forEach(info => _detachDock(info));
@@ -716,11 +781,8 @@ export function disable() {
             actor.meta_window.set_icon_geometry(null);
     });
 
-    for (const [win, ids] of windowSignals) {
-        for (const id of ids) {
-            try { win.disconnect(id); } catch (_) {}
-        }
-    }
+    for (const [win, ids] of windowSignals)
+        _disconnectAll(ids.map(id => [win, id]));
     windowSignals.clear();
     snapshots.clear();
     restoring.clear();

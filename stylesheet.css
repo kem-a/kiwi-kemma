@@ -459,17 +459,27 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 /*        Minimized Windows in the Dock         */
 /*###############################################*/
 
+/* Thumbnails pack tightly like macOS: 6px between them, made of the tiles' own
+   2px sides plus 2px of spacing. Padding is only along the dock — across it, it
+   would make the whole dock taller. */
 #kiwi-minimized-strip {
-  spacing: 8px;
+  spacing: 2px;
+  padding: 0 3px;
 }
 
+#dashtodockContainer.left #kiwi-minimized-strip,
+#dashtodockContainer.right #kiwi-minimized-strip {
+  padding: 3px 0;
+}
+
+/* Thumbnails draw no selector of their own, but they keep the inset an app icon
+   has: 6px across the dock, which holds a tile to the same height as an
+   .overview-icon so the two line up, and a tighter 2px along it. */
 .kiwi-minimized-tile {
-  padding: 0;
-  border-radius: 6px;
-  transition: background-color 150ms ease;
+  padding: 6px 2px;
 }
 
-.kiwi-minimized-tile:hover,
-.kiwi-minimized-tile:focus {
-  background-color: rgba(255, 255, 255, 0.15);
+#dashtodockContainer.left .kiwi-minimized-tile,
+#dashtodockContainer.right .kiwi-minimized-tile {
+  padding: 2px 6px;
 }
