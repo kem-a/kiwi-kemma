@@ -83,6 +83,11 @@
         <summary>Show Window Controls on Panel only when Fullscreen</summary>
         <description>When enabled, panel window controls and titlebar hiding apply only to fullscreen windows, not maximized.</description>
       </key>
+      <key name="show-tiling-title-menu" type="b">
+        <default>true</default>
+        <summary>Add Tiling Layouts to the Window Title Menu</summary>
+        <description>Add window tiling layouts to the menu opened from the window title in the panel. Available for any focused window, including windows that are not maximized.</description>
+      </key>
       <key name="button-type" type="s">
         <default>'titlebuttons'</default>
         <summary>Button icon set</summary>

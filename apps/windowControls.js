@@ -156,7 +156,7 @@ class WindowControlsIndicator extends PanelMenu.Button {
         this._buildButtonLayout();
 
         this._updateAllIcons();
-        
+
         this._focusWindowSignal = global.display.connect('notify::focus-window', this._onFocusWindowChanged.bind(this));
         this._overviewShowingId = Main.overview.connect('showing', () => this._updateVisibility());
         this._overviewHiddenId = Main.overview.connect('hidden', () => {

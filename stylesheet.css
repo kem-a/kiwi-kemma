@@ -238,6 +238,89 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 
 
 /*###############################################*/
+/*              Window Tiling Menu              */
+/*###############################################*/
+
+/* NOTE: a CSS "opacity" rule does not take effect on these labels, so the dimming is
+   applied to the actor in JS (windowTiling.js SECTION_LABEL_OPACITY, windowTitle.js
+   ACCEL_OPACITY). Do not re-add opacity here expecting it to work. */
+.kiwi-tiling-section-label {
+  padding: 4px 16px;
+  font-weight: bold;
+}
+
+/* Accelerator hint on the right of a menu item, e.g. F11 next to Fullscreen. */
+.kiwi-menu-accel {
+  padding-left: 24px;
+}
+
+/* The grid also sits inside the window title menu, where the surrounding
+   popup-menu-item padding would double up. */
+.kiwi-tiling-menu-item {
+  padding: 0;
+}
+
+.kiwi-tiling-menu-item:active,
+.kiwi-tiling-menu-item:hover,
+.kiwi-tiling-menu-item.selected {
+  background-color: transparent;
+}
+
+.kiwi-tiling-row {
+  spacing: 6px;
+  padding: 2px 12px 6px 12px;
+}
+
+.kiwi-tile-button {
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+/* Selected tile gets the same accent treatment as the menu entries above it. */
+.kiwi-tile-button:hover,
+.kiwi-tile-button:active {
+  background-color: -st-accent-color;
+}
+
+/* The glyph is a miniature screen. Colors are explicit rather than inherited from the
+   menu foreground: at 26x18px the panes need full contrast to read at all.
+   apps/windowTiling.js adds .light when the shell theme is light. */
+.kiwi-tile-glyph {
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+}
+
+/* Ghost panes need no rule of their own: same fill, dimmed via actor opacity in
+   apps/windowTiling.js (PANE_GHOST_OPACITY). */
+.kiwi-tile-pane {
+  background-color: #ffffff;
+  border-radius: 2px;
+}
+
+.kiwi-tiling-grid.light .kiwi-tile-glyph {
+  border-color: rgba(0, 0, 0, 0.55);
+}
+
+.kiwi-tiling-grid.light .kiwi-tile-pane {
+  background-color: #1c1c1e;
+}
+
+/* On the accent background the glyph switches to the accent foreground, mirroring the
+   "color: -st-accent-fg-color" the menu entries use. Selectors carry .kiwi-tiling-grid so
+   they outrank the .light overrides above regardless of rule order. */
+.kiwi-tiling-grid .kiwi-tile-button:hover .kiwi-tile-glyph,
+.kiwi-tiling-grid .kiwi-tile-button:active .kiwi-tile-glyph {
+  border-color: -st-accent-fg-color;
+}
+
+.kiwi-tiling-grid .kiwi-tile-button:hover .kiwi-tile-pane,
+.kiwi-tiling-grid .kiwi-tile-button:active .kiwi-tile-pane {
+  background-color: -st-accent-fg-color;
+}
+
+
+/*###############################################*/
 /*          Popup Menu Accent Styling           */
 /*###############################################*/
 

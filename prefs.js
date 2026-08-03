@@ -353,7 +353,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settingsPage.add(group);
 
         this._addSwitchRows(settings, group, [
-            { key: 'show-window-title', title: _("Show Window Title"), subtitle: _("Display current window title in the top panel") },
             { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Blur"), subtitle: _("Use blurred current wallpaper as overview background (requires ImageMagick)") },
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
@@ -658,6 +657,34 @@ export default class KiwiPreferences extends ExtensionPreferences {
             icon_name: 'focus-top-bar-symbolic',
         });
         window.add(panelPage);
+
+        const windowTitleGroup = new Adw.PreferencesGroup();
+        panelPage.add(windowTitleGroup);
+
+        // Tiling lives under the window title because the layouts are reached from its
+        // menu; without the title in the panel there is no way to open them.
+        const windowTitleExpander = new Adw.ExpanderRow({
+            title: _("Show Window Title"),
+            subtitle: _("Display current window title in the top panel"),
+            expanded: settings.get_boolean('show-window-title') &&
+                settings.get_boolean('show-tiling-title-menu'),
+            show_enable_switch: true,
+            enable_expansion: settings.get_boolean('show-window-title'),
+        });
+        windowTitleGroup.add(windowTitleExpander);
+
+        windowTitleExpander.connect('notify::enable-expansion', () => {
+            const v = windowTitleExpander.enable_expansion;
+            if (settings.get_boolean('show-window-title') !== v)
+                settings.set_boolean('show-window-title', v);
+        });
+
+        const tilingTitleMenuRow = new Adw.SwitchRow({
+            title: _("Window Tiling"),
+            subtitle: _("Add tiling layouts to the window title menu, and restore tiled windows by dragging their titlebar"),
+        });
+        windowTitleExpander.add_row(tilingTitleMenuRow);
+        settings.bind('show-tiling-title-menu', tilingTitleMenuRow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         const transparencyGroup = new Adw.PreferencesGroup({
             title: _('Panel Transparency'),

@@ -2,8 +2,8 @@
 // Shows the focused window's title in the panel with an optional app menu.
 
 import Clutter from 'gi://Clutter';
+import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
-import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
@@ -12,8 +12,40 @@ import { AppMenu } from 'resource:///org/gnome/shell/ui/appMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import { createTileGrid, canTile, canRestore, restoreAllWindows, toggleFullscreen } from './windowTiling.js';
 
 let indicator = null;
+let _extension = null;
+
+const ACCEL_OPACITY = 110; // 0-255. CSS opacity is not applied here; set it on the actor.
+
+// 'F11' -> 'F11', '<Super>Up' -> 'Super+Up'. GTK's accelerator_get_label is not available
+// in the shell process, and only modifier names need rewriting for our purposes.
+function formatAccel(accel) {
+    return accel
+        .replace(/<Super>/g, 'Super+')
+        .replace(/<Shift>/g, 'Shift+')
+        .replace(/<Control>|<Primary>/g, 'Ctrl+')
+        .replace(/<Alt>/g, 'Alt+');
+}
+
+// Show the accelerator on the right of a menu item, dimmed, the way GNOME does.
+// Guarded because the AppMenu's own items outlive a single menu open.
+function addAccelLabel(item, accel) {
+    if (!item || !accel || item._kiwiAccelAdded)
+        return;
+
+    item._kiwiAccelAdded = true;
+    item.label.x_expand = true;
+
+    const label = new St.Label({
+        text: formatAccel(accel),
+        style_class: 'kiwi-menu-accel',
+        y_align: Clutter.ActorAlign.CENTER,
+    });
+    label.opacity = ACCEL_OPACITY;
+    item.add_child(label);
+}
 
 const WindowTitleIndicator = GObject.registerClass(
 class WindowTitleIndicator extends PanelMenu.Button {
@@ -21,6 +53,9 @@ class WindowTitleIndicator extends PanelMenu.Button {
         super._init(0.0, 'window-title', true);
 
         this._syncMenuIdleId = null;
+        this._settings = _extension.getSettings();
+        this._wmKeybindings = new Gio.Settings({ schema_id: 'org.gnome.desktop.wm.keybindings' });
+        this._gettext = _extension.gettext.bind(_extension);
 
         this._menu = new AppMenu(this);
         this.setMenu(this._menu);
@@ -52,10 +87,14 @@ class WindowTitleIndicator extends PanelMenu.Button {
 
         this._restoreSeparator = null;
         this._restoreMenuItem = null;
+        this._fullscreenMenuItem = null;
+        this._tilingMenuItem = null;
+        this._tilingSeparator = null;
 
         this._menuOpenStateId = this._menu.connect('open-state-changed', (menu, isOpen) => {
             if (isOpen) {
-                this._updateRestoreMenuItem();
+                this._updateAppMenuAccels();
+                this._updateKiwiMenuItems();
                 if (this._syncMenuIdleId) {
                     GLib.Source.remove(this._syncMenuIdleId);
                     this._syncMenuIdleId = null;
@@ -166,72 +205,92 @@ class WindowTitleIndicator extends PanelMenu.Button {
         });
     }
 
-    _updateRestoreMenuItem() {
-        if (this._restoreMenuItem) {
-            if (this._restoreMenuActId) this._restoreMenuItem.disconnect(this._restoreMenuActId);
-            this._restoreMenuActId = null;
-            this._restoreMenuItem.destroy();
-            this._restoreMenuItem = null;
-        }
-        if (this._restoreSeparator) {
-            this._restoreSeparator.destroy();
-            this._restoreSeparator = null;
+    // AppMenu hides its built-in New Window item when the app's desktop file declares a
+    // new-window action, because that action is then listed in _actionSection instead
+    // (appMenu.js _updateNewWindowItem). Nautilus and Text Editor both do this, so the
+    // real item has to be looked up rather than assumed.
+    _newWindowItem() {
+        const menu = this._menu;
+        if (menu._newWindowItem && menu._newWindowItem.visible)
+            return menu._newWindowItem;
+
+        const appInfo = menu._app && menu._app.appInfo;
+        if (!appInfo || !appInfo.list_actions().includes('new-window'))
+            return null;
+
+        // Match on the action's own name so this works in any locale.
+        const name = appInfo.get_action_name('new-window');
+        return menu._actionSection._getMenuItems()
+            .find(item => item.label && item.label.text === name) || null;
+    }
+
+    // Ctrl+Q and Ctrl+N are application conventions rather than WM keybindings, so unlike
+    // toggle-fullscreen there is nothing to read them from; they are the near universal
+    // defaults for GTK apps. Re-checked on every open because _actionSection items are
+    // destroyed and rebuilt whenever the focused app changes; addAccelLabel is idempotent.
+    _updateAppMenuAccels() {
+        addAccelLabel(this._menu._quitItem, '<Control>Q');
+        addAccelLabel(this._newWindowItem(), '<Control>N');
+    }
+
+    // Kiwi's items sit at the top of the menu, ahead of the app's own entries:
+    //   tiling grid | separator | Fullscreen | Restore Window | separator | New Window ...
+    // Rebuilt on every open so the tiles and the sensitivity of Restore reflect the current
+    // state. The running counter keeps the order right when the grid is absent.
+    _updateKiwiMenuItems() {
+        for (const name of ['_tilingMenuItem', '_tilingSeparator', '_fullscreenMenuItem',
+                            '_restoreMenuItem', '_restoreSeparator']) {
+            if (this[name]) {
+                this[name].destroy();
+                this[name] = null;
+            }
         }
 
         const win = this._focusWindow;
-        if (!win) return;
+        if (!win)
+            return;
 
-        let isMaximized = false;
-        if (win.maximized_horizontally && win.maximized_vertically) {
-            isMaximized = true;
-        } else if (typeof win.get_maximized === 'function') {
-            try {
-                const flags = win.get_maximized();
-                if ((flags & Meta.MaximizeFlags.HORIZONTAL) && (flags & Meta.MaximizeFlags.VERTICAL))
-                    isMaximized = true;
-            } catch (_) {}
+        const _ = this._gettext;
+        let position = 0;
+
+        if (canTile(win) && this._settings.get_boolean('show-tiling-title-menu')) {
+            const grid = createTileGrid(this._gettext, () => this._menu.close());
+            grid.sync(win);
+
+            // A non-reactive row so the grid does not fight the menu's own hover highlight.
+            this._tilingMenuItem = new PopupMenu.PopupBaseMenuItem({
+                reactive: false,
+                can_focus: false,
+                style_class: 'kiwi-tiling-menu-item',
+            });
+            this._tilingMenuItem.add_child(grid.actor);
+            this._menu.addMenuItem(this._tilingMenuItem, position++);
+
+            this._tilingSeparator = new PopupMenu.PopupSeparatorMenuItem();
+            this._menu.addMenuItem(this._tilingSeparator, position++);
         }
 
-        const isFullscreen = typeof win.is_fullscreen === 'function' && win.is_fullscreen();
+        // Fullscreen owns the fullscreen state, so Restore only deals with tiled and
+        // maximized windows.
+        const isFullscreen = win.is_fullscreen();
+        this._fullscreenMenuItem = new PopupMenu.PopupMenuItem(
+            isFullscreen ? _('Leave Fullscreen') : _('Fullscreen'));
+        this._fullscreenMenuItem.connect('activate', () => toggleFullscreen(win));
+        // Our entry does exactly what Mutter's toggle-fullscreen binding does, so show
+        // whatever the user actually has bound rather than assuming F11.
+        addAccelLabel(this._fullscreenMenuItem,
+            this._wmKeybindings.get_strv('toggle-fullscreen')[0]);
+        this._menu.addMenuItem(this._fullscreenMenuItem, position++);
 
-        if (!isMaximized && !isFullscreen) return;
+        this._restoreMenuItem = new PopupMenu.PopupMenuItem(_('Restore Window'));
+        this._restoreMenuItem.connect('activate', () => restoreAllWindows(win));
+        if (isFullscreen || !canRestore(win))
+            this._restoreMenuItem.setSensitive(false);
+        this._menu.addMenuItem(this._restoreMenuItem, position++);
 
-        // Find position of "App Details" item to insert just above it
-        let position = -1;
-        const menuItems = this._menu._getMenuItems();
-        for (let i = 0; i < menuItems.length; i++) {
-            if (menuItems[i] === this._menu._detailsItem) {
-                position = i;
-                break;
-            }
-        }
-
-        this._restoreMenuItem = new PopupMenu.PopupMenuItem('Restore Window');
-        this._restoreMenuActId = this._restoreMenuItem.connect('activate', () => {
-            if (isMaximized) {
-                try {
-                    win.unmaximize();
-                } catch (e) {
-                    win.unmaximize(Meta.MaximizeFlags.BOTH);
-                }
-            }
-            if (isFullscreen)
-                win.unmake_fullscreen();
-        });
-
-        if (position >= 0) {
-            // Check if the item above "App Details" is already a separator
-            const needsSeparator = position === 0 ||
-                !(menuItems[position - 1] instanceof PopupMenu.PopupSeparatorMenuItem);
-
-            this._menu.addMenuItem(this._restoreMenuItem, position);
-            if (needsSeparator) {
-                this._restoreSeparator = new PopupMenu.PopupSeparatorMenuItem();
-                this._menu.addMenuItem(this._restoreSeparator, position + 1);
-            }
-        } else {
-            this._menu.addMenuItem(this._restoreMenuItem);
-        }
+        // Untitled, so GNOME collapses it against the app menu's own next separator.
+        this._restoreSeparator = new PopupMenu.PopupSeparatorMenuItem();
+        this._menu.addMenuItem(this._restoreSeparator, position++);
     }
 
     _clearDisplay(resetMenu = true) {
@@ -276,15 +335,27 @@ class WindowTitleIndicator extends PanelMenu.Button {
         }
 
         if (this._restoreMenuItem) {
-            if (this._restoreMenuActId) this._restoreMenuItem.disconnect(this._restoreMenuActId);
-            this._restoreMenuActId = null;
             this._restoreMenuItem.destroy();
             this._restoreMenuItem = null;
+        }
+        if (this._fullscreenMenuItem) {
+            this._fullscreenMenuItem.destroy();
+            this._fullscreenMenuItem = null;
         }
         if (this._restoreSeparator) {
             this._restoreSeparator.destroy();
             this._restoreSeparator = null;
         }
+        if (this._tilingMenuItem) {
+            this._tilingMenuItem.destroy();
+            this._tilingMenuItem = null;
+        }
+        if (this._tilingSeparator) {
+            this._tilingSeparator.destroy();
+            this._tilingSeparator = null;
+        }
+        this._wmKeybindings = null;
+        this._settings = null;
         if (this._overviewShowingId) {
             Main.overview.disconnect(this._overviewShowingId);
         }
@@ -304,7 +375,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
     }
 });
 
-export function enable() {
+export function enable(ext) {
+    _extension = ext;
     if (!indicator) {
         indicator = new WindowTitleIndicator();
         Main.panel.addToStatusArea('window-title', indicator, -1, 'left');
@@ -316,4 +388,5 @@ export function disable() {
         indicator.destroy();
         indicator = null;
     }
+    _extension = null;
 }
