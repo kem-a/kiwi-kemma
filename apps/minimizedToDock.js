@@ -45,9 +45,8 @@ let d2dSettings = null;
 const sources = { dockSearch: 0, restoreGrace: 0, geometryUpdate: 0, trashAdoption: 0 };
 
 function _disconnectAll(pairs) {
-    for (const [object, id] of pairs) {
-        try { object.disconnect(id); } catch (_) {}
-    }
+    for (const [object, id] of pairs)
+        object.disconnect(id);
 }
 
 /* -------------------------------------------------------------- snapshots */
@@ -747,6 +746,8 @@ function _watchDocks() {
     // The dock may still be loading, retry for a while
     if (docks.length === 0) {
         let attempts = 0;
+        if (sources.dockSearch)
+            GLib.Source.remove(sources.dockSearch);
         sources.dockSearch = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
             _attachExistingDocks();
             if (docks.length > 0 || ++attempts >= 10) {
@@ -759,8 +760,6 @@ function _watchDocks() {
 }
 
 export function disable() {
-    if (!enabled)
-        return;
     enabled = false;
 
     for (const key of Object.keys(sources)) {
@@ -774,15 +773,12 @@ export function disable() {
 
     [...docks].forEach(info => _detachDock(info));
 
-    // Drop our animation targets; Dash-to-Dock repoints them at its app icons
-    // on its next update
-    global.get_window_actors().forEach(actor => {
-        if (_isEligible(actor.meta_window))
-            actor.meta_window.set_icon_geometry(null);
-    });
-
-    for (const [win, ids] of windowSignals)
+    for (const [win, ids] of windowSignals) {
         _disconnectAll(ids.map(id => [win, id]));
+        // Drop our animation targets; Dash-to-Dock repoints them at its app
+        // icons on its next update
+        win.set_icon_geometry(null);
+    }
     windowSignals.clear();
     snapshots.clear();
     restoring.clear();
