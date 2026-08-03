@@ -7,12 +7,12 @@
         <description>Enable or disable moving windows to new workspaces.</description>
       </key>
       <key name="add-username-to-quick-menu" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Add Username to Quick Menu</summary>
         <description>Enable or disable adding the username to the quick menu.</description>
       </key>
       <key name="lock-icon" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Lock Icon</summary>
         <description>Enable or disable the lock icon.</description>
       </key>
@@ -104,7 +104,7 @@
         <description>Make the top panel transparent.</description>
       </key>
       <key name="panel-transparency-level" type="i">
-        <default>50</default>
+        <default>30</default>
         <range min="0" max="100"/>
         <summary>Panel Transparency Level</summary>
         <description>Set the transparency level of the panel (0-100).</description>
@@ -142,7 +142,7 @@
       
       <!-- Keyboard indicator controls -->
       <key name="keyboard-indicator" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Keyboard Indicator Styling</summary>
         <description>Enable additional options for the panel keyboard/input source indicator.</description>
       </key>
@@ -175,21 +175,21 @@
 
       <!-- Panel blur -->
       <key name="panel-blur" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Panel Blur</summary>
         <description>Apply a blur effect behind the top panel when it is transparent.</description>
       </key>
       
       <!-- Dock blur -->
       <key name="dock-blur" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Dock Blur</summary>
         <description>Apply a blur effect behind the Dash-to-Dock background.</description>
       </key>
 
       <!-- Minimized windows in the dock -->
       <key name="minimize-to-dock" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Minimize Windows to Dock</summary>
         <description>Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash.</description>
       </key>
@@ -216,7 +216,7 @@
 
       <!-- Reduce window open/close animations -->
       <key name="reduce-window-animations" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Reduce Window Open/Close Animations</summary>
         <description>Replace the default window opening and closing animation with a subtle macOS-style scale and fade.</description>
       </key>
