@@ -381,10 +381,10 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   margin: 0 !important; /* Reduced from 0 2px */
   padding-left: 0 !important; /* Reduced from 2px */
   padding-right: 0 !important; /* Reduced from 2px */
-  /* 12px/8px plus the 3px a side the icon box no longer pads with, so the dock
-     keeps its height and the icons keep sitting where they did */
-  padding-bottom: 15px !important;
-  padding-top: 11px !important;
+  /* Takes over the vertical padding the icon box gave up, so the dock keeps its
+     height and the icons keep sitting where they did */
+  padding-bottom: 11px !important;
+  padding-top: 14px !important;
 }
 
 /* Bottom dock - shrink mode: even tighter spacing */
@@ -398,35 +398,43 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   margin: 0 !important; /* Reduced from 0 2px */
   padding-left: 0 !important;
   padding-right: 0 !important;
-  padding-bottom: 8px !important; /* 5px plus the icon box's 3px */
-  padding-top: 5px !important; /* 2px plus the icon box's 3px */
+  /* Shrink mode has 12px of vertical padding to spend around the icon box, and
+     the dock background sits 4px up from the bottom of the item: leaving 4px
+     here put the dot right on that edge. 7px/5px lifts the whole box instead,
+     which keeps the dock height and gives the dot 3px of clearance. */
+  padding-bottom: 7px !important;
+  padding-top: 5px !important;
 }
 
 /* No highlight behind the icons in any state - hover, keyboard focus, click and
    the Dash-to-Dock focused-app state. Click feedback is the darken effect from
    apps/dockStyling.js instead.
 
-   .overview-icon is a Shell.SquareBin, so its width follows its height: side
-   padding alone leaves the box as wide as before, and this padding is therefore
-   the only lever on the gap between icons. It doubles as the clearance the
-   running dot sits in - the dot is aligned to the bottom of this box, so at 0 it
-   lands on the icon art. 3px puts the pitch within a pixel of macOS. */
+   .overview-icon is a Shell.SquareBin, so its width follows its height: this
+   padding, on any side, is the only lever on the gap between icons. The running
+   dot ends where this box does, so its clearance is the bottom padding - hence
+   all of it on the bottom, where it buys 7px of clearance for the 5px dot at the
+   same 55px pitch a 3px-a-side box would cost. The icon art centres itself
+   horizontally in the square, so the sides do not need any. */
 #dashtodockContainer.kiwi-dock-styled #dash .dash-item-container .overview-icon {
   background-color: transparent !important;
   box-shadow: none !important;
-  padding: 3px !important; /* Reduced from 6px */
+  padding: 0 !important; /* Reduced from 6px */
+  padding-bottom: 7px !important;
 }
 
-/* Reduce overall dash container padding */
+/* Reduce overall dash container padding. The left value is the space before the
+   first icon: Dash-to-Dock zeroes that icon's own leading padding, so this is
+   what holds the dock's left end open. */
 #dashtodockContainer.kiwi-dock-styled.bottom #dash #dashtodockDashContainer {
-  padding-left: 4px !important;
+  padding-left: 8px !important;
   padding-right: 4px !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
 #dashtodockContainer.kiwi-dock-styled.bottom.shrink #dash #dashtodockDashContainer {
-  padding-left: 2px !important;
+  padding-left: 6px !important;
   padding-right: 2px !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;

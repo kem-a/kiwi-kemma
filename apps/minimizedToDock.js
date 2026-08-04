@@ -262,7 +262,8 @@ function _roundCorners(actor) {
  * How far an app icon sits off the centre of its slot. Dash-to-Dock pads its
  * icon buttons unevenly so that the icons come out centred in the dock
  * background, which is itself shorter than the slot; tiles have to take the
- * same step or they hang below the background.
+ * same step or they hang below the background. The icon box inside the button
+ * adds a step of its own.
  *
  * @param dash the Dash-to-Dock dash actor
  */
@@ -271,11 +272,18 @@ function _iconOffset(dash) {
     if (!button)
         return 0;
 
+    const icon = button._delegate.icon;
     button.ensure_style();
-    const node = button.get_theme_node();
+    icon.ensure_style();
     const [near, far] = (dash._isHorizontal ?? true)
         ? [St.Side.TOP, St.Side.BOTTOM] : [St.Side.LEFT, St.Side.RIGHT];
-    return Math.round((node.get_padding(near) - node.get_padding(far)) / 2);
+
+    // The icon box pads unevenly too - it holds the running dot below the icon -
+    // so the art is off the centre of the button by that much again
+    const step = node =>
+        node.get_padding(near) - node.get_padding(far);
+    return Math.round(
+        (step(button.get_theme_node()) + step(icon.get_theme_node())) / 2);
 }
 
 function _makeWindowTile(win, dash) {
