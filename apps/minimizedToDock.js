@@ -238,6 +238,15 @@ function _roundCorners(actor) {
     effect.set_uniform_value('width', width - 1e-6);
     effect.set_uniform_value('height', height - 1e-6);
     effect.set_uniform_value('radius', radius - 1e-6);
+
+    // A dash item's preferred size follows its scale, so an animating tile
+    // allocates its thumbnail down to nothing. An offscreen effect on a
+    // zero-sized actor asks Cogl for an empty viewport, which it warns about;
+    // there is nothing to round off at that size anyway.
+    actor.connect('notify::allocation', () => {
+        const box = actor.get_allocation_box();
+        effect.enabled = box.get_width() >= 1 && box.get_height() >= 1;
+    });
 }
 
 /**
