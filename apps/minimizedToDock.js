@@ -118,6 +118,15 @@ function _addWindow(win) {
     const snapshot = _captureSnapshot(win);
     if (snapshot)
         snapshots.set(win, snapshot);
+
+    // The window manager starts the minimize animation before the queued update
+    // below runs, so whatever was written last wins — and Dash-to-Dock repoints
+    // a window at its app icon on every window-list change of that app. Aim this
+    // one at the slot it is about to land in, now.
+    const info = _dockForWindow(win);
+    if (info?.strip.get_stage())
+        win.set_icon_geometry(_nextSlotRect(info));
+
     order.push(win);
     restoring.delete(win);
     _syncDocks();
@@ -757,6 +766,11 @@ export function enable() {
     // list changes, so claim it back for every new window
     const mapId = global.window_manager.connect('map', () => _queueIconGeometry());
     globalSignals.push([global.window_manager, mapId]);
+
+    // Same on the way out: closing one window of an app repoints the app's other
+    // windows, minimized ones included, and those have to keep their tiles
+    const destroyId = global.window_manager.connect('destroy', () => _queueIconGeometry());
+    globalSignals.push([global.window_manager, destroyId]);
 
     global.get_window_actors().forEach(actor => _trackWindow(actor.meta_window));
 

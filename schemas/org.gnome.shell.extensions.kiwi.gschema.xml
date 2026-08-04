@@ -185,6 +185,13 @@
         <description>Apply a blur effect behind the top panel when it is transparent.</description>
       </key>
       
+      <!-- Dock styling -->
+      <key name="dock-styling" type="b">
+        <default>true</default>
+        <summary>Dock Styling</summary>
+        <description>Tighten Dash-to-Dock icon spacing and remove the icon hover highlight.</description>
+      </key>
+
       <!-- Dock blur -->
       <key name="dock-blur" type="b">
         <default>true</default>

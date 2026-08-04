@@ -40,6 +40,7 @@ import { enable as quickSettingsMediaEnable, disable as quickSettingsMediaDisabl
 import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
 import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './apps/launchpadApp.js';
 import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
+import { enable as dockStylingEnable, disable as dockStylingDisable } from './apps/dockStyling.js';
 import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } from './apps/minimizedToDock.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
 import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
@@ -214,6 +215,12 @@ export default class KiwiExtension extends Extension {
         else
             keyboardIndicatorDisable();
 
+        // Dock styling
+        if (this._settings.get_boolean('dock-styling'))
+            dockStylingEnable();
+        else
+            dockStylingDisable();
+
         // Dock blur
         if (this._settings.get_boolean('dock-blur'))
             dockBlurEnable();
@@ -285,6 +292,7 @@ export default class KiwiExtension extends Extension {
         quickSettingsNotificationsDisable();
         launchpadAppDisable();
         dockBlurDisable();
+        dockStylingDisable();
         minimizedToDockDisable();
         reduceWindowAnimationsDisable();
         disableDragRestore();

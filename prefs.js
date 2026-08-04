@@ -911,6 +911,15 @@ export default class KiwiPreferences extends ExtensionPreferences {
             clearIconButton.visible = path !== '';
         });
 
+        const dockStylingGroup = new Adw.PreferencesGroup({
+            title: _('Styling'),
+        });
+        dockPage.add(dockStylingGroup);
+
+        this._addSwitchRows(settings, dockStylingGroup, [
+            { key: 'dock-styling', title: _("Dock Styling"), subtitle: _("Tighten icon spacing, drop the icon highlight and darken icons while pressed") },
+        ]);
+
         //
         // Advanced Page
         //

@@ -369,41 +369,63 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 /*###############################################*/
 
 /* Bottom dock - normal mode: reduce margins between icon containers */
-#dashtodockContainer.bottom #dash .dash-item-container {
-  margin: 0 1px !important; /* Reduced from 0 2px */
+#dashtodockContainer.kiwi-dock-styled.bottom #dash .dash-item-container {
+  margin: 0 !important; /* Reduced from 0 2px */
 }
 
-/* Bottom dock - normal mode: reduce padding around individual icons */
-#dashtodockContainer.bottom #dash .dash-item-container .app-well-app,
-#dashtodockContainer.bottom #dash .dash-item-container .show-apps,
-#dashtodockContainer.bottom #dash .dash-item-container .overview-tile {
-  padding: 1px 1px !important; /* Reduced from 2px 2px */
-  padding-bottom: 12px !important; /* Reduced from 14px */
-  padding-top: 8px !important; /* Reduced from 10px */
+/* Bottom dock - normal mode: reduce padding around individual icons. The shell
+   theme puts a 0 2px margin on the icon buttons themselves too. */
+#dashtodockContainer.kiwi-dock-styled.bottom #dash .dash-item-container .app-well-app,
+#dashtodockContainer.kiwi-dock-styled.bottom #dash .dash-item-container .show-apps,
+#dashtodockContainer.kiwi-dock-styled.bottom #dash .dash-item-container .overview-tile {
+  margin: 0 !important; /* Reduced from 0 2px */
+  padding-left: 0 !important; /* Reduced from 2px */
+  padding-right: 0 !important; /* Reduced from 2px */
+  /* 12px/8px plus the 3px a side the icon box no longer pads with, so the dock
+     keeps its height and the icons keep sitting where they did */
+  padding-bottom: 15px !important;
+  padding-top: 11px !important;
 }
 
 /* Bottom dock - shrink mode: even tighter spacing */
-#dashtodockContainer.bottom.shrink #dash .dash-item-container {
-  margin: 0 0px !important; /* Reduced from 0 2px */
+#dashtodockContainer.kiwi-dock-styled.bottom.shrink #dash .dash-item-container {
+  margin: 0 !important; /* Reduced from 0 2px */
 }
 
-#dashtodockContainer.bottom.shrink #dash .dash-item-container .app-well-app,
-#dashtodockContainer.bottom.shrink #dash .dash-item-container .show-apps,
-#dashtodockContainer.bottom.shrink #dash .dash-item-container .overview-tile {
-  padding: 0px 0px !important; /* Reduced from 1px 1px */
-  padding-bottom: 5px !important; /* Reduced from 7px */
-  padding-top: 2px !important; /* Reduced from 3px */
+#dashtodockContainer.kiwi-dock-styled.bottom.shrink #dash .dash-item-container .app-well-app,
+#dashtodockContainer.kiwi-dock-styled.bottom.shrink #dash .dash-item-container .show-apps,
+#dashtodockContainer.kiwi-dock-styled.bottom.shrink #dash .dash-item-container .overview-tile {
+  margin: 0 !important; /* Reduced from 0 2px */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 8px !important; /* 5px plus the icon box's 3px */
+  padding-top: 5px !important; /* 2px plus the icon box's 3px */
+}
+
+/* No highlight behind the icons in any state - hover, keyboard focus, click and
+   the Dash-to-Dock focused-app state. Click feedback is the darken effect from
+   apps/dockStyling.js instead.
+
+   .overview-icon is a Shell.SquareBin, so its width follows its height: side
+   padding alone leaves the box as wide as before, and this padding is therefore
+   the only lever on the gap between icons. It doubles as the clearance the
+   running dot sits in - the dot is aligned to the bottom of this box, so at 0 it
+   lands on the icon art. 3px puts the pitch within a pixel of macOS. */
+#dashtodockContainer.kiwi-dock-styled #dash .dash-item-container .overview-icon {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 3px !important; /* Reduced from 6px */
 }
 
 /* Reduce overall dash container padding */
-#dashtodockContainer.bottom #dash #dashtodockDashContainer {
+#dashtodockContainer.kiwi-dock-styled.bottom #dash #dashtodockDashContainer {
   padding-left: 4px !important;
   padding-right: 4px !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
 
-#dashtodockContainer.bottom.shrink #dash #dashtodockDashContainer {
+#dashtodockContainer.kiwi-dock-styled.bottom.shrink #dash #dashtodockDashContainer {
   padding-left: 2px !important;
   padding-right: 2px !important;
   padding-top: 0 !important;
