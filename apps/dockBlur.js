@@ -81,6 +81,10 @@ function _disconnectRepaintSignals() {
     }
 }
 
+function _hasValidAllocation(actor) {
+    return actor && actor.has_allocation() && actor.width > 0 && actor.height > 0;
+}
+
 function _findDockContainers() {
     // Dash-to-Dock adds containers with name 'dashtodockContainer' to Main.uiGroup
     return Main.uiGroup.get_children().filter(child =>
@@ -148,6 +152,14 @@ function _tryBlurDock(dockContainer) {
     // Size and position the blur and border widgets to match the dash-background
     const updateSize = () => {
         if (!blurWidget || !dashBackground) return;
+        // Before an actor is allocated, width/height report the *natural* size
+        // instead of the allocation — for the dash-background that is a few
+        // pixels tall, which is where the slim blur strip came from. Wait for a
+        // real allocation instead of baking in the wrong geometry.
+        if (!_hasValidAllocation(dash) || !_hasValidAllocation(dashBackground)) {
+            retryUpdateSize();
+            return;
+        }
         const w = dashBackground.width;
         const h = dashBackground.height;
         const x = dashBackground.x;
@@ -156,22 +168,39 @@ function _tryBlurDock(dockContainer) {
         blurWidget.set_position(x, y);
         borderWidget.set_size(w, h);
         borderWidget.set_position(x, y);
+        retryAttempts = 0;
         _scheduleBlurRepaint();
     };
-    updateSize();
 
     // Resizing our widgets straight from a layout notification re-enters the
     // layout phase and makes the shell warn about actors needing an
-    // allocation. Coalesce into an idle so it runs after layout settles.
-    let updateIdleId = 0;
+    // allocation. Defer with a compositor later: a GLib idle has a higher
+    // priority than the relayout, so it would run before the allocation it is
+    // waiting for.
+    let updateLaterId = 0;
     const queueUpdateSize = () => {
-        if (updateIdleId) return;
-        updateIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-            updateIdleId = 0;
+        if (updateLaterId) return;
+        updateLaterId = global.compositor.get_laters().add(Meta.LaterType.IDLE, () => {
+            updateLaterId = 0;
             updateSize();
             return GLib.SOURCE_REMOVE;
         });
     };
+
+    // A relayout that ends up with the same allocation emits no notify, so a
+    // read taken too early would never be corrected — retry until allocated.
+    let retryId = 0;
+    let retryAttempts = 0;
+    const retryUpdateSize = () => {
+        if (retryId || retryAttempts >= 25) return;
+        retryAttempts++;
+        retryId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+            retryId = 0;
+            queueUpdateSize();
+            return GLib.SOURCE_REMOVE;
+        });
+    };
+    queueUpdateSize();
 
     const signals = [];
     // Allocation signals catch geometry settling that the x/y/width/height
@@ -200,9 +229,13 @@ function _tryBlurDock(dockContainer) {
         signals,
         destroyId: null,
         cancelUpdate: () => {
-            if (updateIdleId) {
-                GLib.Source.remove(updateIdleId);
-                updateIdleId = 0;
+            if (updateLaterId) {
+                global.compositor.get_laters().remove(updateLaterId);
+                updateLaterId = 0;
+            }
+            if (retryId) {
+                GLib.Source.remove(retryId);
+                retryId = 0;
             }
         },
     };
