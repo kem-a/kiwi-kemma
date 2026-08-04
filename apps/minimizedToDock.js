@@ -7,6 +7,7 @@
 // the macOS order (apps | minimized windows | trash) without reimplementing it.
 
 import Clutter from 'gi://Clutter';
+import Cogl from 'gi://Cogl';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -157,30 +158,55 @@ function _holdGeometry(win) {
 
 /* ------------------------------------------------------------------ tiles */
 
-// Alpha to zero outside the corner arcs, with a half-pixel feather so the
-// curve does not stair-step. Clutter binds the source texture to 'tex' itself.
+const CORNER_UNIFORMS = `
+    uniform float width;
+    uniform float height;
+    uniform float radius;
+`;
+// Alpha to zero outside the corner arcs, with a half-pixel feather so the curve
+// does not stair-step. Leaves the coverage in 'a'.
+const CORNER_COVERAGE = `
+    vec2 size = vec2(width, height);
+    vec2 uv = cogl_tex_coord_in[0].xy;
+    // How far the pixel reaches past the corner arc, 0 while inside
+    vec2 d = max(vec2(radius) - min(uv * size, size - uv * size), vec2(0.0));
+    float a = clamp(radius - length(d) + 0.5, 0.0, 1.0);
+`;
+
+// GNOME 48-50, where the effect replaces the fragment program outright and
+// Clutter binds the source texture to 'tex' itself.
 const RoundedCornersEffect = GObject.registerClass(
 class RoundedCornersEffect extends Clutter.ShaderEffect {
     constructor() {
         super();
         this.set_shader_source(`
             uniform sampler2D tex;
-            uniform float width;
-            uniform float height;
-            uniform float radius;
+            ${CORNER_UNIFORMS}
 
             void main() {
-                vec2 size = vec2(width, height);
-                vec2 uv = cogl_tex_coord_in[0].xy;
-                // How far the pixel reaches past the corner arc, 0 while inside
-                vec2 d = max(vec2(radius) - min(uv * size, size - uv * size),
-                             vec2(0.0));
-                float a = clamp(radius - length(d) + 0.5, 0.0, 1.0);
+                ${CORNER_COVERAGE}
                 cogl_color_out = texture2D(tex, uv) * a;
             }
         `);
     }
 });
+
+/**
+ * GNOME 51 dropped Clutter.ShaderEffect.set_shader_source: a shader effect is
+ * now built from a Cogl snippet, which hooks into the pipeline instead of
+ * replacing it. The fragment stage has therefore already sampled the actor into
+ * cogl_color_out by the time the snippet runs, and all it has to do is scale it.
+ */
+function _newRoundedCornersEffect() {
+    if (Clutter.ShaderEffect.prototype.set_shader_source)
+        return new RoundedCornersEffect();
+
+    return Clutter.ShaderEffect.new_with_snippet(
+        Cogl.Snippet.new(Cogl.SnippetHook.FRAGMENT, CORNER_UNIFORMS, `
+            ${CORNER_COVERAGE}
+            cogl_color_out *= a;
+        `));
+}
 
 function _scaleFactor() {
     return St.ThemeContext.get_for_stage(global.stage).scaleFactor;
@@ -202,7 +228,7 @@ function _tileBox(dash) {
  * @param actor the thumbnail actor, already at its final size
  */
 function _roundCorners(actor) {
-    const effect = new RoundedCornersEffect();
+    const effect = _newRoundedCornersEffect();
     actor.add_effect(effect);
 
     const { width, height } = actor;
