@@ -42,6 +42,7 @@ import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './
 import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
 import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } from './apps/minimizedToDock.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
+import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
 
 export default class KiwiExtension extends Extension {
     constructor(metadata) {
@@ -132,9 +133,16 @@ export default class KiwiExtension extends Extension {
         }
 
         if (this._settings.get_boolean('show-window-title')) {
-            windowTitleEnable();
+            windowTitleEnable(this);
         } else {
             windowTitleDisable();
+        }
+
+        if (this._settings.get_boolean('show-window-title') &&
+            this._settings.get_boolean('show-tiling-title-menu')) {
+            enableDragRestore();
+        } else {
+            disableDragRestore();
         }
 
         if (this._settings.get_boolean('show-window-controls')) {
@@ -279,6 +287,7 @@ export default class KiwiExtension extends Extension {
         dockBlurDisable();
         minimizedToDockDisable();
         reduceWindowAnimationsDisable();
+        disableDragRestore();
         this._settings = null;
     }
 }

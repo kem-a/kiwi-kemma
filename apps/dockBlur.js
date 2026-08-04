@@ -160,21 +160,34 @@ function _tryBlurDock(dockContainer) {
     };
     updateSize();
 
+    // Resizing our widgets straight from a layout notification re-enters the
+    // layout phase and makes the shell warn about actors needing an
+    // allocation. Coalesce into an idle so it runs after layout settles.
+    let updateIdleId = 0;
+    const queueUpdateSize = () => {
+        if (updateIdleId) return;
+        updateIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            updateIdleId = 0;
+            updateSize();
+            return GLib.SOURCE_REMOVE;
+        });
+    };
+
     const signals = [];
     // Allocation signals catch geometry settling that the x/y/width/height
     // notifications can miss (dock created mid-layout, resume from sleep).
-    signals.push({ actor: dash, id: dash.connect('notify::allocation', updateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::allocation', updateSize) });
-    signals.push({ actor: dash, id: dash.connect('notify::width', updateSize) });
-    signals.push({ actor: dash, id: dash.connect('notify::height', updateSize) });
-    signals.push({ actor: dash, id: dash.connect('notify::y', updateSize) });
-    signals.push({ actor: dash, id: dash.connect('notify::x', updateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::width', updateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::height', updateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::x', updateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::y', updateSize) });
-    signals.push({ actor: dockContainer, id: dockContainer.connect('notify::width', updateSize) });
-    signals.push({ actor: dockContainer, id: dockContainer.connect('notify::height', updateSize) });
+    signals.push({ actor: dash, id: dash.connect('notify::allocation', queueUpdateSize) });
+    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::allocation', queueUpdateSize) });
+    signals.push({ actor: dash, id: dash.connect('notify::width', queueUpdateSize) });
+    signals.push({ actor: dash, id: dash.connect('notify::height', queueUpdateSize) });
+    signals.push({ actor: dash, id: dash.connect('notify::y', queueUpdateSize) });
+    signals.push({ actor: dash, id: dash.connect('notify::x', queueUpdateSize) });
+    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::width', queueUpdateSize) });
+    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::height', queueUpdateSize) });
+    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::x', queueUpdateSize) });
+    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::y', queueUpdateSize) });
+    signals.push({ actor: dockContainer, id: dockContainer.connect('notify::width', queueUpdateSize) });
+    signals.push({ actor: dockContainer, id: dockContainer.connect('notify::height', queueUpdateSize) });
 
     const info = {
         dockContainer,
@@ -186,6 +199,12 @@ function _tryBlurDock(dockContainer) {
         blurEffect,
         signals,
         destroyId: null,
+        cancelUpdate: () => {
+            if (updateIdleId) {
+                GLib.Source.remove(updateIdleId);
+                updateIdleId = 0;
+            }
+        },
     };
 
     // Auto-cleanup if the dash is destroyed (user disables dock extension)
@@ -199,6 +218,8 @@ function _tryBlurDock(dockContainer) {
 }
 
 function _removeDashBlur(info, disconnectDestroy = true) {
+    info.cancelUpdate();
+
     // Disconnect size signals
     for (const { actor, id } of info.signals) {
         try { actor.disconnect(id); } catch (_) {}
