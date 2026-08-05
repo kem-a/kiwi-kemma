@@ -658,34 +658,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         window.add(panelPage);
 
-        const windowTitleGroup = new Adw.PreferencesGroup();
-        panelPage.add(windowTitleGroup);
-
-        // Tiling lives under the window title because the layouts are reached from its
-        // menu; without the title in the panel there is no way to open them.
-        const windowTitleExpander = new Adw.ExpanderRow({
-            title: _("Show Window Title"),
-            subtitle: _("Display current window title in the top panel"),
-            expanded: settings.get_boolean('show-window-title') &&
-                settings.get_boolean('show-tiling-title-menu'),
-            show_enable_switch: true,
-            enable_expansion: settings.get_boolean('show-window-title'),
-        });
-        windowTitleGroup.add(windowTitleExpander);
-
-        windowTitleExpander.connect('notify::enable-expansion', () => {
-            const v = windowTitleExpander.enable_expansion;
-            if (settings.get_boolean('show-window-title') !== v)
-                settings.set_boolean('show-window-title', v);
-        });
-
-        const tilingTitleMenuRow = new Adw.SwitchRow({
-            title: _("Window Tiling"),
-            subtitle: _("Add tiling layouts to the window title menu, and restore tiled windows by dragging their titlebar"),
-        });
-        windowTitleExpander.add_row(tilingTitleMenuRow);
-        settings.bind('show-tiling-title-menu', tilingTitleMenuRow, 'active', Gio.SettingsBindFlags.DEFAULT);
-
         const transparencyGroup = new Adw.PreferencesGroup({
             title: _('Panel Transparency'),
             description: _('Configure panel transparency and appearance'),
@@ -773,11 +745,47 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('panel-color-inherit', panelColorFixRow, 'active',
             Gio.SettingsBindFlags.DEFAULT);
 
-        const panelBehaviorGroup = new Adw.PreferencesGroup();
-        panelPage.add(panelBehaviorGroup);
+        const windowTitleGroup = new Adw.PreferencesGroup();
+        panelPage.add(windowTitleGroup);
 
-        this._addSwitchRows(settings, panelBehaviorGroup, [
+        // Tiling lives under the window title because the layouts are reached from its
+        // menu; without the title in the panel there is no way to open them.
+        const windowTitleExpander = new Adw.ExpanderRow({
+            title: _("Show Window Title"),
+            subtitle: _("Display current window title in the top panel"),
+            expanded: settings.get_boolean('show-window-title') &&
+                settings.get_boolean('show-tiling-title-menu'),
+            show_enable_switch: true,
+            enable_expansion: settings.get_boolean('show-window-title'),
+        });
+        windowTitleGroup.add(windowTitleExpander);
+
+        windowTitleExpander.connect('notify::enable-expansion', () => {
+            const v = windowTitleExpander.enable_expansion;
+            if (settings.get_boolean('show-window-title') !== v)
+                settings.set_boolean('show-window-title', v);
+        });
+
+        const tilingTitleMenuRow = new Adw.SwitchRow({
+            title: _("Window Tiling"),
+            subtitle: _("Add tiling layouts to the window title menu, and restore tiled windows by dragging their titlebar"),
+        });
+        windowTitleExpander.add_row(tilingTitleMenuRow);
+        settings.bind('show-tiling-title-menu', tilingTitleMenuRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        this._addSwitchRows(settings, windowTitleGroup, [
             { key: 'panel-hover-fullscreen', title: _("Show Panel in Fullscreen on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
+        ]);
+
+        const panelStylingGroup = new Adw.PreferencesGroup({
+            title: _('Styling'),
+            description: _('Restyle stock GNOME Shell elements and GTK apps. Log out and back in for changes to take effect'),
+        });
+        panelPage.add(panelStylingGroup);
+
+        this._addSwitchRows(settings, panelStylingGroup, [
+            { key: 'panel-styling', title: _("Panel Styling"), subtitle: _("Tighter button spacing, bold titles, smaller status icons, no dropdown arrows and a transparent panel in the overview") },
+            { key: 'popup-menu-styling', title: _("Menu and App Styling"), subtitle: _("Taller shell menu items with accent-colored hover and selection, plus the GTK app fixes") },
         ]);
 
         //

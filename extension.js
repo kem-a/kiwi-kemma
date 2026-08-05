@@ -28,6 +28,7 @@ import { enable as windowTitleEnable, disable as windowTitleDisable } from './ap
 import { enable as windowControlsEnable, disable as windowControlsDisable } from './apps/windowControls.js';
 import { enable as panelHoverEnable, disable as panelHoverDisable } from './apps/panelHover.js';
 import { enable as panelTransparencyEnable, disable as panelTransparencyDisable } from './apps/panelTransparency.js';
+import { enable as panelStylingEnable, disable as panelStylingDisable, enableMenus as popupStylingEnable, disableMenus as popupStylingDisable } from './apps/panelStyling.js';
 import { enable as hideMinimizedWindowsEnable, disable as hideMinimizedWindowsDisable } from './apps/hideMinimizedWindows.js';
 import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } from './apps/gtkThemeManager.js';
 import { enable as firefoxThemeManagerEnable, disable as firefoxThemeManagerDisable } from './apps/firefoxThemeManager.js';
@@ -164,6 +165,18 @@ export default class KiwiExtension extends Extension {
             panelTransparencyDisable();
         }
 
+        if (this._settings.get_boolean('panel-styling')) {
+            panelStylingEnable();
+        } else {
+            panelStylingDisable();
+        }
+
+        if (this._settings.get_boolean('popup-menu-styling')) {
+            popupStylingEnable();
+        } else {
+            popupStylingDisable();
+        }
+
         const minimizeToDock = this._settings.get_boolean('minimize-to-dock');
 
         // A window parked in the dock should not also show up in the overview
@@ -280,6 +293,8 @@ export default class KiwiExtension extends Extension {
         windowControlsDisable();
         panelHoverDisable();
         panelTransparencyDisable();
+        panelStylingDisable();
+        popupStylingDisable();
         hideMinimizedWindowsDisable();
         hideActivitiesButtonDisable();
         overviewWallpaperDisable();

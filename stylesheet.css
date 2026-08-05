@@ -43,8 +43,11 @@
 /*                Top Panel                      */
 /*###############################################*/
 
+/* Everything here is behind .kiwi-panel-styled, added to the panel by
+   apps/panelStyling.js when the "Panel Styling" option is on. */
+
 /* Panel base styles */
-#panel {
+#panel.kiwi-panel-styled {
   font-weight: 500;
   /* Remove transition-duration from here, we'll handle it in overview state */
   box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
@@ -66,85 +69,85 @@
   background-color: black;
 }
 
-#panel .panel-button {
+#panel.kiwi-panel-styled .panel-button {
   -natural-hpadding: 8px; /*default 12*/
   -minimum-hpadding: 4px; /*default 12*/
   transition-duration: 150ms;
 }
 
-#panel .panel-button,
-#panel .panel-button:hover,
-#panel .panel-button:active,
-#panel .panel-button:focus,
-#panel .panel-button:checked {
+#panel.kiwi-panel-styled .panel-button,
+#panel.kiwi-panel-styled .panel-button:hover,
+#panel.kiwi-panel-styled .panel-button:active,
+#panel.kiwi-panel-styled .panel-button:focus,
+#panel.kiwi-panel-styled .panel-button:checked {
   text-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
 }
 
-#panel .panel-button .system-status-icon,
-#panel .panel-button .app-menu-icon > StIcon,
-#panel .panel-button .popup-menu-arrow,
-#panel .panel-button:hover .system-status-icon,
-#panel .panel-button:hover .app-menu-icon > StIcon,
-#panel .panel-button:hover .popup-menu-arrow,
-#panel .panel-button:active .system-status-icon,
-#panel .panel-button:active .app-menu-icon > StIcon,
-#panel .panel-button:active .popup-menu-arrow,
-#panel .panel-button:focus .system-status-icon,
-#panel .panel-button:focus .app-menu-icon > StIcon,
-#panel .panel-button:focus .popup-menu-arrow,
-#panel .panel-button:checked .system-status-icon,
-#panel .panel-button:checked .app-menu-icon > StIcon,
-#panel .panel-button:checked .popup-menu-arrow {
+#panel.kiwi-panel-styled .panel-button .system-status-icon,
+#panel.kiwi-panel-styled .panel-button .app-menu-icon > StIcon,
+#panel.kiwi-panel-styled .panel-button .popup-menu-arrow,
+#panel.kiwi-panel-styled .panel-button:hover .system-status-icon,
+#panel.kiwi-panel-styled .panel-button:hover .app-menu-icon > StIcon,
+#panel.kiwi-panel-styled .panel-button:hover .popup-menu-arrow,
+#panel.kiwi-panel-styled .panel-button:active .system-status-icon,
+#panel.kiwi-panel-styled .panel-button:active .app-menu-icon > StIcon,
+#panel.kiwi-panel-styled .panel-button:active .popup-menu-arrow,
+#panel.kiwi-panel-styled .panel-button:focus .system-status-icon,
+#panel.kiwi-panel-styled .panel-button:focus .app-menu-icon > StIcon,
+#panel.kiwi-panel-styled .panel-button:focus .popup-menu-arrow,
+#panel.kiwi-panel-styled .panel-button:checked .system-status-icon,
+#panel.kiwi-panel-styled .panel-button:checked .app-menu-icon > StIcon,
+#panel.kiwi-panel-styled .panel-button:checked .popup-menu-arrow {
   icon-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
 }
 
-#panel .panel-button .popup-menu-arrow {
+#panel.kiwi-panel-styled .panel-button .popup-menu-arrow {
   width: 0;
   height: 0;
 }
 
-#panel .panel-button .system-status-icon {
+#panel.kiwi-panel-styled .panel-button .system-status-icon {
   icon-size: 16px;
   padding: 4px;
   margin: 0;
 }
 
-#panel .panel-button .panel-status-menu-box StLabel {
+#panel.kiwi-panel-styled .panel-button .panel-status-menu-box StLabel {
   padding-left: 2px;
 }
 
-#panel .panel-button .appindicator-trayicons-box {
+#panel.kiwi-panel-styled .panel-button .appindicator-trayicons-box {
   margin: 0 4px;
 }
 
-#panel .panel-button .app-menu-icon {
+#panel.kiwi-panel-styled .panel-button .app-menu-icon {
   -st-icon-style: symbolic;
   padding: 0 4px;
 }
 
-#panel Gjs_AggregateMenu.panel-button .system-status-icon,
-#panel Gjs_ui_panel_AggregateMenu.panel-button .system-status-icon,
-#panel Gjs_ui_panel_QuickSettings.panel-button .system-status-icon {
+#panel.kiwi-panel-styled Gjs_AggregateMenu.panel-button .system-status-icon,
+#panel.kiwi-panel-styled Gjs_ui_panel_AggregateMenu.panel-button .system-status-icon,
+#panel.kiwi-panel-styled Gjs_ui_panel_QuickSettings.panel-button .system-status-icon {
   margin: 0 2px !important;
 }
 
-#panel Gjs_ui_panel_AppMenuButton.panel-button,
-#panel .desktop-name-label {
+#panel.kiwi-panel-styled Gjs_ui_panel_AppMenuButton.panel-button,
+#panel.kiwi-panel-styled .desktop-name-label {
   font-weight: bold !important;
 }
 
-#panel Gjs_ui_dateMenu_DateMenuButton.panel-button {
+#panel.kiwi-panel-styled Gjs_ui_dateMenu_DateMenuButton.panel-button {
   -natural-hpadding: 0px !important;
   -minimum-hpadding: 0px !important;
 }
 
-#panel Gjs_ui_dateMenu_DateMenuButton StLabel {
+#panel.kiwi-panel-styled Gjs_ui_dateMenu_DateMenuButton StLabel {
   padding-left: 10px;
   padding-right: 10px;
 }
 
 /* Overview mode styles */
-#panel:overview {
+#panel.kiwi-panel-styled:overview {
   background-color: transparent !important;
   background: transparent !important;
   font-weight: normal;
@@ -153,24 +156,24 @@
   transition-duration: 200ms;
 }
 
-#panel:overview .panel-button,
-#panel:overview .panel-button:hover,
-#panel:overview .panel-button:active,
-#panel:overview .panel-button:focus,
-#panel:overview .panel-button:checked {
+#panel.kiwi-panel-styled:overview .panel-button,
+#panel.kiwi-panel-styled:overview .panel-button:hover,
+#panel.kiwi-panel-styled:overview .panel-button:active,
+#panel.kiwi-panel-styled:overview .panel-button:focus,
+#panel.kiwi-panel-styled:overview .panel-button:checked {
   text-shadow: none;
 }
 
-#panel:overview .panel-button .system-status-icon,
-#panel:overview .panel-button .app-menu-icon > StIcon,
-#panel:overview .panel-button .popup-menu-arrow {
+#panel.kiwi-panel-styled:overview .panel-button .system-status-icon,
+#panel.kiwi-panel-styled:overview .panel-button .app-menu-icon > StIcon,
+#panel.kiwi-panel-styled:overview .panel-button .popup-menu-arrow {
   icon-shadow: none;
 }
 
-#panel:overview .window-title,
-#panel:overview .window-title StLabel,
-#panel:overview Gjs_ui_panel_AppMenuButton.panel-button,
-#panel:overview .desktop-name-label {
+#panel.kiwi-panel-styled:overview .window-title,
+#panel.kiwi-panel-styled:overview .window-title StLabel,
+#panel.kiwi-panel-styled:overview Gjs_ui_panel_AppMenuButton.panel-button,
+#panel.kiwi-panel-styled:overview .desktop-name-label {
   font-weight: normal !important;
 }
 
@@ -324,19 +327,23 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 /*          Popup Menu Accent Styling           */
 /*###############################################*/
 
-.popup-menu .popup-menu-item {
+/* These reach every shell menu, not just Kiwi's, so they hang off
+   .kiwi-popup-styled, which apps/panelStyling.js puts on the UI group when the
+   "Popup Menu Styling" option is on. */
+
+.kiwi-popup-styled .popup-menu .popup-menu-item {
   padding-top: 6px;
   padding-bottom: 6px;
 }
 
-.popup-menu .popup-menu-item:hover,
-.popup-menu .popup-menu-item:active,
-.popup-menu .popup-menu-item.selected {
+.kiwi-popup-styled .popup-menu .popup-menu-item:hover,
+.kiwi-popup-styled .popup-menu .popup-menu-item:active,
+.kiwi-popup-styled .popup-menu .popup-menu-item.selected {
   background-color: -st-accent-color;
   color: -st-accent-fg-color;
 }
 
-.popup-menu .popup-menu-item:checked {
+.kiwi-popup-styled .popup-menu .popup-menu-item:checked {
   background-color: -st-accent-color;
   color: -st-accent-fg-color;
   font-weight: bold;

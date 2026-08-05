@@ -22,6 +22,7 @@ class GtkThemeManager {
         const fullscreenOnly = this._settings.get_boolean('show-window-controls-fullscreen-only');
         const buttonType = this._settings.get_string('button-type');
         const buttonSize = this._settings.get_string('button-size');
+        const appFixes = this._settings.get_boolean('popup-menu-styling');
     
     // Define GTK 3 and GTK 4 specific content
     let gtk3Content = '';
@@ -56,9 +57,11 @@ class GtkThemeManager {
         }
     }
     
-    // Always add fixes CSS at the end
-    gtk3Content += `\n@import 'fixes3.css';\n`;
-    gtk4Content += `\n@import 'fixes4.css';\n`;
+    // Add fixes CSS at the end, unless app styling is turned off
+    if (appFixes) {
+        gtk3Content += `\n@import 'fixes3.css';\n`;
+        gtk4Content += `\n@import 'fixes4.css';\n`;
+    }
     
     // Update both GTK 3 and GTK 4 files in the icons folder
     const gtk3Path = `${extension.path}/icons/gtk3.css`;
@@ -179,7 +182,7 @@ class GtkThemeManager {
         if (!this._settings) {
             this._settings = this._extension.getSettings();
             this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
-                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls' || key === 'show-window-controls-fullscreen-only') {
+                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls' || key === 'show-window-controls-fullscreen-only' || key === 'popup-menu-styling') {
                     this.updateGtkCss().catch(error => {
                         console.error(`[Kiwi] Error in settings changed handler: ${error}`);
                     });

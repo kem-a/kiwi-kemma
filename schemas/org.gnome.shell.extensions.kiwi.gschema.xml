@@ -184,7 +184,21 @@
         <summary>Panel Blur</summary>
         <description>Apply a blur effect behind the top panel when it is transparent.</description>
       </key>
-      
+
+      <!-- Panel styling -->
+      <key name="panel-styling" type="b">
+        <default>true</default>
+        <summary>Panel Styling</summary>
+        <description>Restyle the top panel: tighter button spacing, bold titles, smaller status icons, no dropdown arrows and a transparent panel in the overview.</description>
+      </key>
+
+      <!-- Popup menu and GTK app styling -->
+      <key name="popup-menu-styling" type="b">
+        <default>true</default>
+        <summary>Menu and App Styling</summary>
+        <description>Restyle shell popup menus with taller items and accent-colored hover, selected and checked entries, and apply the GTK 3 and GTK 4 app fixes (fixes3.css, fixes4.css).</description>
+      </key>
+
       <!-- Dock styling -->
       <key name="dock-styling" type="b">
         <default>true</default>
