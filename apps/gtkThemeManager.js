@@ -63,9 +63,9 @@ class GtkThemeManager {
         gtk4Content += `\n@import 'fixes4.css';\n`;
     }
     
-    // Update both GTK 3 and GTK 4 files in the icons folder
-    const gtk3Path = `${extension.path}/icons/gtk3.css`;
-    const gtk4Path = `${extension.path}/icons/gtk4.css`;
+    // Update both GTK 3 and GTK 4 files in the css folder
+    const gtk3Path = `${extension.path}/css/gtk3.css`;
+    const gtk4Path = `${extension.path}/css/gtk4.css`;
     
     try {
         // Write to GTK 3.0 file
@@ -97,8 +97,8 @@ class GtkThemeManager {
         GLib.mkdir_with_parents(gtk4ConfigDir, 0o755);
         
         // Define the import lines
-        const gtk3ImportLine = `@import '${extension.path}/icons/gtk3.css';\n`;
-        const gtk4ImportLine = `@import '${extension.path}/icons/gtk4.css';\n`;
+        const gtk3ImportLine = `@import '${extension.path}/css/gtk3.css';\n`;
+        const gtk4ImportLine = `@import '${extension.path}/css/gtk4.css';\n`;
         
         // Paths to user GTK CSS files
         const gtk3UserPath = `${gtk3ConfigDir}/gtk.css`;

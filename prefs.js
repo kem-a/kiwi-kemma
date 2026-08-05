@@ -78,7 +78,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Ensure custom CSS for version pill is loaded once per display
         if (!window._kiwiVersionCssProvider) {
             const cssProvider = new Gtk.CssProvider();
-            const cssPath = GLib.build_filenamev([this.path, 'prefs.css']);
+            const cssPath = GLib.build_filenamev([this.path, 'css', 'prefs.css']);
             cssProvider.load_from_path(cssPath);
             const display = Gdk.Display.get_default();
             if (display)

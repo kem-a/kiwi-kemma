@@ -69,7 +69,7 @@ export class MozillaThemeManager {
             return;
 
         const ext = this._extension;
-        const iconsRoot = `${ext.path}/icons`;
+        const cssRoot = `${ext.path}/css`;
         const prefix = this._config.cssPrefix;
 
         try {
@@ -94,20 +94,20 @@ export class MozillaThemeManager {
 
             const imports = [];
             if (enableStyling && enableAppButtons) {
-                const themingPath = `${iconsRoot}/${prefix}.css`;
-                const altThemingPath = `${iconsRoot}/${prefix}.alt.css`;
+                const themingPath = `${cssRoot}/${prefix}.css`;
+                const altThemingPath = `${cssRoot}/${prefix}.alt.css`;
                 if (buttonType === 'titlebuttons-alt')
                     imports.push(`@import url("file://${altThemingPath}");`);
                 else
                     imports.push(`@import url("file://${themingPath}");`);
 
                 if (buttonSize === 'small') {
-                    const smallSizePath = `${iconsRoot}/${prefix}-size-small.css`;
+                    const smallSizePath = `${cssRoot}/${prefix}-size-small.css`;
                     imports.push(`@import url("file://${smallSizePath}");`);
                 }
             }
             if (showControlsOnPanel) {
-                const hiddenPath = `${iconsRoot}/${prefix}Hidden.css`;
+                const hiddenPath = `${cssRoot}/${prefix}Hidden.css`;
                 imports.push(`@import url("file://${hiddenPath}");`);
             }
 

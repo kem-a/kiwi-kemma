@@ -39,27 +39,27 @@
 /* Base images */
 #titlebar .titlebar-close {
   background-image: image-set(
-    url("titlebuttons/button-close.png") 1x,
-    url("titlebuttons/button-close@2.png") 2x
+    url("../icons/titlebuttons/button-close.png") 1x,
+    url("../icons/titlebuttons/button-close@2.png") 2x
   ) !important;
 }
 #titlebar .titlebar-max {
   background-image: image-set(
-    url("titlebuttons/button-maximize.png") 1x,
-    url("titlebuttons/button-maximize@2.png") 2x
+    url("../icons/titlebuttons/button-maximize.png") 1x,
+    url("../icons/titlebuttons/button-maximize@2.png") 2x
   ) !important;
 }
 #titlebar .titlebar-min {
   background-image: image-set(
-    url("titlebuttons/button-minimize.png") 1x,
-    url("titlebuttons/button-minimize@2.png") 2x
+    url("../icons/titlebuttons/button-minimize.png") 1x,
+    url("../icons/titlebuttons/button-minimize@2.png") 2x
   ) !important;
 }
 #titlebar .titlebar-restore,
 :root[sizemode="maximized"] #titlebar .titlebar-max {
   background-image: image-set(
-    url("titlebuttons/button-restore.png") 1x,
-    url("titlebuttons/button-restore@2.png") 2x
+    url("../icons/titlebuttons/button-restore.png") 1x,
+    url("../icons/titlebuttons/button-restore@2.png") 2x
   ) !important;
 }
 
@@ -73,27 +73,27 @@
 /* Per-button hover */
 #titlebar .titlebar-close:hover {
   background-image: image-set(
-    url("titlebuttons/button-close-hover.png") 1x,
-    url("titlebuttons/button-close-hover@2.png") 2x
+    url("../icons/titlebuttons/button-close-hover.png") 1x,
+    url("../icons/titlebuttons/button-close-hover@2.png") 2x
   ) !important;
 }
 #titlebar .titlebar-max:hover {
   background-image: image-set(
-    url("titlebuttons/button-maximize-hover.png") 1x,
-    url("titlebuttons/button-maximize-hover@2.png") 2x
+    url("../icons/titlebuttons/button-maximize-hover.png") 1x,
+    url("../icons/titlebuttons/button-maximize-hover@2.png") 2x
   ) !important;
 }
 #titlebar .titlebar-min:hover {
   background-image: image-set(
-    url("titlebuttons/button-minimize-hover.png") 1x,
-    url("titlebuttons/button-minimize-hover@2.png") 2x
+    url("../icons/titlebuttons/button-minimize-hover.png") 1x,
+    url("../icons/titlebuttons/button-minimize-hover@2.png") 2x
   ) !important;
 }
 #titlebar .titlebar-restore:hover,
 :root[sizemode="maximized"] #titlebar .titlebar-max:hover {
   background-image: image-set(
-    url("titlebuttons/button-restore-hover.png") 1x,
-    url("titlebuttons/button-restore-hover@2.png") 2x
+    url("../icons/titlebuttons/button-restore-hover.png") 1x,
+    url("../icons/titlebuttons/button-restore-hover@2.png") 2x
   ) !important;
 }
 
@@ -101,22 +101,22 @@
 #titlebar .titlebar-buttonbox-container:hover .titlebar-close,
 #titlebar .titlebar-buttonbox:hover .titlebar-close {
   background-image: image-set(
-    url("titlebuttons/button-close-hover.png") 1x,
-    url("titlebuttons/button-close-hover@2.png") 2x
+    url("../icons/titlebuttons/button-close-hover.png") 1x,
+    url("../icons/titlebuttons/button-close-hover@2.png") 2x
   ) !important;
 }
 #titlebar .titlebar-buttonbox-container:hover .titlebar-min,
 #titlebar .titlebar-buttonbox:hover .titlebar-min {
   background-image: image-set(
-    url("titlebuttons/button-minimize-hover.png") 1x,
-    url("titlebuttons/button-minimize-hover@2.png") 2x
+    url("../icons/titlebuttons/button-minimize-hover.png") 1x,
+    url("../icons/titlebuttons/button-minimize-hover@2.png") 2x
   ) !important;
 }
 #titlebar .titlebar-buttonbox-container:hover .titlebar-max,
 #titlebar .titlebar-buttonbox:hover .titlebar-max {
   background-image: image-set(
-    url("titlebuttons/button-maximize-hover.png") 1x,
-    url("titlebuttons/button-maximize-hover@2.png") 2x
+    url("../icons/titlebuttons/button-maximize-hover.png") 1x,
+    url("../icons/titlebuttons/button-maximize-hover@2.png") 2x
   ) !important;
 }
 #titlebar .titlebar-buttonbox-container:hover .titlebar-restore,
@@ -124,7 +124,7 @@
 :root[sizemode="maximized"] #titlebar .titlebar-buttonbox-container:hover .titlebar-max,
 :root[sizemode="maximized"] #titlebar .titlebar-buttonbox:hover .titlebar-max {
   background-image: image-set(
-    url("titlebuttons/button-restore-hover.png") 1x,
-    url("titlebuttons/button-restore-hover@2.png") 2x
+    url("../icons/titlebuttons/button-restore-hover.png") 1x,
+    url("../icons/titlebuttons/button-restore-hover@2.png") 2x
   ) !important;
 }

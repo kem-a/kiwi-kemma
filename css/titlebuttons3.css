@@ -80,15 +80,15 @@ headerbar button.titlebutton.minimize:backdrop,
 headerbar button.titlebutton.close,
 .titlebar button.titlebutton.close {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-close.png"),
-    url("titlebuttons/button-close@2.png")
+    url("../icons/titlebuttons/button-close.png"),
+    url("../icons/titlebuttons/button-close@2.png")
   );
 }
 headerbar button.titlebutton.close:backdrop,
 .titlebar button.titlebutton.close:backdrop {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-close-backdrop.png"),
-    url("titlebuttons/button-close-backdrop@2.png")
+    url("../icons/titlebuttons/button-close-backdrop.png"),
+    url("../icons/titlebuttons/button-close-backdrop@2.png")
   );
 }
 /* per-button hover */
@@ -97,8 +97,8 @@ headerbar button.titlebutton.close:hover,
 headerbar button.titlebutton.close:backdrop:hover,
 .titlebar button.titlebutton.close:backdrop:hover {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-close-hover.png"),
-    url("titlebuttons/button-close-hover@2.png")
+    url("../icons/titlebuttons/button-close-hover.png"),
+    url("../icons/titlebuttons/button-close-hover@2.png")
   );
 }
 
@@ -106,15 +106,15 @@ headerbar button.titlebutton.close:backdrop:hover,
 headerbar button.titlebutton.minimize,
 .titlebar button.titlebutton.minimize {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-minimize.png"),
-    url("titlebuttons/button-minimize@2.png")
+    url("../icons/titlebuttons/button-minimize.png"),
+    url("../icons/titlebuttons/button-minimize@2.png")
   );
 }
 headerbar button.titlebutton.minimize:backdrop,
 .titlebar button.titlebutton.minimize:backdrop {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-minimize-backdrop.png"),
-    url("titlebuttons/button-minimize-backdrop@2.png")
+    url("../icons/titlebuttons/button-minimize-backdrop.png"),
+    url("../icons/titlebuttons/button-minimize-backdrop@2.png")
   );
 }
 headerbar button.titlebutton.minimize:hover,
@@ -122,8 +122,8 @@ headerbar button.titlebutton.minimize:hover,
 headerbar button.titlebutton.minimize:backdrop:hover,
 .titlebar button.titlebutton.minimize:backdrop:hover {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-minimize-hover.png"),
-    url("titlebuttons/button-minimize-hover@2.png")
+    url("../icons/titlebuttons/button-minimize-hover.png"),
+    url("../icons/titlebuttons/button-minimize-hover@2.png")
   );
 }
 
@@ -131,15 +131,15 @@ headerbar button.titlebutton.minimize:backdrop:hover,
 headerbar button.titlebutton.maximize,
 .titlebar button.titlebutton.maximize {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-maximize.png"),
-    url("titlebuttons/button-maximize@2.png")
+    url("../icons/titlebuttons/button-maximize.png"),
+    url("../icons/titlebuttons/button-maximize@2.png")
   );
 }
 headerbar button.titlebutton.maximize:backdrop,
 .titlebar button.titlebutton.maximize:backdrop {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-maximize-backdrop.png"),
-    url("titlebuttons/button-maximize-backdrop@2.png")
+    url("../icons/titlebuttons/button-maximize-backdrop.png"),
+    url("../icons/titlebuttons/button-maximize-backdrop@2.png")
   );
 }
 headerbar button.titlebutton.maximize:hover,
@@ -147,8 +147,8 @@ headerbar button.titlebutton.maximize:hover,
 headerbar button.titlebutton.maximize:backdrop:hover,
 .titlebar button.titlebutton.maximize:backdrop:hover {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-maximize-hover.png"),
-    url("titlebuttons/button-maximize-hover@2.png")
+    url("../icons/titlebuttons/button-maximize-hover.png"),
+    url("../icons/titlebuttons/button-maximize-hover@2.png")
   );
 }
 
@@ -156,15 +156,15 @@ headerbar button.titlebutton.maximize:backdrop:hover,
 headerbar button.titlebutton.restore,
 .titlebar button.titlebutton.restore {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-restore.png"),
-    url("titlebuttons/button-restore@2.png")
+    url("../icons/titlebuttons/button-restore.png"),
+    url("../icons/titlebuttons/button-restore@2.png")
   );
 }
 headerbar button.titlebutton.restore:backdrop,
 .titlebar button.titlebutton.restore:backdrop {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-restore-backdrop.png"),
-    url("titlebuttons/button-restore-backdrop@2.png")
+    url("../icons/titlebuttons/button-restore-backdrop.png"),
+    url("../icons/titlebuttons/button-restore-backdrop@2.png")
   );
 }
 headerbar button.titlebutton.restore:hover,
@@ -172,8 +172,8 @@ headerbar button.titlebutton.restore:hover,
 headerbar button.titlebutton.restore:backdrop:hover,
 .titlebar button.titlebutton.restore:backdrop:hover {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-restore-hover.png"),
-    url("titlebuttons/button-restore-hover@2.png")
+    url("../icons/titlebuttons/button-restore-hover.png"),
+    url("../icons/titlebuttons/button-restore-hover@2.png")
   );
 }
 
@@ -183,8 +183,8 @@ headerbar.titlebuttons-hover button.titlebutton.close,
 headerbar box.titlebuttons-hover button.titlebutton.close,
 .titlebar box.titlebuttons-hover button.titlebutton.close {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-close-hover.png"),
-    url("titlebuttons/button-close-hover@2.png")
+    url("../icons/titlebuttons/button-close-hover.png"),
+    url("../icons/titlebuttons/button-close-hover@2.png")
   );
 }
 headerbar.titlebuttons-hover button.titlebutton.minimize,
@@ -192,8 +192,8 @@ headerbar.titlebuttons-hover button.titlebutton.minimize,
 headerbar box.titlebuttons-hover button.titlebutton.minimize,
 .titlebar box.titlebuttons-hover button.titlebutton.minimize {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-minimize-hover.png"),
-    url("titlebuttons/button-minimize-hover@2.png")
+    url("../icons/titlebuttons/button-minimize-hover.png"),
+    url("../icons/titlebuttons/button-minimize-hover@2.png")
   );
 }
 headerbar.titlebuttons-hover button.titlebutton.maximize,
@@ -201,8 +201,8 @@ headerbar.titlebuttons-hover button.titlebutton.maximize,
 headerbar box.titlebuttons-hover button.titlebutton.maximize,
 .titlebar box.titlebuttons-hover button.titlebutton.maximize {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-maximize-hover.png"),
-    url("titlebuttons/button-maximize-hover@2.png")
+    url("../icons/titlebuttons/button-maximize-hover.png"),
+    url("../icons/titlebuttons/button-maximize-hover@2.png")
   );
 }
 /* when the button is in restore mode and the box is hovered */
@@ -211,8 +211,8 @@ headerbar.titlebuttons-hover button.titlebutton.restore,
 headerbar box.titlebuttons-hover button.titlebutton.restore,
 .titlebar box.titlebuttons-hover button.titlebutton.restore {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-restore-hover.png"),
-    url("titlebuttons/button-restore-hover@2.png")
+    url("../icons/titlebuttons/button-restore-hover.png"),
+    url("../icons/titlebuttons/button-restore-hover@2.png")
   );
 }
 
@@ -224,8 +224,8 @@ headerbar.titlebuttons-hover button.titlebutton.close:active,
 headerbar box.titlebuttons-hover button.titlebutton.close:active,
 .titlebar box.titlebuttons-hover button.titlebutton.close:active {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-close-active.png"),
-    url("titlebuttons/button-close-active@2.png")
+    url("../icons/titlebuttons/button-close-active.png"),
+    url("../icons/titlebuttons/button-close-active@2.png")
   );
 }
 
@@ -236,8 +236,8 @@ headerbar.titlebuttons-hover button.titlebutton.minimize:active,
 headerbar box.titlebuttons-hover button.titlebutton.minimize:active,
 .titlebar box.titlebuttons-hover button.titlebutton.minimize:active {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-minimize-active.png"),
-    url("titlebuttons/button-minimize-active@2.png")
+    url("../icons/titlebuttons/button-minimize-active.png"),
+    url("../icons/titlebuttons/button-minimize-active@2.png")
   );
 }
 
@@ -248,8 +248,8 @@ headerbar.titlebuttons-hover button.titlebutton.maximize:active,
 headerbar box.titlebuttons-hover button.titlebutton.maximize:active,
 .titlebar box.titlebuttons-hover button.titlebutton.maximize:active {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-maximize-active.png"),
-    url("titlebuttons/button-maximize-active@2.png")
+    url("../icons/titlebuttons/button-maximize-active.png"),
+    url("../icons/titlebuttons/button-maximize-active@2.png")
   );
 }
 
@@ -260,7 +260,7 @@ headerbar.titlebuttons-hover button.titlebutton.restore:active,
 headerbar box.titlebuttons-hover button.titlebutton.restore:active,
 .titlebar box.titlebuttons-hover button.titlebutton.restore:active {
   background-image: -gtk-scaled(
-    url("titlebuttons/button-restore-active.png"),
-    url("titlebuttons/button-restore-active@2.png")
+    url("../icons/titlebuttons/button-restore-active.png"),
+    url("../icons/titlebuttons/button-restore-active@2.png")
   );
 }

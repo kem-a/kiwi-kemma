@@ -165,24 +165,24 @@
 #toolbar-menubar .titlebar-close,
 #TabsToolbar .titlebar-close{
   background-image: image-set(
-    url("titlebuttons/button-close.png") 1x,
-    url("titlebuttons/button-close@2.png") 2x
+    url("../icons/titlebuttons/button-close.png") 1x,
+    url("../icons/titlebuttons/button-close@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-max,
 #toolbar-menubar .titlebar-max,
 #TabsToolbar .titlebar-max {
   background-image: image-set(
-    url("titlebuttons/button-maximize.png") 1x,
-    url("titlebuttons/button-maximize@2.png") 2x
+    url("../icons/titlebuttons/button-maximize.png") 1x,
+    url("../icons/titlebuttons/button-maximize@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-min,
 #toolbar-menubar .titlebar-min,
 #TabsToolbar .titlebar-min {
   background-image: image-set(
-    url("titlebuttons/button-minimize.png") 1x,
-    url("titlebuttons/button-minimize@2.png") 2x
+    url("../icons/titlebuttons/button-minimize.png") 1x,
+    url("../icons/titlebuttons/button-minimize@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-restore,
@@ -192,8 +192,8 @@
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-max,
 :root[sizemode="maximized"] #TabsToolbar .titlebar-max {
   background-image: image-set(
-    url("titlebuttons/button-restore.png") 1x,
-    url("titlebuttons/button-restore@2.png") 2x
+    url("../icons/titlebuttons/button-restore.png") 1x,
+    url("../icons/titlebuttons/button-restore@2.png") 2x
   ) !important;
 }
 
@@ -215,24 +215,24 @@
 #toolbar-menubar .titlebar-close:hover,
 #TabsToolbar .titlebar-close:hover {
   background-image: image-set(
-    url("titlebuttons/button-close-hover.png") 1x,
-    url("titlebuttons/button-close-hover@2.png") 2x
+    url("../icons/titlebuttons/button-close-hover.png") 1x,
+    url("../icons/titlebuttons/button-close-hover@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-max:hover,
 #toolbar-menubar .titlebar-max:hover,
 #TabsToolbar .titlebar-max:hover {
   background-image: image-set(
-    url("titlebuttons/button-maximize-hover.png") 1x,
-    url("titlebuttons/button-maximize-hover@2.png") 2x
+    url("../icons/titlebuttons/button-maximize-hover.png") 1x,
+    url("../icons/titlebuttons/button-maximize-hover@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-min:hover,
 #toolbar-menubar .titlebar-min:hover,
 #TabsToolbar .titlebar-min:hover {
   background-image: image-set(
-    url("titlebuttons/button-minimize-hover.png") 1x,
-    url("titlebuttons/button-minimize-hover@2.png") 2x
+    url("../icons/titlebuttons/button-minimize-hover.png") 1x,
+    url("../icons/titlebuttons/button-minimize-hover@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-restore:hover,
@@ -242,8 +242,8 @@
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-max:hover,
 :root[sizemode="maximized"] #TabsToolbar .titlebar-max:hover {
   background-image: image-set(
-    url("titlebuttons/button-restore-hover.png") 1x,
-    url("titlebuttons/button-restore-hover@2.png") 2x
+    url("../icons/titlebuttons/button-restore-hover.png") 1x,
+    url("../icons/titlebuttons/button-restore-hover@2.png") 2x
   ) !important;
 }
 
@@ -255,8 +255,8 @@
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-close,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-close {
   background-image: image-set(
-    url("titlebuttons/button-close-hover.png") 1x,
-    url("titlebuttons/button-close-hover@2.png") 2x
+    url("../icons/titlebuttons/button-close-hover.png") 1x,
+    url("../icons/titlebuttons/button-close-hover@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-min,
@@ -266,8 +266,8 @@
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-min,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-min {
   background-image: image-set(
-    url("titlebuttons/button-minimize-hover.png") 1x,
-    url("titlebuttons/button-minimize-hover@2.png") 2x
+    url("../icons/titlebuttons/button-minimize-hover.png") 1x,
+    url("../icons/titlebuttons/button-minimize-hover@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-max,
@@ -277,8 +277,8 @@
 #toolbar-menubar .titlebar-buttonbox:hover .titlebar-max,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-max {
   background-image: image-set(
-    url("titlebuttons/button-maximize-hover.png") 1x,
-    url("titlebuttons/button-maximize-hover@2.png") 2x
+    url("../icons/titlebuttons/button-maximize-hover.png") 1x,
+    url("../icons/titlebuttons/button-maximize-hover@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-restore,
@@ -294,8 +294,8 @@
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox:hover .titlebar-max,
 :root[sizemode="maximized"] #TabsToolbar .titlebar-buttonbox:hover .titlebar-max {
   background-image: image-set(
-    url("titlebuttons/button-restore-hover.png") 1x,
-    url("titlebuttons/button-restore-hover@2.png") 2x
+    url("../icons/titlebuttons/button-restore-hover.png") 1x,
+    url("../icons/titlebuttons/button-restore-hover@2.png") 2x
   ) !important;
 }
 
@@ -304,8 +304,8 @@
 #toolbar-menubar .titlebar-close:active,
 #TabsToolbar .titlebar-close:active {
   background-image: image-set(
-    url("titlebuttons/button-close-active.png") 1x,
-    url("titlebuttons/button-close-active@2.png") 2x
+    url("../icons/titlebuttons/button-close-active.png") 1x,
+    url("../icons/titlebuttons/button-close-active@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-close:active,
@@ -315,16 +315,16 @@
 #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-close:active,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-close:active {
   background-image: image-set(
-    url("titlebuttons/button-close-active.png") 1x,
-    url("titlebuttons/button-close-active@2.png") 2x
+    url("../icons/titlebuttons/button-close-active.png") 1x,
+    url("../icons/titlebuttons/button-close-active@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-min:active,
 #toolbar-menubar .titlebar-min:active,
 #TabsToolbar .titlebar-min:active {
   background-image: image-set(
-    url("titlebuttons/button-minimize-active.png") 1x,
-    url("titlebuttons/button-minimize-active@2.png") 2x
+    url("../icons/titlebuttons/button-minimize-active.png") 1x,
+    url("../icons/titlebuttons/button-minimize-active@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-min:active,
@@ -334,16 +334,16 @@
 #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-min:active,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-min:active {
   background-image: image-set(
-    url("titlebuttons/button-minimize-active.png") 1x,
-    url("titlebuttons/button-minimize-active@2.png") 2x
+    url("../icons/titlebuttons/button-minimize-active.png") 1x,
+    url("../icons/titlebuttons/button-minimize-active@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-max:active,
 #toolbar-menubar .titlebar-max:active,
 #TabsToolbar .titlebar-max:active {
   background-image: image-set(
-    url("titlebuttons/button-maximize-active.png") 1x,
-    url("titlebuttons/button-maximize-active@2.png") 2x
+    url("../icons/titlebuttons/button-maximize-active.png") 1x,
+    url("../icons/titlebuttons/button-maximize-active@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-buttonbox-container:hover .titlebar-max:active,
@@ -353,8 +353,8 @@
 #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-max:active,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-max:active {
   background-image: image-set(
-    url("titlebuttons/button-maximize-active.png") 1x,
-    url("titlebuttons/button-maximize-active@2.png") 2x
+    url("../icons/titlebuttons/button-maximize-active.png") 1x,
+    url("../icons/titlebuttons/button-maximize-active@2.png") 2x
   ) !important;
 }
 #nav-bar .titlebar-restore:active,
@@ -365,8 +365,8 @@
 :root[sizemode="maximized"] #nav-bar .titlebar-buttonbox .titlebar-max:active,
 :root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox .titlebar-max:active {
   background-image: image-set(
-    url("titlebuttons/button-restore-active.png") 1x,
-    url("titlebuttons/button-restore-active@2.png") 2x
+    url("../icons/titlebuttons/button-restore-active.png") 1x,
+    url("../icons/titlebuttons/button-restore-active@2.png") 2x
   ) !important;
 }
 :root[sizemode="maximized"] #nav-bar .titlebar-buttonbox-container:hover .titlebar-max:active,
@@ -382,7 +382,7 @@
 #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-restore:active,
 #TabsToolbar .titlebar-buttonbox:hover .titlebar-restore:active {
   background-image: image-set(
-    url("titlebuttons/button-restore-active.png") 1x,
-    url("titlebuttons/button-restore-active@2.png") 2x
+    url("../icons/titlebuttons/button-restore-active.png") 1x,
+    url("../icons/titlebuttons/button-restore-active@2.png") 2x
   ) !important;
 }
