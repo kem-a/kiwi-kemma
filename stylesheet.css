@@ -398,12 +398,12 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   margin: 0 !important; /* Reduced from 0 2px */
   padding-left: 0 !important;
   padding-right: 0 !important;
-  /* Shrink mode has 12px of vertical padding to spend around the icon box, and
-     the dock background sits 4px up from the bottom of the item: leaving 4px
-     here put the dot right on that edge. 7px/5px lifts the whole box instead,
-     which keeps the dock height and gives the dot 3px of clearance. */
+  /* The dock background sits 4px up from the bottom of the item, so 7px here is
+     what keeps the dot 3px clear of that edge. The top then has to match it plus
+     the 3px the dot band adds below the icon, for the symmetric 10px above and
+     below the icon art that macOS has. */
   padding-bottom: 7px !important;
-  padding-top: 5px !important;
+  padding-top: 10px !important;
 }
 
 /* No highlight behind the icons in any state - hover, keyboard focus, click and
@@ -421,6 +421,14 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   box-shadow: none !important;
   padding: 0 !important; /* Reduced from 6px */
   padding-bottom: 7px !important;
+}
+
+/* Separators get 4px a side from Dash-to-Dock, which is a third of the room
+   macOS leaves around one. Applies to the one in front of the minimized strip
+   too - same style class. */
+#dashtodockContainer.kiwi-dock-styled #dash .dash-separator {
+  margin-left: 12px !important;
+  margin-right: 12px !important;
 }
 
 /* Reduce overall dash container padding. The left value is the space before the
