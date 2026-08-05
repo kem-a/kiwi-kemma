@@ -611,3 +611,68 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 #dashtodockContainer.right .kiwi-minimized-tile {
   padding: 2px 6px;
 }
+
+/*###############################################*/
+/*          Downloads Stack in the Dock          */
+/*###############################################*/
+
+/* The stack keeps the inset an app icon has, so it lines up with the icons and
+   with the minimized thumbnails it sits next to. */
+.kiwi-downloads-item {
+  padding: 6px 2px;
+}
+
+#dashtodockContainer.left .kiwi-downloads-item,
+#dashtodockContainer.right .kiwi-downloads-item {
+  padding: 2px 6px;
+}
+
+/* Name pills: a touch of the wallpaper carries through them the way it does
+   through a macOS label, with dark text that reads over either colour scheme. */
+.kiwi-fan-label {
+  background-color: rgba(238, 238, 238, 0.7);
+  color: #1c1c1c;
+  border-radius: 11px;
+  padding: 5px 13px;
+  font-weight: 500;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.kiwi-fan-label:hover,
+.kiwi-fan-label:focus {
+  background-color: #ffffff;
+}
+
+.kiwi-fan-icon {
+  padding: 2px;
+}
+
+/* A mime icon casts its shadow off its own outline, so the shape of the icon is
+   what lifts off the wallpaper rather than the box around it. */
+.kiwi-fan-file-icon {
+  icon-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* A thumbnail is a picture, so it takes a rectangular shadow, and the white
+   behind it only ever shows as the edge of a print. */
+.kiwi-fan-thumbnail {
+  background-color: #ffffff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* The round button that ends the fan, the way macOS ends its own */
+.kiwi-fan-more {
+  background-color: rgba(238, 238, 238, 0.94);
+  border-radius: 99px;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.kiwi-fan-more:hover,
+.kiwi-fan-more:focus {
+  background-color: #ffffff;
+}
+
+.kiwi-fan-more-icon {
+  color: #1c1c1c;
+}
