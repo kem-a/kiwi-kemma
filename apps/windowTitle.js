@@ -87,6 +87,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
 
         this._restoreSeparator = null;
         this._restoreMenuItem = null;
+        this._alwaysOnTopMenuItem = null;
         this._fullscreenMenuItem = null;
         this._tilingMenuItem = null;
         this._tilingSeparator = null;
@@ -234,12 +235,12 @@ class WindowTitleIndicator extends PanelMenu.Button {
     }
 
     // Kiwi's items sit at the top of the menu, ahead of the app's own entries:
-    //   tiling grid | separator | Fullscreen | Restore Window | separator | New Window ...
+    //   tiling grid | separator | Fullscreen | Restore Window | Always on Top | separator | New Window ...
     // Rebuilt on every open so the tiles and the sensitivity of Restore reflect the current
     // state. The running counter keeps the order right when the grid is absent.
     _updateKiwiMenuItems() {
         for (const name of ['_tilingMenuItem', '_tilingSeparator', '_fullscreenMenuItem',
-                            '_restoreMenuItem', '_restoreSeparator']) {
+                            '_restoreMenuItem', '_alwaysOnTopMenuItem', '_restoreSeparator']) {
             if (this[name]) {
                 this[name].destroy();
                 this[name] = null;
@@ -287,6 +288,27 @@ class WindowTitleIndicator extends PanelMenu.Button {
         if (isFullscreen || !canRestore(win))
             this._restoreMenuItem.setSensitive(false);
         this._menu.addMenuItem(this._restoreMenuItem, position++);
+
+        this._alwaysOnTopMenuItem = new PopupMenu.PopupMenuItem(_('Always on Top'));
+        // A check on the right rather than an ornament: the ornament indents the label and
+        // leaves this entry out of line with the rest of the menu.
+        if (win.is_above()) {
+            this._alwaysOnTopMenuItem.label.x_expand = true;
+            this._alwaysOnTopMenuItem.add_child(new St.Icon({
+                icon_name: 'object-select-symbolic',
+                style_class: 'popup-menu-icon',
+                y_align: Clutter.ActorAlign.CENTER,
+            }));
+        }
+        this._alwaysOnTopMenuItem.connect('activate', () => {
+            if (win.is_above())
+                win.unmake_above();
+            else
+                win.make_above();
+        });
+        addAccelLabel(this._alwaysOnTopMenuItem,
+            this._wmKeybindings.get_strv('toggle-above')[0]);
+        this._menu.addMenuItem(this._alwaysOnTopMenuItem, position++);
 
         // Untitled, so GNOME collapses it against the app menu's own next separator.
         this._restoreSeparator = new PopupMenu.PopupSeparatorMenuItem();
@@ -337,6 +359,10 @@ class WindowTitleIndicator extends PanelMenu.Button {
         if (this._restoreMenuItem) {
             this._restoreMenuItem.destroy();
             this._restoreMenuItem = null;
+        }
+        if (this._alwaysOnTopMenuItem) {
+            this._alwaysOnTopMenuItem.destroy();
+            this._alwaysOnTopMenuItem = null;
         }
         if (this._fullscreenMenuItem) {
             this._fullscreenMenuItem.destroy();
