@@ -117,9 +117,13 @@ function _addWindow(win) {
     if (!enabled || order.includes(win))
         return;
 
-    const snapshot = _captureSnapshot(win);
-    if (snapshot)
-        snapshots.set(win, snapshot);
+    // A window that is already minimized cannot be snapshotted - it is unmapped -
+    // so the one taken on the way down is the only one there will be
+    if (!snapshots.has(win)) {
+        const snapshot = _captureSnapshot(win);
+        if (snapshot)
+            snapshots.set(win, snapshot);
+    }
 
     // The window manager starts the minimize animation before the queued update
     // below runs, so whatever was written last wins — and Dash-to-Dock repoints
@@ -367,6 +371,19 @@ export function makeDashSeparator(dash) {
 }
 
 /**
+ * Whether Dash-to-Dock's own separator already closes its box, marking the same
+ * boundary we would draw. A trash item it has just rebuilt sits after that
+ * separator until the idle-time adoption takes it away; counting it would have
+ * us draw a second separator and drop it again on every redisplay.
+ *
+ * @param dash the Dash-to-Dock dash actor
+ */
+export function dashEndsWithSeparator(dash) {
+    const last = dash._box.get_children().findLast(child => !_isTrashItem(child));
+    return !!last?.get_style_class_name?.()?.includes('dash-separator');
+}
+
+/**
  * Wrap a tile in the same item container Dash-to-Dock uses for its icons, so
  * hover labels, positioning and the zoom-in animation match the rest of the dock.
  *
@@ -435,10 +452,11 @@ function _syncDock(info) {
     _syncSeparator(info);
 
     if (info.trashItem) {
-        strip.set_child_above_sibling(info.trashItem, null);
-        // Dash-to-Dock only resizes and reveals the items it still owns
+        // Reordering costs a relayout even when nothing moves
+        if (strip.get_last_child() !== info.trashItem)
+            strip.set_child_above_sibling(info.trashItem, null);
+        // Dash-to-Dock only resizes the items it still owns
         info.trashItem.child.icon?.setIconSize(dash.iconSize);
-        info.trashItem.show(false);
     }
 }
 
@@ -468,7 +486,10 @@ function _animateOut(item) {
         opacity: 0,
         duration: TILE_ANIMATION_TIME,
         mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-        onComplete: () => item.destroy(),
+        // Not onComplete: the tile is off our list before the animation starts,
+        // so a shrink cut short would leave it in the strip with nothing to
+        // free it, holding its window snapshot
+        onStopped: () => item.destroy(),
     });
 }
 
@@ -490,9 +511,8 @@ function _makeTileItem(info, win) {
 function _syncSeparator(info) {
     // Dash-to-Dock draws its own separator after the favourites, which for a dock
     // without loose running apps already marks the boundary we would draw
-    const separated = info.dash._box.get_children().at(-1)
-        ?.get_style_class_name?.()?.includes('dash-separator');
-    const wanted = !separated && (info.tiles.length > 0 || !!info.trashItem);
+    const wanted = !dashEndsWithSeparator(info.dash) &&
+        (info.tiles.length > 0 || !!info.trashItem);
 
     if (wanted && !info.separator) {
         info.separator = makeDashSeparator(info.dash);
@@ -521,9 +541,12 @@ function _queueSeparatorSync() {
 
 /* ------------------------------------------------------------------ trash */
 
+function _isTrashItem(child) {
+    return !!child.child?._delegate?.app?.isTrash;
+}
+
 function _findTrashItem(dash) {
-    return dash._box.get_children().find(child =>
-        child.child?._delegate?.app?.isTrash) ?? null;
+    return dash._box.get_children().find(_isTrashItem) ?? null;
 }
 
 /**
@@ -545,6 +568,9 @@ function _adoptTrash(info) {
     // Undo the hiding from the child-added handler; item.show() would not,
     // DashItemContainer shadows it with the scale animation
     item.visible = true;
+    // Dash-to-Dock builds its items scaled away and reveals the ones it keeps;
+    // this one is ours now, and only ever needs revealing the once
+    item.show(false);
     info.trashItem = item;
     _syncDock(info);
 }
@@ -727,7 +753,7 @@ function _attachDock(dockContainer) {
     // again. Hide it at once, or it widens the dash for the few frames until
     // the idle-time adoption and the whole dock shifts and shifts back.
     const addedId = dash._box.connect('child-added', (_box, child) => {
-        if (child.child?._delegate?.app?.isTrash) {
+        if (_isTrashItem(child)) {
             child.hide();
             _queueTrashAdoption();
         } else {
@@ -804,7 +830,16 @@ export function enable() {
     const destroyId = global.window_manager.connect('destroy', () => _queueIconGeometry());
     globalSignals.push([global.window_manager, destroyId]);
 
-    global.get_window_actors().forEach(actor => _trackWindow(actor.meta_window));
+    // Snapshots outlive a disable, since the shell turns extensions off for the
+    // lock screen and the windows behind it are past snapshotting. Only the ones
+    // still sitting minimized are worth keeping: a window closed or brought back
+    // while we were off would come back to a picture of the past.
+    const windows = global.get_window_actors().map(actor => actor.meta_window);
+    for (const win of snapshots.keys()) {
+        if (!windows.includes(win) || !win.minimized)
+            snapshots.delete(win);
+    }
+    windows.forEach(_trackWindow);
 
     // During startup the dock is not laid out yet, same caveat as dockBlur
     if (Main.layoutManager._startingUp) {
@@ -861,7 +896,6 @@ export function disable() {
         win.set_icon_geometry(null);
     }
     windowSignals.clear();
-    snapshots.clear();
     restoring.clear();
     order = [];
 

@@ -11,6 +11,7 @@ import Shell from 'gi://Shell';
 
 import { connectPaintSignal } from './blurPaintSignal.js';
 
+let enabled = false;
 let dockSearchId = null;
 let dashes = []; // array of per-dash state objects
 let blurRepaintSignals = []; // global event signal connections for blur repaints
@@ -150,6 +151,7 @@ function _tryBlurDock(dockContainer) {
     dashBox.insert_child_at_index(backgroundGroup, 0);
 
     // Size and position the blur and border widgets to match the dash-background
+    let lastRect = null;
     const updateSize = () => {
         if (!blurWidget || !dashBackground) return;
         // Before an actor is allocated, width/height report the *natural* size
@@ -164,11 +166,20 @@ function _tryBlurDock(dockContainer) {
         const h = dashBackground.height;
         const x = dashBackground.x;
         const y = dashBackground.y + dash.y;
+        retryAttempts = 0;
+
+        // The dock notifies through a dozen signals and re-emits them for every
+        // frame it slides or zooms; re-rendering the blur is only worth it when
+        // the geometry it is cut to actually moved
+        if (lastRect && lastRect.x === x && lastRect.y === y &&
+            lastRect.w === w && lastRect.h === h)
+            return;
+        lastRect = { x, y, w, h };
+
         blurWidget.set_size(w, h);
         blurWidget.set_position(x, y);
         borderWidget.set_size(w, h);
         borderWidget.set_position(x, y);
-        retryAttempts = 0;
         _scheduleBlurRepaint();
     };
 
@@ -298,6 +309,12 @@ let childAddedId = null;
 let startupCompleteId = null;
 
 export function enable() {
+    // Every settings change re-runs this; a second pass would connect another
+    // child-added handler over the one we hold and leave it connected for good
+    if (enabled)
+        return;
+    enabled = true;
+
     // During shell startup the dock geometry is unreliable (startup animation,
     // layout not settled) — blurring then yields a mis-sized blur bar.
     // Defer until startup completes, like blur-my-shell does.
@@ -338,6 +355,8 @@ function _enable() {
 }
 
 export function disable() {
+    enabled = false;
+
     if (startupCompleteId) {
         Main.layoutManager.disconnect(startupCompleteId);
         startupCompleteId = null;

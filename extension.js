@@ -315,8 +315,10 @@ export default class KiwiExtension extends Extension {
         launchpadAppDisable();
         dockBlurDisable();
         dockStylingDisable();
-        minimizedToDockDisable();
+        // The stack borrows the minimized strip and holds a signal on it, so it
+        // has to let go before that strip is destroyed
         downloadsStackDisable();
+        minimizedToDockDisable();
         reduceWindowAnimationsDisable();
         disableDragRestore();
         this._settings = null;
