@@ -43,7 +43,9 @@ let windowSignals = new Map();  // Meta.Window -> [signal ids]
 let globalSignals = [];         // [[object, id]]
 let restoring = new Set();      // windows whose restore animation is still running
 let d2dSettings = null;
-const sources = { dockSearch: 0, restoreGrace: 0, geometryUpdate: 0, trashAdoption: 0 };
+const sources = {
+    dockSearch: 0, restoreGrace: 0, geometryUpdate: 0, trashAdoption: 0, separatorSync: 0,
+};
 
 function _disconnectAll(pairs) {
     for (const [object, id] of pairs)
@@ -501,6 +503,22 @@ function _syncSeparator(info) {
     }
 }
 
+/**
+ * The boundary moves with Dash-to-Dock's own box: a closed app takes its icon
+ * out only once it has animated away, and until then Dash-to-Dock's separator
+ * is not the last child yet and ours still looks needed. Re-check afterwards.
+ */
+function _queueSeparatorSync() {
+    if (sources.separatorSync || !enabled)
+        return;
+    // Dash-to-Dock pulls its separator out and puts it back mid-redisplay
+    sources.separatorSync = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        sources.separatorSync = 0;
+        docks.forEach(_syncSeparator);
+        return GLib.SOURCE_REMOVE;
+    });
+}
+
 /* ------------------------------------------------------------------ trash */
 
 function _findTrashItem(dash) {
@@ -712,9 +730,15 @@ function _attachDock(dockContainer) {
         if (child.child?._delegate?.app?.isTrash) {
             child.hide();
             _queueTrashAdoption();
+        } else {
+            _queueSeparatorSync();
         }
     });
     info.signals.push([dash._box, addedId]);
+
+    // A running app that leaves the dock moves the boundary Dash-to-Dock draws
+    const removedId = dash._box.connect('child-removed', () => _queueSeparatorSync());
+    info.signals.push([dash._box, removedId]);
 
     const destroyId = dash.connect('destroy', () => _detachDock(info, false));
     info.signals.push([dash, destroyId]);

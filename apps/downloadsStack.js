@@ -827,6 +827,13 @@ function _attachDock(dockContainer) {
     const containerId = dash._boxContainer.connect('child-added', () => _queueReplace());
     info.signals.push([dash._boxContainer, containerId]);
 
+    // Dash-to-Dock draws its own divider once the last loose app is gone, and
+    // only after that icon has animated out; ours is a duplicate from then on
+    const boxAddedId = dash._box.connect('child-added', () => _queueReplace());
+    info.signals.push([dash._box, boxAddedId]);
+    const boxRemovedId = dash._box.connect('child-removed', () => _queueReplace());
+    info.signals.push([dash._box, boxRemovedId]);
+
     // Dash-to-Dock shrinks its icons to fit the monitor; follow that size
     const sizeId = dash._box.connect(
         isHorizontal ? 'notify::height' : 'notify::width', () => {
