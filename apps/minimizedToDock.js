@@ -11,6 +11,7 @@ import Cogl from 'gi://Cogl';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Graphene from 'gi://Graphene';
 import Meta from 'gi://Meta';
 import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
@@ -31,9 +32,12 @@ const BADGE_FRACTION = 0.4;   // app icon badge, fraction of the dash icon size
 const RESTORE_GRACE = 500;    // ms to leave a restoring window's target alone
 const GEOMETRY_SETTLE = 100;  // ms of a still dock before recomputing targets
 // The dash opens and closes its slots in 200ms, which is too brisk next to the
-// window flying in or out: match the shell's MINIMIZE_WINDOW_ANIMATION_TIME so
-// the slot and the window move as one gesture.
-const TILE_ANIMATION_TIME = 400;
+// window flying in or out: the two together match the shell's
+// MINIMIZE_WINDOW_ANIMATION_TIME so the slot and the window move as one
+// gesture. macOS splits it in two - the dock makes room along its length first,
+// then the thumbnail grows out of the dock's edge, and back down on restore.
+const TILE_SLOT_TIME = 160;   // ms to open or close the slot along the dock
+const TILE_GROW_TIME = 240;   // ms for the thumbnail itself to grow or shrink
 
 let enabled = false;
 let docks = [];                 // [{ dash, strip, iconSize, signals, tiles, trashItem }]
@@ -432,7 +436,7 @@ function _syncDock(info) {
         if (rebuild)
             item.destroy();
         else
-            _animateOut(item);
+            _animateOut(info, item);
         return false;
     });
 
@@ -445,7 +449,7 @@ function _syncDock(info) {
             strip.insert_child_below(item, info.trashItem);
         else
             strip.add_child(item);
-        _animateIn(item);
+        _animateIn(info, item);
         info.tiles.push({ win, item });
     }
 
@@ -461,30 +465,71 @@ function _syncDock(info) {
 }
 
 /**
- * Grow a tile into place. Same shape as DashItemContainer.show(), but on the
- * window animation's clock: the item's preferred size follows its scale, so the
- * strip opens the slot as the window arrives.
+ * The two axes of a tile animation: 'slot' is the one along the dock, which the
+ * item container scales to open and close its place in the strip, and 'grow' is
+ * the one across it, which the tile scales about the dock's own edge so it comes
+ * up out of the dock rather than out of its own middle.
  *
+ * @param dash the Dash-to-Dock dash actor
+ */
+function _tileAxes(dash) {
+    if (dash._isHorizontal ?? true) {
+        const y = dash._position === St.Side.TOP ? 0 : 1;
+        return { slot: 'scale_x', grow: 'scale_y', pivot: new Graphene.Point({ x: 0.5, y }) };
+    }
+
+    const x = dash._position === St.Side.RIGHT ? 1 : 0;
+    return { slot: 'scale_y', grow: 'scale_x', pivot: new Graphene.Point({ x, y: 0.5 }) };
+}
+
+/**
+ * Grow a tile into place, macOS style: the strip opens the slot along the dock
+ * first - the item's preferred size follows its scale, so the neighbours slide
+ * over - and only then does the thumbnail rise out of the dock's edge.
+ *
+ * @param info the per-dock state
  * @param item a dash item container holding a tile
  */
-function _animateIn(item) {
+function _animateIn(info, item) {
+    const { slot, grow, pivot } = _tileAxes(info.dash);
+    const tile = item.child;
+
+    // Only the slot axis animates on the item, so the strip keeps its thickness
+    item[grow] = 1;
+    tile.pivot_point = pivot;
+    tile[grow] = 0;
+
     item.ease({
-        scale_x: 1,
-        scale_y: 1,
+        [slot]: 1,
         opacity: 255,
-        duration: TILE_ANIMATION_TIME,
+        duration: TILE_SLOT_TIME,
+        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+    });
+    tile.ease({
+        [grow]: 1,
+        delay: TILE_SLOT_TIME,
+        duration: TILE_GROW_TIME,
         mode: Clutter.AnimationMode.EASE_OUT_QUAD,
     });
 }
 
-function _animateOut(item) {
+function _animateOut(info, item) {
+    const { slot, grow } = _tileAxes(info.dash);
+
     item.animatingOut = true;
     item.label?.hide();
+
+    // Backwards: the thumbnail sinks back into the dock, then the slot closes
+    item.child.ease({
+        [grow]: 0,
+        duration: TILE_GROW_TIME,
+        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+    });
     item.ease({
-        scale_x: 0,
-        scale_y: 0,
+        [slot]: 0,
         opacity: 0,
-        duration: TILE_ANIMATION_TIME,
+        delay: TILE_GROW_TIME,
+        duration: TILE_SLOT_TIME,
         mode: Clutter.AnimationMode.EASE_OUT_QUAD,
         // Not onComplete: the tile is off our list before the animation starts,
         // so a shrink cut short would leave it in the strip with nothing to
