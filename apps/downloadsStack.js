@@ -3,8 +3,8 @@
 // the trash and fans the newest files in ~/Downloads out over the desktop.
 // The fan is an arc of rows: a name pill rotated along the tangent, an icon on
 // the arc itself, so the icons climb in one gently bending column the way the
-// macOS fan does. The list is read when the fan opens, so nothing is watched
-// while it is closed.
+// macOS fan does. The dock item is a pile of those same thumbnails, kept in step
+// with the folder by a file monitor, and the fan spreads out of it.
 
 import Clutter from 'gi://Clutter';
 import GdkPixbuf from 'gi://GdkPixbuf';
@@ -16,15 +16,27 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { iconOffset, makeDashItem, makeDashSeparator } from './minimizedToDock.js';
 
 const MAX_ROWS = 10;          // files in the fan, as macOS caps it
-const FILE_ICON = 0.9;        // file icon, in dash icon sizes
-const ROW_SPACING = 1.35;     // step along the arc, in file icon sizes
+const FILE_ICON = 1.3;        // file icon, in dash icon sizes
+const ROW_SPACING = 1.2;      // step along the arc, in file icon sizes
 const FAN_START = 3;          // degrees of tilt on the first row
 const FAN_STEP = 1.4;         // degrees added per row
 const NAME_LIMIT = 36;        // characters before a name is elided
 const TOP_MARGIN = 24;        // px kept clear above the topmost row
-const ROW_ANIMATION = 250;    // ms for a row to fly out of the dock
-const ROW_STAGGER = 25;       // ms between two rows leaving
-const CLOSE_ANIMATION = 150;
+// Opening and closing are the same motion in reverse: one row at a time, the
+// same step apart, so the fan spreads and folds at one pace.
+const ROW_ANIMATION = 150;    // ms for a row to travel to or from the dock
+const ROW_STAGGER = 12;       // ms between one row leaving and the next
+const PRESS_BRIGHTNESS = -0.6;  // dock-styling's darken while a button is held
+// The dock item is the pile the fan comes out of: the same newest files, one
+// behind the other, each a little further up and turned a little further over.
+const STACK_DEPTH = 5;        // thumbnails deep the pile is drawn
+const STACK_STEP = 0.04;      // offset between two piled thumbnails, in icon sizes
+const STACK_TILT = 2.2;       // degrees added per thumbnail down the pile
+const REFRESH_DELAY = 400;    // ms of a quiet Downloads folder before rereading
+// A card is as big as an app icon in the dock, give or take the rim of the
+// folder it sits on, and the pile as a whole stays inside the same box.
+const STACK_ITEM = 1.0;      // the largest a card gets, in dash icon sizes
+const STACK_EXTENT = 1;       // how much of the icon box the whole pile fills
 const LIST_BATCH = 64;
 const LIST_ATTRIBUTES = [
     'standard::name',
@@ -40,9 +52,11 @@ let enabled = false;
 let docks = [];               // [{ dash, strip, item, button, iconSize, signals }]
 let globalSignals = [];       // [[object, id]]
 let fan = null;               // { overlay, grab, rows, anchor }
-let listing = false;
+let recent = [];              // newest file infos first, at most MAX_ROWS of them
+let recentCount = 0;          // files in the folder, however many that is
+let folderMonitor = null;     // Gio.FileMonitor on the Downloads folder
 let gettextFunc = message => message;
-const sources = { dockSearch: 0, replace: 0 };
+const sources = { dockSearch: 0, replace: 0, refresh: 0 };
 
 function _disconnectAll(pairs) {
     for (const [object, id] of pairs)
@@ -51,6 +65,10 @@ function _disconnectAll(pairs) {
 
 function _scaleFactor() {
     return St.ThemeContext.get_for_stage(global.stage).scaleFactor;
+}
+
+function _prefersDark() {
+    return St.Settings.get().colorScheme === St.SystemColorScheme.PREFER_DARK;
 }
 
 /* ------------------------------------------------------------- file list */
@@ -63,6 +81,33 @@ function _downloadsFile() {
 
 function _openUri(uri) {
     Gio.AppInfo.launch_default_for_uri(uri, global.create_app_launch_context(0, -1));
+}
+
+/**
+ * Reread the folder and rebuild every pile from it. The dock item shows the
+ * newest files even while the fan is shut, so the list is kept up to date rather
+ * than read on the click - which is also what lets the fan open at once, out of
+ * the very thumbnails the pile is made of.
+ */
+function _refresh() {
+    _listDownloads(files => {
+        if (!enabled)
+            return;
+        recent = files.slice(0, MAX_ROWS);
+        recentCount = files.length;
+        docks.forEach(_syncButton);
+    });
+}
+
+function _queueRefresh() {
+    if (sources.refresh)
+        GLib.Source.remove(sources.refresh);
+    // A download in progress touches its file over and over; wait for it to stop
+    sources.refresh = GLib.timeout_add(GLib.PRIORITY_DEFAULT, REFRESH_DELAY, () => {
+        sources.refresh = 0;
+        _refresh();
+        return GLib.SOURCE_REMOVE;
+    });
 }
 
 /**
@@ -150,15 +195,28 @@ function _fileIcon(info, size) {
             Gio.File.new_for_path(thumbnail),
             Math.round(imageWidth * fit), Math.round(imageHeight * fit),
             _scaleFactor(), 1);
+        // A thumbnailer that pads its canvas to a square has drawn the paper
+        // and the shadow under it into the picture itself - the margin around
+        // it is transparent. Matting that would fill the margin white and bury
+        // the shadow it came with, so only edge-to-edge pictures are framed.
+        const framed = imageWidth !== imageHeight;
         // The frame is the picture's own shape, so the shadow follows the
         // picture rather than the box around it
         const frame = new St.Bin({
-            style_class: 'kiwi-fan-thumbnail',
+            style_class: framed ? 'kiwi-fan-thumbnail' : '',
             child: texture,
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
         });
-        frame.offscreen_redirect = Clutter.OffscreenRedirect.ALWAYS;
+        // Smooth the frame's edges where it is turned, but only once the
+        // picture has arrived: an offscreen effect on a zero-sized actor asks
+        // Cogl for an empty viewport, which it warns about
+        frame.connect('notify::allocation', () => {
+            const allocation = frame.get_allocation_box();
+            frame.offscreen_redirect =
+                allocation.get_width() >= 1 && allocation.get_height() >= 1
+                    ? Clutter.OffscreenRedirect.ALWAYS : 0;
+        });
         box.add_child(frame);
     } else {
         box.add_child(new St.Icon({
@@ -179,22 +237,19 @@ function _displayName(info) {
 /* -------------------------------------------------------------------- fan */
 
 /**
- * One entry of the fan: a name pill and, to the right of it, the picture. Both
- * halves are buttons, so the whole entry answers to a click - the pill is what
- * the pointer meets first, and it is the part that is tilted furthest off the
- * cursor's idea of a rectangle.
+ * One entry of the fan: the picture, and a name pill hanging off to the left of
+ * it. Only the picture is a button - the pill is there to be read.
  *
  * @param text the pill's text
  * @param iconActor the picture, from _fileIcon or a plain icon
  * @param iconClass style class for the picture's button
- * @param onActivate run when the pill is clicked
- * @param onIconActivate run when the picture is clicked, the pill's action by default
+ * @param onActivate run when the picture is clicked
  */
-function _makeRow(text, iconActor, iconClass, onActivate, onIconActivate = onActivate) {
+function _makeRow(text, iconActor, iconClass, onActivate) {
     const row = new St.BoxLayout({ y_align: Clutter.ActorAlign.CENTER });
-    const label = new St.Button({
+    const label = new St.Label({
         style_class: 'kiwi-fan-label',
-        label: text,
+        text,
         y_align: Clutter.ActorAlign.CENTER,
     });
 
@@ -204,11 +259,18 @@ function _makeRow(text, iconActor, iconClass, onActivate, onIconActivate = onAct
         y_align: Clutter.ActorAlign.CENTER,
     });
 
-    label.connect('clicked', onActivate);
-    icon.connect('clicked', onIconActivate);
+    // Held down, it darkens like an app icon in the dock
+    icon.connect('notify::pressed', () => _syncDarken(icon));
+    icon.connect('clicked', onActivate);
+
+    if (_prefersDark()) {
+        label.add_style_class_name('dark');
+        icon.add_style_class_name('dark');
+    }
 
     row.add_child(label);
     row.add_child(icon);
+    row.label = label;
     row.iconButton = icon;
     return row;
 }
@@ -231,10 +293,6 @@ function _placeRow(row, x, y, degrees) {
     // Turn around the picture, which is what sits on the arc, and grow out of it
     row.set_pivot_point((width - iconWidth / 2) / width, 0.5);
     row.rotation_angle_z = degrees;
-    // A turned actor is rasterized edge by edge, and the pill's rounded corners
-    // come out with steps in them. Painted to a texture first, the whole row is
-    // filtered as one and the edges stay smooth.
-    row.offscreen_redirect = Clutter.OffscreenRedirect.ALWAYS;
 }
 
 /**
@@ -249,36 +307,68 @@ function _rowPivot(row) {
     return [x + row.width * pivotX, y + row.height * pivotY];
 }
 
-function _animateRowIn(row, index, anchorX, anchorY) {
+/**
+ * Take the row off the pile: it starts as the card it was in the dock - same
+ * place, same size, same tilt - and the card goes out from under it as it lifts,
+ * so what leaves the dock is the card itself rather than a copy of it. The name
+ * pill catches up on the way.
+ *
+ * @param row a row built by _makeRow, already placed on the arc
+ * @param index its place in the fan, nearest the dock first
+ * @param onLanded run when this row reaches the arc
+ */
+function _animateRowIn(row, index, onLanded) {
     const [pivotX, pivotY] = _rowPivot(row);
+    const { start, card } = row;
+    const tilt = row.rotation_angle_z;
 
     row.set({
-        opacity: 0,
-        scale_x: 0.2,
-        scale_y: 0.2,
-        translation_x: anchorX - pivotX,
-        translation_y: anchorY - pivotY,
+        translation_x: start.x - pivotX,
+        translation_y: start.y - pivotY,
+        scale_x: start.scale,
+        scale_y: start.scale,
+        rotation_angle_z: start.tilt,
     });
-    row.ease({
+    row.label.opacity = 0;
+
+    const delay = index * ROW_STAGGER;
+    row.label.ease({
         opacity: 255,
-        scale_x: 1,
-        scale_y: 1,
+        duration: ROW_ANIMATION,
+        delay,
+        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+    });
+    // Out from under the row at the moment it starts moving, not before
+    card?.ease({ opacity: 0, duration: 1, delay });
+    row.ease({
         translation_x: 0,
         translation_y: 0,
+        scale_x: 1,
+        scale_y: 1,
+        rotation_angle_z: tilt,
         duration: ROW_ANIMATION,
-        delay: index * ROW_STAGGER,
-        mode: Clutter.AnimationMode.EASE_OUT_BACK,
+        delay,
+        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+        // Only once it has landed: a turned actor is rasterized edge by edge and
+        // the pill's rounded corners come out with steps in them, which painting
+        // it to a texture first smooths over. Doing that while the row moves
+        // makes the shell rebuild that texture every frame, and the whole fan
+        // flickers as each row arrives.
+        onComplete: () => {
+            row.offscreen_redirect = Clutter.OffscreenRedirect.ALWAYS;
+            onLanded?.();
+        },
     });
 }
 
-function _showFan(info, files) {
+function _showFan(info) {
     // Before anything is measured: the fan hangs off the dock, so the dock has
     // to be out and staying out first
     _lockDock(info, true);
 
     const [buttonX, buttonY] = info.button.get_transformed_position();
-    const [buttonWidth] = info.button.get_transformed_size();
-    const monitor = Main.layoutManager.monitors[info.dash._monitorIndex] ??
+    const [buttonWidth, buttonHeight] = info.button.get_transformed_size();
+    const geometry = Main.layoutManager.monitors[info.dash._monitorIndex] ??
         Main.layoutManager.primaryMonitor;
     const scale = _scaleFactor();
     const iconSize = Math.round(info.dash.iconSize * FILE_ICON);
@@ -286,9 +376,23 @@ function _showFan(info, files) {
 
     const anchorX = buttonX + buttonWidth / 2;
     const anchorY = buttonY;
+    // Where the pile sits and how a card in it is placed: every row starts as
+    // its own card, so it leaves the dock from exactly where the card lay
+    const stack = info.button.child;
+    const cards = stack.cards ?? [];
+    const pileX = anchorX;
+    const pileY = buttonY + buttonHeight / 2;
+    const pile = _pileMetrics(info.dash);
+    const cardStart = depth => ({
+        x: pileX + depth * pile.step,
+        y: pileY - depth * pile.step,
+        scale: pile.size / iconSize,
+        tilt: depth * STACK_TILT,
+    });
+
     // The last row is the one that opens the folder and folds the fan back up
-    const room = Math.floor((anchorY - monitor.y - TOP_MARGIN) / spacing) - 1;
-    const shown = files.slice(0, Math.max(0, Math.min(MAX_ROWS, room)));
+    const room = Math.floor((anchorY - geometry.y - TOP_MARGIN) / spacing) - 1;
+    const shown = recent.slice(0, Math.max(0, Math.min(MAX_ROWS, room)));
 
     const overlay = new St.Widget({
         name: 'kiwi-downloads-fan',
@@ -316,26 +420,30 @@ function _showFan(info, files) {
             }));
     }
 
-    const rest = files.length - shown.length;
+    const rest = recentCount - shown.length;
     let text = gettextFunc('Open in Files');
     if (rest > 0)
         text = gettextFunc('%d More in Files').replace('%d', rest);
     else if (shown.length === 0)
         text = gettextFunc('Empty');
 
-    // The row that ends the fan and goes on to the folder
-    rows.push(_makeRow(
+    // The row that ends the fan and goes on to the folder. Its button is filled
+    // to its own edge, unlike a thumbnail sitting in a roomier box, so the row
+    // holds the pill off it.
+    const more = _makeRow(
         text,
         new St.Icon({
             style_class: 'kiwi-fan-more-icon',
             icon_name: 'go-next-symbolic',
-            icon_size: Math.round(iconSize * 0.5),
+            icon_size: Math.round(iconSize * 0.3),
         }),
         'kiwi-fan-more',
         () => {
             _openUri(folder.get_uri());
             _closeFan();
-        }));
+        });
+    more.add_style_class_name('kiwi-fan-more-row');
+    rows.push(more);
 
     // The arc leans to the right, as a macOS fan does, and the name pills hang
     // off to the left of it where there is room for them
@@ -343,13 +451,24 @@ function _showFan(info, files) {
     let y = anchorY;
     let angle = FAN_START;
     rows.forEach((row, index) => {
-        overlay.add_child(row);
+        // Under everything added before it, so the fan keeps the pile's order:
+        // the newest card is on top there and nearest the dock here
+        overlay.insert_child_at_index(row, 0);
         x += Math.sin(angle * Math.PI / 180) * spacing;
         y -= Math.cos(angle * Math.PI / 180) * spacing;
         _placeRow(row, x, y, angle);
-        _animateRowIn(row, index, anchorX, anchorY);
+        row.card = cards[index] ?? null;
+        // Rows too deep to have a card of their own come out from under the
+        // bottom one, which is where the pile ends
+        row.start = cardStart(Math.min(index, Math.max(0, pile.depth - 1)));
+        _animateRowIn(row, index);
         angle += FAN_STEP;
     });
+
+    // Cards too deep for the fan to have room for still leave the pile - what
+    // the dock shows while the fan is out is the folder, not a rump of a pile
+    for (const card of cards.slice(rows.length))
+        card.ease({ opacity: 0, duration: 1, delay: rows.length * ROW_STAGGER });
 
     const grab = Main.pushModal(overlay, { actionMode: Shell.ActionMode.POPUP });
     // A press on a row still bubbles up to here: St.Button tracks its press with
@@ -369,7 +488,7 @@ function _showFan(info, files) {
         return Clutter.EVENT_STOP;
     });
 
-    fan = { overlay, grab, rows, anchorX, anchorY, info };
+    fan = { overlay, grab, rows, info };
 }
 
 function _dropOverlay(overlay) {
@@ -409,49 +528,123 @@ function _closeFan() {
     if (!fan)
         return;
 
-    const { overlay, grab, rows, anchorX, anchorY, info } = fan;
+    const { overlay, grab, rows, info } = fan;
     fan = null;
 
     Main.popModal(grab);
     _lockDock(info, false);
     overlay.reactive = false;
 
-    // Back down the way they came out, the topmost row first, so the fan folds
-    // shut into the dock. The row nearest the dock is last to land: it takes
-    // the overlay with it.
+    // Back down the way they came out and in the same order reversed: the
+    // topmost row folds first, each one landing back on the card it left, and
+    // the row nearest the dock is last - it takes the overlay with it.
+    const stack = info.button?.child;
     rows.forEach((row, index) => {
         const [pivotX, pivotY] = _rowPivot(row);
-        row.ease({
+        const { start, card } = row;
+        row.offscreen_redirect = 0;
+        row.label.ease({
             opacity: 0,
-            scale_x: 0.2,
-            scale_y: 0.2,
-            translation_x: anchorX - pivotX,
-            translation_y: anchorY - pivotY,
-            duration: CLOSE_ANIMATION,
-            delay: (rows.length - 1 - index) * (ROW_STAGGER / 2),
+            duration: ROW_ANIMATION,
+            delay: (rows.length - 1 - index) * ROW_STAGGER,
             mode: Clutter.AnimationMode.EASE_IN_QUAD,
-            onComplete: index === 0 ? () => _dropOverlay(overlay) : null,
+        });
+        row.ease({
+            translation_x: start.x - pivotX,
+            translation_y: start.y - pivotY,
+            scale_x: start.scale,
+            scale_y: start.scale,
+            rotation_angle_z: start.tilt,
+            duration: ROW_ANIMATION,
+            delay: (rows.length - 1 - index) * ROW_STAGGER,
+            mode: Clutter.AnimationMode.EASE_IN_QUAD,
+            onComplete: () => {
+                // The card takes the row's place again, under it
+                if (card)
+                    card.opacity = 255;
+                if (index > 0)
+                    return;
+                _dropOverlay(overlay);
+                // Rebuilt from the folder as it stands now, in case it changed
+                // while the fan was out
+                _syncButton(info);
+            },
         });
     });
+
+    for (const card of stack?.cards.slice(rows.length) ?? []) {
+        card.ease({
+            opacity: 255,
+            duration: 1,
+            delay: (rows.length - 1) * ROW_STAGGER,
+        });
+    }
 }
 
 function _toggleFan(info) {
-    if (fan) {
+    if (fan)
         _closeFan();
-        return;
-    }
-    if (listing)
-        return;
-
-    listing = true;
-    _listDownloads(files => {
-        listing = false;
-        if (enabled && !fan && info.button.get_stage())
-            _showFan(info, files);
-    });
+    else
+        _showFan(info);
 }
 
 /* ------------------------------------------------------------------ docks */
+
+/**
+ * How the pile is laid out at a given dash icon size. Cards are as large as they
+ * can be without covering the folder icon they sit on, and a deep pile gives up
+ * just enough room for its steps to stay inside the same rim.
+ *
+ * @param dash the Dash-to-Dock dash actor
+ */
+function _pileMetrics(dash) {
+    const depth = Math.min(recent.length, STACK_DEPTH);
+    const span = Math.max(0, depth - 1) * STACK_STEP;
+    return {
+        depth,
+        size: Math.round(dash.iconSize * Math.min(STACK_ITEM, STACK_EXTENT - span)),
+        step: Math.round(dash.iconSize * STACK_STEP * _scaleFactor()),
+    };
+}
+
+/**
+ * The dock item: the newest files piled one on the other, newest in front, each
+ * one behind it a step further up and a degree further over, with the folder
+ * icon at the back of the pile. The folder is hidden while there are cards over
+ * it and surfaces as they leave, which is what empties the pile.
+ *
+ * @param dash the Dash-to-Dock dash actor
+ */
+function _stackIcon(dash) {
+    const scale = _scaleFactor();
+    const box = new St.Widget({
+        style_class: 'kiwi-downloads-stack',
+        layout_manager: new Clutter.BinLayout(),
+        width: Math.round(dash.iconSize * scale),
+        height: Math.round(dash.iconSize * scale),
+    });
+
+    // The bottom of the pile, and what is left of it once the cards have gone
+    box.add_child(new St.Icon({
+        gicon: new Gio.ThemedIcon({ name: 'folder-download' }),
+        icon_size: dash.iconSize,
+    }));
+
+    const { depth: pileDepth, size, step } = _pileMetrics(dash);
+    box.cards = [];
+    // Added back to front, so the newest ends up on top of the pile
+    for (let depth = pileDepth - 1; depth >= 0; depth--) {
+        const card = _fileIcon(recent[depth], size);
+        card.set({
+            translation_x: depth * step,
+            translation_y: -depth * step,
+            rotation_angle_z: depth * STACK_TILT,
+        });
+        box.add_child(card);
+        box.cards[depth] = card;
+    }
+    return box;
+}
 
 function _makeButton(info) {
     const { dash } = info;
@@ -462,10 +655,7 @@ function _makeButton(info) {
         x_align: Clutter.ActorAlign.CENTER,
         y_align: Clutter.ActorAlign.CENTER,
     });
-    button.set_child(new St.Icon({
-        gicon: new Gio.ThemedIcon({ name: 'folder-download' }),
-        icon_size: dash.iconSize,
-    }));
+    button.set_child(_stackIcon(dash));
 
     // Sit where an app icon sits rather than in the middle of the slot
     const offset = iconOffset(dash);
@@ -474,8 +664,46 @@ function _makeButton(info) {
     else
         button.translation_x = offset;
 
+    button.connect('notify::pressed', () => _syncPress(info));
     button.connect('clicked', () => _toggleFan(info));
     return button;
+}
+
+function _syncButton(info) {
+    // Not while the fan is out: the rows hold on to the cards they came from,
+    // and the pile is rebuilt from the folder as it is when the fan folds back
+    if (info.button && !fan)
+        info.button.set_child(_stackIcon(info.dash));
+}
+
+/**
+ * The darken dock styling puts on an app icon while it is held.
+ *
+ * @param button the button being pressed or released
+ */
+function _syncDarken(button) {
+    if (button.pressed) {
+        const effect = new Clutter.BrightnessContrastEffect({ name: 'kiwi-press-darken' });
+        effect.set_brightness(PRESS_BRIGHTNESS);
+        button.add_effect(effect);
+    } else {
+        button.remove_effect_by_name('kiwi-press-darken');
+    }
+}
+
+/**
+ * Darken the item while it is held, the way dock styling darkens the app icons.
+ * That styling only reaches the icons Dash-to-Dock owns, and it is behind its
+ * own setting - which the dock wears as a style class, so following the class
+ * follows the setting.
+ *
+ * @param info the per-dock state
+ */
+function _syncPress(info) {
+    if (info.container.has_style_class_name('kiwi-dock-styled'))
+        _syncDarken(info.button);
+    else
+        info.button.remove_effect_by_name('kiwi-press-darken');
 }
 
 function _buildItem(info) {
@@ -605,7 +833,7 @@ function _attachDock(dockContainer) {
             if (dash.iconSize === info.iconSize || !info.button)
                 return;
             info.iconSize = dash.iconSize;
-            info.button.child.icon_size = dash.iconSize;
+            _syncButton(info);
             // The dock pads a smaller icon differently, so the offset moves too
             const offset = iconOffset(dash);
             if (isHorizontal)
@@ -688,6 +916,13 @@ export function enable(gettext) {
     const overviewId = Main.overview.connect('showing', () => _closeFan());
     globalSignals.push([Main.overview, overviewId]);
 
+    // The pile on the dock shows what is in the folder, so it follows the folder
+    folderMonitor = _downloadsFile().monitor_directory(
+        Gio.FileMonitorFlags.WATCH_MOVES, null);
+    const changedId = folderMonitor.connect('changed', () => _queueRefresh());
+    globalSignals.push([folderMonitor, changedId]);
+    _refresh();
+
     // During startup the dock is not laid out yet, same caveat as dockBlur
     if (Main.layoutManager._startingUp) {
         const startupId = Main.layoutManager.connect('startup-complete', () => _watchDocks());
@@ -699,7 +934,6 @@ export function enable(gettext) {
 
 export function disable() {
     enabled = false;
-    listing = false;
 
     for (const key of Object.keys(sources)) {
         if (sources[key])
@@ -718,6 +952,11 @@ export function disable() {
     globalSignals = [];
 
     [...docks].forEach(info => _detachDock(info));
+
+    folderMonitor?.cancel();
+    folderMonitor = null;
+    recent = [];
+    recentCount = 0;
 
     gettextFunc = message => message;
 }

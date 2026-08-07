@@ -628,19 +628,21 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 }
 
 /* Name pills: a touch of the wallpaper carries through them the way it does
-   through a macOS label, with dark text that reads over either colour scheme. */
+   through a macOS label. The pill follows the session's light or dark scheme -
+   apps/downloadsStack.js adds .dark when the session asks for it, since shell
+   stylesheets have no way to ask on their own. */
 .kiwi-fan-label {
-  background-color: rgba(238, 238, 238, 0.7);
+  background-color: rgba(238, 238, 238, 0.85);
   color: #1c1c1c;
-  border-radius: 11px;
+  border-radius: 99px;
   padding: 5px 13px;
   font-weight: 500;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
 }
 
-.kiwi-fan-label:hover,
-.kiwi-fan-label:focus {
-  background-color: #ffffff;
+.kiwi-fan-label.dark {
+  background-color: rgba(46, 46, 46, 0.85);
+  color: #f2f2f2;
 }
 
 .kiwi-fan-icon {
@@ -648,24 +650,31 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 }
 
 /* A mime icon casts its shadow off its own outline, so the shape of the icon is
-   what lifts off the wallpaper rather than the box around it. */
+   what lifts off the wallpaper rather than the box around it. No offset on any
+   of these: the fan floats, so the light comes from straight on. */
 .kiwi-fan-file-icon {
-  icon-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+  icon-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
 }
 
 /* A thumbnail is a picture, so it takes a rectangular shadow, and the white
    behind it only ever shows as the edge of a print. */
 .kiwi-fan-thumbnail {
   background-color: #ffffff;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+/* The round button is filled out to its own edge, where a thumbnail sits in a
+   roomier box, so this row keeps the pill off it. */
+.kiwi-fan-more-row {
+  spacing: 8px;
 }
 
 /* The round button that ends the fan, the way macOS ends its own */
 .kiwi-fan-more {
   background-color: rgba(238, 238, 238, 0.94);
   border-radius: 99px;
-  padding: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  padding: 7px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
 }
 
 .kiwi-fan-more:hover,
@@ -675,4 +684,22 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 
 .kiwi-fan-more-icon {
   color: #1c1c1c;
+}
+
+.kiwi-fan-more.dark {
+  background-color: rgba(46, 46, 46, 0.94);
+}
+
+.kiwi-fan-more.dark .kiwi-fan-more-icon {
+  color: #f2f2f2;
+}
+
+/* Piled in the dock the cards are flat against each other, so they carry no
+   shadow of their own; they pick one up as they leave the pile. */
+.kiwi-downloads-stack .kiwi-fan-thumbnail {
+  box-shadow: none;
+}
+
+.kiwi-downloads-stack .kiwi-fan-file-icon {
+  icon-shadow: none;
 }
