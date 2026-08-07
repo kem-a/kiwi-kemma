@@ -455,6 +455,24 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   padding-bottom: 0 !important;
 }
 
+/* Name tooltips: the shell theme keeps them near-black in a light session, so
+   they follow the session's scheme here instead, and take the palette the
+   downloads pills use so the two match. apps/dockStyling.js adds the classes -
+   the label is the shell's own actor, and shell stylesheets have no way to ask
+   for the scheme on their own. Geometry stays the theme's. */
+.dash-label.kiwi-dock-label {
+  background-color: rgba(238, 238, 238, 0.85);
+  color: #1c1c1c;
+  /* The pill floats over the wallpaper, so the light comes from straight on -
+     same shadow the downloads pills lift off with */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
+}
+
+.dash-label.kiwi-dock-label.dark {
+  background-color: rgba(46, 46, 46, 0.85);
+  color: #f2f2f2;
+}
+
 
 /*###############################################*/
 /* Quick Settings Notifications and Media Styles */

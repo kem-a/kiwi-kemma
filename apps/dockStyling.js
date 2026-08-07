@@ -1,17 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Dash-to-Dock icon styling: tighter spacing and no highlight behind the icons
 // (those rules live in stylesheet.css behind the .kiwi-dock-styled class), plus
-// a darken effect on the icon while it is pressed.
+// a darken effect on the icon while it is pressed and name tooltips that follow
+// the session's light or dark scheme.
 
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 const STYLE_CLASS = 'kiwi-dock-styled';
+const LABEL_CLASS = 'kiwi-dock-label';
+const DARK_CLASS = 'dark';
 const EFFECT_NAME = 'kiwi-press-darken';
 const PRESS_BRIGHTNESS = -0.60;
 
 let childAddedId = null;
+let colorSchemeId = null;
 let boxSignals = []; // [[dash._box, signal id]]
 
 function _dockContainers() {
@@ -20,11 +24,44 @@ function _dockContainers() {
     );
 }
 
-// dashtodockContainer → _slider → child (dashtodockBox) → dash → _box
-function _dashBox(container) {
+// dashtodockContainer → _slider → child (dashtodockBox) → dash
+function _dash(container) {
     const dashBox = container._slider?.get_child();
-    const dash = dashBox?.get_children().find(c => c.name === 'dash');
-    return dash?._box ?? null;
+    return dashBox?.get_children().find(c => c.name === 'dash') ?? null;
+}
+
+function _dashBox(container) {
+    return _dash(container)?._box ?? null;
+}
+
+function _prefersDark() {
+    return St.Settings.get().colorScheme === St.SystemColorScheme.PREFER_DARK;
+}
+
+/** Items that carry a tooltip: the icons, plus show-apps where it sits outside
+ *  the icon box - which is where Dash-to-Dock keeps it by default.
+ *
+ * @param container a dashtodockContainer
+ */
+function _labelledItems(container) {
+    const dash = _dash(container);
+    if (!dash?._box)
+        return [];
+    return [...dash._box.get_children(), dash._showAppsIcon]
+        .filter(item => item?.label);
+}
+
+function _syncLabel(label) {
+    label.add_style_class_name(LABEL_CLASS);
+    if (_prefersDark())
+        label.add_style_class_name(DARK_CLASS);
+    else
+        label.remove_style_class_name(DARK_CLASS);
+}
+
+function _syncAllLabels() {
+    for (const container of _dockContainers())
+        _labelledItems(container).forEach(item => _syncLabel(item.label));
 }
 
 function _syncDarken(button) {
@@ -38,6 +75,9 @@ function _syncDarken(button) {
 }
 
 function _wireItem(item) {
+    if (item.label)
+        _syncLabel(item.label);
+
     const button = item.child;
     if (!(button instanceof St.Button) || button._kiwiPressId)
         return;
@@ -61,6 +101,8 @@ function _applyDock(container) {
         return;
 
     box.get_children().forEach(_wireItem);
+    // Show-apps sits outside the icon box, so the walk above misses its tooltip
+    _labelledItems(container).forEach(item => _syncLabel(item.label));
     // Dash-to-Dock rebuilds its items on every redisplay
     boxSignals.push([box, box.connect('child-added', (_box, item) => _wireItem(item))]);
 }
@@ -76,6 +118,8 @@ export function enable() {
             _applyDock(actor);
     });
 
+    colorSchemeId = St.Settings.get().connect('notify::color-scheme', _syncAllLabels);
+
     _dockContainers().forEach(_applyDock);
 }
 
@@ -83,6 +127,11 @@ export function disable() {
     if (childAddedId) {
         Main.uiGroup.disconnect(childAddedId);
         childAddedId = null;
+    }
+
+    if (colorSchemeId) {
+        St.Settings.get().disconnect(colorSchemeId);
+        colorSchemeId = null;
     }
 
     for (const [box, id] of boxSignals) {
@@ -94,5 +143,9 @@ export function disable() {
     for (const container of _dockContainers()) {
         container.remove_style_class_name(STYLE_CLASS);
         _dashBox(container)?.get_children().forEach(_unwireItem);
+        for (const item of _labelledItems(container)) {
+            item.label.remove_style_class_name(LABEL_CLASS);
+            item.label.remove_style_class_name(DARK_CLASS);
+        }
     }
 }
