@@ -24,31 +24,26 @@ function _dockContainers() {
     );
 }
 
-// dashtodockContainer → _slider → child (dashtodockBox) → dash
-function _dash(container) {
-    const dashBox = container._slider?.get_child();
-    return dashBox?.get_children().find(c => c.name === 'dash') ?? null;
-}
-
+// dashtodockContainer → _slider → child (dashtodockBox) → dash → _box
 function _dashBox(container) {
-    return _dash(container)?._box ?? null;
+    const dashBox = container._slider?.get_child();
+    const dash = dashBox?.get_children().find(c => c.name === 'dash');
+    return dash?._box ?? null;
 }
 
 function _prefersDark() {
     return St.Settings.get().colorScheme === St.SystemColorScheme.PREFER_DARK;
 }
 
-/** Items that carry a tooltip: the icons, plus show-apps where it sits outside
- *  the icon box - which is where Dash-to-Dock keeps it by default.
- *
- * @param container a dashtodockContainer
+/** Every tooltip on screen. A DashItemContainer hands its label to the shell's
+ *  chrome rather than keeping it, so they all sit here side by side - the app
+ *  icons', show-apps', and the ones on the items kiwi puts in the dock: the
+ *  downloads stack, the minimized windows, the trash.
  */
-function _labelledItems(container) {
-    const dash = _dash(container);
-    if (!dash?._box)
-        return [];
-    return [...dash._box.get_children(), dash._showAppsIcon]
-        .filter(item => item?.label);
+function _dashLabels() {
+    return Main.uiGroup.get_children().filter(child =>
+        child.has_style_class_name?.('dash-label')
+    );
 }
 
 function _syncLabel(label) {
@@ -60,8 +55,7 @@ function _syncLabel(label) {
 }
 
 function _syncAllLabels() {
-    for (const container of _dockContainers())
-        _labelledItems(container).forEach(item => _syncLabel(item.label));
+    _dashLabels().forEach(_syncLabel);
 }
 
 function _syncDarken(button) {
@@ -75,9 +69,6 @@ function _syncDarken(button) {
 }
 
 function _wireItem(item) {
-    if (item.label)
-        _syncLabel(item.label);
-
     const button = item.child;
     if (!(button instanceof St.Button) || button._kiwiPressId)
         return;
@@ -101,8 +92,6 @@ function _applyDock(container) {
         return;
 
     box.get_children().forEach(_wireItem);
-    // Show-apps sits outside the icon box, so the walk above misses its tooltip
-    _labelledItems(container).forEach(item => _syncLabel(item.label));
     // Dash-to-Dock rebuilds its items on every redisplay
     boxSignals.push([box, box.connect('child-added', (_box, item) => _wireItem(item))]);
 }
@@ -112,15 +101,19 @@ export function enable() {
     if (childAddedId)
         return;
 
-    // A dock created after us (extension enabled later, monitor added)
+    // A dock created after us (extension enabled later, monitor added), and the
+    // tooltip of every item that joins the dock from here on
     childAddedId = Main.uiGroup.connect('child-added', (_group, actor) => {
         if (actor.name === 'dashtodockContainer')
             _applyDock(actor);
+        else if (actor.has_style_class_name?.('dash-label'))
+            _syncLabel(actor);
     });
 
     colorSchemeId = St.Settings.get().connect('notify::color-scheme', _syncAllLabels);
 
     _dockContainers().forEach(_applyDock);
+    _syncAllLabels();
 }
 
 export function disable() {
@@ -140,12 +133,13 @@ export function disable() {
     }
     boxSignals = [];
 
+    for (const label of _dashLabels()) {
+        label.remove_style_class_name(LABEL_CLASS);
+        label.remove_style_class_name(DARK_CLASS);
+    }
+
     for (const container of _dockContainers()) {
         container.remove_style_class_name(STYLE_CLASS);
         _dashBox(container)?.get_children().forEach(_unwireItem);
-        for (const item of _labelledItems(container)) {
-            item.label.remove_style_class_name(LABEL_CLASS);
-            item.label.remove_style_class_name(DARK_CLASS);
-        }
     }
 }
