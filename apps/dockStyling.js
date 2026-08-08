@@ -4,36 +4,17 @@
 // a darken effect on the icon while it is pressed and name tooltips that follow
 // the session's light or dark scheme.
 
-import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import { dashOf, dockContainers, prefersDark, syncDarken } from './dockUtils.js';
 
 const STYLE_CLASS = 'kiwi-dock-styled';
 const LABEL_CLASS = 'kiwi-dock-label';
 const DARK_CLASS = 'dark';
-const EFFECT_NAME = 'kiwi-press-darken';
-const PRESS_BRIGHTNESS = -0.60;
 
 let childAddedId = null;
 let colorSchemeId = null;
-let boxSignals = []; // [[dash._box, signal id]]
-
-function _dockContainers() {
-    return Main.uiGroup.get_children().filter(child =>
-        child.name === 'dashtodockContainer'
-    );
-}
-
-// dashtodockContainer → _slider → child (dashtodockBox) → dash → _box
-function _dashBox(container) {
-    const dashBox = container._slider?.get_child();
-    const dash = dashBox?.get_children().find(c => c.name === 'dash');
-    return dash?._box ?? null;
-}
-
-function _prefersDark() {
-    return St.Settings.get().colorScheme === St.SystemColorScheme.PREFER_DARK;
-}
+let boxSignals = []; // [{ box, addedId, destroyId }]
 
 /** Every tooltip on screen. A DashItemContainer hands its label to the shell's
  *  chrome rather than keeping it, so they all sit here side by side - the app
@@ -48,7 +29,7 @@ function _dashLabels() {
 
 function _syncLabel(label) {
     label.add_style_class_name(LABEL_CLASS);
-    if (_prefersDark())
+    if (prefersDark())
         label.add_style_class_name(DARK_CLASS);
     else
         label.remove_style_class_name(DARK_CLASS);
@@ -58,21 +39,11 @@ function _syncAllLabels() {
     _dashLabels().forEach(_syncLabel);
 }
 
-function _syncDarken(button) {
-    if (button.pressed) {
-        const effect = new Clutter.BrightnessContrastEffect({ name: EFFECT_NAME });
-        effect.set_brightness(PRESS_BRIGHTNESS);
-        button.add_effect(effect);
-    } else {
-        button.remove_effect_by_name(EFFECT_NAME);
-    }
-}
-
 function _wireItem(item) {
     const button = item.child;
     if (!(button instanceof St.Button) || button._kiwiPressId)
         return;
-    button._kiwiPressId = button.connect('notify::pressed', () => _syncDarken(button));
+    button._kiwiPressId = button.connect('notify::pressed', () => syncDarken(button));
 }
 
 function _unwireItem(item) {
@@ -81,19 +52,28 @@ function _unwireItem(item) {
         return;
     button.disconnect(button._kiwiPressId);
     button._kiwiPressId = 0;
-    button.remove_effect_by_name(EFFECT_NAME);
+    syncDarken(button, false);
 }
 
 function _applyDock(container) {
     container.add_style_class_name(STYLE_CLASS);
 
-    const box = _dashBox(container);
+    const box = dashOf(container)?._box;
     if (!box)
         return;
 
     box.get_children().forEach(_wireItem);
+
     // Dash-to-Dock rebuilds its items on every redisplay
-    boxSignals.push([box, box.connect('child-added', (_box, item) => _wireItem(item))]);
+    const entry = { box };
+    entry.addedId = box.connect('child-added', (_box, item) => _wireItem(item));
+    // A dock torn down before we are (monitor removed, Dash-to-Dock switched
+    // off) takes its box with it; let go of it then, rather than reaching for a
+    // finalized actor in disable()
+    entry.destroyId = box.connect('destroy', () => {
+        boxSignals = boxSignals.filter(other => other !== entry);
+    });
+    boxSignals.push(entry);
 }
 
 export function enable() {
@@ -112,7 +92,7 @@ export function enable() {
 
     colorSchemeId = St.Settings.get().connect('notify::color-scheme', _syncAllLabels);
 
-    _dockContainers().forEach(_applyDock);
+    dockContainers().forEach(_applyDock);
     _syncAllLabels();
 }
 
@@ -127,9 +107,9 @@ export function disable() {
         colorSchemeId = null;
     }
 
-    for (const [box, id] of boxSignals) {
-        // A dock torn down since (monitor removed, Dash-to-Dock disabled) is gone
-        try { box.disconnect(id); } catch (_) {}
+    for (const { box, addedId, destroyId } of boxSignals) {
+        box.disconnect(addedId);
+        box.disconnect(destroyId);
     }
     boxSignals = [];
 
@@ -138,8 +118,8 @@ export function disable() {
         label.remove_style_class_name(DARK_CLASS);
     }
 
-    for (const container of _dockContainers()) {
+    for (const container of dockContainers()) {
         container.remove_style_class_name(STYLE_CLASS);
-        _dashBox(container)?.get_children().forEach(_unwireItem);
+        dashOf(container)?._box?.get_children().forEach(_unwireItem);
     }
 }

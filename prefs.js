@@ -756,15 +756,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
             expanded: settings.get_boolean('show-window-title') &&
                 settings.get_boolean('show-tiling-title-menu'),
             show_enable_switch: true,
-            enable_expansion: settings.get_boolean('show-window-title'),
         });
         windowTitleGroup.add(windowTitleExpander);
-
-        windowTitleExpander.connect('notify::enable-expansion', () => {
-            const v = windowTitleExpander.enable_expansion;
-            if (settings.get_boolean('show-window-title') !== v)
-                settings.set_boolean('show-window-title', v);
-        });
+        settings.bind('show-window-title', windowTitleExpander, 'enable-expansion',
+            Gio.SettingsBindFlags.DEFAULT);
 
         const tilingTitleMenuRow = new Adw.SwitchRow({
             title: _("Window Tiling"),

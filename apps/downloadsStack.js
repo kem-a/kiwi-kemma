@@ -14,8 +14,9 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {
-    dashEndsWithSeparator, iconOffset, makeDashItem, makeDashSeparator,
-} from './minimizedToDock.js';
+    applyIconOffset, dashEndsWithSeparator, dashOf, disconnectAll, makeDashItem,
+    makeDashSeparator, makeStrip, prefersDark, scaleFactor, syncDarken, watchDocks,
+} from './dockUtils.js';
 
 const MAX_ROWS = 10;          // files in the fan, as macOS caps it
 const FILE_ICON = 1.3;        // file icon, in dash icon sizes
@@ -28,7 +29,6 @@ const TOP_MARGIN = 24;        // px kept clear above the topmost row
 // same step apart, so the fan spreads and folds at one pace.
 const ROW_ANIMATION = 150;    // ms for a row to travel to or from the dock
 const ROW_STAGGER = 12;       // ms between one row leaving and the next
-const PRESS_BRIGHTNESS = -0.6;  // dock-styling's darken while a button is held
 // The dock item is the pile the fan comes out of: the same newest files, one
 // behind the other, each a little further up and turned a little further over.
 const STACK_DEPTH = 5;        // thumbnails deep the pile is drawn
@@ -37,7 +37,6 @@ const STACK_TILT = 2.2;       // degrees added per thumbnail down the pile
 const REFRESH_DELAY = 400;    // ms of a quiet Downloads folder before rereading
 // A card is as big as an app icon in the dock, give or take the rim of the
 // folder it sits on, and the pile as a whole stays inside the same box.
-const STACK_ITEM = 1.0;      // the largest a card gets, in dash icon sizes
 const STACK_EXTENT = 1;       // how much of the icon box the whole pile fills
 const LIST_BATCH = 64;
 const LIST_ATTRIBUTES = [
@@ -60,19 +59,6 @@ let recentKey = '';           // fingerprint of the list the piles were built fr
 let folderMonitor = null;     // Gio.FileMonitor on the Downloads folder
 let gettextFunc = message => message;
 const sources = { dockSearch: 0, replace: 0, refresh: 0 };
-
-function _disconnectAll(pairs) {
-    for (const [object, id] of pairs)
-        object.disconnect(id);
-}
-
-function _scaleFactor() {
-    return St.ThemeContext.get_for_stage(global.stage).scaleFactor;
-}
-
-function _prefersDark() {
-    return St.Settings.get().colorScheme === St.SystemColorScheme.PREFER_DARK;
-}
 
 /* ------------------------------------------------------------- file list */
 
@@ -194,8 +180,8 @@ function _modified(info) {
 function _fileIcon(info, size) {
     const box = new St.Widget({
         layout_manager: new Clutter.BinLayout(),
-        width: size * _scaleFactor(),
-        height: size * _scaleFactor(),
+        width: size * scaleFactor(),
+        height: size * scaleFactor(),
     });
 
     const thumbnail = info.get_attribute_byte_string('thumbnail::path');
@@ -210,7 +196,7 @@ function _fileIcon(info, size) {
         const texture = St.TextureCache.get_default().load_file_async(
             Gio.File.new_for_path(thumbnail),
             Math.round(imageWidth * fit), Math.round(imageHeight * fit),
-            _scaleFactor(), 1);
+            scaleFactor(), 1);
         // A thumbnailer that pads its canvas to a square has drawn the paper
         // and the shadow under it into the picture itself - the margin around
         // it is transparent. Matting that would fill the margin white and bury
@@ -276,10 +262,10 @@ function _makeRow(text, iconActor, iconClass, onActivate) {
     });
 
     // Held down, it darkens like an app icon in the dock
-    icon.connect('notify::pressed', () => _syncDarken(icon));
+    icon.connect('notify::pressed', () => syncDarken(icon));
     icon.connect('clicked', onActivate);
 
-    if (_prefersDark()) {
+    if (prefersDark()) {
         label.add_style_class_name('dark');
         icon.add_style_class_name('dark');
     }
@@ -331,9 +317,8 @@ function _rowPivot(row) {
  *
  * @param row a row built by _makeRow, already placed on the arc
  * @param index its place in the fan, nearest the dock first
- * @param onLanded run when this row reaches the arc
  */
-function _animateRowIn(row, index, onLanded) {
+function _animateRowIn(row, index) {
     const [pivotX, pivotY] = _rowPivot(row);
     const { start, card } = row;
     const tilt = row.rotation_angle_z;
@@ -372,7 +357,6 @@ function _animateRowIn(row, index, onLanded) {
         // flickers as each row arrives.
         onComplete: () => {
             row.offscreen_redirect = Clutter.OffscreenRedirect.ALWAYS;
-            onLanded?.();
         },
     });
 }
@@ -386,7 +370,7 @@ function _showFan(info) {
     const [buttonWidth, buttonHeight] = info.button.get_transformed_size();
     const geometry = Main.layoutManager.monitors[info.dash._monitorIndex] ??
         Main.layoutManager.primaryMonitor;
-    const scale = _scaleFactor();
+    const scale = scaleFactor();
     const iconSize = Math.round(info.dash.iconSize * FILE_ICON);
     const spacing = Math.round(iconSize * scale * ROW_SPACING);
 
@@ -620,8 +604,8 @@ function _pileMetrics(dash) {
     const span = Math.max(0, depth - 1) * STACK_STEP;
     return {
         depth,
-        size: Math.round(dash.iconSize * Math.min(STACK_ITEM, STACK_EXTENT - span)),
-        step: Math.round(dash.iconSize * STACK_STEP * _scaleFactor()),
+        size: Math.round(dash.iconSize * (STACK_EXTENT - span)),
+        step: Math.round(dash.iconSize * STACK_STEP * scaleFactor()),
     };
 }
 
@@ -634,7 +618,7 @@ function _pileMetrics(dash) {
  * @param dash the Dash-to-Dock dash actor
  */
 function _stackIcon(dash) {
-    const scale = _scaleFactor();
+    const scale = scaleFactor();
     const box = new St.Widget({
         style_class: 'kiwi-downloads-stack',
         layout_manager: new Clutter.BinLayout(),
@@ -676,11 +660,7 @@ function _makeButton(info) {
     button.set_child(_stackIcon(dash));
 
     // Sit where an app icon sits rather than in the middle of the slot
-    const offset = iconOffset(dash);
-    if (dash._isHorizontal ?? true)
-        button.translation_y = offset;
-    else
-        button.translation_x = offset;
+    applyIconOffset(dash, button);
 
     button.connect('notify::pressed', () => _syncPress(info));
     button.connect('clicked', () => _toggleFan(info));
@@ -695,21 +675,6 @@ function _syncButton(info) {
 }
 
 /**
- * The darken dock styling puts on an app icon while it is held.
- *
- * @param button the button being pressed or released
- */
-function _syncDarken(button) {
-    if (button.pressed) {
-        const effect = new Clutter.BrightnessContrastEffect({ name: 'kiwi-press-darken' });
-        effect.set_brightness(PRESS_BRIGHTNESS);
-        button.add_effect(effect);
-    } else {
-        button.remove_effect_by_name('kiwi-press-darken');
-    }
-}
-
-/**
  * Darken the item while it is held, the way dock styling darkens the app icons.
  * That styling only reaches the icons Dash-to-Dock owns, and it is behind its
  * own setting - which the dock wears as a style class, so following the class
@@ -718,10 +683,7 @@ function _syncDarken(button) {
  * @param info the per-dock state
  */
 function _syncPress(info) {
-    if (info.container.has_style_class_name('kiwi-dock-styled'))
-        _syncDarken(info.button);
-    else
-        info.button.remove_effect_by_name('kiwi-press-darken');
+    syncDarken(info.button, info.container.has_style_class_name('kiwi-dock-styled'));
 }
 
 function _buildItem(info) {
@@ -812,22 +774,14 @@ function _queueReplace() {
 }
 
 function _attachDock(dockContainer) {
-    // dashtodockContainer → _slider → child (dashtodockBox) → dash
-    const dashBox = dockContainer._slider?.get_child();
-    const dash = dashBox?.get_children().find(c => c.name === 'dash');
+    const dash = dashOf(dockContainer);
     if (!dash?._box || !dash._boxContainer)
         return;
     if (docks.some(existing => existing.dash === dash))
         return;
 
     const isHorizontal = dash._isHorizontal ?? true;
-    const strip = new St.BoxLayout({
-        name: 'kiwi-downloads-strip',
-        orientation: isHorizontal
-            ? Clutter.Orientation.HORIZONTAL : Clutter.Orientation.VERTICAL,
-        x_align: isHorizontal ? Clutter.ActorAlign.START : Clutter.ActorAlign.CENTER,
-        y_align: isHorizontal ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START,
-    });
+    const strip = makeStrip(dash, 'kiwi-downloads-strip');
     dash._boxContainer.insert_child_above(strip, dash._box);
 
     const info = {
@@ -862,11 +816,7 @@ function _attachDock(dockContainer) {
             info.iconSize = dash.iconSize;
             _syncButton(info);
             // The dock pads a smaller icon differently, so the offset moves too
-            const offset = iconOffset(dash);
-            if (isHorizontal)
-                info.button.translation_y = offset;
-            else
-                info.button.translation_x = offset;
+            applyIconOffset(dash, info.button);
         });
     info.signals.push([dash._box, sizeId]);
 
@@ -879,7 +829,7 @@ function _attachDock(dockContainer) {
 }
 
 function _detachDock(info, removeActors = true) {
-    _disconnectAll(info.signals);
+    disconnectAll(info.signals);
     info.signals = [];
 
     if (info.stripSignal) {
@@ -901,41 +851,19 @@ function _detachDock(info, removeActors = true) {
     docks = docks.filter(other => other !== info);
 }
 
-function _attachExistingDocks() {
-    for (const child of Main.uiGroup.get_children()) {
-        if (child.name === 'dashtodockContainer')
-            _attachDock(child);
-    }
-}
-
 function _watchDocks() {
-    const uiGroupId = Main.uiGroup.connect('child-added', (_group, actor) => {
-        if (actor.name === 'dashtodockContainer')
-            _attachDock(actor);
+    watchDocks({
+        attach: _attachDock,
+        count: () => docks.length,
+        globalSignals,
+        sources,
     });
-    globalSignals.push([Main.uiGroup, uiGroupId]);
-
-    _attachExistingDocks();
-
-    // The dock may still be loading, retry for a while
-    if (docks.length === 0) {
-        let attempts = 0;
-        sources.dockSearch = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-            _attachExistingDocks();
-            if (docks.length > 0 || ++attempts >= 10) {
-                sources.dockSearch = 0;
-                return GLib.SOURCE_REMOVE;
-            }
-            return GLib.SOURCE_CONTINUE;
-        });
-    }
 }
 
 /* ----------------------------------------------------------- entry points */
 
 export function enable(gettext) {
-    if (typeof gettext === 'function')
-        gettextFunc = gettext;
+    gettextFunc = gettext;
     if (enabled)
         return;
     enabled = true;
@@ -975,7 +903,7 @@ export function disable() {
         fan = null;
     }
 
-    _disconnectAll(globalSignals);
+    disconnectAll(globalSignals);
     globalSignals = [];
 
     [...docks].forEach(info => _detachDock(info));

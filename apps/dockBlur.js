@@ -10,6 +10,7 @@ import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 
 import { connectPaintSignal } from './blurPaintSignal.js';
+import { dashOf, dockContainers } from './dockUtils.js';
 
 let enabled = false;
 let dockSearchId = null;
@@ -86,24 +87,10 @@ function _hasValidAllocation(actor) {
     return actor && actor.has_allocation() && actor.width > 0 && actor.height > 0;
 }
 
-function _findDockContainers() {
-    // Dash-to-Dock adds containers with name 'dashtodockContainer' to Main.uiGroup
-    return Main.uiGroup.get_children().filter(child =>
-        child.name === 'dashtodockContainer'
-    );
-}
-
 function _tryBlurDock(dockContainer) {
-    // Navigate into the dock actor tree:
-    // dashtodockContainer → _slider → child (dashtodockBox) → dash
-    const slider = dockContainer._slider;
-    if (!slider) return;
-    const dashBox = slider.get_child();
-    if (!dashBox) return;
-
-    // Find the 'dash' actor
-    const dash = dashBox.get_children().find(c => c.name === 'dash');
+    const dash = dashOf(dockContainer);
     if (!dash) return;
+    const dashBox = dash.get_parent();
 
     // Check if we already blurred this dash
     if (dashBox.get_children().some(c => c.name === 'kiwi-dock-blur-group'))
@@ -213,21 +200,18 @@ function _tryBlurDock(dockContainer) {
     };
     queueUpdateSize();
 
-    const signals = [];
     // Allocation signals catch geometry settling that the x/y/width/height
     // notifications can miss (dock created mid-layout, resume from sleep).
-    signals.push({ actor: dash, id: dash.connect('notify::allocation', queueUpdateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::allocation', queueUpdateSize) });
-    signals.push({ actor: dash, id: dash.connect('notify::width', queueUpdateSize) });
-    signals.push({ actor: dash, id: dash.connect('notify::height', queueUpdateSize) });
-    signals.push({ actor: dash, id: dash.connect('notify::y', queueUpdateSize) });
-    signals.push({ actor: dash, id: dash.connect('notify::x', queueUpdateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::width', queueUpdateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::height', queueUpdateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::x', queueUpdateSize) });
-    signals.push({ actor: dashBackground, id: dashBackground.connect('notify::y', queueUpdateSize) });
-    signals.push({ actor: dockContainer, id: dockContainer.connect('notify::width', queueUpdateSize) });
-    signals.push({ actor: dockContainer, id: dockContainer.connect('notify::height', queueUpdateSize) });
+    const watched = [
+        [dash, ['allocation', 'width', 'height', 'x', 'y']],
+        [dashBackground, ['allocation', 'width', 'height', 'x', 'y']],
+        [dockContainer, ['width', 'height']],
+    ];
+    const signals = [];
+    for (const [actor, properties] of watched) {
+        for (const property of properties)
+            signals.push({ actor, id: actor.connect(`notify::${property}`, queueUpdateSize) });
+    }
 
     const info = {
         dockContainer,
@@ -297,7 +281,7 @@ function _removeDashBlur(info, disconnectDestroy = true) {
 }
 
 function _blurExistingDocks() {
-    _findDockContainers().forEach(container => _tryBlurDock(container));
+    dockContainers().forEach(container => _tryBlurDock(container));
 }
 
 function _removeAllBlurs() {

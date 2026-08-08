@@ -7,6 +7,7 @@ import Meta from 'gi://Meta';
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 
 const GLYPH_W = 26;
 const GLYPH_H = 18;
@@ -45,21 +46,17 @@ const MOVING_GRAB_OPS = [
 
 let _grabOpBeginId = null;
 
-// GNOME 49+ takes no arguments, GNOME 48 requires MaximizeFlags.
+// Mutter 49 dropped the MetaMaximizeFlags argument from maximize()/unmaximize();
+// 48 still requires it. The flags enum is only read on the shells that want it.
+const MAXIMIZE_ARGS = parseInt(Config.PACKAGE_VERSION) >= 49
+    ? [] : [Meta.MaximizeFlags.BOTH];
+
 function maximizeWindow(win) {
-    try {
-        win.maximize();
-    } catch {
-        win.maximize(Meta.MaximizeFlags.BOTH);
-    }
+    win.maximize(...MAXIMIZE_ARGS);
 }
 
 function unmaximizeWindow(win) {
-    try {
-        win.unmaximize();
-    } catch {
-        win.unmaximize(Meta.MaximizeFlags.BOTH);
-    }
+    win.unmaximize(...MAXIMIZE_ARGS);
 }
 
 function isMaximized(win) {
@@ -229,8 +226,10 @@ function arrangeWindows(win, kind) {
 }
 
 // Dragging a maximized window by its titlebar restores it; Mutter does that itself, but it
-// has no idea our tiled windows are tiled, so reproduce it here. No animation: the window
-// must stay under the pointer.
+// has no idea our tiled windows are tiled, so reproduce it here — animation included, the
+// way Mutter animates its own un-maximize. The animation is only actor translation and
+// scale, both relative, so the grab keeps moving the window underneath it and the window
+// still ends up under the pointer.
 function onGrabOpBegin(_display, win, grabOp) {
     if (!win || !win._kiwiRestore)
         return;
@@ -244,13 +243,17 @@ function onGrabOpBegin(_display, win, grabOp) {
     const ratio = before.width > 0
         ? Math.min(1, Math.max(0, (pointerX - before.x) / before.width)) : 0.5;
 
+    // The drag ends the tiling relationship either way, so the stash goes now.
+    // Nothing left to move back to when it was maximized before we tiled it, and
+    // Mutter restores a still-maximized window itself.
     const stash = win._kiwiRestore;
     delete win._kiwiRestore;
     if (stash.maximized || isMaximized(win))
         return;
 
-    win.move_resize_frame(false,
-        Math.round(pointerX - ratio * stash.width), before.y, stash.width, stash.height);
+    moveResizeAnimated(win,
+        Math.round(pointerX - ratio * stash.width), before.y, stash.width, stash.height,
+        true, before);
 }
 
 export function enableDragRestore() {

@@ -17,7 +17,10 @@ import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import { DashItemContainer } from 'resource:///org/gnome/shell/ui/dash.js';
+import {
+    applyIconOffset, dashEndsWithSeparator, dashOf, disconnectAll, isTrashItem, makeDashItem,
+    makeDashSeparator, makeStrip, scaleFactor, watchDocks,
+} from './dockUtils.js';
 
 const D2D_SCHEMA = 'org.gnome.shell.extensions.dash-to-dock';
 // Proportions measured off a macOS dock: every tile is the same fixed box, a
@@ -50,11 +53,6 @@ let d2dSettings = null;
 const sources = {
     dockSearch: 0, restoreGrace: 0, geometryUpdate: 0, trashAdoption: 0, separatorSync: 0,
 };
-
-function _disconnectAll(pairs) {
-    for (const [object, id] of pairs)
-        object.disconnect(id);
-}
 
 /* -------------------------------------------------------------- snapshots */
 
@@ -227,12 +225,8 @@ function _newRoundedCornersEffect() {
         `));
 }
 
-function _scaleFactor() {
-    return St.ThemeContext.get_for_stage(global.stage).scaleFactor;
-}
-
 function _tileBox(dash) {
-    const scale = _scaleFactor();
+    const scale = scaleFactor();
     const isHorizontal = dash._isHorizontal ?? true;
     const along = Math.round(dash.iconSize * TILE_ALONG * scale);
     const across = Math.round(dash.iconSize * TILE_ACROSS * scale);
@@ -251,7 +245,7 @@ function _roundCorners(actor) {
     actor.add_effect(effect);
 
     const { width, height } = actor;
-    const radius = Math.min(THUMBNAIL_RADIUS * _scaleFactor(), width / 2, height / 2);
+    const radius = Math.min(THUMBNAIL_RADIUS * scaleFactor(), width / 2, height / 2);
     // Nudged off whole numbers so GJS marshals doubles, which is what the
     // shader's float uniforms expect
     effect.set_uniform_value('width', width - 1e-6);
@@ -266,34 +260,6 @@ function _roundCorners(actor) {
         const box = actor.get_allocation_box();
         effect.enabled = box.get_width() >= 1 && box.get_height() >= 1;
     });
-}
-
-/**
- * How far an app icon sits off the centre of its slot. Dash-to-Dock pads its
- * icon buttons unevenly so that the icons come out centred in the dock
- * background, which is itself shorter than the slot; tiles have to take the
- * same step or they hang below the background. The icon box inside the button
- * adds a step of its own.
- *
- * @param dash the Dash-to-Dock dash actor
- */
-export function iconOffset(dash) {
-    const button = dash._box.get_children().find(c => c.child?._delegate?.icon)?.child;
-    if (!button)
-        return 0;
-
-    const icon = button._delegate.icon;
-    button.ensure_style();
-    icon.ensure_style();
-    const [near, far] = (dash._isHorizontal ?? true)
-        ? [St.Side.TOP, St.Side.BOTTOM] : [St.Side.LEFT, St.Side.RIGHT];
-
-    // The icon box pads unevenly too - it holds the running dot below the icon -
-    // so the art is off the centre of the button by that much again
-    const step = node =>
-        node.get_padding(near) - node.get_padding(far);
-    return Math.round(
-        (step(button.get_theme_node()) + step(icon.get_theme_node())) / 2);
 }
 
 function _makeWindowTile(win, dash) {
@@ -313,11 +279,7 @@ function _makeWindowTile(win, dash) {
     const [boxWidth, boxHeight] = _tileBox(dash);
 
     // Sit where an app icon sits rather than in the middle of the slot
-    const offset = iconOffset(dash);
-    if (dash._isHorizontal ?? true)
-        button.translation_y = offset;
-    else
-        button.translation_x = offset;
+    applyIconOffset(dash, button);
 
     // Every tile is the same box, so the app icons line up across the strip
     const box = new St.Widget({
@@ -361,48 +323,6 @@ function _makeWindowTile(win, dash) {
 
     button.set_child(box);
     return button;
-}
-
-export function makeDashSeparator(dash) {
-    const isHorizontal = dash._isHorizontal ?? true;
-    return new St.Widget({
-        style_class: 'dash-separator',
-        x_align: isHorizontal ? Clutter.ActorAlign.FILL : Clutter.ActorAlign.CENTER,
-        y_align: isHorizontal ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.FILL,
-        width: isHorizontal ? -1 : dash.iconSize,
-        height: isHorizontal ? dash.iconSize : -1,
-    });
-}
-
-/**
- * Whether Dash-to-Dock's own separator already closes its box, marking the same
- * boundary we would draw. A trash item it has just rebuilt sits after that
- * separator until the idle-time adoption takes it away; counting it would have
- * us draw a second separator and drop it again on every redisplay.
- *
- * @param dash the Dash-to-Dock dash actor
- */
-export function dashEndsWithSeparator(dash) {
-    const last = dash._box.get_children().findLast(child => !_isTrashItem(child));
-    return !!last?.get_style_class_name?.()?.includes('dash-separator');
-}
-
-/**
- * Wrap a tile in the same item container Dash-to-Dock uses for its icons, so
- * hover labels, positioning and the zoom-in animation match the rest of the dock.
- *
- * @param dash the Dash-to-Dock dash actor
- * @param child the tile actor
- * @param labelText text for the hover label
- */
-export function makeDashItem(dash, child, labelText) {
-    const sibling = dash._box.get_children().find(c => typeof c.setLabelText === 'function');
-    const Container = sibling ? sibling.constructor : DashItemContainer;
-    const item = sibling ? new Container(dash._position) : new Container();
-    item.setChild(child);
-    item.setLabelText(labelText);
-    dash._hookUpLabel(item);
-    return item;
 }
 
 /* ------------------------------------------------------------------ docks */
@@ -586,12 +506,8 @@ function _queueSeparatorSync() {
 
 /* ------------------------------------------------------------------ trash */
 
-function _isTrashItem(child) {
-    return !!child.child?._delegate?.app?.isTrash;
-}
-
 function _findTrashItem(dash) {
-    return dash._box.get_children().find(_isTrashItem) ?? null;
+    return dash._box.get_children().find(isTrashItem) ?? null;
 }
 
 /**
@@ -679,7 +595,7 @@ function _itemRect(item) {
  */
 function _nextSlotRect(info) {
     const { dash, strip, trashItem } = info;
-    const size = Math.round(dash.iconSize * _scaleFactor());
+    const size = Math.round(dash.iconSize * scaleFactor());
     if (trashItem) {
         const rect = _itemRect(trashItem);
         rect.width = size;
@@ -753,22 +669,14 @@ function _queueIconGeometry() {
 }
 
 function _attachDock(dockContainer) {
-    // dashtodockContainer → _slider → child (dashtodockBox) → dash
-    const dashBox = dockContainer._slider?.get_child();
-    const dash = dashBox?.get_children().find(c => c.name === 'dash');
+    const dash = dashOf(dockContainer);
     if (!dash?._box || !dash._boxContainer)
         return;
     if (docks.some(info => info.dash === dash))
         return;
 
     const isHorizontal = dash._isHorizontal ?? true;
-    const strip = new St.BoxLayout({
-        name: 'kiwi-minimized-strip',
-        orientation: isHorizontal
-            ? Clutter.Orientation.HORIZONTAL : Clutter.Orientation.VERTICAL,
-        x_align: isHorizontal ? Clutter.ActorAlign.START : Clutter.ActorAlign.CENTER,
-        y_align: isHorizontal ? Clutter.ActorAlign.CENTER : Clutter.ActorAlign.START,
-    });
+    const strip = makeStrip(dash, 'kiwi-minimized-strip');
     dash._boxContainer.insert_child_above(strip, dash._box);
 
     const info = {
@@ -798,7 +706,7 @@ function _attachDock(dockContainer) {
     // again. Hide it at once, or it widens the dash for the few frames until
     // the idle-time adoption and the whole dock shifts and shifts back.
     const addedId = dash._box.connect('child-added', (_box, child) => {
-        if (_isTrashItem(child)) {
+        if (isTrashItem(child)) {
             child.hide();
             _queueTrashAdoption();
         } else {
@@ -820,7 +728,7 @@ function _attachDock(dockContainer) {
 }
 
 function _detachDock(info, removeActors = true) {
-    _disconnectAll(info.signals);
+    disconnectAll(info.signals);
     info.signals = [];
 
     _releaseTrash(info, removeActors);
@@ -831,14 +739,6 @@ function _detachDock(info, removeActors = true) {
     }
 
     docks = docks.filter(d => d !== info);
-}
-
-function _attachExistingDocks() {
-    // Dash-to-Dock adds containers with name 'dashtodockContainer' to Main.uiGroup
-    for (const child of Main.uiGroup.get_children()) {
-        if (child.name === 'dashtodockContainer')
-            _attachDock(child);
-    }
 }
 
 /* ----------------------------------------------------------- entry points */
@@ -896,28 +796,12 @@ export function enable() {
 }
 
 function _watchDocks() {
-    const uiGroupId = Main.uiGroup.connect('child-added', (_group, actor) => {
-        if (actor.name === 'dashtodockContainer')
-            _attachDock(actor);
+    watchDocks({
+        attach: _attachDock,
+        count: () => docks.length,
+        globalSignals,
+        sources,
     });
-    globalSignals.push([Main.uiGroup, uiGroupId]);
-
-    _attachExistingDocks();
-
-    // The dock may still be loading, retry for a while
-    if (docks.length === 0) {
-        let attempts = 0;
-        if (sources.dockSearch)
-            GLib.Source.remove(sources.dockSearch);
-        sources.dockSearch = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-            _attachExistingDocks();
-            if (docks.length > 0 || ++attempts >= 10) {
-                sources.dockSearch = 0;
-                return GLib.SOURCE_REMOVE;
-            }
-            return GLib.SOURCE_CONTINUE;
-        });
-    }
 }
 
 export function disable() {
@@ -929,13 +813,13 @@ export function disable() {
         sources[key] = 0;
     }
 
-    _disconnectAll(globalSignals);
+    disconnectAll(globalSignals);
     globalSignals = [];
 
     [...docks].forEach(info => _detachDock(info));
 
     for (const [win, ids] of windowSignals) {
-        _disconnectAll(ids.map(id => [win, id]));
+        disconnectAll(ids.map(id => [win, id]));
         // Drop our animation targets; Dash-to-Dock repoints them at its app
         // icons on its next update
         win.set_icon_geometry(null);

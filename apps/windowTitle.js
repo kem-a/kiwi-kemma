@@ -19,6 +19,12 @@ let _extension = null;
 
 const ACCEL_OPACITY = 110; // 0-255. CSS opacity is not applied here; set it on the actor.
 
+// Kiwi's own entries in the app menu, in the order they are added.
+const KIWI_MENU_ITEMS = [
+    '_tilingMenuItem', '_tilingSeparator', '_fullscreenMenuItem',
+    '_restoreMenuItem', '_alwaysOnTopMenuItem', '_restoreSeparator',
+];
+
 // 'F11' -> 'F11', '<Super>Up' -> 'Super+Up'. GTK's accelerator_get_label is not available
 // in the shell process, and only modifier names need rewriting for our purposes.
 function formatAccel(accel) {
@@ -85,26 +91,14 @@ class WindowTitleIndicator extends PanelMenu.Button {
         
         this._onFocusedWindowChanged();
 
-        this._restoreSeparator = null;
-        this._restoreMenuItem = null;
-        this._alwaysOnTopMenuItem = null;
-        this._fullscreenMenuItem = null;
-        this._tilingMenuItem = null;
-        this._tilingSeparator = null;
+        for (const name of KIWI_MENU_ITEMS)
+            this[name] = null;
 
         this._menuOpenStateId = this._menu.connect('open-state-changed', (menu, isOpen) => {
             if (isOpen) {
                 this._updateAppMenuAccels();
                 this._updateKiwiMenuItems();
-                if (this._syncMenuIdleId) {
-                    GLib.Source.remove(this._syncMenuIdleId);
-                    this._syncMenuIdleId = null;
-                }
-                this._syncMenuIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-                    this._syncMenuAlignment();
-                    this._syncMenuIdleId = null;
-                    return GLib.SOURCE_REMOVE;
-                });
+                this._queueMenuAlignment();
             }
         });
 
@@ -195,10 +189,15 @@ class WindowTitleIndicator extends PanelMenu.Button {
             this.show();
         }
 
-        if (this._syncMenuIdleId) {
+        this._queueMenuAlignment();
+    }
+
+    // The menu can only be aligned once it has a width, which it gets after the
+    // layout pass that follows the title or the menu contents changing.
+    _queueMenuAlignment() {
+        if (this._syncMenuIdleId)
             GLib.Source.remove(this._syncMenuIdleId);
-            this._syncMenuIdleId = null;
-        }
+
         this._syncMenuIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
             this._syncMenuAlignment();
             this._syncMenuIdleId = null;
@@ -239,13 +238,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
     // Rebuilt on every open so the tiles and the sensitivity of Restore reflect the current
     // state. The running counter keeps the order right when the grid is absent.
     _updateKiwiMenuItems() {
-        for (const name of ['_tilingMenuItem', '_tilingSeparator', '_fullscreenMenuItem',
-                            '_restoreMenuItem', '_alwaysOnTopMenuItem', '_restoreSeparator']) {
-            if (this[name]) {
-                this[name].destroy();
-                this[name] = null;
-            }
-        }
+        this._destroyKiwiMenuItems();
 
         const win = this._focusWindow;
         if (!win)
@@ -315,6 +308,13 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._menu.addMenuItem(this._restoreSeparator, position++);
     }
 
+    _destroyKiwiMenuItems() {
+        for (const name of KIWI_MENU_ITEMS) {
+            this[name]?.destroy();
+            this[name] = null;
+        }
+    }
+
     _clearDisplay(resetMenu = true) {
         this._label.text = '';
         this._icon.gicon = null;
@@ -356,30 +356,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
             this._syncMenuIdleId = null;
         }
 
-        if (this._restoreMenuItem) {
-            this._restoreMenuItem.destroy();
-            this._restoreMenuItem = null;
-        }
-        if (this._alwaysOnTopMenuItem) {
-            this._alwaysOnTopMenuItem.destroy();
-            this._alwaysOnTopMenuItem = null;
-        }
-        if (this._fullscreenMenuItem) {
-            this._fullscreenMenuItem.destroy();
-            this._fullscreenMenuItem = null;
-        }
-        if (this._restoreSeparator) {
-            this._restoreSeparator.destroy();
-            this._restoreSeparator = null;
-        }
-        if (this._tilingMenuItem) {
-            this._tilingMenuItem.destroy();
-            this._tilingMenuItem = null;
-        }
-        if (this._tilingSeparator) {
-            this._tilingSeparator.destroy();
-            this._tilingSeparator = null;
-        }
+        this._destroyKiwiMenuItems();
         this._wmKeybindings = null;
         this._settings = null;
         if (this._overviewShowingId) {

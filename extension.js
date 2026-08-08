@@ -48,16 +48,8 @@ import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimatio
 import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
 
 export default class KiwiExtension extends Extension {
-    constructor(metadata) {
-        super(metadata);
-    }
-
-    _getGettextFunc() {
-        return typeof this.gettext === 'function' ? this.gettext.bind(this) : (message) => message;
-    }
-
     _on_settings_changed(key) {
-        const gettextFunc = this._getGettextFunc();
+        const gettextFunc = this.gettext.bind(this);
         // Re-apply keyboard indicator module on any of its keys changing
         if (key === 'keyboard-indicator' || key === 'hide-keyboard-indicator') {
             if (this._settings.get_boolean('keyboard-indicator')) {
