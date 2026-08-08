@@ -13,7 +13,9 @@ import GLib from 'gi://GLib';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import { iconOffset, makeDashItem, makeDashSeparator } from './minimizedToDock.js';
+import {
+    dashEndsWithSeparator, iconOffset, makeDashItem, makeDashSeparator,
+} from './minimizedToDock.js';
 
 const MAX_ROWS = 10;          // files in the fan, as macOS caps it
 const FILE_ICON = 1.3;        // file icon, in dash icon sizes
@@ -54,6 +56,7 @@ let globalSignals = [];       // [[object, id]]
 let fan = null;               // { overlay, grab, rows, anchor }
 let recent = [];              // newest file infos first, at most MAX_ROWS of them
 let recentCount = 0;          // files in the folder, however many that is
+let recentKey = '';           // fingerprint of the list the piles were built from
 let folderMonitor = null;     // Gio.FileMonitor on the Downloads folder
 let gettextFunc = message => message;
 const sources = { dockSearch: 0, replace: 0, refresh: 0 };
@@ -95,6 +98,19 @@ function _refresh() {
             return;
         recent = files.slice(0, MAX_ROWS);
         recentCount = files.length;
+
+        // A download in flight touches its file for as long as it runs, and the
+        // folder monitor reports every unrelated file besides. Rebuilding a pile
+        // that would come out the same reloads five thumbnails for nothing.
+        const key = `${recentCount}:${recent.map(info => [
+            info.get_name(),
+            _modified(info),
+            info.get_attribute_byte_string('thumbnail::path') ?? '',
+        ].join('@')).join('|')}`;
+        if (key === recentKey)
+            return;
+        recentKey = key;
+
         docks.forEach(_syncButton);
     });
 }
@@ -558,7 +574,9 @@ function _closeFan() {
             duration: ROW_ANIMATION,
             delay: (rows.length - 1 - index) * ROW_STAGGER,
             mode: Clutter.AnimationMode.EASE_IN_QUAD,
-            onComplete: () => {
+            // Not onComplete: a fold cut short - the dock hides, the fan is
+            // reopened - would leave the overlay holding the screen for good
+            onStopped: () => {
                 // The card takes the row's place again, under it
                 if (card)
                     card.opacity = 255;
@@ -749,7 +767,11 @@ function _placeItem(info) {
     // before the minimized windows, and the trash stays at the end
     const first = strip.get_first_child();
     const divider = first?.get_style_class_name?.()?.includes('dash-separator');
-    strip.set_child_at_index(info.item, divider ? 1 : 0);
+    const index = divider ? 1 : 0;
+    // Clutter reorders by taking the child out and putting it back, relayout and
+    // all, so ask only when we are not already there
+    if (strip.get_children().indexOf(info.item) !== index)
+        strip.set_child_at_index(info.item, index);
 
     _syncSeparator(info, strip === info.strip);
 }
@@ -763,9 +785,7 @@ function _placeItem(info) {
  * @param own whether the stack sits in our strip rather than the minimized one
  */
 function _syncSeparator(info, own) {
-    const separated = info.dash._box.get_children().at(-1)
-        ?.get_style_class_name?.()?.includes('dash-separator');
-    const wanted = own && !separated;
+    const wanted = own && !dashEndsWithSeparator(info.dash);
 
     if (wanted && !info.separator) {
         info.separator = makeDashSeparator(info.dash);
@@ -826,6 +846,13 @@ function _attachDock(dockContainer) {
     // takes our item with it, and the destroy handler queues the rebuild
     const containerId = dash._boxContainer.connect('child-added', () => _queueReplace());
     info.signals.push([dash._boxContainer, containerId]);
+
+    // Dash-to-Dock draws its own divider once the last loose app is gone, and
+    // only after that icon has animated out; ours is a duplicate from then on
+    const boxAddedId = dash._box.connect('child-added', () => _queueReplace());
+    info.signals.push([dash._box, boxAddedId]);
+    const boxRemovedId = dash._box.connect('child-removed', () => _queueReplace());
+    info.signals.push([dash._box, boxRemovedId]);
 
     // Dash-to-Dock shrinks its icons to fit the monitor; follow that size
     const sizeId = dash._box.connect(
@@ -957,6 +984,7 @@ export function disable() {
     folderMonitor = null;
     recent = [];
     recentCount = 0;
+    recentKey = '';
 
     gettextFunc = message => message;
 }

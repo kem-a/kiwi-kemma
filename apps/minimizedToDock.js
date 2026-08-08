@@ -11,6 +11,7 @@ import Cogl from 'gi://Cogl';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Graphene from 'gi://Graphene';
 import Meta from 'gi://Meta';
 import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
@@ -31,9 +32,12 @@ const BADGE_FRACTION = 0.4;   // app icon badge, fraction of the dash icon size
 const RESTORE_GRACE = 500;    // ms to leave a restoring window's target alone
 const GEOMETRY_SETTLE = 100;  // ms of a still dock before recomputing targets
 // The dash opens and closes its slots in 200ms, which is too brisk next to the
-// window flying in or out: match the shell's MINIMIZE_WINDOW_ANIMATION_TIME so
-// the slot and the window move as one gesture.
-const TILE_ANIMATION_TIME = 400;
+// window flying in or out: the two together match the shell's
+// MINIMIZE_WINDOW_ANIMATION_TIME so the slot and the window move as one
+// gesture. macOS splits it in two - the dock makes room along its length first,
+// then the thumbnail grows out of the dock's edge, and back down on restore.
+const TILE_SLOT_TIME = 160;   // ms to open or close the slot along the dock
+const TILE_GROW_TIME = 240;   // ms for the thumbnail itself to grow or shrink
 
 let enabled = false;
 let docks = [];                 // [{ dash, strip, iconSize, signals, tiles, trashItem }]
@@ -43,7 +47,9 @@ let windowSignals = new Map();  // Meta.Window -> [signal ids]
 let globalSignals = [];         // [[object, id]]
 let restoring = new Set();      // windows whose restore animation is still running
 let d2dSettings = null;
-const sources = { dockSearch: 0, restoreGrace: 0, geometryUpdate: 0, trashAdoption: 0 };
+const sources = {
+    dockSearch: 0, restoreGrace: 0, geometryUpdate: 0, trashAdoption: 0, separatorSync: 0,
+};
 
 function _disconnectAll(pairs) {
     for (const [object, id] of pairs)
@@ -115,9 +121,13 @@ function _addWindow(win) {
     if (!enabled || order.includes(win))
         return;
 
-    const snapshot = _captureSnapshot(win);
-    if (snapshot)
-        snapshots.set(win, snapshot);
+    // A window that is already minimized cannot be snapshotted - it is unmapped -
+    // so the one taken on the way down is the only one there will be
+    if (!snapshots.has(win)) {
+        const snapshot = _captureSnapshot(win);
+        if (snapshot)
+            snapshots.set(win, snapshot);
+    }
 
     // The window manager starts the minimize animation before the queued update
     // below runs, so whatever was written last wins — and Dash-to-Dock repoints
@@ -365,6 +375,19 @@ export function makeDashSeparator(dash) {
 }
 
 /**
+ * Whether Dash-to-Dock's own separator already closes its box, marking the same
+ * boundary we would draw. A trash item it has just rebuilt sits after that
+ * separator until the idle-time adoption takes it away; counting it would have
+ * us draw a second separator and drop it again on every redisplay.
+ *
+ * @param dash the Dash-to-Dock dash actor
+ */
+export function dashEndsWithSeparator(dash) {
+    const last = dash._box.get_children().findLast(child => !_isTrashItem(child));
+    return !!last?.get_style_class_name?.()?.includes('dash-separator');
+}
+
+/**
  * Wrap a tile in the same item container Dash-to-Dock uses for its icons, so
  * hover labels, positioning and the zoom-in animation match the rest of the dock.
  *
@@ -413,7 +436,7 @@ function _syncDock(info) {
         if (rebuild)
             item.destroy();
         else
-            _animateOut(item);
+            _animateOut(info, item);
         return false;
     });
 
@@ -426,47 +449,92 @@ function _syncDock(info) {
             strip.insert_child_below(item, info.trashItem);
         else
             strip.add_child(item);
-        _animateIn(item);
+        _animateIn(info, item);
         info.tiles.push({ win, item });
     }
 
     _syncSeparator(info);
 
     if (info.trashItem) {
-        strip.set_child_above_sibling(info.trashItem, null);
-        // Dash-to-Dock only resizes and reveals the items it still owns
+        // Reordering costs a relayout even when nothing moves
+        if (strip.get_last_child() !== info.trashItem)
+            strip.set_child_above_sibling(info.trashItem, null);
+        // Dash-to-Dock only resizes the items it still owns
         info.trashItem.child.icon?.setIconSize(dash.iconSize);
-        info.trashItem.show(false);
     }
 }
 
 /**
- * Grow a tile into place. Same shape as DashItemContainer.show(), but on the
- * window animation's clock: the item's preferred size follows its scale, so the
- * strip opens the slot as the window arrives.
+ * The two axes of a tile animation: 'slot' is the one along the dock, which the
+ * item container scales to open and close its place in the strip, and 'grow' is
+ * the one across it, which the tile scales about the dock's own edge so it comes
+ * up out of the dock rather than out of its own middle.
  *
+ * @param dash the Dash-to-Dock dash actor
+ */
+function _tileAxes(dash) {
+    if (dash._isHorizontal ?? true) {
+        const y = dash._position === St.Side.TOP ? 0 : 1;
+        return { slot: 'scale_x', grow: 'scale_y', pivot: new Graphene.Point({ x: 0.5, y }) };
+    }
+
+    const x = dash._position === St.Side.RIGHT ? 1 : 0;
+    return { slot: 'scale_y', grow: 'scale_x', pivot: new Graphene.Point({ x, y: 0.5 }) };
+}
+
+/**
+ * Grow a tile into place, macOS style: the strip opens the slot along the dock
+ * first - the item's preferred size follows its scale, so the neighbours slide
+ * over - and only then does the thumbnail rise out of the dock's edge.
+ *
+ * @param info the per-dock state
  * @param item a dash item container holding a tile
  */
-function _animateIn(item) {
+function _animateIn(info, item) {
+    const { slot, grow, pivot } = _tileAxes(info.dash);
+    const tile = item.child;
+
+    // Only the slot axis animates on the item, so the strip keeps its thickness
+    item[grow] = 1;
+    tile.pivot_point = pivot;
+    tile[grow] = 0;
+
     item.ease({
-        scale_x: 1,
-        scale_y: 1,
+        [slot]: 1,
         opacity: 255,
-        duration: TILE_ANIMATION_TIME,
+        duration: TILE_SLOT_TIME,
+        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+    });
+    tile.ease({
+        [grow]: 1,
+        delay: TILE_SLOT_TIME,
+        duration: TILE_GROW_TIME,
         mode: Clutter.AnimationMode.EASE_OUT_QUAD,
     });
 }
 
-function _animateOut(item) {
+function _animateOut(info, item) {
+    const { slot, grow } = _tileAxes(info.dash);
+
     item.animatingOut = true;
     item.label?.hide();
-    item.ease({
-        scale_x: 0,
-        scale_y: 0,
-        opacity: 0,
-        duration: TILE_ANIMATION_TIME,
+
+    // Backwards: the thumbnail sinks back into the dock, then the slot closes
+    item.child.ease({
+        [grow]: 0,
+        duration: TILE_GROW_TIME,
         mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-        onComplete: () => item.destroy(),
+    });
+    item.ease({
+        [slot]: 0,
+        opacity: 0,
+        delay: TILE_GROW_TIME,
+        duration: TILE_SLOT_TIME,
+        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+        // Not onComplete: the tile is off our list before the animation starts,
+        // so a shrink cut short would leave it in the strip with nothing to
+        // free it, holding its window snapshot
+        onStopped: () => item.destroy(),
     });
 }
 
@@ -488,9 +556,8 @@ function _makeTileItem(info, win) {
 function _syncSeparator(info) {
     // Dash-to-Dock draws its own separator after the favourites, which for a dock
     // without loose running apps already marks the boundary we would draw
-    const separated = info.dash._box.get_children().at(-1)
-        ?.get_style_class_name?.()?.includes('dash-separator');
-    const wanted = !separated && (info.tiles.length > 0 || !!info.trashItem);
+    const wanted = !dashEndsWithSeparator(info.dash) &&
+        (info.tiles.length > 0 || !!info.trashItem);
 
     if (wanted && !info.separator) {
         info.separator = makeDashSeparator(info.dash);
@@ -501,11 +568,30 @@ function _syncSeparator(info) {
     }
 }
 
+/**
+ * The boundary moves with Dash-to-Dock's own box: a closed app takes its icon
+ * out only once it has animated away, and until then Dash-to-Dock's separator
+ * is not the last child yet and ours still looks needed. Re-check afterwards.
+ */
+function _queueSeparatorSync() {
+    if (sources.separatorSync || !enabled)
+        return;
+    // Dash-to-Dock pulls its separator out and puts it back mid-redisplay
+    sources.separatorSync = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        sources.separatorSync = 0;
+        docks.forEach(_syncSeparator);
+        return GLib.SOURCE_REMOVE;
+    });
+}
+
 /* ------------------------------------------------------------------ trash */
 
+function _isTrashItem(child) {
+    return !!child.child?._delegate?.app?.isTrash;
+}
+
 function _findTrashItem(dash) {
-    return dash._box.get_children().find(child =>
-        child.child?._delegate?.app?.isTrash) ?? null;
+    return dash._box.get_children().find(_isTrashItem) ?? null;
 }
 
 /**
@@ -527,6 +613,9 @@ function _adoptTrash(info) {
     // Undo the hiding from the child-added handler; item.show() would not,
     // DashItemContainer shadows it with the scale animation
     item.visible = true;
+    // Dash-to-Dock builds its items scaled away and reveals the ones it keeps;
+    // this one is ours now, and only ever needs revealing the once
+    item.show(false);
     info.trashItem = item;
     _syncDock(info);
 }
@@ -709,12 +798,18 @@ function _attachDock(dockContainer) {
     // again. Hide it at once, or it widens the dash for the few frames until
     // the idle-time adoption and the whole dock shifts and shifts back.
     const addedId = dash._box.connect('child-added', (_box, child) => {
-        if (child.child?._delegate?.app?.isTrash) {
+        if (_isTrashItem(child)) {
             child.hide();
             _queueTrashAdoption();
+        } else {
+            _queueSeparatorSync();
         }
     });
     info.signals.push([dash._box, addedId]);
+
+    // A running app that leaves the dock moves the boundary Dash-to-Dock draws
+    const removedId = dash._box.connect('child-removed', () => _queueSeparatorSync());
+    info.signals.push([dash._box, removedId]);
 
     const destroyId = dash.connect('destroy', () => _detachDock(info, false));
     info.signals.push([dash, destroyId]);
@@ -780,7 +875,16 @@ export function enable() {
     const destroyId = global.window_manager.connect('destroy', () => _queueIconGeometry());
     globalSignals.push([global.window_manager, destroyId]);
 
-    global.get_window_actors().forEach(actor => _trackWindow(actor.meta_window));
+    // Snapshots outlive a disable, since the shell turns extensions off for the
+    // lock screen and the windows behind it are past snapshotting. Only the ones
+    // still sitting minimized are worth keeping: a window closed or brought back
+    // while we were off would come back to a picture of the past.
+    const windows = global.get_window_actors().map(actor => actor.meta_window);
+    for (const win of snapshots.keys()) {
+        if (!windows.includes(win) || !win.minimized)
+            snapshots.delete(win);
+    }
+    windows.forEach(_trackWindow);
 
     // During startup the dock is not laid out yet, same caveat as dockBlur
     if (Main.layoutManager._startingUp) {
@@ -837,7 +941,6 @@ export function disable() {
         win.set_icon_geometry(null);
     }
     windowSignals.clear();
-    snapshots.clear();
     restoring.clear();
     order = [];
 
