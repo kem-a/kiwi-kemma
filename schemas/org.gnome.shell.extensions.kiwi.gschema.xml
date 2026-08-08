@@ -220,6 +220,13 @@
         <description>Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash.</description>
       </key>
 
+      <!-- Downloads stack in the dock -->
+      <key name="downloads-in-dock" type="b">
+        <default>false</default>
+        <summary>Downloads Folder in Dock</summary>
+        <description>Add a Downloads folder to Dash-to-Dock, before the trash, that fans its newest files out over the desktop when clicked.</description>
+      </key>
+
       <!-- Launchpad app -->
       <key name="enable-launchpad-app" type="b">
         <default>false</default>

@@ -43,6 +43,7 @@ import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './
 import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
 import { enable as dockStylingEnable, disable as dockStylingDisable } from './apps/dockStyling.js';
 import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } from './apps/minimizedToDock.js';
+import { enable as downloadsStackEnable, disable as downloadsStackDisable } from './apps/downloadsStack.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
 import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
 
@@ -192,6 +193,12 @@ export default class KiwiExtension extends Extension {
             minimizedToDockDisable();
         }
 
+        if (this._settings.get_boolean('downloads-in-dock')) {
+            downloadsStackEnable(gettextFunc);
+        } else {
+            downloadsStackDisable();
+        }
+
         if (this._settings.get_boolean('hide-activities-button')) {
             hideActivitiesButtonEnable();
         } else {
@@ -309,6 +316,7 @@ export default class KiwiExtension extends Extension {
         dockBlurDisable();
         dockStylingDisable();
         minimizedToDockDisable();
+        downloadsStackDisable();
         reduceWindowAnimationsDisable();
         disableDragRestore();
         this._settings = null;

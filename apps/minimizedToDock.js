@@ -267,7 +267,7 @@ function _roundCorners(actor) {
  *
  * @param dash the Dash-to-Dock dash actor
  */
-function _iconOffset(dash) {
+export function iconOffset(dash) {
     const button = dash._box.get_children().find(c => c.child?._delegate?.icon)?.child;
     if (!button)
         return 0;
@@ -303,7 +303,7 @@ function _makeWindowTile(win, dash) {
     const [boxWidth, boxHeight] = _tileBox(dash);
 
     // Sit where an app icon sits rather than in the middle of the slot
-    const offset = _iconOffset(dash);
+    const offset = iconOffset(dash);
     if (dash._isHorizontal ?? true)
         button.translation_y = offset;
     else
@@ -353,7 +353,7 @@ function _makeWindowTile(win, dash) {
     return button;
 }
 
-function _makeSeparator(dash) {
+export function makeDashSeparator(dash) {
     const isHorizontal = dash._isHorizontal ?? true;
     return new St.Widget({
         style_class: 'dash-separator',
@@ -372,7 +372,7 @@ function _makeSeparator(dash) {
  * @param child the tile actor
  * @param labelText text for the hover label
  */
-function _makeItem(dash, child, labelText) {
+export function makeDashItem(dash, child, labelText) {
     const sibling = dash._box.get_children().find(c => typeof c.setLabelText === 'function');
     const Container = sibling ? sibling.constructor : DashItemContainer;
     const item = sibling ? new Container(dash._position) : new Container();
@@ -473,7 +473,7 @@ function _animateOut(item) {
 function _makeTileItem(info, win) {
     const { dash } = info;
     const button = _makeWindowTile(win, dash);
-    const item = _makeItem(dash, button, win.get_title() ?? '');
+    const item = makeDashItem(dash, button, win.get_title() ?? '');
 
     button.connect('clicked', () => {
         // Make sure the restore animation starts from the tile, not from
@@ -493,7 +493,7 @@ function _syncSeparator(info) {
     const wanted = !separated && (info.tiles.length > 0 || !!info.trashItem);
 
     if (wanted && !info.separator) {
-        info.separator = _makeSeparator(info.dash);
+        info.separator = makeDashSeparator(info.dash);
         info.strip.insert_child_at_index(info.separator, 0);
     } else if (!wanted && info.separator) {
         info.separator.destroy();

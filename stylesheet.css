@@ -455,6 +455,24 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   padding-bottom: 0 !important;
 }
 
+/* Name tooltips: the shell theme keeps them near-black in a light session, so
+   they follow the session's scheme here instead, and take the palette the
+   downloads pills use so the two match. apps/dockStyling.js adds the classes -
+   the label is the shell's own actor, and shell stylesheets have no way to ask
+   for the scheme on their own. Geometry stays the theme's. */
+.dash-label.kiwi-dock-label {
+  background-color: rgba(238, 238, 238, 0.85);
+  color: #1c1c1c;
+  /* The pill floats over the wallpaper, so the light comes from straight on -
+     same shadow the downloads pills lift off with */
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
+}
+
+.dash-label.kiwi-dock-label.dark {
+  background-color: rgba(46, 46, 46, 0.85);
+  color: #f2f2f2;
+}
+
 
 /*###############################################*/
 /* Quick Settings Notifications and Media Styles */
@@ -610,4 +628,96 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 #dashtodockContainer.left .kiwi-minimized-tile,
 #dashtodockContainer.right .kiwi-minimized-tile {
   padding: 2px 6px;
+}
+
+/*###############################################*/
+/*          Downloads Stack in the Dock          */
+/*###############################################*/
+
+/* The stack keeps the inset an app icon has, so it lines up with the icons and
+   with the minimized thumbnails it sits next to. */
+.kiwi-downloads-item {
+  padding: 6px 2px;
+}
+
+#dashtodockContainer.left .kiwi-downloads-item,
+#dashtodockContainer.right .kiwi-downloads-item {
+  padding: 2px 6px;
+}
+
+/* Name pills: a touch of the wallpaper carries through them the way it does
+   through a macOS label. The pill follows the session's light or dark scheme -
+   apps/downloadsStack.js adds .dark when the session asks for it, since shell
+   stylesheets have no way to ask on their own. */
+.kiwi-fan-label {
+  background-color: rgba(238, 238, 238, 0.85);
+  color: #1c1c1c;
+  border-radius: 99px;
+  padding: 5px 13px;
+  font-weight: 500;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
+}
+
+.kiwi-fan-label.dark {
+  background-color: rgba(46, 46, 46, 0.85);
+  color: #f2f2f2;
+}
+
+.kiwi-fan-icon {
+  padding: 2px;
+}
+
+/* A mime icon casts its shadow off its own outline, so the shape of the icon is
+   what lifts off the wallpaper rather than the box around it. No offset on any
+   of these: the fan floats, so the light comes from straight on. */
+.kiwi-fan-file-icon {
+  icon-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+}
+
+/* A thumbnail is a picture, so it takes a rectangular shadow, and the white
+   behind it only ever shows as the edge of a print. */
+.kiwi-fan-thumbnail {
+  background-color: #ffffff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+/* The round button is filled out to its own edge, where a thumbnail sits in a
+   roomier box, so this row keeps the pill off it. */
+.kiwi-fan-more-row {
+  spacing: 8px;
+}
+
+/* The round button that ends the fan, the way macOS ends its own */
+.kiwi-fan-more {
+  background-color: rgba(238, 238, 238, 0.94);
+  border-radius: 99px;
+  padding: 7px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.kiwi-fan-more:hover,
+.kiwi-fan-more:focus {
+  background-color: #ffffff;
+}
+
+.kiwi-fan-more-icon {
+  color: #1c1c1c;
+}
+
+.kiwi-fan-more.dark {
+  background-color: rgba(46, 46, 46, 0.94);
+}
+
+.kiwi-fan-more.dark .kiwi-fan-more-icon {
+  color: #f2f2f2;
+}
+
+/* Piled in the dock the cards are flat against each other, so they carry no
+   shadow of their own; they pick one up as they leave the pile. */
+.kiwi-downloads-stack .kiwi-fan-thumbnail {
+  box-shadow: none;
+}
+
+.kiwi-downloads-stack .kiwi-fan-file-icon {
+  icon-shadow: none;
 }

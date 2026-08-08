@@ -803,6 +803,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         this._addSwitchRows(settings, dockGroup, [
             { key: 'dock-blur', title: _("Dock Blur"), subtitle: _("Blur the background behind Dash-to-Dock") },
             { key: 'minimize-to-dock', title: _("Minimize Windows to Dock"), subtitle: _("Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash") },
+            { key: 'downloads-in-dock', title: _("Downloads Folder in Dock"), subtitle: _("Add a Downloads folder before the trash that fans its newest files out over the desktop") },
         ]);
 
         // Launchpad Application with custom icon option
