@@ -5,12 +5,14 @@
 // apart again. That is all here so they agree on how it is done.
 
 import Clutter from 'gi://Clutter';
+import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { DashItemContainer } from 'resource:///org/gnome/shell/ui/dash.js';
 
 const CONTAINER_NAME = 'dashtodockContainer';
+const D2D_SCHEMA = 'org.gnome.shell.extensions.dash-to-dock';
 const DOCK_SEARCH_INTERVAL = 1000; // ms between tries while the dock loads
 const DOCK_SEARCH_TRIES = 10;
 const PRESS_EFFECT = 'kiwi-press-darken';
@@ -116,6 +118,24 @@ export function makeDashSeparator(dash) {
     });
 }
 
+let d2dSettings;              // undefined until looked up, null without the dock
+
+/**
+ * Whether Dash-to-Dock is set to keep its tooltips to itself. It only asks the
+ * question of its own app icons - the shell shows a label for any other dash
+ * item that is hovered, and has nothing to ask - so our items have to honour the
+ * setting on their own.
+ */
+function tooltipsHidden() {
+    if (d2dSettings === undefined) {
+        // A schema that is not installed aborts the shell rather than throwing
+        d2dSettings = Gio.SettingsSchemaSource.get_default()?.lookup(D2D_SCHEMA, true)
+            ? new Gio.Settings({ schema_id: D2D_SCHEMA })
+            : null;
+    }
+    return d2dSettings?.get_boolean('hide-tooltip') ?? false;
+}
+
 /**
  * Wrap a tile in the same item container Dash-to-Dock uses for its icons, so
  * hover labels, positioning and the zoom-in animation match the rest of the dock.
@@ -131,6 +151,13 @@ export function makeDashItem(dash, child, labelText) {
     item.setChild(child);
     item.setLabelText(labelText);
     dash._hookUpLabel(item);
+    // Asked on the hover rather than here, so the setting is followed as it is
+    // turned rather than as the item was built
+    const showLabel = item.showLabel.bind(item);
+    item.showLabel = () => {
+        if (!tooltipsHidden())
+            showLabel();
+    };
     return item;
 }
 
