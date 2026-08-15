@@ -721,3 +721,13 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 .kiwi-downloads-stack .kiwi-fan-file-icon {
   icon-shadow: none;
 }
+
+/* Sticking out of the folder they stand off it rather than lie flat, so they
+   take back a shadow - a shallower one, since only their top edge is out. */
+.kiwi-downloads-stack.behind .kiwi-fan-thumbnail {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
+}
+
+.kiwi-downloads-stack.behind .kiwi-fan-file-icon {
+  icon-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
+}

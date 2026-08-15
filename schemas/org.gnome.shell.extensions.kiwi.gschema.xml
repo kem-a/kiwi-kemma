@@ -227,6 +227,12 @@
         <description>Add a Downloads folder to Dash-to-Dock, before the trash, that fans its newest files out over the desktop when clicked.</description>
       </key>
 
+      <key name="downloads-behind-folder" type="b">
+        <default>false</default>
+        <summary>Stack Behind Folder</summary>
+        <description>Draw the newest files behind the Downloads folder icon, sticking out of its top, rather than piled on top of it.</description>
+      </key>
+
       <!-- Launchpad app -->
       <key name="enable-launchpad-app" type="b">
         <default>false</default>

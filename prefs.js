@@ -798,8 +798,25 @@ export default class KiwiPreferences extends ExtensionPreferences {
         this._addSwitchRows(settings, dockGroup, [
             { key: 'dock-blur', title: _("Dock Blur"), subtitle: _("Blur the background behind Dash-to-Dock") },
             { key: 'minimize-to-dock', title: _("Minimize Windows to Dock"), subtitle: _("Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash") },
-            { key: 'downloads-in-dock', title: _("Downloads Folder in Dock"), subtitle: _("Add a Downloads folder before the trash that fans its newest files out over the desktop") },
         ]);
+
+        const downloadsExpander = new Adw.ExpanderRow({
+            title: _("Downloads Folder in Dock"),
+            subtitle: _("Add a Downloads folder before the trash that fans its newest files out over the desktop"),
+            expanded: settings.get_boolean('downloads-in-dock') &&
+                settings.get_boolean('downloads-behind-folder'),
+            show_enable_switch: true,
+        });
+        dockGroup.add(downloadsExpander);
+        settings.bind('downloads-in-dock', downloadsExpander, 'enable-expansion',
+            Gio.SettingsBindFlags.DEFAULT);
+
+        const downloadsBehindRow = new Adw.SwitchRow({
+            title: _("Stack Behind Folder"),
+            subtitle: _("Show the newest files sticking out of the folder icon instead of piled on top of it"),
+        });
+        downloadsExpander.add_row(downloadsBehindRow);
+        settings.bind('downloads-behind-folder', downloadsBehindRow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         // Launchpad Application with custom icon option
         const launchpadHasNonDefault = settings.get_string('launchpad-app-custom-icon') !== '';

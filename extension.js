@@ -186,7 +186,7 @@ export default class KiwiExtension extends Extension {
         }
 
         if (this._settings.get_boolean('downloads-in-dock')) {
-            downloadsStackEnable(gettextFunc);
+            downloadsStackEnable(gettextFunc, this._settings);
         } else {
             downloadsStackDisable();
         }
