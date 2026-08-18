@@ -63,7 +63,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         window._settings = settings;
-        const extensionTitle = _('Kiwi is not Apple');
+        const extensionTitle = _('Kiwi (is not Apple)');
         window.title = extensionTitle;
         window.set_default_size(510, 710);
         // Enable built-in libadwaita search (adds search button automatically)
@@ -233,7 +233,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             // License section
             const licenseGroup = new Adw.PreferencesGroup({
                 title: _('License'),
-                description: _('Kiwi is not Apple is free and open source software'),
+                description: _('Kiwi is free and open source software'),
             });
 
             // GPL License link
@@ -669,7 +669,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
             settings.get_int('panel-transparency-level') !== 50 ||
             settings.get_boolean('panel-opaque-on-window') ||
             settings.get_boolean('panel-blur') ||
-            settings.get_boolean('panel-color-inherit');
+            settings.get_boolean('panel-color-inherit') ||
+            settings.get_boolean('panel-invert-tray-icons');
         const transparencyExpander = new Adw.ExpanderRow({
             title: _("Panel Transparency"),
             subtitle: _("Make the top panel transparent"),
@@ -719,6 +720,15 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         transparencyExpander.add_row(panelColorFixRow);
 
+        // Tray icon inversion for light wallpapers
+        const invertTrayIconsRow = new Adw.SwitchRow({
+            title: _("Invert Tray Icons on Light Wallpapers"),
+            subtitle: _("Darken white monochrome tray icons when the panel adapts to a light wallpaper. Colored icons are left untouched"),
+            active: settings.get_boolean('panel-invert-tray-icons'),
+            sensitive: settings.get_boolean('panel-transparency'),
+        });
+        transparencyExpander.add_row(invertTrayIconsRow);
+
         transparencyGroup.add(transparencyExpander);
 
         // Bindings for expander
@@ -744,6 +754,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
             Gio.SettingsBindFlags.GET);
         settings.bind('panel-color-inherit', panelColorFixRow, 'active',
             Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-invert-tray-icons', invertTrayIconsRow, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-transparency', invertTrayIconsRow, 'sensitive',
+            Gio.SettingsBindFlags.GET);
 
         const windowTitleGroup = new Adw.PreferencesGroup();
         panelPage.add(windowTitleGroup);
