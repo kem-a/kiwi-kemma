@@ -761,6 +761,13 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('show-window-title', windowTitleExpander, 'enable-expansion',
             Gio.SettingsBindFlags.DEFAULT);
 
+        const titleIconRow = new Adw.SwitchRow({
+            title: _("Show App Icon"),
+            subtitle: _("Display the application icon next to the window title"),
+        });
+        windowTitleExpander.add_row(titleIconRow);
+        settings.bind('show-window-title-icon', titleIconRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
         const tilingTitleMenuRow = new Adw.SwitchRow({
             title: _("Window Tiling"),
             subtitle: _("Add tiling layouts to the window title menu, and restore tiled windows by dragging their titlebar"),

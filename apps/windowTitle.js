@@ -73,6 +73,9 @@ class WindowTitleIndicator extends PanelMenu.Button {
             style_class: 'app-menu-icon',
             icon_size: 16,
         });
+        this._icon.visible = this._settings.get_boolean('show-window-title-icon');
+        this._iconVisibilityId = this._settings.connect('changed::show-window-title-icon',
+            () => this._icon.visible = this._settings.get_boolean('show-window-title-icon'));
         this._box.add_child(this._icon);
 
         this._label = new St.Label({
@@ -358,6 +361,10 @@ class WindowTitleIndicator extends PanelMenu.Button {
 
         this._destroyKiwiMenuItems();
         this._wmKeybindings = null;
+        if (this._iconVisibilityId) {
+            this._settings.disconnect(this._iconVisibilityId);
+            this._iconVisibilityId = null;
+        }
         this._settings = null;
         if (this._overviewShowingId) {
             Main.overview.disconnect(this._overviewShowingId);

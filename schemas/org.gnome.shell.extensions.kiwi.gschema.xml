@@ -73,6 +73,11 @@
         <summary>Show window title in panel</summary>
         <description>Display the current window title in the top panel.</description>
       </key>
+      <key name="show-window-title-icon" type="b">
+        <default>true</default>
+        <summary>Show app icon next to the window title</summary>
+        <description>Display the focused application's icon next to the window title in the top panel.</description>
+      </key>
       <key name="show-window-controls" type="b">
         <default>true</default>
         <summary>Show Window Controls on Panel</summary>

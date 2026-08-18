@@ -5,9 +5,8 @@
 /*           Window Title Styling               */
 /*###############################################*/
 .window-title {
-  margin-left: 8px; /* Increased left margin */
+  margin-left: 8px;
   margin-right: 8px;
-  font-weight: bold;
   max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -29,7 +28,6 @@
 }
 
 .window-title StLabel {
-  font-weight: bold;
   margin: 0 4px;
   padding-left: 6px;
 }
@@ -346,7 +344,6 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 .kiwi-popup-styled .popup-menu .popup-menu-item:checked {
   background-color: -st-accent-color;
   color: -st-accent-fg-color;
-  font-weight: bold;
 }
 
 /* Ensure content fills the space */
