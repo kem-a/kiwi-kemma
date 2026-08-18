@@ -11,6 +11,7 @@ import Shell from 'gi://Shell';
 import { connectPaintSignal } from './blurPaintSignal.js';
 
 let settings;
+let enabled = false;
 let windowSignals = [];
 let settingsSignals = [];
 let interfaceSettings;
@@ -222,31 +223,14 @@ function applyPanelColorFix() {
     }
 }
 
-function setOpaqueImmediately() {
+// Transparency is off: hand the panel back to whatever styled it before us.
+// Baking in a colour read from the theme node fights the shell theme and any
+// other extension that paints the panel inline (e.g. Light Shell).
+function restorePanelStyle() {
     const panel = Main.panel;
     if (!panel) return;
-    try {
-        // Remove transparency-related inline style & refresh style class to force theme re-evaluation
-        panel.set_style('');
-        panel.remove_style_class_name('panel');
-        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-            try {
-                panel.add_style_class_name('panel');
-                const themeNode = panel.get_theme_node();
-                const bg = themeNode.get_background_color();
-                const r = Math.floor(bg.red * 255);
-                const g = Math.floor(bg.green * 255);
-                const b = Math.floor(bg.blue * 255);
-                panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
-                panel.queue_redraw();
-            } catch (_) {
-                if (originalStyle) panel.set_style(originalStyle);
-            }
-            return GLib.SOURCE_REMOVE;
-        });
-    } catch (e) {
-        if (originalStyle) panel.set_style(originalStyle);
-    }
+    panel.set_style(originalStyle);
+    panel.queue_redraw();
 }
 
 function _isFullscreenActive() {
@@ -304,6 +288,12 @@ function updatePanelStyle(alpha = null) {
             return;
         }
 
+        if (!settings?.get_boolean('panel-transparency')) {
+            updateBlurVisibility(false);
+            restorePanelStyle();
+            return;
+        }
+
         // Get theme colors for non-fullscreen states
         const themeNode = panel.get_theme_node();
         const backgroundColor = themeNode.get_background_color();
@@ -312,13 +302,6 @@ function updatePanelStyle(alpha = null) {
             Math.floor(backgroundColor.green * 255),
             Math.floor(backgroundColor.blue * 255)
         ];
-
-        if (!settings?.get_boolean('panel-transparency')) {
-            panel.set_style(`background-color: rgb(${r}, ${g}, ${b}) !important;`);
-            updateBlurVisibility(false);
-            panel.queue_redraw();
-            return;
-        }
 
         if (alpha !== null) {
             lastForcedAlpha = alpha;
@@ -461,24 +444,13 @@ function setupSignals() {
     settingsSignals = [];
 
     settingsSignals = [
-    settings.connect('changed::panel-transparency', () => {
-            handleWindowSignals(false);
+        settings.connect('changed::panel-transparency', () => {
             if (settings.get_boolean('panel-transparency')) {
-                handleWindowSignals(true);
                 checkWindowTouchingPanel();
             } else {
-        lastForcedAlpha = null;
-                // Stop periodic checks before applying opaque style
-                if (safetyIntervalId) {
-                    GLib.Source.remove(safetyIntervalId);
-                    safetyIntervalId = null;
-                }
-                setOpaqueImmediately();
-                // Force an additional idle update to lock in opaque style
-                GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-                    updatePanelStyle(1.0); // will early path due to transparency disabled
-                    return GLib.SOURCE_REMOVE;
-                });
+                lastForcedAlpha = null;
+                updateBlurVisibility(false);
+                restorePanelStyle();
             }
         }),
         settings.connect('changed::panel-transparency-level', () => {
@@ -579,9 +551,13 @@ export function init(extensionSettings) {
 }
 
 export function enable(_settings) {
+    // extension.js re-runs every module's enable() on any settings change, so
+    // this must be idempotent — otherwise originalStyle is re-captured from a
+    // panel we already made transparent, and timers/signals pile up.
+    if (enabled || !_settings) return;
     settings = _settings;
-    if (!settings) return;
-    
+    enabled = true;
+
     originalStyle = Main.panel.get_style();
     interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
     interfaceSettingsSignal = interfaceSettings.connect('changed::color-scheme', () => {
@@ -594,11 +570,7 @@ export function enable(_settings) {
 
     setupSignals();
 
-    if (settings.get_boolean('panel-transparency')) {
-        updatePanelStyle();
-    } else {
-        setOpaqueImmediately();
-    }
+    updatePanelStyle();
     forceThemeUpdate();
 
     // Apply panel color fix on startup
@@ -624,6 +596,9 @@ export function enable(_settings) {
 }
 
 export function disable() {
+    if (!enabled) return;
+    enabled = false;
+
     if (timeoutId) {
         GLib.Source.remove(timeoutId);
         timeoutId = null;
@@ -649,17 +624,14 @@ export function disable() {
     // Destroy blur effect
     destroyBlurEffect();
 
-    // Remove CSS class and force opaque restore
+    // Remove CSS classes and give the panel its pre-Kiwi style back
     const panel = Main.panel;
     panel.remove_style_class_name('kiwi-panel-fullscreen');
     panel.remove_style_class_name('kiwi-panel-color-inherit');
-    if (originalStyle) {
-        panel.set_style(originalStyle);
-    } else {
-        setOpaqueImmediately();
-    }
+    restorePanelStyle();
 
     settings = null;
+    originalStyle = null;
     lastForcedAlpha = null;
     lastFullscreenState = false;
 }
