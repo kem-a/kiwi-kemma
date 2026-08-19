@@ -31,6 +31,7 @@ let bgSignals = [];
 let wallpaperIsLight = false;
 let iconTheme;
 let monochromeIcons = new Map(); // gicon string -> whether inverting it is safe
+let contentIcons = new WeakMap(); // St.ImageContent -> whether inverting it is safe
 
 // Below this panel opacity the wallpaper dominates, so the foreground has to
 // follow the wallpaper instead of the theme.
@@ -338,6 +339,31 @@ function _shouldInvertIcon(gicon) {
     return invert;
 }
 
+// Indicators that publish IconPixmap over D-Bus instead of an icon name (the
+// Nextcloud client, for one) have nothing to look up: AppIndicator paints the
+// pixmap straight into an St.ImageContent and leaves the gicon behind. That
+// content is a Gio.LoadableIcon, so the image actually on screen can be read
+// back and measured with the same test — AppIndicator itself loads it this way
+// to build emblems. A new St.ImageContent is created for every pixmap update,
+// so keying the cache on the object both caches and invalidates itself.
+function _shouldInvertContent(content) {
+    if (contentIcons.has(content))
+        return contentIcons.get(content);
+
+    let invert = false;
+    try {
+        const [stream] = content.load(ICON_SAMPLE_SIZE, null);
+        const pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, null);
+        if (pixbuf?.get_has_alpha())
+            invert = _measureIcon(pixbuf);
+    } catch (_e) {
+        // Unreadable content: leave it alone
+    }
+
+    contentIcons.set(content, invert);
+    return invert;
+}
+
 function _trayIcons() {
     const icons = [];
     const walk = actor => {
@@ -357,9 +383,11 @@ function updateTrayIconInversion(enabled) {
     for (const icon of _trayIcons()) {
         const applied = icon.get_effect(INVERT_EFFECT) !== null;
         // An icon painted from a D-Bus pixmap carries its image in `content`,
-        // and the gicon left over from an earlier update may not match it.
-        // Measuring the gicon would then judge an image that isn't on screen.
-        const invert = enabled && !icon.content && _shouldInvertIcon(icon.gicon);
+        // and the gicon left over from an earlier update may not match it, so
+        // measure whichever of the two is the image actually on screen.
+        const invert = enabled && (icon.content
+            ? _shouldInvertContent(icon.content)
+            : _shouldInvertIcon(icon.gicon));
         if (invert && !applied) {
             const effect = new Clutter.BrightnessContrastEffect({ name: INVERT_EFFECT });
             effect.set_brightness(-1.0);
@@ -829,6 +857,7 @@ export function disable() {
     wallpaperIsLight = false;
     iconTheme = null;
     monochromeIcons.clear();
+    contentIcons = new WeakMap();
 
     // Destroy blur effect
     destroyBlurEffect();
