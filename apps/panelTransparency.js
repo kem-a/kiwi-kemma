@@ -7,6 +7,8 @@ import St from 'gi://St';
 import Gio from 'gi://Gio';
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
+import GdkPixbuf from 'gi://GdkPixbuf';
+import Clutter from 'gi://Clutter';
 
 import { connectPaintSignal } from './blurPaintSignal.js';
 
@@ -22,6 +24,25 @@ let timeoutId;
 let safetyIntervalId;
 let lastForcedAlpha = null; // remember last alpha decided by logic (touch/fullscreen)
 let lastFullscreenState = false; // edge-detect fullscreen state changes
+
+// Adaptive foreground state
+let bgSettings;
+let bgSignals = [];
+let wallpaperIsLight = false;
+let iconTheme;
+let monochromeIcons = new Map(); // gicon string -> whether inverting it is safe
+let contentIcons = new WeakMap(); // St.ImageContent -> whether inverting it is safe
+
+// Below this panel opacity the wallpaper dominates, so the foreground has to
+// follow the wallpaper instead of the theme.
+const ADAPTIVE_OPACITY_MAX = 0.3;
+const SAMPLE_SIZE = 32; // wallpaper is downscaled to this before sampling
+const SAMPLE_ROWS = 4;  // top rows only — that's what sits behind the panel
+const LIGHT_THRESHOLD = 0.6;
+const INVERT_EFFECT = 'kiwi-tray-invert';
+const ICON_SAMPLE_SIZE = 24;
+const ICON_SATURATION_MAX = 0.15; // above this the icon carries real colour
+const ICON_LUMINANCE_MIN = 0.6;   // below this it is already dark enough
 
 // Blur state
 let blurEffect = null;
@@ -211,16 +232,208 @@ function updateBlurVisibility(visible) {
     }
 }
 
+// --- Adaptive foreground helpers ---
+// A nearly transparent panel shows the wallpaper, so white text on a light
+// wallpaper is unreadable. Sample the strip of the wallpaper that sits behind
+// the panel and flip the foreground to dark when that strip is light.
+
+function _wallpaperPath() {
+    if (!bgSettings) return null;
+    const dark = interfaceSettings?.get_string('color-scheme') === 'prefer-dark';
+    let uri = dark ? bgSettings.get_string('picture-uri-dark') : '';
+    if (!uri) uri = bgSettings.get_string('picture-uri');
+    if (!uri) return null;
+    return Gio.File.new_for_uri(uri).get_path();
+}
+
+function updateWallpaperLightness() {
+    const path = _wallpaperPath();
+    if (!path) {
+        wallpaperIsLight = false;
+        return;
+    }
+
+    try {
+        // preserve_aspect_ratio false: SAMPLE_ROWS is then a fixed fraction of
+        // the image height regardless of its dimensions.
+        const pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, SAMPLE_SIZE, SAMPLE_SIZE, false);
+        const pixels = pixbuf.get_pixels();
+        const stride = pixbuf.get_rowstride();
+        const channels = pixbuf.get_n_channels();
+        const width = pixbuf.get_width();
+        const rows = Math.min(SAMPLE_ROWS, pixbuf.get_height());
+
+        let sum = 0;
+        for (let y = 0; y < rows; y++) {
+            for (let x = 0; x < width; x++) {
+                const i = y * stride + x * channels;
+                sum += (0.2126 * pixels[i] + 0.7152 * pixels[i + 1] + 0.0722 * pixels[i + 2]) / 255;
+            }
+        }
+        wallpaperIsLight = (sum / (rows * width)) > LIGHT_THRESHOLD;
+    } catch (_e) {
+        // XML slideshows and unreadable files: keep the theme foreground
+        wallpaperIsLight = false;
+    }
+}
+
+// Tray icons come from apps as raster images, so CSS can't recolour them.
+// Brightness -1 maps every pixel to black and leaves alpha alone, which turns a
+// white monochrome icon dark. A coloured icon would just become a dark blob, so
+// only icons that measure as monochrome and light get the effect.
+function _measureIcon(pixbuf) {
+    const pixels = pixbuf.get_pixels();
+    const stride = pixbuf.get_rowstride();
+    const channels = pixbuf.get_n_channels();
+    const width = pixbuf.get_width();
+    const height = pixbuf.get_height();
+
+    let saturation = 0;
+    let luminance = 0;
+    let count = 0;
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const i = y * stride + x * channels;
+            if (pixels[i + 3] < 30) continue; // ignore near-transparent pixels
+
+            const r = pixels[i] / 255, g = pixels[i + 1] / 255, b = pixels[i + 2] / 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+
+            saturation += max === 0 ? 0 : (max - min) / max;
+            luminance += 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            count++;
+        }
+    }
+
+    if (!count) return false;
+    return (saturation / count) < ICON_SATURATION_MAX &&
+           (luminance / count) > ICON_LUMINANCE_MIN;
+}
+
+function _shouldInvertIcon(gicon) {
+    if (!gicon) return false;
+
+    // AppIndicator wraps file icons in an EmblemedIcon that deliberately breaks
+    // to_string(); the inner icon resolves and keys the cache properly.
+    if (gicon instanceof Gio.EmblemedIcon)
+        gicon = gicon.get_icon();
+
+    const key = gicon.to_string();
+    if (key && monochromeIcons.has(key))
+        return monochromeIcons.get(key);
+
+    let invert = false;
+    try {
+        const info = iconTheme.lookup_by_gicon(gicon, ICON_SAMPLE_SIZE, St.IconLookupFlags.FORCE_SIZE);
+        const pixbuf = info?.load_icon();
+        // Without an alpha channel the icon is a solid rectangle — inverting it
+        // would produce exactly the dark patch this check exists to avoid.
+        if (pixbuf?.get_has_alpha())
+            invert = _measureIcon(pixbuf);
+    } catch (_e) {
+        // Unresolvable icon: leave it alone
+    }
+
+    if (key) monochromeIcons.set(key, invert);
+    return invert;
+}
+
+// Indicators that publish IconPixmap over D-Bus instead of an icon name (the
+// Nextcloud client, for one) have nothing to look up: AppIndicator paints the
+// pixmap straight into an St.ImageContent and leaves the gicon behind. That
+// content is a Gio.LoadableIcon, so the image actually on screen can be read
+// back and measured with the same test — AppIndicator itself loads it this way
+// to build emblems. A new St.ImageContent is created for every pixmap update,
+// so keying the cache on the object both caches and invalidates itself.
+function _shouldInvertContent(content) {
+    if (contentIcons.has(content))
+        return contentIcons.get(content);
+
+    let invert = false;
+    try {
+        const [stream] = content.load(ICON_SAMPLE_SIZE, null);
+        const pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, null);
+        if (pixbuf?.get_has_alpha())
+            invert = _measureIcon(pixbuf);
+    } catch (_e) {
+        // Unreadable content: leave it alone
+    }
+
+    contentIcons.set(content, invert);
+    return invert;
+}
+
+function _trayIcons() {
+    const icons = [];
+    const walk = actor => {
+        for (const child of actor.get_children()) {
+            if (child instanceof St.Icon &&
+                (child.has_style_class_name('appindicator-icon') || child.has_style_class_name('tray-icon')))
+                icons.push(child);
+            else
+                walk(child);
+        }
+    };
+    walk(Main.panel);
+    return icons;
+}
+
+function updateTrayIconInversion(enabled) {
+    for (const icon of _trayIcons()) {
+        const applied = icon.get_effect(INVERT_EFFECT) !== null;
+        // An icon painted from a D-Bus pixmap carries its image in `content`,
+        // and the gicon left over from an earlier update may not match it, so
+        // measure whichever of the two is the image actually on screen.
+        const invert = enabled && (icon.content
+            ? _shouldInvertContent(icon.content)
+            : _shouldInvertIcon(icon.gicon));
+        if (invert && !applied) {
+            const effect = new Clutter.BrightnessContrastEffect({ name: INVERT_EFFECT });
+            effect.set_brightness(-1.0);
+            icon.add_effect(effect);
+        } else if (!invert && applied) {
+            icon.remove_effect_by_name(INVERT_EFFECT);
+        }
+    }
+}
+
+function updateForegroundContrast(opacity) {
+    const panel = Main.panel;
+    const dark = wallpaperIsLight && opacity < ADAPTIVE_OPACITY_MAX;
+
+    if (dark)
+        panel.add_style_class_name('kiwi-panel-dark-text');
+    else
+        panel.remove_style_class_name('kiwi-panel-dark-text');
+
+    // Indicators that appear later are picked up by the periodic safety check.
+    updateTrayIconInversion(dark && settings?.get_boolean('panel-invert-tray-icons'));
+}
+
 // Panel color fix helper
+// The class only sets the panel's *theme* background; the colour that actually
+// shows comes from the inline style updatePanelStyle() builds out of
+// get_background_color(). So toggling the class changes nothing until the stale
+// inline style is dropped and the style recomputed — that is why the old
+// behaviour needed an overview trip (which clears the inline style) to show up.
 function applyPanelColorFix() {
     const panel = Main.panel;
     if (!panel) return;
-    
+
     if (settings && settings.get_boolean('panel-color-inherit')) {
         panel.add_style_class_name('kiwi-panel-color-inherit');
     } else {
         panel.remove_style_class_name('kiwi-panel-color-inherit');
     }
+
+    // Clear the inline background so the theme node reports the class colour
+    // instead of the rgba() we last wrote, then rebuild it from that reading.
+    panel.set_style('');
+    GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        if (enabled) updatePanelStyle(lastForcedAlpha);
+        return GLib.SOURCE_REMOVE;
+    });
 }
 
 // Transparency is off: hand the panel back to whatever styled it before us.
@@ -275,6 +488,7 @@ function updatePanelStyle(alpha = null) {
         if (Main.overview.visible) {
             panel.set_style('background-color: transparent !important;');
             updateBlurVisibility(false);
+            updateForegroundContrast(1.0);
             panel.queue_redraw();
             return;
         }
@@ -284,12 +498,14 @@ function updatePanelStyle(alpha = null) {
             // Clear any inline style to let CSS rule take effect
             panel.set_style('');
             updateBlurVisibility(false);
+            updateForegroundContrast(1.0);
             panel.queue_redraw();
             return;
         }
 
         if (!settings?.get_boolean('panel-transparency')) {
             updateBlurVisibility(false);
+            updateForegroundContrast(1.0);
             restorePanelStyle();
             return;
         }
@@ -312,6 +528,7 @@ function updatePanelStyle(alpha = null) {
         // Show/hide blur regardless of whether style string changed
         const blurEnabled = settings?.get_boolean('panel-blur');
         updateBlurVisibility(blurEnabled && opacity < 1.0);
+        updateForegroundContrast(opacity);
 
         if (panel.get_style() !== newStyle) {
             panel.set_style(newStyle);
@@ -462,6 +679,9 @@ function setupSignals() {
         settings.connect('changed::panel-color-inherit', () => {
             applyPanelColorFix();
         }),
+        settings.connect('changed::panel-invert-tray-icons', () => {
+            updatePanelStyle(null);
+        }),
         settings.connect('changed::panel-blur', () => {
             if (settings.get_boolean('panel-blur')) {
                 createBlurEffect();
@@ -561,12 +781,22 @@ export function enable(_settings) {
     originalStyle = Main.panel.get_style();
     interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
     interfaceSettingsSignal = interfaceSettings.connect('changed::color-scheme', () => {
+        updateWallpaperLightness();
         forceThemeUpdate();
         GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
             updatePanelStyle();
             return GLib.SOURCE_REMOVE;
         });
     });
+
+    iconTheme = new St.IconTheme();
+    bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
+    bgSignals = ['changed::picture-uri', 'changed::picture-uri-dark'].map(key =>
+        bgSettings.connect(key, () => {
+            updateWallpaperLightness();
+            updatePanelStyle();
+        }));
+    updateWallpaperLightness();
 
     setupSignals();
 
@@ -621,6 +851,14 @@ export function disable() {
     }
     interfaceSettings = null;
 
+    bgSignals.forEach(signal => bgSettings.disconnect(signal));
+    bgSignals = [];
+    bgSettings = null;
+    wallpaperIsLight = false;
+    iconTheme = null;
+    monochromeIcons.clear();
+    contentIcons = new WeakMap();
+
     // Destroy blur effect
     destroyBlurEffect();
 
@@ -628,6 +866,8 @@ export function disable() {
     const panel = Main.panel;
     panel.remove_style_class_name('kiwi-panel-fullscreen');
     panel.remove_style_class_name('kiwi-panel-color-inherit');
+    panel.remove_style_class_name('kiwi-panel-dark-text');
+    updateTrayIconInversion(false);
     restorePanelStyle();
 
     settings = null;

@@ -109,7 +109,7 @@
         <description>Show the top panel when hovering near the top edge in fullscreen mode.</description>
       </key>
       <key name="panel-transparency" type="b">
-        <default>true</default>
+        <default>false</default>
         <summary>Enable Panel Transparency</summary>
         <description>Make the top panel transparent.</description>
       </key>
@@ -188,6 +188,13 @@
         <default>true</default>
         <summary>Panel Blur</summary>
         <description>Apply a blur effect behind the top panel when it is transparent.</description>
+      </key>
+
+      <!-- Tray icon inversion -->
+      <key name="panel-invert-tray-icons" type="b">
+        <default>false</default>
+        <summary>Invert Tray Icons on Light Wallpapers</summary>
+        <description>Darken white monochrome tray icons when the panel adapts to a light wallpaper. Colored icons are left untouched.</description>
       </key>
 
       <!-- Panel styling -->
