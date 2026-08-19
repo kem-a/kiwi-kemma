@@ -640,23 +640,39 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 /*       Keyboard Status Indicator Styling      */
 /*###############################################*/
 
-#panel .kiwi-input-themed {
-  border: 1px solid -st-accent-color;
-  border-radius: 6px;
-  padding: 6px;
-  margin: 6px;
-  box-sizing: border-box;
+/* The border sits on the label, not the button: Panel.ButtonBox overrides
+   get_preferred_width, so padding and min-width set on the button itself are
+   ignored — only these two properties reach it. */
+#panel .panel-button.kiwi-input-themed {
+  -natural-hpadding: 4px;
+  -minimum-hpadding: 4px;
 }
 
-/* When EN is mapped to A, fill background for emphasis */
-#panel .kiwi-input-en {
-  background-color: alpha(-st-accent-color, 0.2);
-}
-
-/* Slightly smaller text for the indicator when themed */
 #panel .kiwi-input-themed StLabel {
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  padding: 1px 2px;
+  min-width: 22px; /* one majuscule takes as much room as two */
   font-size: 0.80em;
   font-weight: 600;
+  text-align: center;
+}
+
+/* Follows the panel foreground flip in apps/panelTransparency.js */
+#panel.kiwi-panel-dark-text .kiwi-input-themed StLabel {
+  border-color: rgba(0, 0, 0, 0.9);
+}
+
+/* When EN is mapped to A, invert: the border colour becomes the fill */
+#panel .kiwi-input-en StLabel {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
+  text-shadow: none;
+}
+
+#panel.kiwi-panel-dark-text .kiwi-input-en StLabel {
+  background-color: rgba(0, 0, 0, 0.9);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 /*###############################################*/

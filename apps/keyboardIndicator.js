@@ -179,13 +179,15 @@ function _updateLabel() {
     const alphaText = String(currentText).match(/^[A-Za-z]{1,3}$/)?.[0] || '';
     const lowerText = alphaText.toLowerCase();
     const EN_SET = new Set(['en', 'us', 'gb']);
+    // 'a' is the text we mapped ourselves on a previous pass — it still means EN
+    const LABEL_EN_SET = new Set([...EN_SET, 'a']);
 
     // Prefer system source code; but avoid applying EN mapping when the label clearly shows a non-EN code (race-safe)
     const code = _getCurrentInputSource();
     const codeLower = _normalizeSourceId(code);
 
     if (codeLower && EN_SET.has(codeLower)) {
-        if (!alphaText || EN_SET.has(lowerText)) {
+        if (!alphaText || LABEL_EN_SET.has(lowerText)) {
             // Both system and label indicate EN (or label empty); map to 'A'
             nextText = 'A';
             _state.indicator.add_style_class_name('kiwi-input-en');
