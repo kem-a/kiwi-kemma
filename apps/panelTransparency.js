@@ -384,15 +384,28 @@ function updateForegroundContrast(opacity) {
 }
 
 // Panel color fix helper
+// The class only sets the panel's *theme* background; the colour that actually
+// shows comes from the inline style updatePanelStyle() builds out of
+// get_background_color(). So toggling the class changes nothing until the stale
+// inline style is dropped and the style recomputed — that is why the old
+// behaviour needed an overview trip (which clears the inline style) to show up.
 function applyPanelColorFix() {
     const panel = Main.panel;
     if (!panel) return;
-    
+
     if (settings && settings.get_boolean('panel-color-inherit')) {
         panel.add_style_class_name('kiwi-panel-color-inherit');
     } else {
         panel.remove_style_class_name('kiwi-panel-color-inherit');
     }
+
+    // Clear the inline background so the theme node reports the class colour
+    // instead of the rgba() we last wrote, then rebuild it from that reading.
+    panel.set_style('');
+    GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        if (enabled) updatePanelStyle(lastForcedAlpha);
+        return GLib.SOURCE_REMOVE;
+    });
 }
 
 // Transparency is off: hand the panel back to whatever styled it before us.
