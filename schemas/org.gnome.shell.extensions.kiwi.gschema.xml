@@ -66,6 +66,26 @@
         <summary>Show Panel on Hover in Fullscreen</summary>
         <description>Show the top panel when hovering near the top edge in fullscreen mode.</description>
       </key>
+      <key name="move-calendar-right" type="b">
+        <default>true</default>
+        <summary>Move Calendar to Right</summary>
+        <description>Move the calendar to the right side of the top panel and hide the notifications panel.</description>
+      </key>
+      <key name="keep-notification-panel" type="b">
+        <default>false</default>
+        <summary>Keep GNOME Notification Panel</summary>
+        <description>When Move Calendar to Right is enabled, keep the native notification/calendar combined layout (only the panel position changes).</description>
+      </key>
+      <key name="notification-indicator-style" type="s">
+        <choices>
+          <choice value="default"/>
+          <choice value="accent"/>
+          <choice value="symbolic"/>
+        </choices>
+        <default>'default'</default>
+        <summary>Notification Indicator Style</summary>
+        <description>Color style of the top-panel notification indicator dot: default (red), accent (follows accent color), or symbolic (theme foreground).</description>
+      </key>
       <key name="battery-percentage" type="b">
         <default>true</default>
         <summary>Battery Percentage</summary>
@@ -167,16 +187,6 @@
         <summary>Enable Application Window Buttons</summary>
         <description>Enable or disable window control buttons in application windows (affects GTK theming).</description>
       </key>
-      <key name="enable-firefox-styling" type="b">
-        <default>false</default>
-        <summary>Enable Firefox Styling</summary>
-        <description>Manage Firefox userChrome.css to apply Kiwi window controls styling and hide Firefox window buttons when panel controls are shown.</description>
-      </key>
-      <key name="enable-thunderbird-styling" type="b">
-        <default>false</default>
-        <summary>Enable Thunderbird Styling</summary>
-        <description>Manage Thunderbird userChrome.css to apply Kiwi window controls styling and hide Thunderbird window buttons when panel controls are shown.</description>
-      </key>
       <key name="button-type" type="s">
         <default>'titlebuttons'</default>
         <summary>Button icon set</summary>
@@ -186,6 +196,16 @@
         <default>'small'</default>
         <summary>Button size</summary>
         <description>Determines the size of window control buttons (small: 14px, normal: 16px).</description>
+      </key>
+      <key name="enable-firefox-styling" type="b">
+        <default>false</default>
+        <summary>Enable Firefox Styling</summary>
+        <description>Manage Firefox userChrome.css to apply Kiwi window controls styling and hide Firefox window buttons when panel controls are shown.</description>
+      </key>
+      <key name="enable-thunderbird-styling" type="b">
+        <default>false</default>
+        <summary>Enable Thunderbird Styling</summary>
+        <description>Manage Thunderbird userChrome.css to apply Kiwi window controls styling and hide Thunderbird window buttons when panel controls are shown.</description>
       </key>
 
       <!-- Panel window controls -->
@@ -224,26 +244,6 @@
         <default>true</default>
         <summary>Move Window to New Workspace</summary>
         <description>Enable or disable moving windows to new workspaces.</description>
-      </key>
-      <key name="move-calendar-right" type="b">
-        <default>true</default>
-        <summary>Move Calendar to Right</summary>
-        <description>Move the calendar to the right side of the top panel and hide the notifications panel.</description>
-      </key>
-      <key name="keep-notification-panel" type="b">
-        <default>false</default>
-        <summary>Keep GNOME Notification Panel</summary>
-        <description>When Move Calendar to Right is enabled, keep the native notification/calendar combined layout (only the panel position changes).</description>
-      </key>
-      <key name="notification-indicator-style" type="s">
-        <choices>
-          <choice value="default"/>
-          <choice value="accent"/>
-          <choice value="symbolic"/>
-        </choices>
-        <default>'default'</default>
-        <summary>Notification Indicator Style</summary>
-        <description>Color style of the top-panel notification indicator dot: default (red), accent (follows accent color), or symbolic (theme foreground).</description>
       </key>
       <key name="reduce-window-animations" type="b">
         <default>true</default>

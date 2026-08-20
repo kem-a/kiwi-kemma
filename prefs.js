@@ -494,6 +494,67 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         this._addSwitchRows(settings, windowTitleGroup, [
             { key: 'panel-hover-fullscreen', title: _("Show Panel in Fullscreen on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
+        ]);
+
+        // Expander with notification indicator style sub-option
+        const calendarHasNonDefault =
+            settings.get_boolean('keep-notification-panel') ||
+            settings.get_string('notification-indicator-style') !== 'default';
+        const calendarExpander = new Adw.ExpanderRow({
+            title: _("Move Calendar to Right"),
+            subtitle: _("Move calendar to right side and hide notifications"),
+            expanded: settings.get_boolean('move-calendar-right') && calendarHasNonDefault,
+            show_enable_switch: true,
+        });
+        windowTitleGroup.add(calendarExpander);
+        settings.bind('move-calendar-right', calendarExpander, 'enable-expansion',
+            Gio.SettingsBindFlags.DEFAULT);
+
+        const keepPanelRow = new Adw.SwitchRow({
+            title: _("Keep GNOME Notification Panel"),
+            subtitle: _("Don't split notification and calendar layout"),
+        });
+        calendarExpander.add_row(keepPanelRow);
+        settings.bind('keep-notification-panel', keepPanelRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        const indicatorStyleRow = new Adw.ActionRow({
+            title: _('Indicator Style'),
+            subtitle: _('Notification dot recolor'),
+        });
+
+        const indicatorStyleToggleGroup = new Adw.ToggleGroup({
+            homogeneous: true,
+            can_shrink: true,
+            valign: Gtk.Align.CENTER,
+        });
+        indicatorStyleToggleGroup.add_css_class('round');
+
+        const indicatorDefaultToggle = new Adw.Toggle({
+            label: _('Default'),
+            name: 'default',
+        });
+        const indicatorAccentToggle = new Adw.Toggle({
+            label: _('Accent'),
+            name: 'accent',
+        });
+        const indicatorSymbolicToggle = new Adw.Toggle({
+            label: _('Symbolic'),
+            name: 'symbolic',
+        });
+
+        indicatorStyleToggleGroup.add(indicatorDefaultToggle);
+        indicatorStyleToggleGroup.add(indicatorAccentToggle);
+        indicatorStyleToggleGroup.add(indicatorSymbolicToggle);
+        indicatorStyleToggleGroup.set_active_name(settings.get_string('notification-indicator-style'));
+
+        indicatorStyleRow.add_suffix(indicatorStyleToggleGroup);
+        calendarExpander.add_row(indicatorStyleRow);
+
+        indicatorStyleToggleGroup.connect('notify::active-name', (g) => {
+            settings.set_string('notification-indicator-style', g.active_name);
+        });
+
+        this._addSwitchRows(settings, windowTitleGroup, [
             { key: 'battery-percentage', title: _("Battery Percentage"), subtitle: _("Show battery percentage in the top bar when below 20%") },
             { key: 'lock-icon', title: _("Caps Lock and Num Lock"), subtitle: _("Show Caps Lock and Num Lock icon") },
             { key: 'custom-dnd-button', title: _("Custom Do Not Disturb Button"), subtitle: _("Replace the system Do Not Disturb button with Kiwi's custom implementation") },
@@ -509,7 +570,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         this._addSwitchRows(settings, panelStylingGroup, [
             { key: 'panel-styling', title: _("Panel Styling"), subtitle: _("Tighter button spacing, bold titles, smaller status icons, no dropdown arrows and a transparent panel in the overview") },
-            { key: 'popup-menu-styling', title: _("Menu and App Styling"), subtitle: _("Taller shell menu items with accent-colored hover and selection, plus the GTK app fixes") },
+            { key: 'popup-menu-styling', title: _("Menu and App Styling"), subtitle: _("Narrower shell menu items with accent-colored hover and selection, plus the GTK app fixes") },
         ]);
 
         // Keyboard indicator feature with sub-options
@@ -748,25 +809,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
         syncButtonsExpansion();
         settings.connect('changed::enable-app-window-buttons', syncButtonsExpansion);
 
-        // Firefox styling switch
-        const firefoxStylingSwitch = new Adw.SwitchRow({
-            title: _("Firefox Styling"),
-            subtitle: _("Apply macOS window control styling for Firefox. Recommended to use with vertical tabs."),
-            active: settings.get_boolean('enable-firefox-styling'),
-        });
-        buttonsExpander.add_row(firefoxStylingSwitch);
-        settings.bind('enable-firefox-styling', firefoxStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
-
-        // Thunderbird styling switch
-        const thunderbirdStylingSwitch = new Adw.SwitchRow({
-            title: _("Thunderbird Styling"),
-            subtitle: _("Apply macOS window control styling for Thunderbird."),
-            active: settings.get_boolean('enable-thunderbird-styling'),
-        });
-        buttonsExpander.add_row(thunderbirdStylingSwitch);
-        settings.bind('enable-thunderbird-styling', thunderbirdStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
-        // No need to manage visibility; expander controls reveal
-
         // Button Type toggle group with round style
         const buttonTypeRow = new Adw.ActionRow({
             title: _('Button Type'),
@@ -833,6 +875,25 @@ export default class KiwiPreferences extends ExtensionPreferences {
             settings.set_string('button-size', group.active_name);
         });
 
+        // Firefox styling switch
+        const firefoxStylingSwitch = new Adw.SwitchRow({
+            title: _("Firefox Styling"),
+            subtitle: _("Apply macOS window control styling for Firefox. Recommended to use with vertical tabs."),
+            active: settings.get_boolean('enable-firefox-styling'),
+        });
+        buttonsExpander.add_row(firefoxStylingSwitch);
+        settings.bind('enable-firefox-styling', firefoxStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        // Thunderbird styling switch
+        const thunderbirdStylingSwitch = new Adw.SwitchRow({
+            title: _("Thunderbird Styling"),
+            subtitle: _("Apply macOS window control styling for Thunderbird."),
+            active: settings.get_boolean('enable-thunderbird-styling'),
+        });
+        buttonsExpander.add_row(thunderbirdStylingSwitch);
+        settings.bind('enable-thunderbird-styling', thunderbirdStylingSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
+        // No need to manage visibility; expander controls reveal
+
         // When the main switch is turned off, also turn off Firefox styling
         settings.connect('changed::enable-app-window-buttons', () => {
             const enabled = settings.get_boolean('enable-app-window-buttons');
@@ -891,67 +952,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
-        ]);
-
-        // Expander with notification indicator style sub-option
-        const calendarHasNonDefault =
-            settings.get_boolean('keep-notification-panel') ||
-            settings.get_string('notification-indicator-style') !== 'default';
-        const calendarExpander = new Adw.ExpanderRow({
-            title: _("Move Calendar to Right"),
-            subtitle: _("Move calendar to right side and hide notifications"),
-            expanded: settings.get_boolean('move-calendar-right') && calendarHasNonDefault,
-            show_enable_switch: true,
-        });
-        group.add(calendarExpander);
-        settings.bind('move-calendar-right', calendarExpander, 'enable-expansion',
-            Gio.SettingsBindFlags.DEFAULT);
-
-        const keepPanelRow = new Adw.SwitchRow({
-            title: _("Keep GNOME Notification Panel"),
-            subtitle: _("Don't split notification and calendar layout"),
-        });
-        calendarExpander.add_row(keepPanelRow);
-        settings.bind('keep-notification-panel', keepPanelRow, 'active', Gio.SettingsBindFlags.DEFAULT);
-
-        const indicatorStyleRow = new Adw.ActionRow({
-            title: _('Indicator Style'),
-            subtitle: _('Notification dot recolor'),
-        });
-
-        const indicatorStyleToggleGroup = new Adw.ToggleGroup({
-            homogeneous: true,
-            can_shrink: true,
-            valign: Gtk.Align.CENTER,
-        });
-        indicatorStyleToggleGroup.add_css_class('round');
-
-        const indicatorDefaultToggle = new Adw.Toggle({
-            label: _('Default'),
-            name: 'default',
-        });
-        const indicatorAccentToggle = new Adw.Toggle({
-            label: _('Accent'),
-            name: 'accent',
-        });
-        const indicatorSymbolicToggle = new Adw.Toggle({
-            label: _('Symbolic'),
-            name: 'symbolic',
-        });
-
-        indicatorStyleToggleGroup.add(indicatorDefaultToggle);
-        indicatorStyleToggleGroup.add(indicatorAccentToggle);
-        indicatorStyleToggleGroup.add(indicatorSymbolicToggle);
-        indicatorStyleToggleGroup.set_active_name(settings.get_string('notification-indicator-style'));
-
-        indicatorStyleRow.add_suffix(indicatorStyleToggleGroup);
-        calendarExpander.add_row(indicatorStyleRow);
-
-        indicatorStyleToggleGroup.connect('notify::active-name', (g) => {
-            settings.set_string('notification-indicator-style', g.active_name);
-        });
-
-        this._addSwitchRows(settings, group, [
             { key: 'reduce-window-animations', title: _("Reduce App Animations"), subtitle: _("Mimic macOS window opening and closing with a subtle scale and fade") },
             { key: 'transparent-move', title: _("Transparent Move"), subtitle: _("Move window with transparency") },
         ]);
