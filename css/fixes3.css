@@ -18,10 +18,10 @@ headerbar box.horizontal.left {
   padding: 4px;
 }
 .geary-main-layout treeview.sidebar:selected {
-  background-color: alpha(@accent_bg_color,0.3);
+  background-color: alpha(@theme_selected_bg_color,0.3);
 }
 .geary-main-layout viewport>list>row:selected {
-  background-color: alpha(@accent_bg_color,0.3);
+  background-color: alpha(@theme_selected_bg_color,0.3);
 }
 .geary-main-layout.vertical .titlebar.windowhandle {
   background: transparent;
@@ -57,6 +57,12 @@ box.horizontal.linked.raised > button {
 }
 
 /* Popover and Menu accent color fix to use system accent color */
+/* GTK3 has no @accent_bg_color: it is a libadwaita/GTK4 color, and neither the
+   built-in Adwaita GTK3 theme nor Yaru defines it. GTK3 resolves unknown named
+   colors lazily and silently, so the declaration does not fail to parse, it just
+   computes to the property's initial value (transparent background, white text)
+   while the other declarations in the block still apply. Hence @theme_selected_*,
+   which every GTK3 theme defines and Yaru keeps in sync with the chosen accent. */
 /* Focus state removed since can't unfocus it on hover in GTK3. Issue double selection*/
 popover.menu > contents > .menu-item:selected,
 popover.menu contents > .menu-item:selected,
@@ -72,6 +78,6 @@ popover.menu modelbutton:hover,
 .context-menu > .menu-item:hover,
 menuitem:hover,
 .menuitem:hover {
-  background-color: @accent_bg_color;
-  color: @accent_fg_color;
+  background-color: @theme_selected_bg_color;
+  color: @theme_selected_fg_color;
 }
