@@ -73,32 +73,6 @@
   transition-duration: 150ms;
 }
 
-#panel.kiwi-panel-styled .panel-button,
-#panel.kiwi-panel-styled .panel-button:hover,
-#panel.kiwi-panel-styled .panel-button:active,
-#panel.kiwi-panel-styled .panel-button:focus,
-#panel.kiwi-panel-styled .panel-button:checked {
-  text-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
-}
-
-#panel.kiwi-panel-styled .panel-button .system-status-icon,
-#panel.kiwi-panel-styled .panel-button .app-menu-icon > StIcon,
-#panel.kiwi-panel-styled .panel-button .popup-menu-arrow,
-#panel.kiwi-panel-styled .panel-button:hover .system-status-icon,
-#panel.kiwi-panel-styled .panel-button:hover .app-menu-icon > StIcon,
-#panel.kiwi-panel-styled .panel-button:hover .popup-menu-arrow,
-#panel.kiwi-panel-styled .panel-button:active .system-status-icon,
-#panel.kiwi-panel-styled .panel-button:active .app-menu-icon > StIcon,
-#panel.kiwi-panel-styled .panel-button:active .popup-menu-arrow,
-#panel.kiwi-panel-styled .panel-button:focus .system-status-icon,
-#panel.kiwi-panel-styled .panel-button:focus .app-menu-icon > StIcon,
-#panel.kiwi-panel-styled .panel-button:focus .popup-menu-arrow,
-#panel.kiwi-panel-styled .panel-button:checked .system-status-icon,
-#panel.kiwi-panel-styled .panel-button:checked .app-menu-icon > StIcon,
-#panel.kiwi-panel-styled .panel-button:checked .popup-menu-arrow {
-  icon-shadow: 0 1px 3px 3px rgba(0, 0, 0, 0.15);
-}
-
 #panel.kiwi-panel-styled .panel-button .popup-menu-arrow {
   width: 0;
   height: 0;

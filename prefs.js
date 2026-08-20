@@ -724,27 +724,29 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         windowControlsPage.add(buttonTypeGroup);
 
-        // Main toggle as an expander with sub-options
-        const buttonsHasNonDefault =
-            settings.get_boolean('enable-firefox-styling') ||
-            settings.get_boolean('enable-thunderbird-styling') ||
-            settings.get_string('button-type') !== 'titlebuttons' ||
-            settings.get_string('button-size') !== 'small';
+        // Main toggle as an expander with sub-options. The button type and size
+        // pickers are the point of this page, so the expander stays open for as
+        // long as the feature is on, whatever the sub-options are set to.
         const buttonsExpander = new Adw.ExpanderRow({
             title: _("Enable macOS Window Buttons"),
             subtitle: _("Replace window control buttons in application windows with macOS style"),
-            expanded: settings.get_boolean('enable-app-window-buttons') && buttonsHasNonDefault,
+            expanded: settings.get_boolean('enable-app-window-buttons'),
             show_enable_switch: true,
             enable_expansion: settings.get_boolean('enable-app-window-buttons'),
         });
         buttonTypeGroup.add(buttonsExpander);
-        // Keep expander enable state in sync with setting
-        buttonsExpander.enable_expansion = settings.get_boolean('enable-app-window-buttons');
         buttonsExpander.connect('notify::enable-expansion', () => {
             const enabled = buttonsExpander.enable_expansion;
             if (settings.get_boolean('enable-app-window-buttons') !== enabled)
                 settings.set_boolean('enable-app-window-buttons', enabled);
         });
+
+        const syncButtonsExpansion = () => {
+            buttonsExpander.expanded = settings.get_boolean('enable-app-window-buttons');
+        };
+
+        syncButtonsExpansion();
+        settings.connect('changed::enable-app-window-buttons', syncButtonsExpansion);
 
         // Firefox styling switch
         const firefoxStylingSwitch = new Adw.SwitchRow({
