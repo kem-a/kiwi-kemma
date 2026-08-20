@@ -1,36 +1,239 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
     <schema id="org.gnome.shell.extensions.kiwi" path="/org/gnome/shell/extensions/kiwi/">
-      <key name="move-window-to-new-workspace" type="b">
-        <default>true</default>
-        <summary>Move Window to New Workspace</summary>
-        <description>Enable or disable moving windows to new workspaces.</description>
+
+      <!--
+        Keys are ordered to match the preferences window (prefs.js):
+        Panel page, Dock page, Buttons page, Options page. Within each page the
+        keys follow the order of the groups and rows shown to the user.
+      -->
+
+      <!-- ========================================================= -->
+      <!-- Panel page                                                -->
+      <!-- ========================================================= -->
+
+      <!-- Panel Transparency -->
+      <key name="panel-transparency" type="b">
+        <default>false</default>
+        <summary>Enable Panel Transparency</summary>
+        <description>Make the top panel transparent.</description>
       </key>
-      <key name="add-username-to-quick-menu" type="b">
-        <default>true</default>
-        <summary>Add Username to Quick Menu</summary>
-        <description>Enable or disable adding the username to the quick menu.</description>
+      <key name="panel-transparency-level" type="i">
+        <default>29</default>
+        <range min="0" max="100"/>
+        <summary>Panel Transparency Level</summary>
+        <description>Set the transparency level of the panel (0-100).</description>
       </key>
-      <key name="lock-icon" type="b">
-        <default>true</default>
-        <summary>Lock Icon</summary>
-        <description>Enable or disable the lock icon.</description>
+      <key name="panel-opaque-on-window" type="b">
+        <default>false</default>
+        <summary>Panel Opaque on Window Touch</summary>
+        <description>Make panel opaque when a window touches it.</description>
       </key>
-      <key name="transparent-move" type="b">
+      <key name="panel-blur" type="b">
+        <default>false</default>
+        <summary>Panel Blur</summary>
+        <description>Apply a blur effect behind the top panel when it is transparent.</description>
+      </key>
+      <key name="panel-color-inherit" type="b">
+        <default>false</default>
+        <summary>Panel Color Inherit Fix</summary>
+        <description>Apply background-color: inherit to fix panel color issues on some themes (e.g., white panel on dark themes).</description>
+      </key>
+      <key name="panel-invert-tray-icons" type="b">
+        <default>false</default>
+        <summary>Invert Tray Icons on Light Wallpapers</summary>
+        <description>Darken white monochrome tray icons when the panel adapts to a light wallpaper. Colored icons are left untouched.</description>
+      </key>
+
+      <!-- Panel Items -->
+      <key name="show-window-title" type="b">
         <default>true</default>
-        <summary>Transparent Move</summary>
-        <description>Enable or disable transparent move.</description>
+        <summary>Show window title in panel</summary>
+        <description>Display the current window title in the top panel.</description>
+      </key>
+      <key name="show-window-title-icon" type="b">
+        <default>true</default>
+        <summary>Show app icon next to the window title</summary>
+        <description>Display the focused application's icon next to the window title in the top panel.</description>
+      </key>
+      <key name="show-tiling-title-menu" type="b">
+        <default>true</default>
+        <summary>Add Tiling Layouts to the Window Title Menu</summary>
+        <description>Add window tiling layouts to the menu opened from the window title in the panel. Available for any focused window, including windows that are not maximized.</description>
+      </key>
+      <key name="panel-hover-fullscreen" type="b">
+        <default>true</default>
+        <summary>Show Panel on Hover in Fullscreen</summary>
+        <description>Show the top panel when hovering near the top edge in fullscreen mode.</description>
       </key>
       <key name="battery-percentage" type="b">
         <default>true</default>
         <summary>Battery Percentage</summary>
         <description>Enable or disable showing battery percentage.</description>
       </key>
+      <key name="lock-icon" type="b">
+        <default>true</default>
+        <summary>Lock Icon</summary>
+        <description>Enable or disable the lock icon.</description>
+      </key>
+      <key name="custom-dnd-button" type="b">
+        <default>true</default>
+        <summary>Custom Do Not Disturb Button</summary>
+        <description>Replace the system Do Not Disturb quick settings button with Kiwi's custom implementation.</description>
+      </key>
+      <key name="hide-activities-button" type="b">
+        <default>false</default>
+        <summary>Hide Activities Button</summary>
+        <description>Hide the Activities button in the top panel.</description>
+      </key>
+      <key name="add-username-to-quick-menu" type="b">
+        <default>false</default>
+        <summary>Add Username to Quick Menu</summary>
+        <description>Enable or disable adding the username to the quick menu.</description>
+      </key>
 
+      <!-- Styling -->
+      <key name="panel-styling" type="b">
+        <default>true</default>
+        <summary>Panel Styling</summary>
+        <description>Restyle the top panel: tighter button spacing, bold titles, smaller status icons, no dropdown arrows and a transparent panel in the overview.</description>
+      </key>
+      <key name="popup-menu-styling" type="b">
+        <default>true</default>
+        <summary>Menu and App Styling</summary>
+        <description>Restyle shell popup menus with taller items and accent-colored hover, selected and checked entries, and apply the GTK 3 and GTK 4 app fixes (fixes3.css, fixes4.css).</description>
+      </key>
+      <key name="keyboard-indicator" type="b">
+        <default>true</default>
+        <summary>Keyboard Indicator Styling</summary>
+        <description>Enable additional options for the panel keyboard/input source indicator.</description>
+      </key>
+      <key name="hide-keyboard-indicator" type="b">
+        <default>false</default>
+        <summary>Hide Keyboard Indicator</summary>
+        <description>Completely hide the keyboard/input source indicator from the panel.</description>
+      </key>
+
+      <!-- ========================================================= -->
+      <!-- Dock page                                                 -->
+      <!-- ========================================================= -->
+
+      <!-- Dock Items -->
+      <key name="minimize-to-dock" type="b">
+        <default>true</default>
+        <summary>Minimize Windows to Dock</summary>
+        <description>Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash.</description>
+      </key>
+      <key name="downloads-in-dock" type="b">
+        <default>true</default>
+        <summary>Downloads Folder in Dock</summary>
+        <description>Add a Downloads folder to Dash-to-Dock, before the trash, that fans its newest files out over the desktop when clicked.</description>
+      </key>
+      <key name="downloads-behind-folder" type="b">
+        <default>false</default>
+        <summary>Stack Behind Folder</summary>
+        <description>Draw the newest files behind the Downloads folder icon, sticking out of its top, rather than piled on top of it.</description>
+      </key>
+      <key name="enable-launchpad-app" type="b">
+        <default>false</default>
+        <summary>Enable Launchpad Application</summary>
+        <description>Adds a custom Launchpad icon to dock that opens the application overview.</description>
+      </key>
+      <key name="launchpad-app-custom-icon" type="s">
+        <default>''</default>
+        <summary>Launchpad Application Custom Icon</summary>
+        <description>Path to a custom icon for the Launchpad application. Supports PNG and SVG formats, max 512x512 pixels. Empty string uses the default icon.</description>
+      </key>
+
+      <!-- Styling -->
+      <key name="dock-styling" type="b">
+        <default>true</default>
+        <summary>Dock Styling</summary>
+        <description>Tighten Dash-to-Dock icon spacing and remove the icon hover highlight.</description>
+      </key>
+      <key name="dock-blur" type="b">
+        <default>true</default>
+        <summary>Dock Blur</summary>
+        <description>Apply a blur effect behind the Dash-to-Dock background.</description>
+      </key>
+
+      <!-- ========================================================= -->
+      <!-- Buttons page                                              -->
+      <!-- ========================================================= -->
+
+      <!-- Window Control Button Style -->
+      <key name="enable-app-window-buttons" type="b">
+        <default>true</default>
+        <summary>Enable Application Window Buttons</summary>
+        <description>Enable or disable window control buttons in application windows (affects GTK theming).</description>
+      </key>
+      <key name="enable-firefox-styling" type="b">
+        <default>false</default>
+        <summary>Enable Firefox Styling</summary>
+        <description>Manage Firefox userChrome.css to apply Kiwi window controls styling and hide Firefox window buttons when panel controls are shown.</description>
+      </key>
+      <key name="enable-thunderbird-styling" type="b">
+        <default>false</default>
+        <summary>Enable Thunderbird Styling</summary>
+        <description>Manage Thunderbird userChrome.css to apply Kiwi window controls styling and hide Thunderbird window buttons when panel controls are shown.</description>
+      </key>
+      <key name="button-type" type="s">
+        <default>'titlebuttons'</default>
+        <summary>Button icon set</summary>
+        <description>Determines which set of icons to use for window control buttons.</description>
+      </key>
+      <key name="button-size" type="s">
+        <default>'small'</default>
+        <summary>Button size</summary>
+        <description>Determines the size of window control buttons (small: 14px, normal: 16px).</description>
+      </key>
+
+      <!-- Panel window controls -->
+      <key name="show-window-controls" type="b">
+        <default>true</default>
+        <summary>Show Window Controls on Panel</summary>
+        <description>Display window control buttons in the top panel when window is maximized.</description>
+      </key>
+      <key name="show-window-controls-fullscreen-only" type="b">
+        <default>false</default>
+        <summary>Show Window Controls on Panel only when Fullscreen</summary>
+        <description>When enabled, panel window controls and titlebar hiding apply only to fullscreen windows, not maximized.</description>
+      </key>
+
+      <!-- ========================================================= -->
+      <!-- Options page                                              -->
+      <!-- ========================================================= -->
+
+      <!-- Kiwi -->
+      <key name="overview-wallpaper-background" type="b">
+        <default>false</default>
+        <summary>Overview Wallpaper Background</summary>
+        <description>Use the current desktop wallpaper as a blurred background in the overview.</description>
+      </key>
+      <key name="skip-overview-on-login" type="b">
+        <default>false</default>
+        <summary>Skip Overview on Login</summary>
+        <description>Do not show the overview when logging into GNOME. Still shows animation.</description>
+      </key>
+      <key name="hide-minimized-windows" type="b">
+        <default>false</default>
+        <summary>Hide minimized windows</summary>
+        <description>Hide minimized windows in the overview.</description>
+      </key>
+      <key name="move-window-to-new-workspace" type="b">
+        <default>true</default>
+        <summary>Move Window to New Workspace</summary>
+        <description>Enable or disable moving windows to new workspaces.</description>
+      </key>
       <key name="move-calendar-right" type="b">
         <default>true</default>
         <summary>Move Calendar to Right</summary>
         <description>Move the calendar to the right side of the top panel and hide the notifications panel.</description>
+      </key>
+      <key name="keep-notification-panel" type="b">
+        <default>false</default>
+        <summary>Keep GNOME Notification Panel</summary>
+        <description>When Move Calendar to Right is enabled, keep the native notification/calendar combined layout (only the panel position changes).</description>
       </key>
       <key name="notification-indicator-style" type="s">
         <choices>
@@ -42,12 +245,21 @@
         <summary>Notification Indicator Style</summary>
         <description>Color style of the top-panel notification indicator dot: default (red), accent (follows accent color), or symbolic (theme foreground).</description>
       </key>
-      <key name="keep-notification-panel" type="b">
-        <default>false</default>
-        <summary>Keep GNOME Notification Panel</summary>
-        <description>When Move Calendar to Right is enabled, keep the native notification/calendar combined layout (only the panel position changes).</description>
+      <key name="reduce-window-animations" type="b">
+        <default>true</default>
+        <summary>Reduce Window Open/Close Animations</summary>
+        <description>Replace the default window opening and closing animation with a subtle macOS-style scale and fade.</description>
+      </key>
+      <key name="transparent-move" type="b">
+        <default>true</default>
+        <summary>Transparent Move</summary>
+        <description>Enable or disable transparent move.</description>
       </key>
 
+      <!-- ========================================================= -->
+      <!-- Not exposed in the preferences window                     -->
+      <!-- Tuning keys for Transparent Move, editable via dconf only -->
+      <!-- ========================================================= -->
       <key name="transparent-on-moving" type="b">
         <default>true</default>
         <summary>Enable transparency when moving windows</summary>
@@ -67,209 +279,6 @@
         <default>0.2</default>
         <summary>Transition time for opacity change</summary>
         <description>Time in seconds for the opacity transition animation.</description>
-      </key>
-      <key name="show-window-title" type="b">
-        <default>true</default>
-        <summary>Show window title in panel</summary>
-        <description>Display the current window title in the top panel.</description>
-      </key>
-      <key name="show-window-title-icon" type="b">
-        <default>true</default>
-        <summary>Show app icon next to the window title</summary>
-        <description>Display the focused application's icon next to the window title in the top panel.</description>
-      </key>
-      <key name="show-window-controls" type="b">
-        <default>true</default>
-        <summary>Show Window Controls on Panel</summary>
-        <description>Display window control buttons in the top panel when window is maximized.</description>
-      </key>
-      <key name="show-window-controls-fullscreen-only" type="b">
-        <default>false</default>
-        <summary>Show Window Controls on Panel only when Fullscreen</summary>
-        <description>When enabled, panel window controls and titlebar hiding apply only to fullscreen windows, not maximized.</description>
-      </key>
-      <key name="show-tiling-title-menu" type="b">
-        <default>true</default>
-        <summary>Add Tiling Layouts to the Window Title Menu</summary>
-        <description>Add window tiling layouts to the menu opened from the window title in the panel. Available for any focused window, including windows that are not maximized.</description>
-      </key>
-      <key name="button-type" type="s">
-        <default>'titlebuttons'</default>
-        <summary>Button icon set</summary>
-        <description>Determines which set of icons to use for window control buttons.</description>
-      </key>
-      <key name="button-size" type="s">
-        <default>'small'</default>
-        <summary>Button size</summary>
-        <description>Determines the size of window control buttons (small: 14px, normal: 16px).</description>
-      </key>
-      <key name="panel-hover-fullscreen" type="b">
-        <default>true</default>
-        <summary>Show Panel on Hover in Fullscreen</summary>
-        <description>Show the top panel when hovering near the top edge in fullscreen mode.</description>
-      </key>
-      <key name="panel-transparency" type="b">
-        <default>false</default>
-        <summary>Enable Panel Transparency</summary>
-        <description>Make the top panel transparent.</description>
-      </key>
-      <key name="panel-transparency-level" type="i">
-        <default>30</default>
-        <range min="0" max="100"/>
-        <summary>Panel Transparency Level</summary>
-        <description>Set the transparency level of the panel (0-100).</description>
-      </key>
-      <key name="panel-opaque-on-window" type="b">
-        <default>false</default>
-        <summary>Panel Opaque on Window Touch</summary>
-        <description>Make panel opaque when a window touches it.</description>
-      </key>
-      <key name="hide-minimized-windows" type="b">
-        <default>false</default>
-        <summary>Hide minimized windows</summary>
-        <description>Hide minimized windows in the overview.</description>
-      </key>
-      <key name="enable-app-window-buttons" type="b">
-        <default>true</default>
-        <summary>Enable Application Window Buttons</summary>
-        <description>Enable or disable window control buttons in application windows (affects GTK theming).</description>
-      </key>
-      <key name="hide-activities-button" type="b">
-        <default>false</default>
-        <summary>Hide Activities Button</summary>
-        <description>Hide the Activities button in the top panel.</description>
-      </key>
-      <key name="overview-wallpaper-background" type="b">
-        <default>true</default>
-        <summary>Overview Wallpaper Background</summary>
-        <description>Use the current desktop wallpaper as a blurred background in the overview.</description>
-      </key>
-      <key name="skip-overview-on-login" type="b">
-        <default>false</default>
-        <summary>Skip Overview on Login</summary>
-        <description>Do not show the overview when logging into GNOME. Still shows animation.</description>
-      </key>
-      
-      <!-- Keyboard indicator controls -->
-      <key name="keyboard-indicator" type="b">
-        <default>true</default>
-        <summary>Keyboard Indicator Styling</summary>
-        <description>Enable additional options for the panel keyboard/input source indicator.</description>
-      </key>
-      <key name="hide-keyboard-indicator" type="b">
-        <default>false</default>
-        <summary>Hide Keyboard Indicator</summary>
-        <description>Completely hide the keyboard/input source indicator from the panel.</description>
-      </key>
-
-      <!-- Firefox integration -->
-      <key name="enable-firefox-styling" type="b">
-        <default>false</default>
-        <summary>Enable Firefox Styling</summary>
-        <description>Manage Firefox userChrome.css to apply Kiwi window controls styling and hide Firefox window buttons when panel controls are shown.</description>
-      </key>
-
-      <!-- Thunderbird integration -->
-      <key name="enable-thunderbird-styling" type="b">
-        <default>false</default>
-        <summary>Enable Thunderbird Styling</summary>
-        <description>Manage Thunderbird userChrome.css to apply Kiwi window controls styling and hide Thunderbird window buttons when panel controls are shown.</description>
-      </key>
-
-      <!-- Panel color fix -->
-      <key name="panel-color-inherit" type="b">
-        <default>false</default>
-        <summary>Panel Color Inherit Fix</summary>
-        <description>Apply background-color: inherit to fix panel color issues on some themes (e.g., white panel on dark themes).</description>
-      </key>
-
-      <!-- Panel blur -->
-      <key name="panel-blur" type="b">
-        <default>true</default>
-        <summary>Panel Blur</summary>
-        <description>Apply a blur effect behind the top panel when it is transparent.</description>
-      </key>
-
-      <!-- Tray icon inversion -->
-      <key name="panel-invert-tray-icons" type="b">
-        <default>false</default>
-        <summary>Invert Tray Icons on Light Wallpapers</summary>
-        <description>Darken white monochrome tray icons when the panel adapts to a light wallpaper. Colored icons are left untouched.</description>
-      </key>
-
-      <!-- Panel styling -->
-      <key name="panel-styling" type="b">
-        <default>true</default>
-        <summary>Panel Styling</summary>
-        <description>Restyle the top panel: tighter button spacing, bold titles, smaller status icons, no dropdown arrows and a transparent panel in the overview.</description>
-      </key>
-
-      <!-- Popup menu and GTK app styling -->
-      <key name="popup-menu-styling" type="b">
-        <default>true</default>
-        <summary>Menu and App Styling</summary>
-        <description>Restyle shell popup menus with taller items and accent-colored hover, selected and checked entries, and apply the GTK 3 and GTK 4 app fixes (fixes3.css, fixes4.css).</description>
-      </key>
-
-      <!-- Dock styling -->
-      <key name="dock-styling" type="b">
-        <default>true</default>
-        <summary>Dock Styling</summary>
-        <description>Tighten Dash-to-Dock icon spacing and remove the icon hover highlight.</description>
-      </key>
-
-      <!-- Dock blur -->
-      <key name="dock-blur" type="b">
-        <default>true</default>
-        <summary>Dock Blur</summary>
-        <description>Apply a blur effect behind the Dash-to-Dock background.</description>
-      </key>
-
-      <!-- Minimized windows in the dock -->
-      <key name="minimize-to-dock" type="b">
-        <default>true</default>
-        <summary>Minimize Windows to Dock</summary>
-        <description>Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash.</description>
-      </key>
-
-      <!-- Downloads stack in the dock -->
-      <key name="downloads-in-dock" type="b">
-        <default>false</default>
-        <summary>Downloads Folder in Dock</summary>
-        <description>Add a Downloads folder to Dash-to-Dock, before the trash, that fans its newest files out over the desktop when clicked.</description>
-      </key>
-
-      <key name="downloads-behind-folder" type="b">
-        <default>false</default>
-        <summary>Stack Behind Folder</summary>
-        <description>Draw the newest files behind the Downloads folder icon, sticking out of its top, rather than piled on top of it.</description>
-      </key>
-
-      <!-- Launchpad app -->
-      <key name="enable-launchpad-app" type="b">
-        <default>false</default>
-        <summary>Enable Launchpad Application</summary>
-        <description>Adds a custom Launchpad icon to dock that opens the application overview.</description>
-      </key>
-
-      <key name="launchpad-app-custom-icon" type="s">
-        <default>''</default>
-        <summary>Launchpad Application Custom Icon</summary>
-        <description>Path to a custom icon for the Launchpad application. Supports PNG and SVG formats, max 512x512 pixels. Empty string uses the default icon.</description>
-      </key>
-
-      <!-- Custom DND button -->
-      <key name="custom-dnd-button" type="b">
-        <default>true</default>
-        <summary>Custom Do Not Disturb Button</summary>
-        <description>Replace the system Do Not Disturb quick settings button with Kiwi's custom implementation.</description>
-      </key>
-
-      <!-- Reduce window open/close animations -->
-      <key name="reduce-window-animations" type="b">
-        <default>true</default>
-        <summary>Reduce Window Open/Close Animations</summary>
-        <description>Replace the default window opening and closing animation with a subtle macOS-style scale and fade.</description>
       </key>
     </schema>
 </schemalist>

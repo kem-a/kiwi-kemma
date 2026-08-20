@@ -29,7 +29,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         super(metadata);
     }
 
-    _createLinkRow(title, url, subtitle = null) {
+    _createLinkRow(title, url, subtitle = null, prefixGicon = null) {
         const row = new Adw.ActionRow({
             title,
             activatable: true,
@@ -37,6 +37,9 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         if (subtitle)
             row.subtitle = subtitle;
+
+        if (prefixGicon)
+            row.add_prefix(new Gtk.Image({ gicon: prefixGicon }));
 
         row.add_suffix(new Gtk.Image({ icon_name: 'external-link-symbolic' }));
         row.connect('activated', () => Gtk.show_uri(null, url, Gdk.CURRENT_TIME));
@@ -315,7 +318,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             gicon: new Gio.FileIcon({ file: Gio.File.new_for_path(`${this.path}/icons/github-symbolic.svg`) }),
         }));
         coffeeContent.append(new Gtk.Label({
-            label: _('Sponsor Me ♡'),
+            label: _('Support Me ♡'),
         }));
         coffeeButton.set_child(coffeeContent);
         coffeeButton.connect('clicked', () => {
@@ -338,108 +341,175 @@ export default class KiwiPreferences extends ExtensionPreferences {
         window.add_breakpoint(aboutBreakpoint);
 
         //
-        // Options Page
+        // Panel Page
         //
-        const settingsPage = new Adw.PreferencesPage({
-            title: _('Options'),
-            icon_name: 'preferences-other-symbolic',
+        const panelPage = new Adw.PreferencesPage({
+            title: _('Panel'),
+            icon_name: 'focus-top-bar-symbolic',
         });
-        window.add(settingsPage);
+        window.add(panelPage);
 
-        const group = new Adw.PreferencesGroup({
-            title: _('Kiwi'),
-            description: _("Kiwi is not like Apple, it's free open source project that brings macOS-like feel for GNOME"),
+        const transparencyGroup = new Adw.PreferencesGroup({
+            title: _('Panel Transparency'),
+            description: _('Configure panel transparency and appearance'),
         });
-        settingsPage.add(group);
+        panelPage.add(transparencyGroup);
 
-        this._addSwitchRows(settings, group, [
-            { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Blur"), subtitle: _("Use blurred current wallpaper as overview background (requires ImageMagick)") },
-            { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
-            { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
-            { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
-        ]);
-
-        // Expander with notification indicator style sub-option
-        const calendarHasNonDefault =
-            settings.get_boolean('keep-notification-panel') ||
-            settings.get_string('notification-indicator-style') !== 'default';
-        const calendarExpander = new Adw.ExpanderRow({
-            title: _("Move Calendar to Right"),
-            subtitle: _("Move calendar to right side and hide notifications"),
-            expanded: settings.get_boolean('move-calendar-right') && calendarHasNonDefault,
+        // Panel transparency expander with sub-options
+        const transparencyHasNonDefault =
+            settings.get_int('panel-transparency-level') !== 50 ||
+            settings.get_boolean('panel-opaque-on-window') ||
+            settings.get_boolean('panel-blur') ||
+            settings.get_boolean('panel-color-inherit') ||
+            settings.get_boolean('panel-invert-tray-icons');
+        const transparencyExpander = new Adw.ExpanderRow({
+            title: _("Panel Transparency"),
+            subtitle: _("Make the top panel transparent"),
+            expanded: settings.get_boolean('panel-transparency') && transparencyHasNonDefault,
             show_enable_switch: true,
-            enable_expansion: settings.get_boolean('move-calendar-right'),
-        });
-        group.add(calendarExpander);
-
-        calendarExpander.connect('notify::enable-expansion', () => {
-            const v = calendarExpander.enable_expansion;
-            if (settings.get_boolean('move-calendar-right') !== v)
-                settings.set_boolean('move-calendar-right', v);
         });
 
-        const keepPanelRow = new Adw.SwitchRow({
-            title: _("Keep GNOME Notification Panel"),
-            subtitle: _("Don't split notification and calendar layout"),
+        // Transparency level spinbox
+        const transparencySpinRow = new Adw.SpinRow({
+            title: _("Transparency Level"),
+            subtitle: _("Set panel transparency (0-100)"),
+            adjustment: new Gtk.Adjustment({
+                lower: 0,
+                upper: 100,
+                step_increment: 1,
+                page_increment: 10,
+                value: settings.get_int('panel-transparency-level'),
+            }),
+            sensitive: settings.get_boolean('panel-transparency'),
         });
-        calendarExpander.add_row(keepPanelRow);
-        settings.bind('keep-notification-panel', keepPanelRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        transparencyExpander.add_row(transparencySpinRow);
 
-        const indicatorStyleRow = new Adw.ActionRow({
-            title: _('Indicator Style'),
-            subtitle: _('Notification dot recolor'),
+        // Opaque on window touch switch
+        const opaqueOnWindowSwitch = new Adw.SwitchRow({
+            title: _("Opaque When Window Touches"),
+            subtitle: _("Make panel opaque when a window touches it"),
+            active: settings.get_boolean('panel-opaque-on-window'),
+            sensitive: settings.get_boolean('panel-transparency'),
         });
+        transparencyExpander.add_row(opaqueOnWindowSwitch);
 
-        const indicatorStyleToggleGroup = new Adw.ToggleGroup({
-            homogeneous: true,
-            can_shrink: true,
-            valign: Gtk.Align.CENTER,
+        // Panel blur
+        const panelBlurRow = new Adw.SwitchRow({
+            title: _("Panel Blur"),
+            subtitle: _("Blur the background behind the panel"),
+            active: settings.get_boolean('panel-blur'),
+            sensitive: settings.get_boolean('panel-transparency'),
         });
-        indicatorStyleToggleGroup.add_css_class('round');
+        transparencyExpander.add_row(panelBlurRow);
 
-        const indicatorDefaultToggle = new Adw.Toggle({
-            label: _('Default'),
-            name: 'default',
+        // Panel color inherit fix
+        const panelColorFixRow = new Adw.SwitchRow({
+            title: _("Panel Color Fix"),
+            subtitle: _("Fix white panel on some themes (e.g., Ubuntu Yaru)"),
+            active: settings.get_boolean('panel-color-inherit'),
         });
-        const indicatorAccentToggle = new Adw.Toggle({
-            label: _('Accent'),
-            name: 'accent',
+        transparencyExpander.add_row(panelColorFixRow);
+
+        // Tray icon inversion for light wallpapers
+        const invertTrayIconsRow = new Adw.SwitchRow({
+            title: _("Invert Tray Icons on Light Wallpapers"),
+            subtitle: _("Darken white monochrome tray icons when the panel adapts to a light wallpaper. Colored icons are left untouched"),
+            active: settings.get_boolean('panel-invert-tray-icons'),
+            sensitive: settings.get_boolean('panel-transparency'),
         });
-        const indicatorSymbolicToggle = new Adw.Toggle({
-            label: _('Symbolic'),
-            name: 'symbolic',
+        transparencyExpander.add_row(invertTrayIconsRow);
+
+        transparencyGroup.add(transparencyExpander);
+
+        // Bindings for expander
+        settings.bind('panel-transparency', transparencyExpander, 'enable-expansion',
+            Gio.SettingsBindFlags.DEFAULT);
+
+        // Bindings for sub-options
+        settings.bind('panel-transparency-level', transparencySpinRow, 'value',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-transparency', transparencySpinRow, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+        settings.bind('panel-opaque-on-window', opaqueOnWindowSwitch, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-transparency', opaqueOnWindowSwitch, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+        settings.bind('panel-blur', panelBlurRow, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-transparency', panelBlurRow, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+        settings.bind('panel-color-inherit', panelColorFixRow, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-invert-tray-icons', invertTrayIconsRow, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('panel-transparency', invertTrayIconsRow, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+
+        const windowTitleGroup = new Adw.PreferencesGroup({
+            title: _('Panel Items'),
+            description: _('Choose what the top panel and its menus show'),
         });
+        panelPage.add(windowTitleGroup);
 
-        indicatorStyleToggleGroup.add(indicatorDefaultToggle);
-        indicatorStyleToggleGroup.add(indicatorAccentToggle);
-        indicatorStyleToggleGroup.add(indicatorSymbolicToggle);
-        indicatorStyleToggleGroup.set_active_name(settings.get_string('notification-indicator-style'));
-
-        indicatorStyleRow.add_suffix(indicatorStyleToggleGroup);
-        calendarExpander.add_row(indicatorStyleRow);
-
-        indicatorStyleToggleGroup.connect('notify::active-name', (g) => {
-            settings.set_string('notification-indicator-style', g.active_name);
+        // Tiling lives under the window title because the layouts are reached from its
+        // menu; without the title in the panel there is no way to open them.
+        const windowTitleExpander = new Adw.ExpanderRow({
+            title: _("Show Window Title"),
+            subtitle: _("Display current window title in the top panel"),
+            show_enable_switch: true,
         });
+        windowTitleGroup.add(windowTitleExpander);
+        settings.bind('show-window-title', windowTitleExpander, 'enable-expansion',
+            Gio.SettingsBindFlags.DEFAULT);
 
-        this._addSwitchRows(settings, group, [
+        // Both sub-options are stored as positive keys, so their rows invert them.
+        const titleIconRow = new Adw.SwitchRow({
+            title: _("Hide App Icon"),
+            subtitle: _("Do not show the application icon next to the window title"),
+        });
+        windowTitleExpander.add_row(titleIconRow);
+        settings.bind('show-window-title-icon', titleIconRow, 'active',
+            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.INVERT_BOOLEAN);
+
+        const tilingTitleMenuRow = new Adw.SwitchRow({
+            title: _("Disable Window Tiling"),
+            subtitle: _("Drop the tiling layouts from the window title menu, and stop restoring tiled windows when their titlebar is dragged"),
+        });
+        windowTitleExpander.add_row(tilingTitleMenuRow);
+        settings.bind('show-tiling-title-menu', tilingTitleMenuRow, 'active',
+            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.INVERT_BOOLEAN);
+
+        // Keep the expander closed while both sub-options sit at their default (off) state.
+        const syncWindowTitleExpansion = () => {
+            const titleEnabled = settings.get_boolean('show-window-title');
+            const hasSubOption = !settings.get_boolean('show-window-title-icon') ||
+                !settings.get_boolean('show-tiling-title-menu');
+            windowTitleExpander.expanded = titleEnabled && hasSubOption;
+        };
+
+        syncWindowTitleExpansion();
+        settings.connect('changed::show-window-title', syncWindowTitleExpansion);
+        settings.connect('changed::show-window-title-icon', syncWindowTitleExpansion);
+        settings.connect('changed::show-tiling-title-menu', syncWindowTitleExpansion);
+
+        this._addSwitchRows(settings, windowTitleGroup, [
+            { key: 'panel-hover-fullscreen', title: _("Show Panel in Fullscreen on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
             { key: 'battery-percentage', title: _("Battery Percentage"), subtitle: _("Show battery percentage in the top bar when below 20%") },
-            { key: 'add-username-to-quick-menu', title: _("Add Username"), subtitle: _("Add username to the quick menu") },
             { key: 'lock-icon', title: _("Caps Lock and Num Lock"), subtitle: _("Show Caps Lock and Num Lock icon") },
+            { key: 'custom-dnd-button', title: _("Custom Do Not Disturb Button"), subtitle: _("Replace the system Do Not Disturb button with Kiwi's custom implementation") },
+            { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
+            { key: 'add-username-to-quick-menu', title: _("Add Username"), subtitle: _("Add username to the quick menu") },
         ]);
 
-        //
-        // Styling group
-        //
-        const stylingGroup = new Adw.PreferencesGroup({
+        const panelStylingGroup = new Adw.PreferencesGroup({
             title: _('Styling'),
+            description: _('Restyle stock GNOME Shell elements and GTK apps. Log out and back in for changes to take effect'),
         });
-        settingsPage.add(stylingGroup);
+        panelPage.add(panelStylingGroup);
 
-        this._addSwitchRows(settings, stylingGroup, [
-            { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
-            { key: 'reduce-window-animations', title: _("Reduce App Animations"), subtitle: _("Mimic macOS window opening and closing with a subtle scale and fade") },
-            { key: 'transparent-move', title: _("Transparent Move"), subtitle: _("Move window with transparency") },
+        this._addSwitchRows(settings, panelStylingGroup, [
+            { key: 'panel-styling', title: _("Panel Styling"), subtitle: _("Tighter button spacing, bold titles, smaller status icons, no dropdown arrows and a transparent panel in the overview") },
+            { key: 'popup-menu-styling', title: _("Menu and App Styling"), subtitle: _("Taller shell menu items with accent-colored hover and selection, plus the GTK app fixes") },
         ]);
 
         // Keyboard indicator feature with sub-options
@@ -449,7 +519,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
             subtitle: _("Slightly style keyboard/input source indicator by converting to uppercase and adding border"),
             expanded: settings.get_boolean('keyboard-indicator') && kbHasNonDefault,
             show_enable_switch: true,
-            enable_expansion: settings.get_boolean('keyboard-indicator'),
         });
 
         // We need individual child rows for toggles
@@ -460,16 +529,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
             sensitive: settings.get_boolean('keyboard-indicator'),
         });
         kbExpander.add_row(hideRow);
-        stylingGroup.add(kbExpander);
+        panelStylingGroup.add(kbExpander);
 
-        // Bindings
-        // Reflect settings to the enable switch and write back on change
-        kbExpander.enable_expansion = settings.get_boolean('keyboard-indicator');
-        kbExpander.connect('notify::enable-expansion', () => {
-            const enabled = kbExpander.enable_expansion;
-            if (settings.get_boolean('keyboard-indicator') !== enabled)
-                settings.set_boolean('keyboard-indicator', enabled);
-        });
+        settings.bind('keyboard-indicator', kbExpander, 'enable-expansion',
+            Gio.SettingsBindFlags.DEFAULT);
 
         // Sub-options
         settings.bind('hide-keyboard-indicator', hideRow, 'active', Gio.SettingsBindFlags.DEFAULT);
@@ -485,8 +548,165 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.connect('changed::keyboard-indicator', syncKeyboardIndicatorExpansion);
         settings.connect('changed::hide-keyboard-indicator', syncKeyboardIndicatorExpansion);
 
-        this._addSwitchRows(settings, stylingGroup, [
-            { key: 'custom-dnd-button', title: _("Custom Do Not Disturb Button"), subtitle: _("Replace the system Do Not Disturb button with Kiwi's custom implementation") },
+        //
+        // Dock Page
+        //
+        const dockPage = new Adw.PreferencesPage({
+            title: _('Dock'),
+            icon_name: 'kiwi-dock-symbolic',
+        });
+        window.add(dockPage);
+
+        const dockGroup = new Adw.PreferencesGroup({
+            title: _('Dock Items'),
+            description: _('Add extra items to Dash-to-Dock'),
+        });
+        dockPage.add(dockGroup);
+
+        this._addSwitchRows(settings, dockGroup, [
+            { key: 'minimize-to-dock', title: _("Minimize Windows to Dock"), subtitle: _("Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash") },
+        ]);
+
+        const downloadsExpander = new Adw.ExpanderRow({
+            title: _("Downloads Folder in Dock"),
+            subtitle: _("Add a Downloads folder before the trash that fans its newest files out over the desktop"),
+            show_enable_switch: true,
+        });
+        dockGroup.add(downloadsExpander);
+        settings.bind('downloads-in-dock', downloadsExpander, 'enable-expansion',
+            Gio.SettingsBindFlags.DEFAULT);
+
+        const downloadsBehindRow = new Adw.SwitchRow({
+            title: _("Stack Behind Folder"),
+            subtitle: _("Show the newest files sticking out of the folder icon instead of piled on top of it"),
+        });
+        downloadsExpander.add_row(downloadsBehindRow);
+        settings.bind('downloads-behind-folder', downloadsBehindRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        // Nothing to show once the only sub-option is off, so keep the expander closed.
+        const syncDownloadsExpansion = () => {
+            downloadsExpander.expanded = settings.get_boolean('downloads-in-dock') &&
+                settings.get_boolean('downloads-behind-folder');
+        };
+
+        syncDownloadsExpansion();
+        settings.connect('changed::downloads-in-dock', syncDownloadsExpansion);
+        settings.connect('changed::downloads-behind-folder', syncDownloadsExpansion);
+
+        // Launchpad Application with custom icon option
+        const launchpadHasNonDefault = settings.get_string('launchpad-app-custom-icon') !== '';
+        const launchpadExpander = new Adw.ExpanderRow({
+            title: _("Launchpad Application"),
+            subtitle: _("Add custom Launchpad icon to dock that opens application overview. Recommended to hide default app launcher."),
+            expanded: settings.get_boolean('enable-launchpad-app') && launchpadHasNonDefault,
+            show_enable_switch: true,
+        });
+
+        settings.bind('enable-launchpad-app', launchpadExpander, 'enable-expansion',
+            Gio.SettingsBindFlags.DEFAULT);
+
+        const customIconPath = settings.get_string('launchpad-app-custom-icon');
+        const launchpadIconRow = new Adw.ActionRow({
+            title: _("Custom Icon"),
+            subtitle: customIconPath
+                ? GLib.path_get_basename(customIconPath)
+                : _("Using default icon"),
+            sensitive: settings.get_boolean('enable-launchpad-app'),
+        });
+        settings.bind('enable-launchpad-app', launchpadIconRow, 'sensitive', Gio.SettingsBindFlags.GET);
+
+        const clearIconButton = new Gtk.Button({
+            icon_name: 'edit-clear-symbolic',
+            valign: Gtk.Align.CENTER,
+            tooltip_text: _("Reset to default icon"),
+            visible: customIconPath !== '',
+        });
+        clearIconButton.add_css_class('flat');
+        clearIconButton.connect('clicked', () => {
+            settings.set_string('launchpad-app-custom-icon', '');
+        });
+
+        const browseButton = new Gtk.Button({
+            icon_name: 'document-open-symbolic',
+            valign: Gtk.Align.CENTER,
+            tooltip_text: _("Browse for icon"),
+        });
+        browseButton.add_css_class('flat');
+        browseButton.connect('clicked', () => {
+            const dialog = new Gtk.FileDialog({
+                title: _("Select Launchpad Icon"),
+            });
+
+            const filter = new Gtk.FileFilter();
+            filter.set_name(_("Images (PNG, SVG)"));
+            filter.add_mime_type('image/png');
+            filter.add_mime_type('image/svg+xml');
+
+            const filters = Gio.ListStore.new(Gtk.FileFilter);
+            filters.append(filter);
+            dialog.set_filters(filters);
+            dialog.set_default_filter(filter);
+
+            dialog.open(window, null, (source, result) => {
+                try {
+                    const file = source.open_finish(result);
+                    if (!file)
+                        return;
+
+                    const filePath = file.get_path();
+                    const lowerPath = filePath.toLowerCase();
+
+                    if (!lowerPath.endsWith('.png') && !lowerPath.endsWith('.svg')) {
+                        return;
+                    }
+
+                    // Validate PNG dimensions
+                    if (lowerPath.endsWith('.png')) {
+                        try {
+                            const pixbuf = GdkPixbuf.Pixbuf.new_from_file(filePath);
+                            if (pixbuf.get_width() > 512 || pixbuf.get_height() > 512) {
+                                const errorDialog = new Adw.AlertDialog({
+                                    heading: _("Icon Too Large"),
+                                    body: _("The selected image exceeds 512×512 pixels. Please choose a smaller image."),
+                                });
+                                errorDialog.add_response('ok', _("OK"));
+                                errorDialog.present(window);
+                                return;
+                            }
+                        } catch (e) {
+                            console.error('Launchpad: Failed to validate icon:', e);
+                            return;
+                        }
+                    }
+
+                    settings.set_string('launchpad-app-custom-icon', filePath);
+                } catch (e) {
+                    // User cancelled the dialog
+                }
+            });
+        });
+
+        launchpadIconRow.add_suffix(clearIconButton);
+        launchpadIconRow.add_suffix(browseButton);
+        launchpadExpander.add_row(launchpadIconRow);
+        dockGroup.add(launchpadExpander);
+
+        settings.connect('changed::launchpad-app-custom-icon', () => {
+            const path = settings.get_string('launchpad-app-custom-icon');
+            launchpadIconRow.subtitle = path
+                ? GLib.path_get_basename(path)
+                : _("Using default icon");
+            clearIconButton.visible = path !== '';
+        });
+
+        const dockStylingGroup = new Adw.PreferencesGroup({
+            title: _('Styling'),
+        });
+        dockPage.add(dockStylingGroup);
+
+        this._addSwitchRows(settings, dockStylingGroup, [
+            { key: 'dock-styling', title: _("Dock Styling"), subtitle: _("Tighten icon spacing, drop the icon highlight and darken icons while pressed") },
+            { key: 'dock-blur', title: _("Dock Blur"), subtitle: _("Blur the background behind Dash-to-Dock") },
         ]);
 
         //
@@ -650,316 +870,88 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('show-window-controls-fullscreen-only', fullscreenOnlyRow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         //
-        // Panel Page
+        // Options Page
         //
-        const panelPage = new Adw.PreferencesPage({
-            title: _('Panel'),
-            icon_name: 'focus-top-bar-symbolic',
+        const settingsPage = new Adw.PreferencesPage({
+            title: _('Options'),
+            icon_name: 'preferences-other-symbolic',
         });
-        window.add(panelPage);
+        window.add(settingsPage);
 
-        const transparencyGroup = new Adw.PreferencesGroup({
-            title: _('Panel Transparency'),
-            description: _('Configure panel transparency and appearance'),
+        const group = new Adw.PreferencesGroup({
+            title: _('Kiwi'),
+            description: _("Kiwi is not like Apple, it's free open source project that brings macOS-like feel for GNOME"),
         });
-        panelPage.add(transparencyGroup);
+        settingsPage.add(group);
 
-        // Panel transparency expander with sub-options
-        const transparencyHasNonDefault =
-            settings.get_int('panel-transparency-level') !== 50 ||
-            settings.get_boolean('panel-opaque-on-window') ||
-            settings.get_boolean('panel-blur') ||
-            settings.get_boolean('panel-color-inherit') ||
-            settings.get_boolean('panel-invert-tray-icons');
-        const transparencyExpander = new Adw.ExpanderRow({
-            title: _("Panel Transparency"),
-            subtitle: _("Make the top panel transparent"),
-            expanded: settings.get_boolean('panel-transparency') && transparencyHasNonDefault,
-            show_enable_switch: true,
-            enable_expansion: settings.get_boolean('panel-transparency'),
-        });
-
-        // Transparency level spinbox
-        const transparencySpinRow = new Adw.SpinRow({
-            title: _("Transparency Level"),
-            subtitle: _("Set panel transparency (0-100)"),
-            adjustment: new Gtk.Adjustment({
-                lower: 0,
-                upper: 100,
-                step_increment: 1,
-                page_increment: 10,
-                value: settings.get_int('panel-transparency-level'),
-            }),
-            sensitive: settings.get_boolean('panel-transparency'),
-        });
-        transparencyExpander.add_row(transparencySpinRow);
-
-        // Opaque on window touch switch
-        const opaqueOnWindowSwitch = new Adw.SwitchRow({
-            title: _("Opaque When Window Touches"),
-            subtitle: _("Make panel opaque when a window touches it"),
-            active: settings.get_boolean('panel-opaque-on-window'),
-            sensitive: settings.get_boolean('panel-transparency'),
-        });
-        transparencyExpander.add_row(opaqueOnWindowSwitch);
-
-        // Panel blur
-        const panelBlurRow = new Adw.SwitchRow({
-            title: _("Panel Blur"),
-            subtitle: _("Blur the background behind the panel"),
-            active: settings.get_boolean('panel-blur'),
-            sensitive: settings.get_boolean('panel-transparency'),
-        });
-        transparencyExpander.add_row(panelBlurRow);
-
-        // Panel color inherit fix
-        const panelColorFixRow = new Adw.SwitchRow({
-            title: _("Panel Color Fix"),
-            subtitle: _("Fix white panel on some themes (e.g., Ubuntu Yaru)"),
-            active: settings.get_boolean('panel-color-inherit'),
-        });
-        transparencyExpander.add_row(panelColorFixRow);
-
-        // Tray icon inversion for light wallpapers
-        const invertTrayIconsRow = new Adw.SwitchRow({
-            title: _("Invert Tray Icons on Light Wallpapers"),
-            subtitle: _("Darken white monochrome tray icons when the panel adapts to a light wallpaper. Colored icons are left untouched"),
-            active: settings.get_boolean('panel-invert-tray-icons'),
-            sensitive: settings.get_boolean('panel-transparency'),
-        });
-        transparencyExpander.add_row(invertTrayIconsRow);
-
-        transparencyGroup.add(transparencyExpander);
-
-        // Bindings for expander
-        transparencyExpander.enable_expansion = settings.get_boolean('panel-transparency');
-        transparencyExpander.connect('notify::enable-expansion', () => {
-            const enabled = transparencyExpander.enable_expansion;
-            if (settings.get_boolean('panel-transparency') !== enabled)
-                settings.set_boolean('panel-transparency', enabled);
-        });
-
-        // Bindings for sub-options
-        settings.bind('panel-transparency-level', transparencySpinRow, 'value',
-            Gio.SettingsBindFlags.DEFAULT);
-        settings.bind('panel-transparency', transparencySpinRow, 'sensitive',
-            Gio.SettingsBindFlags.GET);
-        settings.bind('panel-opaque-on-window', opaqueOnWindowSwitch, 'active',
-            Gio.SettingsBindFlags.DEFAULT);
-        settings.bind('panel-transparency', opaqueOnWindowSwitch, 'sensitive',
-            Gio.SettingsBindFlags.GET);
-        settings.bind('panel-blur', panelBlurRow, 'active',
-            Gio.SettingsBindFlags.DEFAULT);
-        settings.bind('panel-transparency', panelBlurRow, 'sensitive',
-            Gio.SettingsBindFlags.GET);
-        settings.bind('panel-color-inherit', panelColorFixRow, 'active',
-            Gio.SettingsBindFlags.DEFAULT);
-        settings.bind('panel-invert-tray-icons', invertTrayIconsRow, 'active',
-            Gio.SettingsBindFlags.DEFAULT);
-        settings.bind('panel-transparency', invertTrayIconsRow, 'sensitive',
-            Gio.SettingsBindFlags.GET);
-
-        const windowTitleGroup = new Adw.PreferencesGroup();
-        panelPage.add(windowTitleGroup);
-
-        // Tiling lives under the window title because the layouts are reached from its
-        // menu; without the title in the panel there is no way to open them.
-        const windowTitleExpander = new Adw.ExpanderRow({
-            title: _("Show Window Title"),
-            subtitle: _("Display current window title in the top panel"),
-            expanded: settings.get_boolean('show-window-title') &&
-                settings.get_boolean('show-tiling-title-menu'),
-            show_enable_switch: true,
-        });
-        windowTitleGroup.add(windowTitleExpander);
-        settings.bind('show-window-title', windowTitleExpander, 'enable-expansion',
-            Gio.SettingsBindFlags.DEFAULT);
-
-        const titleIconRow = new Adw.SwitchRow({
-            title: _("Show App Icon"),
-            subtitle: _("Display the application icon next to the window title"),
-        });
-        windowTitleExpander.add_row(titleIconRow);
-        settings.bind('show-window-title-icon', titleIconRow, 'active', Gio.SettingsBindFlags.DEFAULT);
-
-        const tilingTitleMenuRow = new Adw.SwitchRow({
-            title: _("Window Tiling"),
-            subtitle: _("Add tiling layouts to the window title menu, and restore tiled windows by dragging their titlebar"),
-        });
-        windowTitleExpander.add_row(tilingTitleMenuRow);
-        settings.bind('show-tiling-title-menu', tilingTitleMenuRow, 'active', Gio.SettingsBindFlags.DEFAULT);
-
-        this._addSwitchRows(settings, windowTitleGroup, [
-            { key: 'panel-hover-fullscreen', title: _("Show Panel in Fullscreen on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
+        this._addSwitchRows(settings, group, [
+            { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Blur"), subtitle: _("Use blurred current wallpaper as overview background (requires ImageMagick)") },
+            { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
+            { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
+            { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
         ]);
 
-        const panelStylingGroup = new Adw.PreferencesGroup({
-            title: _('Styling'),
-            description: _('Restyle stock GNOME Shell elements and GTK apps. Log out and back in for changes to take effect'),
-        });
-        panelPage.add(panelStylingGroup);
-
-        this._addSwitchRows(settings, panelStylingGroup, [
-            { key: 'panel-styling', title: _("Panel Styling"), subtitle: _("Tighter button spacing, bold titles, smaller status icons, no dropdown arrows and a transparent panel in the overview") },
-            { key: 'popup-menu-styling', title: _("Menu and App Styling"), subtitle: _("Taller shell menu items with accent-colored hover and selection, plus the GTK app fixes") },
-        ]);
-
-        //
-        // Dock Page
-        //
-        const dockPage = new Adw.PreferencesPage({
-            title: _('Dock'),
-            icon_name: 'kiwi-dock-symbolic',
-        });
-        window.add(dockPage);
-
-        const dockGroup = new Adw.PreferencesGroup();
-        dockPage.add(dockGroup);
-
-        this._addSwitchRows(settings, dockGroup, [
-            { key: 'dock-blur', title: _("Dock Blur"), subtitle: _("Blur the background behind Dash-to-Dock") },
-            { key: 'minimize-to-dock', title: _("Minimize Windows to Dock"), subtitle: _("Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash") },
-        ]);
-
-        const downloadsExpander = new Adw.ExpanderRow({
-            title: _("Downloads Folder in Dock"),
-            subtitle: _("Add a Downloads folder before the trash that fans its newest files out over the desktop"),
-            expanded: settings.get_boolean('downloads-in-dock') &&
-                settings.get_boolean('downloads-behind-folder'),
+        // Expander with notification indicator style sub-option
+        const calendarHasNonDefault =
+            settings.get_boolean('keep-notification-panel') ||
+            settings.get_string('notification-indicator-style') !== 'default';
+        const calendarExpander = new Adw.ExpanderRow({
+            title: _("Move Calendar to Right"),
+            subtitle: _("Move calendar to right side and hide notifications"),
+            expanded: settings.get_boolean('move-calendar-right') && calendarHasNonDefault,
             show_enable_switch: true,
         });
-        dockGroup.add(downloadsExpander);
-        settings.bind('downloads-in-dock', downloadsExpander, 'enable-expansion',
+        group.add(calendarExpander);
+        settings.bind('move-calendar-right', calendarExpander, 'enable-expansion',
             Gio.SettingsBindFlags.DEFAULT);
 
-        const downloadsBehindRow = new Adw.SwitchRow({
-            title: _("Stack Behind Folder"),
-            subtitle: _("Show the newest files sticking out of the folder icon instead of piled on top of it"),
+        const keepPanelRow = new Adw.SwitchRow({
+            title: _("Keep GNOME Notification Panel"),
+            subtitle: _("Don't split notification and calendar layout"),
         });
-        downloadsExpander.add_row(downloadsBehindRow);
-        settings.bind('downloads-behind-folder', downloadsBehindRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        calendarExpander.add_row(keepPanelRow);
+        settings.bind('keep-notification-panel', keepPanelRow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
-        // Launchpad Application with custom icon option
-        const launchpadHasNonDefault = settings.get_string('launchpad-app-custom-icon') !== '';
-        const launchpadExpander = new Adw.ExpanderRow({
-            title: _("Launchpad Application"),
-            subtitle: _("Add custom Launchpad icon to dock that opens application overview. Recommended to hide default app launcher."),
-            expanded: settings.get_boolean('enable-launchpad-app') && launchpadHasNonDefault,
-            show_enable_switch: true,
-            enable_expansion: settings.get_boolean('enable-launchpad-app'),
+        const indicatorStyleRow = new Adw.ActionRow({
+            title: _('Indicator Style'),
+            subtitle: _('Notification dot recolor'),
         });
 
-        launchpadExpander.enable_expansion = settings.get_boolean('enable-launchpad-app');
-        launchpadExpander.connect('notify::enable-expansion', () => {
-            const enabled = launchpadExpander.enable_expansion;
-            if (settings.get_boolean('enable-launchpad-app') !== enabled)
-                settings.set_boolean('enable-launchpad-app', enabled);
-        });
-        settings.connect('changed::enable-launchpad-app', () => {
-            launchpadExpander.enable_expansion = settings.get_boolean('enable-launchpad-app');
-        });
-
-        const customIconPath = settings.get_string('launchpad-app-custom-icon');
-        const launchpadIconRow = new Adw.ActionRow({
-            title: _("Custom Icon"),
-            subtitle: customIconPath
-                ? GLib.path_get_basename(customIconPath)
-                : _("Using default icon"),
-            sensitive: settings.get_boolean('enable-launchpad-app'),
-        });
-        settings.bind('enable-launchpad-app', launchpadIconRow, 'sensitive', Gio.SettingsBindFlags.GET);
-
-        const clearIconButton = new Gtk.Button({
-            icon_name: 'edit-clear-symbolic',
+        const indicatorStyleToggleGroup = new Adw.ToggleGroup({
+            homogeneous: true,
+            can_shrink: true,
             valign: Gtk.Align.CENTER,
-            tooltip_text: _("Reset to default icon"),
-            visible: customIconPath !== '',
         });
-        clearIconButton.add_css_class('flat');
-        clearIconButton.connect('clicked', () => {
-            settings.set_string('launchpad-app-custom-icon', '');
+        indicatorStyleToggleGroup.add_css_class('round');
+
+        const indicatorDefaultToggle = new Adw.Toggle({
+            label: _('Default'),
+            name: 'default',
         });
-
-        const browseButton = new Gtk.Button({
-            icon_name: 'document-open-symbolic',
-            valign: Gtk.Align.CENTER,
-            tooltip_text: _("Browse for icon"),
+        const indicatorAccentToggle = new Adw.Toggle({
+            label: _('Accent'),
+            name: 'accent',
         });
-        browseButton.add_css_class('flat');
-        browseButton.connect('clicked', () => {
-            const dialog = new Gtk.FileDialog({
-                title: _("Select Launchpad Icon"),
-            });
-
-            const filter = new Gtk.FileFilter();
-            filter.set_name(_("Images (PNG, SVG)"));
-            filter.add_mime_type('image/png');
-            filter.add_mime_type('image/svg+xml');
-
-            const filters = Gio.ListStore.new(Gtk.FileFilter);
-            filters.append(filter);
-            dialog.set_filters(filters);
-            dialog.set_default_filter(filter);
-
-            dialog.open(window, null, (source, result) => {
-                try {
-                    const file = source.open_finish(result);
-                    if (!file)
-                        return;
-
-                    const filePath = file.get_path();
-                    const lowerPath = filePath.toLowerCase();
-
-                    if (!lowerPath.endsWith('.png') && !lowerPath.endsWith('.svg')) {
-                        return;
-                    }
-
-                    // Validate PNG dimensions
-                    if (lowerPath.endsWith('.png')) {
-                        try {
-                            const pixbuf = GdkPixbuf.Pixbuf.new_from_file(filePath);
-                            if (pixbuf.get_width() > 512 || pixbuf.get_height() > 512) {
-                                const errorDialog = new Adw.AlertDialog({
-                                    heading: _("Icon Too Large"),
-                                    body: _("The selected image exceeds 512×512 pixels. Please choose a smaller image."),
-                                });
-                                errorDialog.add_response('ok', _("OK"));
-                                errorDialog.present(window);
-                                return;
-                            }
-                        } catch (e) {
-                            console.error('Launchpad: Failed to validate icon:', e);
-                            return;
-                        }
-                    }
-
-                    settings.set_string('launchpad-app-custom-icon', filePath);
-                } catch (e) {
-                    // User cancelled the dialog
-                }
-            });
+        const indicatorSymbolicToggle = new Adw.Toggle({
+            label: _('Symbolic'),
+            name: 'symbolic',
         });
 
-        launchpadIconRow.add_suffix(clearIconButton);
-        launchpadIconRow.add_suffix(browseButton);
-        launchpadExpander.add_row(launchpadIconRow);
-        dockGroup.add(launchpadExpander);
+        indicatorStyleToggleGroup.add(indicatorDefaultToggle);
+        indicatorStyleToggleGroup.add(indicatorAccentToggle);
+        indicatorStyleToggleGroup.add(indicatorSymbolicToggle);
+        indicatorStyleToggleGroup.set_active_name(settings.get_string('notification-indicator-style'));
 
-        settings.connect('changed::launchpad-app-custom-icon', () => {
-            const path = settings.get_string('launchpad-app-custom-icon');
-            launchpadIconRow.subtitle = path
-                ? GLib.path_get_basename(path)
-                : _("Using default icon");
-            clearIconButton.visible = path !== '';
+        indicatorStyleRow.add_suffix(indicatorStyleToggleGroup);
+        calendarExpander.add_row(indicatorStyleRow);
+
+        indicatorStyleToggleGroup.connect('notify::active-name', (g) => {
+            settings.set_string('notification-indicator-style', g.active_name);
         });
 
-        const dockStylingGroup = new Adw.PreferencesGroup({
-            title: _('Styling'),
-        });
-        dockPage.add(dockStylingGroup);
-
-        this._addSwitchRows(settings, dockStylingGroup, [
-            { key: 'dock-styling', title: _("Dock Styling"), subtitle: _("Tighten icon spacing, drop the icon highlight and darken icons while pressed") },
+        this._addSwitchRows(settings, group, [
+            { key: 'reduce-window-animations', title: _("Reduce App Animations"), subtitle: _("Mimic macOS window opening and closing with a subtle scale and fade") },
+            { key: 'transparent-move', title: _("Transparent Move"), subtitle: _("Move window with transparency") },
         ]);
 
         //
@@ -1019,11 +1011,16 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         // Installation instructions
         // Link row in libadwaita style (like GTK4 "Website" row)
+        const githubGicon = new Gio.FileIcon({
+            file: Gio.File.new_for_path(`${this.path}/icons/github-symbolic.svg`),
+        });
+
         const advancedLinksGroup = new Adw.PreferencesGroup();
         advancedLinksGroup.add(this._createLinkRow(
             _('Installation Guide on GitHub'),
             'https://github.com/kem-a/kiwi-kemma/tree/main/advanced',
-            _('Open the advanced module build instructions')
+            _('Open the advanced module build instructions'),
+            githubGicon
         ));
         advancedPage.add(advancedLinksGroup);
 
@@ -1067,5 +1064,37 @@ export default class KiwiPreferences extends ExtensionPreferences {
         recommendedExtensions.forEach((rec) => {
             recommendedExpander.add_row(this._createLinkRow(rec.title, rec.url, rec.author));
         });
+
+        const resetGroup = new Adw.PreferencesGroup();
+        advancedPage.add(resetGroup);
+
+        const resetButton = new Gtk.Button({
+            label: _('Restore Defaults'),
+            halign: Gtk.Align.CENTER,
+            margin_top: 12,
+            margin_bottom: 12,
+            tooltip_text: _('Reset every Kiwi setting to its default value'),
+        });
+        resetButton.add_css_class('pill');
+        resetButton.add_css_class('destructive-action');
+        resetButton.connect('clicked', () => {
+            const confirmDialog = new Adw.AlertDialog({
+                heading: _('Restore Default Settings?'),
+                body: _('Every Kiwi setting will be reset to its default value. This cannot be undone.'),
+            });
+            confirmDialog.add_response('cancel', _('Cancel'));
+            confirmDialog.add_response('reset', _('Restore Defaults'));
+            confirmDialog.set_response_appearance('reset', Adw.ResponseAppearance.DESTRUCTIVE);
+            confirmDialog.set_default_response('cancel');
+            confirmDialog.set_close_response('cancel');
+            confirmDialog.connect('response', (dialog, response) => {
+                if (response !== 'reset')
+                    return;
+
+                settings.settings_schema.list_keys().forEach((key) => settings.reset(key));
+            });
+            confirmDialog.present(window);
+        });
+        resetGroup.add(resetButton);
     }
 }
