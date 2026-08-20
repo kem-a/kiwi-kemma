@@ -255,30 +255,5 @@
         <summary>Transparent Move</summary>
         <description>Enable or disable transparent move.</description>
       </key>
-
-      <!-- ========================================================= -->
-      <!-- Not exposed in the preferences window                     -->
-      <!-- Tuning keys for Transparent Move, editable via dconf only -->
-      <!-- ========================================================= -->
-      <key name="transparent-on-moving" type="b">
-        <default>true</default>
-        <summary>Enable transparency when moving windows</summary>
-        <description>If true, windows become transparent when they are being moved.</description>
-      </key>
-      <key name="transparent-on-resizing" type="b">
-        <default>false</default>
-        <summary>Enable transparency when resizing windows</summary>
-        <description>If true, windows become transparent when they are being resized.</description>
-      </key>
-      <key name="window-opacity" type="i">
-        <default>128</default>
-        <summary>Window opacity during move/resize</summary>
-        <description>Opacity value (0-255) for windows when moving or resizing.</description>
-      </key>
-      <key name="transition-time" type="d">
-        <default>0.2</default>
-        <summary>Transition time for opacity change</summary>
-        <description>Time in seconds for the opacity transition animation.</description>
-      </key>
     </schema>
 </schemalist>
