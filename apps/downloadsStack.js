@@ -568,6 +568,24 @@ function _closeFan() {
     _lockDock(info, false);
     overlay.reactive = false;
 
+    // A fold with nothing to animate - the shell's animations are off, or the
+    // overlay is not on show any more - is over the moment it is asked for: ease
+    // runs the callback right there rather than off a transition. Taking the
+    // overlay down from inside the walk below would destroy the rows the walk
+    // has not reached yet, so the last step waits for the walk to finish.
+    let folding = true;
+    let landed = false;
+    const finish = () => {
+        if (folding) {
+            landed = true;
+            return;
+        }
+        _dropOverlay(overlay);
+        // Rebuilt from the folder as it stands now, in case it changed while the
+        // fan was out
+        _syncButton(info);
+    };
+
     // Back down the way they came out and in the same order reversed: the
     // topmost row folds first, each one landing back on the card it left, and
     // the row nearest the dock is last - it takes the overlay with it.
@@ -607,12 +625,10 @@ function _closeFan() {
                 // The card takes the row's place again, under it
                 if (card)
                     card.opacity = 255;
-                if (index > 0)
-                    return;
-                _dropOverlay(overlay);
-                // Rebuilt from the folder as it stands now, in case it changed
-                // while the fan was out
-                _syncButton(info);
+                // The row nearest the dock is the last one home: it takes the
+                // overlay with it
+                if (index === 0)
+                    finish();
             },
         });
     });
@@ -624,6 +640,10 @@ function _closeFan() {
             delay: (rows.length - 1) * ROW_STAGGER,
         });
     }
+
+    folding = false;
+    if (landed)
+        finish();
 }
 
 function _toggleFan(info) {
@@ -798,14 +818,15 @@ function _placeItem(info) {
 
     if (info.item.get_parent() !== strip) {
         info.item.get_parent()?.remove_child(info.item);
-        if (info.stripSignal) {
-            const [previous, id] = info.stripSignal;
-            previous.disconnect(id);
-        }
+        _clearStripSignal(info);
         strip.add_child(info.item);
         // Minimize-to-dock keeps adding tiles to the strip we just joined, and
         // they land above us; take our place back after each one
-        info.stripSignal = [strip, strip.connect('child-added', () => _queueReplace())];
+        const addedId = strip.connect('child-added', () => _queueReplace());
+        // The strip we joined is not ours to outlive - the minimized one goes
+        // with its setting - and its handlers go with it
+        const goneId = strip.connect('destroy', () => (info.stripSignal = null));
+        info.stripSignal = [strip, addedId, goneId];
     }
 
     // At the head of the strip, after the divider that opens it: the stack comes
@@ -819,6 +840,22 @@ function _placeItem(info) {
         strip.set_child_at_index(info.item, index);
 
     _syncSeparator(info, strip === info.strip);
+}
+
+/**
+ * Let go of the strip the item is in. A strip destroyed under us has already
+ * cleared this, so there is nothing to disconnect from - and nothing left to
+ * disconnect it on.
+ *
+ * @param info the per-dock state
+ */
+function _clearStripSignal(info) {
+    if (!info.stripSignal)
+        return;
+    const [strip, ...ids] = info.stripSignal;
+    for (const id of ids)
+        strip.disconnect(id);
+    info.stripSignal = null;
 }
 
 /**
@@ -915,11 +952,7 @@ function _detachDock(info, removeActors = true) {
     disconnectAll(info.signals);
     info.signals = [];
 
-    if (info.stripSignal) {
-        const [strip, id] = info.stripSignal;
-        strip.disconnect(id);
-        info.stripSignal = null;
-    }
+    _clearStripSignal(info);
 
     _closeFan();
 
