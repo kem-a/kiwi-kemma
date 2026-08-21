@@ -11,24 +11,24 @@
 
 | Language | Code | Status | Completion |
 | -------- | ---- | ------ | ---------- |
-| Chinese (Simplified) | zh_CN | 🟡 In progress | 118/136 (87%) |
-| German | de | 🟡 In progress | 118/136 (87%) |
-| Spanish | es | 🟡 In progress | 118/136 (87%) |
-| Estonian | et | 🟡 In progress | 118/136 (87%) |
-| Persian | fa | 🟡 In progress | 118/136 (87%) |
-| Finnish | fi | 🟡 In progress | 118/136 (87%) |
-| French | fr | 🟡 In progress | 118/136 (87%) |
-| Italian | it | 🟡 In progress | 118/136 (87%) |
-| Korean | ko | 🟡 In progress | 118/136 (87%) |
-| Lithuanian | lt | 🟡 In progress | 118/136 (87%) |
-| Latvian | lv | 🟡 In progress | 118/136 (87%) |
-| Norwegian Bokmål | nb | 🟡 In progress | 118/136 (87%) |
-| Dutch | nl | 🟡 In progress | 118/136 (87%) |
-| Polish | pl | 🟡 In progress | 118/136 (87%) |
-| Portuguese | pt | 🟡 In progress | 118/136 (87%) |
-| Swedish | sv | 🟡 In progress | 118/136 (87%) |
+| Chinese (Simplified) | zh_CN | 🟢 Complete | 180/180 (100%) |
+| German | de | 🟢 Complete | 180/180 (100%) |
+| Spanish | es | 🟢 Complete | 180/180 (100%) |
+| Estonian | et | 🟢 Complete | 180/180 (100%) |
+| Persian | fa | 🟢 Complete | 180/180 (100%) |
+| Finnish | fi | 🟢 Complete | 180/180 (100%) |
+| French | fr | 🟢 Complete | 180/180 (100%) |
+| Italian | it | 🟢 Complete | 180/180 (100%) |
+| Korean | ko | 🟢 Complete | 180/180 (100%) |
+| Lithuanian | lt | 🟢 Complete | 180/180 (100%) |
+| Latvian | lv | 🟢 Complete | 180/180 (100%) |
+| Norwegian Bokmål | nb | 🟢 Complete | 180/180 (100%) |
+| Dutch | nl | 🟢 Complete | 180/180 (100%) |
+| Polish | pl | 🟢 Complete | 180/180 (100%) |
+| Portuguese | pt | 🟢 Complete | 180/180 (100%) |
+| Swedish | sv | 🟢 Complete | 180/180 (100%) |
 
-*Stats generated on 2026‑08‑02 via `msgfmt --statistics`.*
+*Stats generated on 2026‑08‑21 via `msgfmt --statistics`.*
 
 ## Note
 

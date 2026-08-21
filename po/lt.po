@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: kiwimenu\n"
+"Project-Id-Version: Kiwi is not Apple\n"
 "Report-Msgid-Bugs-To: https://github.com/kem-a/kiwi-kemma/issues\n"
-"POT-Creation-Date: 2026-08-02 23:40+0300\n"
-"PO-Revision-Date: 2025-10-27 12:00+0000\n"
+"POT-Creation-Date: 2026-08-21 19:55+0300\n"
+"PO-Revision-Date: 2026-08-21 20:00+0300\n"
 "Last-Translator: \n"
 "Language-Team: Lithuanian\n"
 "Language: lt\n"
@@ -15,11 +15,28 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps/launchpadApp.js:291
+#: apps/downloadsStack.js:457
+msgid "Open in Files"
+msgstr "Atverti Failuose"
+
+#: apps/downloadsStack.js:459
+#, javascript-format
+msgid "%d More in Files"
+msgstr "Dar %d Failuose"
+
+#: apps/downloadsStack.js:461
+msgid "Empty"
+msgstr "Tuščia"
+
+#: apps/downloadsStack.js:795
+msgid "Downloads"
+msgstr "Atsiuntimai"
+
+#: apps/launchpadApp.js:298
 msgid "Launchpad"
 msgstr "Launchpad"
 
-#: apps/launchpadApp.js:292
+#: apps/launchpadApp.js:299
 msgid "Open Application Overview"
 msgstr "Atverti programų apžvalgą"
 
@@ -63,448 +80,434 @@ msgstr "Išvalyti visus pranešimus"
 msgid "Do Not Disturb Indicator"
 msgstr "Netriukdyti indikatorius"
 
-#: prefs.js:55
-msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
-msgstr ""
-"ImageMagick neįdiegtas (įdiekite paketą \"imagemagick\", kad įjungtumėte)"
+#: apps/windowTiling.js:324
+msgid "Move & Resize"
+msgstr "Perkelti ir keisti dydį"
 
-#: prefs.js:66
-msgid "Kiwi is not Apple"
-msgstr "Kiwi is not Apple"
+#: apps/windowTiling.js:325
+msgid "Left"
+msgstr "Kairė"
 
-#: prefs.js:93
+#: apps/windowTiling.js:326
+msgid "Right"
+msgstr "Dešinė"
+
+#: apps/windowTiling.js:327
+msgid "Top"
+msgstr "Viršus"
+
+#: apps/windowTiling.js:328
+msgid "Bottom"
+msgstr "Apačia"
+
+#: apps/windowTiling.js:330
+msgid "Fill & Arrange"
+msgstr "Užpildyti ir išdėstyti"
+
+#: apps/windowTiling.js:331
+msgid "Fill"
+msgstr "Užpildyti"
+
+#: apps/windowTiling.js:338
+msgid "Left & Right"
+msgstr "Kairė ir dešinė"
+
+#: apps/windowTiling.js:341
+msgid "Right & Left"
+msgstr "Dešinė ir kairė"
+
+#: apps/windowTiling.js:344
+msgid "Quarters"
+msgstr "Ketvirčiai"
+
+#: apps/windowTitle.js:274
+msgid "Leave Fullscreen"
+msgstr "Išeiti iš viso ekrano"
+
+#: apps/windowTitle.js:274
+msgid "Fullscreen"
+msgstr "Visas ekranas"
+
+#: apps/windowTitle.js:282
+msgid "Restore Window"
+msgstr "Atkurti langą"
+
+#: apps/windowTitle.js:288
+msgid "Always on Top"
+msgstr "Visada viršuje"
+
+#: prefs.js:65
+msgid "Kiwi (is not Apple)"
+msgstr "Kiwi (is not Apple)"
+
+#: prefs.js:92
 msgid "About"
 msgstr "Apie"
 
-#: prefs.js:152 prefs.js:166
+#: prefs.js:151 prefs.js:165
 msgid "Unknown"
 msgstr "Nežinomas"
 
-#: prefs.js:159
+#: prefs.js:158
 msgid "Change log"
 msgstr "Pakeitimų žurnalas"
 
-#: prefs.js:200
+#: prefs.js:199
 msgid "Website"
 msgstr "Svetainė"
 
-#: prefs.js:204
+#: prefs.js:203
 msgid "Report an Issue"
 msgstr "Pranešti apie problemą"
 
-#: prefs.js:209
+#: prefs.js:208
 msgid "Credits"
 msgstr "Autoriai"
 
-#: prefs.js:212 prefs.js:227
+#: prefs.js:211 prefs.js:226
 msgid "Legal"
 msgstr "Teisinė informacija"
 
-#: prefs.js:235
+#: prefs.js:234
 msgid "License"
 msgstr "Licencija"
 
-#: prefs.js:236
-msgid "Kiwi is not Apple is free and open source software"
-msgstr "Kiwi is not Apple yra laisva atviro kodo programinė įranga"
+#: prefs.js:235
+msgid "Kiwi is free and open source software"
+msgstr "Kiwi yra laisva ir atviro kodo programinė įranga"
 
-#: prefs.js:241
+#: prefs.js:240
 msgid "GNU General Public License v3.0"
 msgstr "GNU Bendroji Viešoji Licencija v3.0"
 
-#: prefs.js:243
+#: prefs.js:242
 msgid "View the full license text on GitHub"
 msgstr "Žiūrėti visą licencijos tekstą GitHub’e"
 
-#: prefs.js:250
+#: prefs.js:249 prefs.js:250
 msgid "Copyright"
 msgstr "Autorių teisės"
 
-#: prefs.js:251
+#: prefs.js:250
 msgid ""
-"This program is free software: you can redistribute it and/or modify it "
-"under the terms of the GNU General Public License as published by the Free "
-"Software Foundation, either version 3 of the License, or (at your option) "
-"any later version."
+"This program is free software: you can redistribute it and/or modify it under"
+" the terms of the GNU General Public License as published by the Free "
+"Software Foundation, either version 3 of the License, or (at your option) any"
+" later version."
 msgstr ""
-"Ši programa yra laisva programinė įranga; ją galite platinti ir/arba "
-"keisti pagal GNU bendrosios viešosios licencijos sąlygas, paskelbtas Free "
-"Software Foundation, 3-iosios versijos arba (savo nuožiūra) bet kurios "
-"vėlesnės versijos."
+"Ši programa yra laisva programinė įranga; ją galite platinti ir/arba keisti "
+"pagal GNU bendrosios viešosios licencijos sąlygas, paskelbtas Free Software "
+"Foundation, 3-iosios versijos arba (savo nuožiūra) bet kurios vėlesnės "
+"versijos."
 
-#: prefs.js:305
+#: prefs.js:304
 msgid "Become a sponsor on GitHub"
 msgstr "Tapkite rėmėju GitHub"
 
-#: prefs.js:318
-msgid "Sponsor Me ♡"
-msgstr "Paremkite mane ♡"
+#: prefs.js:317
+msgid "Support Me ♡"
+msgstr "Paremk mane ♡"
 
-#: prefs.js:344
-msgid "Options"
-msgstr "Parinktys"
-
-#: prefs.js:350
-msgid "Kiwi"
-msgstr "Kiwi"
-
-#: prefs.js:351
-msgid ""
-"Kiwi is not like Apple, it's free open source project that brings macOS-like "
-"feel for GNOME"
-msgstr ""
-"Kiwi nėra Apple – tai laisvas atviro kodo projektas, suteikiantis GNOME "
-"aplinkai macOS pojūtį"
-
-#: prefs.js:356
-msgid "Show Window Title"
-msgstr "Rodyti lango pavadinimą"
-
-#: prefs.js:356
-msgid "Display current window title in the top panel"
-msgstr "Viršutiniame pulte rodyti dabartinio lango pavadinimą"
-
-#: prefs.js:357
-msgid "Overview Wallpaper Blur"
-msgstr "Apžvalgos fono suliejimas"
-
-#: prefs.js:357
-msgid ""
-"Use blurred current wallpaper as overview background (requires ImageMagick)"
-msgstr "Naudoti sulietą dabartinį foną apžvalgos fonui (reikia ImageMagick)"
-
-#: prefs.js:358
-msgid "Skip to Desktop"
-msgstr "Pereiti tiesiai į darbalaukį"
-
-#: prefs.js:358
-msgid "Do not show the overview when logging in. Animation is still visible"
-msgstr "Prisijungiant nerodyti apžvalgos. Animacija vis tiek matoma."
-
-#: prefs.js:359
-msgid "Hide Minimized Windows"
-msgstr "Slėpti sumažintus langus"
-
-#: prefs.js:359
-msgid "Hide minimized windows in the overview"
-msgstr "Apžvalgoje slėpti sumažintus langus"
-
-#: prefs.js:360
-msgid "Move Window to New Workspace"
-msgstr "Perkelti langą į naują darbo sritį"
-
-#: prefs.js:360
-msgid "Move fullscreen window to a new workspace"
-msgstr "Perkelti viso ekrano langą į naują darbo sritį"
-
-#: prefs.js:368
-msgid "Move Calendar to Right"
-msgstr "Perkelti kalendorių į dešinę"
-
-#: prefs.js:369
-msgid "Move calendar to right side and hide notifications"
-msgstr "Perkelti kalendorių į dešinę ir paslėpti pranešimus"
-
-#: prefs.js:383
-msgid "Keep GNOME Notification Panel"
-msgstr "Palikti GNOME pranešimų skydelį"
-
-#: prefs.js:384
-msgid "Don't split notification and calendar layout"
-msgstr "Neatskirti pranešimų ir kalendoriaus išdėstymo"
-
-#: prefs.js:390
-msgid "Indicator Style"
-msgstr "Indikatoriaus stilius"
-
-#: prefs.js:391
-msgid "Notification dot recolor"
-msgstr "Pranešimo taško spalva"
-
-#: prefs.js:402 prefs.js:563
-msgid "Default"
-msgstr "Numatytasis"
-
-#: prefs.js:406
-msgid "Accent"
-msgstr "Akcentinė spalva"
-
-#: prefs.js:410
-msgid "Symbolic"
-msgstr "Simbolinis"
-
-#: prefs.js:427
-msgid "Battery Percentage"
-msgstr "Baterijos procentai"
-
-#: prefs.js:427
-msgid "Show battery percentage in the top bar when below 20%"
-msgstr "Rodyti baterijos procentus viršuje, kai jie mažesni nei 20 %"
-
-#: prefs.js:428
-msgid "Add Username"
-msgstr "Pridėti naudotojo vardą"
-
-#: prefs.js:428
-msgid "Add username to the quick menu"
-msgstr "Pridėti naudotojo vardą prie greitojo meniu"
-
-#: prefs.js:429
-msgid "Caps Lock and Num Lock"
-msgstr "Caps Lock ir Num Lock"
-
-#: prefs.js:429
-msgid "Show Caps Lock and Num Lock icon"
-msgstr "Rodyti Caps Lock ir Num Lock piktogramą"
-
-#: prefs.js:436
-#, fuzzy
-#| msgid "Firefox Styling"
-msgid "Styling"
-msgstr "Firefox stilius"
-
-#: prefs.js:441
-msgid "Hide Activities Button"
-msgstr "Slėpti mygtuką „Veiklos“"
-
-#: prefs.js:441
-msgid "Hide the Activities button in the top panel"
-msgstr "Paslėpti viršutiniame pulte esantį „Veiklos“ mygtuką"
-
-#: prefs.js:442
-msgid "Reduce App Animations"
-msgstr ""
-
-#: prefs.js:442
-msgid "Mimic macOS window opening and closing with a subtle scale and fade"
-msgstr ""
-
-#: prefs.js:443
-msgid "Transparent Move"
-msgstr "Skaidrus perkėlimas"
-
-#: prefs.js:443
-msgid "Move window with transparency"
-msgstr "Perkelti langą su skaidrumu"
-
-#: prefs.js:449
-msgid "Style Keyboard Indicator"
-msgstr "Pagražinti klaviatūros indikatorių"
-
-#: prefs.js:450
-msgid ""
-"Slightly style keyboard/input source indicator by converting to uppercase "
-"and adding border"
-msgstr ""
-"Šiek tiek pateikite klaviatūros / įvesties šaltinio indikatorių, paversdami "
-"jį didžiosiomis raidėmis ir pridėdami rėmelį"
-
-#: prefs.js:458
-msgid "Hide keyboard indicator"
-msgstr "Slėpti klaviatūros indikatorių"
-
-#: prefs.js:459
-msgid "Completely hide the indicator from the panel"
-msgstr "Visiškai paslėpti indikatorių iš pulto"
-
-#: prefs.js:490
-msgid "Custom Do Not Disturb Button"
-msgstr "Tinkintasis Netrukdyti mygtukas"
-
-#: prefs.js:490
-msgid ""
-"Replace the system Do Not Disturb button with Kiwi's custom implementation"
-msgstr "Pakeičia sistemos Netrukdyti mygtuką Kiwi tinkinta įgyvendinimu"
-
-#: prefs.js:497
-#, fuzzy
-#| msgid "Button Type"
-msgid "Buttons"
-msgstr "Mygtuko tipas"
-
-#: prefs.js:503
-msgid "Window Control Button Style"
-msgstr "Langų valdymo mygtukų stilius"
-
-#: prefs.js:504
-msgid ""
-"Choose the window control button style. Log out to apply it across all apps."
-msgstr ""
-"Pasirinkite langų valdymo mygtukų stilių. Atsijunkite, kad pritaikytumėte "
-"visoms programoms."
-
-#: prefs.js:515
-msgid "Enable macOS Window Buttons"
-msgstr "Įjungti macOS langų mygtukus"
-
-#: prefs.js:516
-msgid "Replace window control buttons in application windows with macOS style"
-msgstr "Pakeisti programos lango valdymo mygtukus macOS stiliumi"
-
-#: prefs.js:532
-msgid "Firefox Styling"
-msgstr "Firefox stilius"
-
-#: prefs.js:533
-msgid ""
-"Apply macOS window control styling for Firefox. Recommended to use with "
-"vertical tabs."
-msgstr ""
-"Taikyti macOS langų valdymo stilių Firefox naršyklei. Rekomenduojama naudoti "
-"su vertikaliomis kortelėmis."
-
-#: prefs.js:541
-msgid "Thunderbird Styling"
-msgstr "Thunderbird stilius"
-
-#: prefs.js:542
-msgid "Apply macOS window control styling for Thunderbird."
-msgstr "Pritaikyti macOS lango valdiklių stilių Thunderbird."
-
-#: prefs.js:551
-msgid "Button Type"
-msgstr "Mygtuko tipas"
-
-#: prefs.js:552
-msgid "Choose the button icon set"
-msgstr "Pasirinkti mygtukų piktogramų rinkinį"
-
-#: prefs.js:567
-msgid "Alternative"
-msgstr "Alternatyvus"
-
-#: prefs.js:584
-msgid "Button Size"
-msgstr "Mygtuko dydis"
-
-#: prefs.js:585
-msgid "Choose button size"
-msgstr "Pasirinkite mygtuko dydį"
-
-#: prefs.js:596
-msgid "Small"
-msgstr "Mažas"
-
-#: prefs.js:600
-msgid "Normal"
-msgstr "Normalus"
-
-#: prefs.js:632
-msgid "Show Window Controls on Panel"
-msgstr "Rodyti langų valdymą pulte"
-
-#: prefs.js:633
-msgid ""
-"Display close, minimize, maximize buttons in the top panel when window is "
-"maximized"
-msgstr ""
-"Rodyti uždarymo, mažinimo, didinimo mygtukus viršutiniame skydelyje, kai "
-"langas yra išdidintas"
-
-#: prefs.js:647
-msgid "Only when Fullscreen"
-msgstr ""
-
-#: prefs.js:648
-msgid ""
-"Hide titlebars and show panel controls only for fullscreen windows, not "
-"maximized"
-msgstr ""
-
-#: prefs.js:657
-#, fuzzy
-#| msgid "Panel Blur"
+#: prefs.js:343
 msgid "Panel"
-msgstr "Skydelio suliejimas"
+msgstr "Skydelis"
 
-#: prefs.js:663 prefs.js:675
+#: prefs.js:349 prefs.js:362
 msgid "Panel Transparency"
 msgstr "Pulto skaidrumas"
 
-#: prefs.js:664
+#: prefs.js:350
 msgid "Configure panel transparency and appearance"
 msgstr "Konfigūruokite pulto skaidrumą ir išvaizdą"
 
-#: prefs.js:676
+#: prefs.js:363
 msgid "Make the top panel transparent"
 msgstr "Padaryti viršutinį pultą skaidrų"
 
-#: prefs.js:684
+#: prefs.js:370
 msgid "Transparency Level"
 msgstr "Skaidrumo lygis"
 
-#: prefs.js:685
+#: prefs.js:371
 msgid "Set panel transparency (0-100)"
 msgstr "Nustatyti pulto skaidrumą (0–100)"
 
-#: prefs.js:699
+#: prefs.js:385
 msgid "Opaque When Window Touches"
 msgstr "Nepermatomas, kai langas paliečia"
 
-#: prefs.js:700
+#: prefs.js:386
 msgid "Make panel opaque when a window touches it"
 msgstr "Langui palietus pultą padaryti jį nepermatomą"
 
-#: prefs.js:708
+#: prefs.js:394
 msgid "Panel Blur"
 msgstr "Skydelio suliejimas"
 
-#: prefs.js:709
+#: prefs.js:395
 msgid "Blur the background behind the panel"
 msgstr "Suliejti foną už skydelio"
 
-#: prefs.js:717
+#: prefs.js:403
 msgid "Panel Color Fix"
 msgstr "Pulto spalvos pataisa"
 
-#: prefs.js:718
+#: prefs.js:404
 msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
 msgstr "Ištaiso kai kuriuose apvalkalose baltą pultą (pvz., Ubuntu Yaru)"
 
-#: prefs.js:753
-#, fuzzy
-#| msgid "Show Panel on Hover"
-msgid "Show Panel in Fullscreen on Hover"
-msgstr "Rodyti pultą užvedus"
+#: prefs.js:411
+msgid "Invert Tray Icons on Light Wallpapers"
+msgstr "Invertuoti dėklo piktogramas su šviesiais fonais"
 
-#: prefs.js:753
+#: prefs.js:412
+msgid ""
+"Darken white monochrome tray icons when the panel adapts to a light "
+"wallpaper. Colored icons are left untouched"
+msgstr ""
+"Patamsinti baltas vienspalves dėklo piktogramas, kai skydelis prisitaiko prie"
+" šviesaus fono. Spalvotos piktogramos nekeičiamos"
+
+#: prefs.js:445
+msgid "Panel Items"
+msgstr "Skydelio elementai"
+
+#: prefs.js:446
+msgid "Choose what the top panel and its menus show"
+msgstr "Pasirinkite, ką rodo viršutinis skydelis ir jo meniu"
+
+#: prefs.js:453
+msgid "Show Window Title"
+msgstr "Rodyti lango pavadinimą"
+
+#: prefs.js:454
+msgid "Display current window title in the top panel"
+msgstr "Viršutiniame pulte rodyti dabartinio lango pavadinimą"
+
+#: prefs.js:463
+msgid "Hide App Icon"
+msgstr "Slėpti programos piktogramą"
+
+#: prefs.js:464
+msgid "Do not show the application icon next to the window title"
+msgstr "Nerodyti programos piktogramos šalia lango pavadinimo"
+
+#: prefs.js:471
+msgid "Disable Window Tiling"
+msgstr "Išjungti langų išdėstymą"
+
+#: prefs.js:472
+msgid ""
+"Drop the tiling layouts from the window title menu, and stop restoring tiled "
+"windows when their titlebar is dragged"
+msgstr ""
+"Pašalinti išdėstymus iš lango pavadinimo meniu ir nebeatkurti išdėstytų langų"
+" velkant jų pavadinimo juostą"
+
+#: prefs.js:492
+msgid "Show Panel in Fullscreen on Hover"
+msgstr "Rodyti skydelį visame ekrane užvedus pelę"
+
+#: prefs.js:492
 msgid ""
 "Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
 msgstr ""
 "Rodyti pultą, kai pelė visame ekrane priartėja prie viršutinio krašto. GTK4 "
 "programose gali veikti netinkamai."
 
-#: prefs.js:760
-#, fuzzy
-#| msgid "Dock Blur"
+#: prefs.js:500
+msgid "Move Calendar to Right"
+msgstr "Perkelti kalendorių į dešinę"
+
+#: prefs.js:501
+msgid "Move calendar to right side and hide notifications"
+msgstr "Perkelti kalendorių į dešinę ir paslėpti pranešimus"
+
+#: prefs.js:510
+msgid "Keep GNOME Notification Panel"
+msgstr "Palikti GNOME pranešimų skydelį"
+
+#: prefs.js:511
+msgid "Don't split notification and calendar layout"
+msgstr "Neatskirti pranešimų ir kalendoriaus išdėstymo"
+
+#: prefs.js:517
+msgid "Indicator Style"
+msgstr "Indikatoriaus stilius"
+
+#: prefs.js:518
+msgid "Notification dot recolor"
+msgstr "Pranešimo taško spalva"
+
+#: prefs.js:529 prefs.js:842
+msgid "Default"
+msgstr "Numatytasis"
+
+#: prefs.js:533
+msgid "Accent"
+msgstr "Akcentinė spalva"
+
+#: prefs.js:537
+msgid "Symbolic"
+msgstr "Simbolinis"
+
+#: prefs.js:556
+msgid "Battery Percentage"
+msgstr "Baterijos procentai"
+
+#: prefs.js:568
+msgid ""
+"Unavailable while GNOME Settings shows the battery percentage in the top bar"
+msgstr ""
+"Neprieinama, kol GNOME nustatymai rodo akumuliatoriaus procentus viršutiniame"
+" skydelyje"
+
+#: prefs.js:569
+msgid "Show battery percentage in the top bar when below 20%"
+msgstr "Rodyti baterijos procentus viršuje, kai jie mažesni nei 20 %"
+
+#: prefs.js:575
+msgid "Caps Lock and Num Lock"
+msgstr "Caps Lock ir Num Lock"
+
+#: prefs.js:575
+msgid "Show Caps Lock and Num Lock icon"
+msgstr "Rodyti Caps Lock ir Num Lock piktogramą"
+
+#: prefs.js:576
+msgid "Custom Do Not Disturb Button"
+msgstr "Tinkintasis Netrukdyti mygtukas"
+
+#: prefs.js:576
+msgid ""
+"Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Pakeičia sistemos Netrukdyti mygtuką Kiwi tinkinta įgyvendinimu"
+
+#: prefs.js:577
+msgid "Hide Activities Button"
+msgstr "Slėpti mygtuką „Veiklos“"
+
+#: prefs.js:577
+msgid "Hide the Activities button in the top panel"
+msgstr "Paslėpti viršutiniame pulte esantį „Veiklos“ mygtuką"
+
+#: prefs.js:578
+msgid "Add Username"
+msgstr "Pridėti naudotojo vardą"
+
+#: prefs.js:578
+msgid "Add username to the quick menu"
+msgstr "Pridėti naudotojo vardą prie greitojo meniu"
+
+#: prefs.js:582 prefs.js:780
+msgid "Styling"
+msgstr "Stilius"
+
+#: prefs.js:583
+msgid ""
+"Restyle stock GNOME Shell elements and GTK apps. Log out and back in for "
+"changes to take effect"
+msgstr ""
+"Pakeisti standartinių GNOME Shell elementų ir GTK programų stilių. Kad "
+"pakeitimai įsigaliotų, atsijunkite ir vėl prisijunkite"
+
+#: prefs.js:588
+msgid "Panel Styling"
+msgstr "Skydelio stilius"
+
+#: prefs.js:588
+msgid ""
+"Tighter button spacing, bold titles, smaller status icons, no dropdown arrows"
+" and a transparent panel in the overview"
+msgstr ""
+"Tankesni mygtukų intervalai, pusjuodžiai pavadinimai, mažesnės būsenos "
+"piktogramos, be išskleidimo rodyklių ir permatomas skydelis apžvalgoje"
+
+#: prefs.js:589
+msgid "Menu and App Styling"
+msgstr "Meniu ir programų stilius"
+
+#: prefs.js:589
+msgid ""
+"Narrower shell menu items with accent-colored hover and selection, plus the "
+"GTK app fixes"
+msgstr ""
+"Siauresni Shell meniu elementai su akcentine spalva užvedus ir pasirinkus, "
+"taip pat GTK programų pataisos"
+
+#: prefs.js:595
+msgid "Style Keyboard Indicator"
+msgstr "Pagražinti klaviatūros indikatorių"
+
+#: prefs.js:596
+msgid ""
+"Slightly style keyboard/input source indicator by converting to uppercase and"
+" adding border"
+msgstr ""
+"Šiek tiek pateikite klaviatūros / įvesties šaltinio indikatorių, paversdami "
+"jį didžiosiomis raidėmis ir pridėdami rėmelį"
+
+#: prefs.js:603
+msgid "Hide keyboard indicator"
+msgstr "Slėpti klaviatūros indikatorių"
+
+#: prefs.js:604
+msgid "Completely hide the indicator from the panel"
+msgstr "Visiškai paslėpti indikatorių iš pulto"
+
+#: prefs.js:632
 msgid "Dock"
-msgstr "Doko suliejimas"
+msgstr "Dokas"
 
-#: prefs.js:769
-msgid "Dock Blur"
-msgstr "Doko suliejimas"
+#: prefs.js:638
+msgid "Dock Items"
+msgstr "Doko elementai"
 
-#: prefs.js:769
-msgid "Blur the background behind Dash-to-Dock"
-msgstr "Suliejti foną už Dash-to-Dock"
+#: prefs.js:639
+msgid "Add extra items to Dash-to-Dock"
+msgstr "Pridėti papildomų elementų į Dash-to-Dock"
 
-#: prefs.js:770
-#, fuzzy
-#| msgid "Hide Minimized Windows"
+#: prefs.js:644
 msgid "Minimize Windows to Dock"
-msgstr "Slėpti sumažintus langus"
+msgstr "Sumažinti langus į doką"
 
-#: prefs.js:770
+#: prefs.js:644
 msgid ""
 "Park minimized windows as thumbnails in Dash-to-Dock, after the apps and "
 "before the trash"
 msgstr ""
+"Padėti sumažintus langus kaip miniatiūras Dash-to-Dock, po programų ir prieš "
+"šiukšlinę"
 
-#: prefs.js:776
+#: prefs.js:648
+msgid "Downloads Folder in Dock"
+msgstr "Atsiuntimų katalogas doke"
+
+#: prefs.js:649
+msgid ""
+"Add a Downloads folder before the trash that fans its newest files out over "
+"the desktop"
+msgstr ""
+"Pridėti atsiuntimų katalogą prieš šiukšlinę, kuris išskleidžia naujausius "
+"failus darbalaukyje"
+
+#: prefs.js:657
+msgid "Stack Behind Folder"
+msgstr "Kaupti už katalogo"
+
+#: prefs.js:658
+msgid ""
+"Show the newest files sticking out of the folder icon instead of piled on top"
+" of it"
+msgstr ""
+"Rodyti naujausius failus, kyšančius iš už katalogo piktogramos, o ne "
+"sukrautus ant jos"
+
+#: prefs.js:676
 msgid "Launchpad Application"
 msgstr "Launchpad programa"
 
-#: prefs.js:777
+#: prefs.js:677
 msgid ""
 "Add custom Launchpad icon to dock that opens application overview. "
 "Recommended to hide default app launcher."
@@ -512,127 +515,333 @@ msgstr ""
 "Pridėti į doką pasirinktą Launchpad piktogramą, kuri atidaro programų "
 "apžvalgą. Rekomenduojama paslėpti numatytą paleidiklį."
 
-#: prefs.js:795
+#: prefs.js:687
 msgid "Custom Icon"
 msgstr "Pasirinktinė piktograma"
 
-#: prefs.js:798 prefs.js:883
+#: prefs.js:690 prefs.js:775
 msgid "Using default icon"
 msgstr "Naudojama numatytoji piktograma"
 
-#: prefs.js:806
+#: prefs.js:698
 msgid "Reset to default icon"
 msgstr "Atstatyti numatytąją piktogramą"
 
-#: prefs.js:817
+#: prefs.js:709
 msgid "Browse for icon"
 msgstr "Pasirinkti piktogramą"
 
-#: prefs.js:822
+#: prefs.js:714
 msgid "Select Launchpad Icon"
 msgstr "Pasirinkti Launchpad piktogramą"
 
-#: prefs.js:826
+#: prefs.js:718
 msgid "Images (PNG, SVG)"
 msgstr "Paveikslėliai (PNG, SVG)"
 
-#: prefs.js:854
+#: prefs.js:746
 msgid "Icon Too Large"
 msgstr "Piktograma per didelė"
 
-#: prefs.js:855
+#: prefs.js:747
 msgid ""
 "The selected image exceeds 512×512 pixels. Please choose a smaller image."
 msgstr ""
 "Pasirinktas paveikslėlis viršija 512×512 pikselių. Pasirinkite mažesnį "
 "paveikslėlį."
 
-#: prefs.js:857
+#: prefs.js:749
 msgid "OK"
 msgstr "Gerai"
 
-#: prefs.js:891
+#: prefs.js:785
+msgid "Dock Styling"
+msgstr "Doko stilius"
+
+#: prefs.js:785
+msgid ""
+"Tighten icon spacing, drop the icon highlight and darken icons while pressed"
+msgstr ""
+"Sutankinti piktogramų intervalus, pašalinti piktogramų paryškinimą ir "
+"patamsinti piktogramas paspaudus"
+
+#: prefs.js:786
+msgid "Dock Blur"
+msgstr "Doko suliejimas"
+
+#: prefs.js:786
+msgid "Blur the background behind Dash-to-Dock"
+msgstr "Suliejti foną už Dash-to-Dock"
+
+#: prefs.js:793
+msgid "Buttons"
+msgstr "Mygtukai"
+
+#: prefs.js:799
+msgid "Window Control Button Style"
+msgstr "Langų valdymo mygtukų stilius"
+
+#: prefs.js:800
+msgid ""
+"Choose the window control button style. Log out to apply it across all apps."
+msgstr ""
+"Pasirinkite langų valdymo mygtukų stilių. Atsijunkite, kad pritaikytumėte "
+"visoms programoms."
+
+#: prefs.js:808
+msgid "Enable macOS Window Buttons"
+msgstr "Įjungti macOS langų mygtukus"
+
+#: prefs.js:809
+msgid "Replace window control buttons in application windows with macOS style"
+msgstr "Pakeisti programos lango valdymo mygtukus macOS stiliumi"
+
+#: prefs.js:830
+msgid "Button Type"
+msgstr "Mygtuko tipas"
+
+#: prefs.js:831
+msgid "Choose the button icon set"
+msgstr "Pasirinkti mygtukų piktogramų rinkinį"
+
+#: prefs.js:846
+msgid "Alternative"
+msgstr "Alternatyvus"
+
+#: prefs.js:863
+msgid "Button Size"
+msgstr "Mygtuko dydis"
+
+#: prefs.js:864
+msgid "Choose button size"
+msgstr "Pasirinkite mygtuko dydį"
+
+#: prefs.js:875
+msgid "Small"
+msgstr "Mažas"
+
+#: prefs.js:879
+msgid "Normal"
+msgstr "Normalus"
+
+#: prefs.js:896
+msgid "Firefox Styling"
+msgstr "Firefox stilius"
+
+#: prefs.js:897
+msgid ""
+"Apply macOS window control styling for Firefox. Recommended to use with "
+"vertical tabs."
+msgstr ""
+"Taikyti macOS langų valdymo stilių Firefox naršyklei. Rekomenduojama naudoti "
+"su vertikaliomis kortelėmis."
+
+#: prefs.js:905
+msgid "Thunderbird Styling"
+msgstr "Thunderbird stilius"
+
+#: prefs.js:906
+msgid "Apply macOS window control styling for Thunderbird."
+msgstr "Pritaikyti macOS lango valdiklių stilių Thunderbird."
+
+#: prefs.js:930
+msgid "Show Window Controls on Panel"
+msgstr "Rodyti langų valdymą pulte"
+
+#: prefs.js:931
+msgid ""
+"Display close, minimize, maximize buttons in the top panel when window is "
+"maximized"
+msgstr ""
+"Rodyti uždarymo, mažinimo, didinimo mygtukus viršutiniame skydelyje, kai "
+"langas yra išdidintas"
+
+#: prefs.js:945
+msgid "Only when Fullscreen"
+msgstr "Tik visame ekrane"
+
+#: prefs.js:946
+msgid ""
+"Hide titlebars and show panel controls only for fullscreen windows, not "
+"maximized"
+msgstr ""
+"Slėpti pavadinimo juostas ir rodyti skydelio valdymo elementus tik viso "
+"ekrano languose, ne išdidintuose"
+
+#: prefs.js:955
+msgid "Options"
+msgstr "Parinktys"
+
+#: prefs.js:961
+msgid "Kiwi"
+msgstr "Kiwi"
+
+#: prefs.js:962
+msgid ""
+"Kiwi is not like Apple, it's free open source project that brings macOS-like "
+"feel for GNOME"
+msgstr ""
+"Kiwi nėra Apple – tai laisvas atviro kodo projektas, suteikiantis GNOME "
+"aplinkai macOS pojūtį"
+
+#: prefs.js:967
+msgid "Overview Wallpaper Blur"
+msgstr "Apžvalgos fono suliejimas"
+
+#: prefs.js:967
+msgid "Use blurred current wallpaper as overview background"
+msgstr "Naudoti suliejamą esamą darbalaukio foną kaip apžvalgos foną"
+
+#: prefs.js:968
+msgid "Skip to Desktop"
+msgstr "Pereiti tiesiai į darbalaukį"
+
+#: prefs.js:968
+msgid "Do not show the overview when logging in. Animation is still visible"
+msgstr "Prisijungiant nerodyti apžvalgos. Animacija vis tiek matoma."
+
+#: prefs.js:969
+msgid "Hide Minimized Windows"
+msgstr "Slėpti sumažintus langus"
+
+#: prefs.js:969
+msgid "Hide minimized windows in the overview"
+msgstr "Apžvalgoje slėpti sumažintus langus"
+
+#: prefs.js:970
+msgid "Move Window to New Workspace"
+msgstr "Perkelti langą į naują darbo sritį"
+
+#: prefs.js:970
+msgid "Move fullscreen window to a new workspace"
+msgstr "Perkelti viso ekrano langą į naują darbo sritį"
+
+#: prefs.js:971
+msgid "Reduce App Animations"
+msgstr "Sumažinti programų animacijas"
+
+#: prefs.js:971
+msgid "Mimic macOS window opening and closing with a subtle scale and fade"
+msgstr ""
+"Imituoti macOS langų atvėrimą ir užvėrimą subtiliu mastelio ir permatomumo "
+"keitimu"
+
+#: prefs.js:972
+msgid "Transparent Move"
+msgstr "Skaidrus perkėlimas"
+
+#: prefs.js:972
+msgid "Move window with transparency"
+msgstr "Perkelti langą su skaidrumu"
+
+#: prefs.js:979
 msgid "Advanced"
 msgstr "Išplėstiniai"
 
-#: prefs.js:921
+#: prefs.js:1009
 msgid "Titlebuttons Hover Effect for GTK3 apps"
 msgstr "GTK3 programų lango mygtukų užvedimo efektas"
 
-#: prefs.js:934
+#: prefs.js:1022
 msgid ""
-"The titlebuttons hover module provides macOS-like hover effects for window "
-"controls in GTK3 applications. GTK3 apps cannot natively show hover effects "
-"on all three window controls simultaneously, requiring this custom library "
-"to achieve the desired behavior.\n"
+"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
 "\n"
-"This binary code cannot be distributed through the GNOME Extensions platform "
-"due to security policies regarding native libraries, but manual installation "
-"is possible."
+"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
 msgstr ""
-"Lango mygtukų užvedimo modulis suteikia macOS stiliaus efektus GTK3 programų "
-"langų valdikliams. GTK3 programos negali savarankiškai rodyti užvedimo "
-"efektų visiems trims valdikliams vienu metu, todėl norimam elgesiui reikia "
-"šios bibliotekos.\n"
+"Lango mygtukų užvedimo modulis suteikia macOS stiliaus efektus GTK3 programų langų valdikliams. GTK3 programos negali savarankiškai rodyti užvedimo efektų visiems trims valdikliams vienu metu, todėl norimam elgesiui reikia šios bibliotekos.\n"
 "\n"
-"Dėl natūralių bibliotekų saugumo politikos šio dvejetainio failo negalima "
-"platinti per GNOME plėtinių platformą, tačiau rankinis įdiegimas galimas."
+"Dėl natūralių bibliotekų saugumo politikos šio dvejetainio failo negalima platinti per GNOME plėtinių platformą, tačiau rankinis įdiegimas galimas."
 
-#: prefs.js:946
+#: prefs.js:1038
 msgid "Installation Guide on GitHub"
 msgstr "Diegimo gidas GitHub’e"
 
-#: prefs.js:948
+#: prefs.js:1040
 msgid "Open the advanced module build instructions"
 msgstr "Atverti išplėstinio modulio komponavimo instrukcijas"
 
-#: prefs.js:953
+#: prefs.js:1046
 msgid "More of my work..."
-msgstr ""
+msgstr "Daugiau mano darbų…"
 
-#: prefs.js:957
-#, fuzzy
-#| msgid "Kiwi"
+#: prefs.js:1050
 msgid "Kiwi Menu"
-msgstr "Kiwi"
+msgstr "Kiwi Menu"
 
-#: prefs.js:957
+#: prefs.js:1050
 msgid "MacOS style menu for GNOME"
-msgstr ""
+msgstr "macOS stiliaus meniu GNOME aplinkai"
 
-#: prefs.js:958
+#: prefs.js:1051
 msgid "AppManager"
-msgstr ""
+msgstr "AppManager"
 
-#: prefs.js:958
+#: prefs.js:1051
 msgid "MacOS style AppImage installer and management application"
 msgstr "MacOS stiliaus AppImage diegimo ir valdymo programa"
 
-#: prefs.js:959
+#: prefs.js:1052
 msgid "Catalina Reloaded Icon Pack"
-msgstr ""
+msgstr "Catalina Reloaded Icon Pack"
 
-#: prefs.js:959
+#: prefs.js:1052
 msgid "macOS Tahoe icon theme for Linux"
 msgstr "macOS Tahoe piktogramų tema Linux sistemai"
 
-#: prefs.js:960
+#: prefs.js:1053
 msgid "GDM Wallpaper"
-msgstr ""
+msgstr "GDM Wallpaper"
 
-#: prefs.js:960
+#: prefs.js:1053
 msgid "Set custom GDM login screen wallpaper"
 msgstr "Nustatyti pasirinktinį GDM prisijungimo ekrano foną"
 
-#: prefs.js:972
-#, fuzzy
-#| msgid "Recommended Extensions"
+#: prefs.js:1065
 msgid "Other Recommended Extensions"
-msgstr "Rekomenduojami plėtiniai"
+msgstr "Kiti rekomenduojami plėtiniai"
 
-#: prefs.js:973
+#: prefs.js:1066
 msgid "Extensions that are compatible with Kiwi"
 msgstr "Plėtiniai, suderinami su Kiwi"
+
+#: prefs.js:1090 prefs.js:1104
+msgid "Restore Defaults"
+msgstr "Atkurti numatytuosius"
+
+#: prefs.js:1094
+msgid "Reset every Kiwi setting to its default value"
+msgstr "Atstatyti visus Kiwi nustatymus į numatytąsias reikšmes"
+
+#: prefs.js:1100
+msgid "Restore Default Settings?"
+msgstr "Atkurti numatytuosius nustatymus?"
+
+#: prefs.js:1101
+msgid ""
+"Every Kiwi setting will be reset to its default value. This cannot be undone."
+msgstr ""
+"Visi Kiwi nustatymai bus atstatyti į numatytąsias reikšmes. Šio veiksmo "
+"negalima atšaukti."
+
+#: prefs.js:1103
+msgid "Cancel"
+msgstr "Atsisakyti"
+
+#~ msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+#~ msgstr "ImageMagick neįdiegtas (įdiekite paketą \"imagemagick\", kad įjungtumėte)"
+
+#~ msgid "Kiwi is not Apple"
+#~ msgstr "Kiwi is not Apple"
+
+#~ msgid "Kiwi is not Apple is free and open source software"
+#~ msgstr "Kiwi is not Apple yra laisva atviro kodo programinė įranga"
+
+#~ msgid "Sponsor Me ♡"
+#~ msgstr "Paremkite mane ♡"
+
+#~ msgid ""
+#~ "Use blurred current wallpaper as overview background (requires ImageMagick)"
+#~ msgstr "Naudoti sulietą dabartinį foną apžvalgos fonui (reikia ImageMagick)"
 
 #~ msgid "Extras"
 #~ msgstr "Papildiniai"
@@ -649,17 +858,11 @@ msgstr "Plėtiniai, suderinami su Kiwi"
 #~ msgid ""
 #~ "Copyright © 2025 Arnis Kemlers\n"
 #~ "\n"
-#~ "This program is free software: you can redistribute it and/or modify it "
-#~ "under the terms of the GNU General Public License as published by the "
-#~ "Free Software Foundation, either version 3 of the License, or (at your "
-#~ "option) any later version."
+#~ "This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
 #~ msgstr ""
 #~ "Autorių teisės © 2025 Arnis Kemlers\n"
 #~ "\n"
-#~ "Ši programa yra laisva programinė įranga; ją galite platinti ir/arba "
-#~ "keisti pagal GNU bendrosios viešosios licencijos sąlygas, paskelbtas Free "
-#~ "Software Foundation, 3-iosios versijos arba (savo nuožiūra) bet kurios "
-#~ "vėlesnės versijos."
+#~ "Ši programa yra laisva programinė įranga; ją galite platinti ir/arba keisti pagal GNU bendrosios viešosios licencijos sąlygas, paskelbtas Free Software Foundation, 3-iosios versijos arba (savo nuožiūra) bet kurios vėlesnės versijos."
 
 #~ msgid "Support the project"
 #~ msgstr "Paremti projektą"
