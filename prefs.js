@@ -550,8 +550,28 @@ export default class KiwiPreferences extends ExtensionPreferences {
             settings.set_string('notification-indicator-style', g.active_name);
         });
 
+        // Battery percentage clashes with GNOME's own top bar percentage, so
+        // the row is greyed out while that setting is on
+        const batteryRow = new Adw.SwitchRow({
+            title: _("Battery Percentage"),
+            active: settings.get_boolean('battery-percentage'),
+        });
+        windowTitleGroup.add(batteryRow);
+        settings.bind('battery-percentage', batteryRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        const interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+        window._kiwiInterfaceSettings = interfaceSettings;
+        const syncBatteryRow = () => {
+            const gnomeShowsPercentage = interfaceSettings.get_boolean('show-battery-percentage');
+            batteryRow.sensitive = !gnomeShowsPercentage;
+            batteryRow.subtitle = gnomeShowsPercentage
+                ? _("Unavailable while GNOME Settings shows the battery percentage in the top bar")
+                : _("Show battery percentage in the top bar when below 20%");
+        };
+        syncBatteryRow();
+        interfaceSettings.connect('changed::show-battery-percentage', syncBatteryRow);
+
         this._addSwitchRows(settings, windowTitleGroup, [
-            { key: 'battery-percentage', title: _("Battery Percentage"), subtitle: _("Show battery percentage in the top bar when below 20%") },
             { key: 'lock-icon', title: _("Caps Lock and Num Lock"), subtitle: _("Show Caps Lock and Num Lock icon") },
             { key: 'custom-dnd-button', title: _("Custom Do Not Disturb Button"), subtitle: _("Replace the system Do Not Disturb button with Kiwi's custom implementation") },
             { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },

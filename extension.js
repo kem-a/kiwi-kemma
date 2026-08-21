@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import Gio from 'gi://Gio';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { enable as addUsernameEnable, disable as addUsernameDisable } from './apps/addUsernameToQuickMenu.js';
 import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from './apps/moveFullscreenWindow.js';
@@ -92,11 +93,7 @@ export default class KiwiExtension extends Extension {
             transparentMoveDisable();
         }
 
-        if (this._settings.get_boolean('battery-percentage')) {
-            batteryPercentageEnable();
-        } else {
-            batteryPercentageDisable();
-        }
+        this._applyBatteryPercentage();
 
         if (key === 'keep-notification-panel' && this._settings.get_boolean('move-calendar-right')) {
             calendarDisable();
@@ -256,9 +253,22 @@ export default class KiwiExtension extends Extension {
         }
     }
 
+    // GNOME's own top bar percentage would show a second number, so ours steps aside
+    _applyBatteryPercentage() {
+        if (this._settings.get_boolean('battery-percentage') &&
+            !this._interfaceSettings.get_boolean('show-battery-percentage')) {
+            batteryPercentageEnable();
+        } else {
+            batteryPercentageDisable();
+        }
+    }
+
     enable() {
         this._settings = this.getSettings();
         this._settingsChangedId = this._settings.connect('changed', (settings, key) => this._on_settings_changed(key));
+        this._interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+        this._batteryPercentageChangedId = this._interfaceSettings.connect('changed::show-battery-percentage',
+            () => this._applyBatteryPercentage());
         
         // Enable GTK theme manager
         gtkThemeManagerEnable(this);
@@ -280,6 +290,11 @@ export default class KiwiExtension extends Extension {
             this._settings.disconnect(this._settingsChangedId);
             this._settingsChangedId = null;
         }
+        if (this._batteryPercentageChangedId) {
+            this._interfaceSettings.disconnect(this._batteryPercentageChangedId);
+            this._batteryPercentageChangedId = null;
+        }
+        this._interfaceSettings = null;
         moveFullscreenDisable();
         addUsernameDisable();
         focusLaunchedWindowDisable();
