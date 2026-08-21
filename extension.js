@@ -270,9 +270,8 @@ export default class KiwiExtension extends Extension {
             thunderbirdThemeManagerEnable(this);
 
         focusLaunchedWindowEnable();
-        
+
         this._on_settings_changed(null);
-        // Generate wallpaper background if enabled
         overviewWallpaperRefresh();
     }
 

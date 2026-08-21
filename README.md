@@ -25,7 +25,7 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Transparent Move**: Make windows slightly transparent when moving.
 - **Battery Percentage**: Show battery percentage in the system menu when below 20% and on battery.
 - **Move calendar to the right**: Move calendar to right side and hide and add notifications and media controls to Quick Settings.
-- **Overview Wallpaper Background blur**: Use blurred current wallpaper as overview background (requires **ImageMagick**).
+- **Overview Wallpaper Background blur**: Use blurred current wallpaper as overview background.
 - **Panel and Dash-to-Dock dynamic blur**: Add dynamic blur to top panel or Dash-to-Dock.
 - **Minimize Windows to Dock**: Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash, macOS style. Minimize and restore animations run to and from the thumbnail.
 - **Downloads Folder in Dock**: Add a Downloads folder before the trash that fans its newest files out over the desktop, macOS stack style. Click a file to open it, or the last row to open the folder. Optionally the files stick out of the folder icon instead of piling on top of it.

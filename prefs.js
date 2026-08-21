@@ -54,10 +54,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
                 subtitle: item.subtitle,
                 active: settings.get_boolean(item.key),
             });
-            if (item.key === 'overview-wallpaper-background' && !GLib.find_program_in_path('convert')) {
-                switchRow.set_subtitle(_('ImageMagick not installed (install package "imagemagick" to enable)'));
-                switchRow.set_sensitive(false);
-            }
             group.add(switchRow);
             settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
         });
@@ -948,7 +944,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settingsPage.add(group);
 
         this._addSwitchRows(settings, group, [
-            { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Blur"), subtitle: _("Use blurred current wallpaper as overview background (requires ImageMagick)") },
+            { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Blur"), subtitle: _("Use blurred current wallpaper as overview background") },
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
