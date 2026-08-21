@@ -118,9 +118,10 @@
   padding-right: 10px;
 }
 
-/* Dark foreground for a light wallpaper behind a mostly transparent panel.
-   Toggled by apps/panelTransparency.js. Must stay after the .kiwi-panel-styled
-   rules above — same specificity, so the shadow flip depends on source order. */
+/* Dark foreground for a light background behind the panel, light foreground for
+   a dark one. Toggled by apps/panelTransparency.js. Must stay after the
+   .kiwi-panel-styled rules above — same specificity, so the shadow flip depends
+   on source order. */
 #panel.kiwi-panel-dark-text .panel-button,
 #panel.kiwi-panel-dark-text .panel-button:hover,
 #panel.kiwi-panel-dark-text .panel-button:active,
@@ -177,6 +178,60 @@
    above never reach them. */
 #panel.kiwi-panel-dark-text .panel-button#panelActivities .workspace-dot {
   background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* The mirror image, for a light shell theme (the Light Style extension, or a
+   light user theme): its own stylesheet paints the panel foreground dark, which
+   disappears as soon as transparency exposes a dark wallpaper underneath. */
+#panel.kiwi-panel-light-text .panel-button,
+#panel.kiwi-panel-light-text .panel-button:hover,
+#panel.kiwi-panel-light-text .panel-button:active,
+#panel.kiwi-panel-light-text .panel-button:focus,
+#panel.kiwi-panel-light-text .panel-button:checked,
+#panel.kiwi-panel-light-text .panel-button StLabel,
+#panel.kiwi-panel-light-text .panel-button StIcon {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+#panel.kiwi-panel-light-text .panel-button,
+#panel.kiwi-panel-light-text .panel-button:hover,
+#panel.kiwi-panel-light-text .panel-button:active,
+#panel.kiwi-panel-light-text .panel-button:focus,
+#panel.kiwi-panel-light-text .panel-button:checked,
+#panel.kiwi-panel-light-text .panel-button StLabel,
+#panel.kiwi-panel-light-text .panel-button .clock,
+#panel.kiwi-panel-light-text .panel-button .panel-status-menu-box StLabel,
+#panel.kiwi-panel-light-text .window-title StLabel {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+#panel.kiwi-panel-light-text .panel-button .system-status-icon,
+#panel.kiwi-panel-light-text .panel-button .app-menu-icon > StIcon,
+#panel.kiwi-panel-light-text .panel-button .popup-menu-arrow {
+  icon-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+#panel.kiwi-panel-light-text .panel-button:focus,
+#panel.kiwi-panel-light-text .panel-button:hover,
+#panel.kiwi-panel-light-text .panel-button.clock-display:focus .clock,
+#panel.kiwi-panel-light-text .panel-button.clock-display:hover .clock {
+  box-shadow: inset 0 0 0 100px rgba(255, 255, 255, 0.17);
+}
+
+#panel.kiwi-panel-light-text .panel-button:active,
+#panel.kiwi-panel-light-text .panel-button:checked,
+#panel.kiwi-panel-light-text .panel-button.clock-display:active .clock,
+#panel.kiwi-panel-light-text .panel-button.clock-display:checked .clock {
+  box-shadow: inset 0 0 0 100px rgba(255, 255, 255, 0.28);
+}
+
+#panel.kiwi-panel-light-text .panel-button:active:hover,
+#panel.kiwi-panel-light-text .panel-button:checked:hover {
+  box-shadow: inset 0 0 0 100px rgba(255, 255, 255, 0.32);
+}
+
+#panel.kiwi-panel-light-text .panel-button#panelActivities .workspace-dot {
+  background-color: rgba(255, 255, 255, 0.95);
 }
 
 /* Overview mode styles */
@@ -647,6 +702,13 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 #panel.kiwi-panel-dark-text .kiwi-input-en StLabel {
   background-color: rgba(0, 0, 0, 0.9);
   color: rgba(255, 255, 255, 0.95);
+}
+
+/* The white fill needs its dark glyph back — the light-text block above outranks
+   the plain .kiwi-input-en rule. */
+#panel.kiwi-panel-light-text .kiwi-input-en StLabel {
+  color: rgba(0, 0, 0, 0.9);
+  text-shadow: none;
 }
 
 /*###############################################*/

@@ -28,21 +28,20 @@ let lastFullscreenState = false; // edge-detect fullscreen state changes
 // Adaptive foreground state
 let bgSettings;
 let bgSignals = [];
-let wallpaperIsLight = false;
+let wallpaperLuminance = 0;
 let iconTheme;
-let monochromeIcons = new Map(); // gicon string -> whether inverting it is safe
-let contentIcons = new WeakMap(); // St.ImageContent -> whether inverting it is safe
+let monochromeIcons = new Map(); // gicon string -> 'light' | 'dark' | null
+let contentIcons = new WeakMap(); // St.ImageContent -> 'light' | 'dark' | null
 
-// Below this panel opacity the wallpaper dominates, so the foreground has to
-// follow the wallpaper instead of the theme.
-const ADAPTIVE_OPACITY_MAX = 0.3;
 const SAMPLE_SIZE = 32; // wallpaper is downscaled to this before sampling
 const SAMPLE_ROWS = 4;  // top rows only — that's what sits behind the panel
 const LIGHT_THRESHOLD = 0.6;
-const INVERT_EFFECT = 'kiwi-tray-invert';
+const DARKEN_EFFECT = 'kiwi-tray-darken';
+const LIGHTEN_EFFECT = 'kiwi-tray-lighten';
 const ICON_SAMPLE_SIZE = 24;
-const ICON_SATURATION_MAX = 0.15; // above this the icon carries real colour
-const ICON_LUMINANCE_MIN = 0.6;   // below this it is already dark enough
+const ICON_SATURATION_MAX = 0.15;    // above this the icon carries real colour
+const ICON_LUMINANCE_MIN = 0.6;      // above this the icon counts as light
+const ICON_LUMINANCE_MAX_DARK = 0.4; // below this it counts as dark
 
 // Blur state
 let blurEffect = null;
@@ -233,9 +232,11 @@ function updateBlurVisibility(visible) {
 }
 
 // --- Adaptive foreground helpers ---
-// A nearly transparent panel shows the wallpaper, so white text on a light
-// wallpaper is unreadable. Sample the strip of the wallpaper that sits behind
-// the panel and flip the foreground to dark when that strip is light.
+// What sits behind the panel foreground is the panel's own background painted at
+// the current opacity over the wallpaper. Measure both, blend them, and force
+// the foreground the other way. Neither direction can be left to the theme: a
+// dark theme keeps white text over a light wallpaper, and a light one (the Light
+// Style extension) keeps dark text over a dark wallpaper.
 
 function _wallpaperPath() {
     if (!bgSettings) return null;
@@ -249,7 +250,7 @@ function _wallpaperPath() {
 function updateWallpaperLightness() {
     const path = _wallpaperPath();
     if (!path) {
-        wallpaperIsLight = false;
+        wallpaperLuminance = 0;
         return;
     }
 
@@ -270,17 +271,18 @@ function updateWallpaperLightness() {
                 sum += (0.2126 * pixels[i] + 0.7152 * pixels[i + 1] + 0.0722 * pixels[i + 2]) / 255;
             }
         }
-        wallpaperIsLight = (sum / (rows * width)) > LIGHT_THRESHOLD;
+        wallpaperLuminance = sum / (rows * width);
     } catch (_e) {
         // XML slideshows and unreadable files: keep the theme foreground
-        wallpaperIsLight = false;
+        wallpaperLuminance = 0;
     }
 }
 
 // Tray icons come from apps as raster images, so CSS can't recolour them.
-// Brightness -1 maps every pixel to black and leaves alpha alone, which turns a
-// white monochrome icon dark. A coloured icon would just become a dark blob, so
-// only icons that measure as monochrome and light get the effect.
+// Brightness -1 maps every pixel to black and +1 to white, both leaving alpha
+// alone, so a monochrome icon can be pushed either way. A coloured icon would
+// just become a blob, so only icons that measure as monochrome get an effect.
+// Returns 'light', 'dark' or null when the icon must be left alone.
 function _measureIcon(pixbuf) {
     const pixels = pixbuf.get_pixels();
     const stride = pixbuf.get_rowstride();
@@ -306,13 +308,16 @@ function _measureIcon(pixbuf) {
         }
     }
 
-    if (!count) return false;
-    return (saturation / count) < ICON_SATURATION_MAX &&
-           (luminance / count) > ICON_LUMINANCE_MIN;
+    if (!count || (saturation / count) >= ICON_SATURATION_MAX) return null;
+
+    const mean = luminance / count;
+    if (mean > ICON_LUMINANCE_MIN) return 'light';
+    if (mean < ICON_LUMINANCE_MAX_DARK) return 'dark';
+    return null; // mid grey: pushing it either way is a coin flip
 }
 
-function _shouldInvertIcon(gicon) {
-    if (!gicon) return false;
+function _iconTone(gicon) {
+    if (!gicon) return null;
 
     // AppIndicator wraps file icons in an EmblemedIcon that deliberately breaks
     // to_string(); the inner icon resolves and keys the cache properly.
@@ -323,20 +328,20 @@ function _shouldInvertIcon(gicon) {
     if (key && monochromeIcons.has(key))
         return monochromeIcons.get(key);
 
-    let invert = false;
+    let tone = null;
     try {
         const info = iconTheme.lookup_by_gicon(gicon, ICON_SAMPLE_SIZE, St.IconLookupFlags.FORCE_SIZE);
         const pixbuf = info?.load_icon();
-        // Without an alpha channel the icon is a solid rectangle — inverting it
-        // would produce exactly the dark patch this check exists to avoid.
+        // Without an alpha channel the icon is a solid rectangle — recolouring
+        // it would produce exactly the flat patch this check exists to avoid.
         if (pixbuf?.get_has_alpha())
-            invert = _measureIcon(pixbuf);
+            tone = _measureIcon(pixbuf);
     } catch (_e) {
         // Unresolvable icon: leave it alone
     }
 
-    if (key) monochromeIcons.set(key, invert);
-    return invert;
+    if (key) monochromeIcons.set(key, tone);
+    return tone;
 }
 
 // Indicators that publish IconPixmap over D-Bus instead of an icon name (the
@@ -346,22 +351,22 @@ function _shouldInvertIcon(gicon) {
 // back and measured with the same test — AppIndicator itself loads it this way
 // to build emblems. A new St.ImageContent is created for every pixmap update,
 // so keying the cache on the object both caches and invalidates itself.
-function _shouldInvertContent(content) {
+function _contentTone(content) {
     if (contentIcons.has(content))
         return contentIcons.get(content);
 
-    let invert = false;
+    let tone = null;
     try {
         const [stream] = content.load(ICON_SAMPLE_SIZE, null);
         const pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, null);
         if (pixbuf?.get_has_alpha())
-            invert = _measureIcon(pixbuf);
+            tone = _measureIcon(pixbuf);
     } catch (_e) {
         // Unreadable content: leave it alone
     }
 
-    contentIcons.set(content, invert);
-    return invert;
+    contentIcons.set(content, tone);
+    return tone;
 }
 
 function _trayIcons() {
@@ -379,36 +384,67 @@ function _trayIcons() {
     return icons;
 }
 
-function updateTrayIconInversion(enabled) {
+// mode is 'darken' on a light background, 'lighten' on a dark one, or null to
+// leave every icon as its app painted it.
+function updateTrayIconInversion(mode) {
     for (const icon of _trayIcons()) {
-        const applied = icon.get_effect(INVERT_EFFECT) !== null;
         // An icon painted from a D-Bus pixmap carries its image in `content`,
         // and the gicon left over from an earlier update may not match it, so
         // measure whichever of the two is the image actually on screen.
-        const invert = enabled && (icon.content
-            ? _shouldInvertContent(icon.content)
-            : _shouldInvertIcon(icon.gicon));
-        if (invert && !applied) {
-            const effect = new Clutter.BrightnessContrastEffect({ name: INVERT_EFFECT });
-            effect.set_brightness(-1.0);
+        const tone = mode ? (icon.content
+            ? _contentTone(icon.content)
+            : _iconTone(icon.gicon)) : null;
+
+        // Only push an icon away from the background it sits on.
+        const wanted = (mode === 'darken' && tone === 'light') ? DARKEN_EFFECT
+            : (mode === 'lighten' && tone === 'dark') ? LIGHTEN_EFFECT
+            : null;
+
+        for (const name of [DARKEN_EFFECT, LIGHTEN_EFFECT]) {
+            if (name !== wanted && icon.get_effect(name))
+                icon.remove_effect_by_name(name);
+        }
+
+        if (wanted && !icon.get_effect(wanted)) {
+            const effect = new Clutter.BrightnessContrastEffect({ name: wanted });
+            effect.set_brightness(wanted === DARKEN_EFFECT ? -1.0 : 1.0);
             icon.add_effect(effect);
-        } else if (!invert && applied) {
-            icon.remove_effect_by_name(INVERT_EFFECT);
         }
     }
 }
 
-function updateForegroundContrast(opacity) {
-    const panel = Main.panel;
-    const dark = wallpaperIsLight && opacity < ADAPTIVE_OPACITY_MAX;
+// St hands out Cogl.Color, whose components are 0..255 bytes.
+function _luminance(color) {
+    return (0.2126 * color.red + 0.7152 * color.green + 0.0722 * color.blue) / 255;
+}
 
-    if (dark)
-        panel.add_style_class_name('kiwi-panel-dark-text');
-    else
-        panel.remove_style_class_name('kiwi-panel-dark-text');
+function _panelLuminance() {
+    return _luminance(Main.panel.get_theme_node().get_background_color());
+}
+
+// In the overview the panel paints nothing and the shell theme styles its own
+// foreground for the overview backdrop, so hand it back untouched.
+function clearForegroundContrast() {
+    const panel = Main.panel;
+    panel.remove_style_class_name('kiwi-panel-dark-text');
+    panel.remove_style_class_name('kiwi-panel-light-text');
+    updateTrayIconInversion(null);
+}
+
+function updateForegroundContrast(opacity, panelLuminance = _panelLuminance()) {
+    const panel = Main.panel;
+    const behind = opacity * panelLuminance + (1 - opacity) * wallpaperLuminance;
+    const dark = behind > LIGHT_THRESHOLD;
+
+    // Both directions need forcing: a light shell theme paints the panel text
+    // dark, which disappears once a transparent panel exposes a dark wallpaper.
+    panel.remove_style_class_name(dark ? 'kiwi-panel-light-text' : 'kiwi-panel-dark-text');
+    panel.add_style_class_name(dark ? 'kiwi-panel-dark-text' : 'kiwi-panel-light-text');
 
     // Indicators that appear later are picked up by the periodic safety check.
-    updateTrayIconInversion(dark && settings?.get_boolean('panel-invert-tray-icons'));
+    updateTrayIconInversion(settings?.get_boolean('panel-invert-tray-icons')
+        ? (dark ? 'darken' : 'lighten')
+        : null);
 }
 
 // Panel color fix helper
@@ -488,7 +524,7 @@ function updatePanelStyle(alpha = null) {
         if (Main.overview.visible) {
             panel.set_style('background-color: transparent !important;');
             updateBlurVisibility(false);
-            updateForegroundContrast(1.0);
+            clearForegroundContrast();
             panel.queue_redraw();
             return;
         }
@@ -513,11 +549,7 @@ function updatePanelStyle(alpha = null) {
         // Get theme colors for non-fullscreen states
         const themeNode = panel.get_theme_node();
         const backgroundColor = themeNode.get_background_color();
-        const [r, g, b] = [
-            Math.floor(backgroundColor.red * 255),
-            Math.floor(backgroundColor.green * 255),
-            Math.floor(backgroundColor.blue * 255)
-        ];
+        const [r, g, b] = [backgroundColor.red, backgroundColor.green, backgroundColor.blue];
 
         if (alpha !== null) {
             lastForcedAlpha = alpha;
@@ -528,7 +560,7 @@ function updatePanelStyle(alpha = null) {
         // Show/hide blur regardless of whether style string changed
         const blurEnabled = settings?.get_boolean('panel-blur');
         updateBlurVisibility(blurEnabled && opacity < 1.0);
-        updateForegroundContrast(opacity);
+        updateForegroundContrast(opacity, _luminance(backgroundColor));
 
         if (panel.get_style() !== newStyle) {
             panel.set_style(newStyle);
@@ -736,13 +768,8 @@ function setupSignals() {
             }),
             Main.overview.connect('hiding', () => {
                 const panel = Main.panel;
-                const themeNode = panel.get_theme_node();
-                const backgroundColor = themeNode.get_background_color();
-                const [r, g, b] = [
-                    Math.floor(backgroundColor.red * 255),
-                    Math.floor(backgroundColor.green * 255),
-                    Math.floor(backgroundColor.blue * 255)
-                ];
+                const backgroundColor = panel.get_theme_node().get_background_color();
+                const { red: r, green: g, blue: b } = backgroundColor;
                 panel.set_style(`background-color: rgba(${r}, ${g}, ${b}, 0) !important;`);
             }),
             Main.overview.connect('hidden', () => {
@@ -854,7 +881,7 @@ export function disable() {
     bgSignals.forEach(signal => bgSettings.disconnect(signal));
     bgSignals = [];
     bgSettings = null;
-    wallpaperIsLight = false;
+    wallpaperLuminance = 0;
     iconTheme = null;
     monochromeIcons.clear();
     contentIcons = new WeakMap();
@@ -866,8 +893,7 @@ export function disable() {
     const panel = Main.panel;
     panel.remove_style_class_name('kiwi-panel-fullscreen');
     panel.remove_style_class_name('kiwi-panel-color-inherit');
-    panel.remove_style_class_name('kiwi-panel-dark-text');
-    updateTrayIconInversion(false);
+    clearForegroundContrast();
     restorePanelStyle();
 
     settings = null;
