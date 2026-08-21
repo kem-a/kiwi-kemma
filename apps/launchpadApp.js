@@ -44,6 +44,7 @@ const APP_DBUS_INTERFACE_XML = `
     </interface>
 </node>`;
 
+let _enabled = false; // Guards repeated enable() calls
 let _busOwnerId = 0; // For custom Kiwi interface
 let _dbusExport = null;
 let _appBusOwnerId = 0; // For org.freedesktop.Application
@@ -253,11 +254,17 @@ function _teardownDbusService() {
 
 export function enable(extension, gettext) {
     gettextFunc = typeof gettext === 'function' ? gettext : (message) => message;
+    // extension.js re-runs this on any settings change; without a guard every pass
+    // re-registers two D-Bus names and rewrites the .desktop file. A custom-icon
+    // change is handled by disabling first, so that path still rewrites it.
+    if (_enabled)
+        return;
     if (!extension || !extension.dir) {
         console.error('Launchpad: Missing extension context');
         return;
     }
 
+    _enabled = true;
     _ensureDbusService();
 
     const desktopDir = GLib.build_filenamev([GLib.get_user_data_dir(), 'applications']);
@@ -332,6 +339,7 @@ export function enable(extension, gettext) {
 }
 
 export function disable() {
+    _enabled = false;
     try {
         const shellSettings = new Gio.Settings({ schema_id: 'org.gnome.shell' });
         const favorites = shellSettings.get_strv('favorite-apps');

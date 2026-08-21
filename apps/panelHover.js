@@ -431,6 +431,11 @@ function _onOverviewHidden() {
 }
 
 export function enable() {
+    // extension.js re-runs this on any settings change, and the reset below is a
+    // full teardown: dropping the chrome recomputes the input region and every
+    // window on the system gets re-connected. Only pay that when not already up.
+    if (_enabled)
+        return;
     disable(); // Clean reset
     _enabled = true;
     _originalTrackFullscreen = null; // Reset for fresh start
