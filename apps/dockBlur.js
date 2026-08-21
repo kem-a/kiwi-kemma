@@ -121,7 +121,7 @@ function _tryBlurDock(dockContainer) {
 
     // Force throttled blur repaints when content above the blur repaints
     // (button hover, icon shadows) — fixes lingering squared artifacts.
-    connectPaintSignal(blurWidget, () => blurEffect);
+    connectPaintSignal(blurWidget, _scheduleBlurRepaint);
 
     // Border overlay matching the dash-background pill shape
     const themeNode = dashBackground.get_theme_node();

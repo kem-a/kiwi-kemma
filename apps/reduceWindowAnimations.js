@@ -19,27 +19,31 @@ export function enable() {
 
     _origShouldAnimateActor = Main.wm._shouldAnimateActor;
 
-    // _shouldAnimateActor() is called synchronously by _mapWindow()/_destroyWindow()
-    // right before actor.ease(). The 'map'/'destroy' signal handlers are bound at
-    // shell startup, so reassigning _mapWindow/_destroyWindow would not intercept
-    // them; reassigning this dynamically-dispatched helper does. We keep GNOME's
-    // own onStopped completion callback intact and only rewrite the ease params.
+    // _shouldAnimateActor() is the last hook before actor.ease(). The
+    // 'map'/'destroy' handlers are bound at shell startup, so reassigning
+    // _mapWindow/_destroyWindow would not intercept them; reassigning this
+    // dynamically-dispatched helper does. We keep GNOME's own onStopped
+    // completion callback intact and only rewrite the ease params.
     Main.wm._shouldAnimateActor = function (actor, types) {
         const shouldAnimate = _origShouldAnimateActor.call(this, actor, types);
-        if (!shouldAnimate)
-            return false;
-
-        const stack = new Error().stack;
-        const forOpening = stack.includes('_mapWindow@');
-        const forClosing = stack.includes('_destroyWindow@');
-        // Leave minimize and size-change (maximize/fullscreen) animations alone.
-        if (!forOpening && !forClosing)
+        if (!shouldAnimate || actor._kiwiEasePatched)
             return shouldAnimate;
 
-        // One-shot replacement of ease(): _mapWindow/_destroyWindow calls it next.
+        // One-shot replacement of ease(): the caller calls it next. Which
+        // animation we are in is only decided there — _mapWindow/_destroyWindow
+        // register the actor in wm._mapping/_destroying between this call and
+        // theirs, so a Set lookup replaces sniffing the caller off a stack.
+        actor._kiwiEasePatched = true;
         const origEase = actor.ease;
         actor.ease = function (params) {
             actor.ease = origEase;
+            actor._kiwiEasePatched = false;
+
+            const forOpening = Main.wm._mapping.has(actor);
+            const forClosing = Main.wm._destroying.has(actor);
+            // Leave minimize and size-change (maximize/fullscreen) animations alone.
+            if (!forOpening && !forClosing)
+                return origEase.call(this, params);
 
             actor.set_pivot_point(0.5, 0.5);
 

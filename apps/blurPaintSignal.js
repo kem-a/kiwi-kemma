@@ -20,15 +20,17 @@ export const BlurPaintSignal = GObject.registerClass({
     }
 });
 
-// Connects the paint-signal hack: queues a repaint of blurEffect whenever
-// actor paints, throttled so the repaint itself doesn't loop forever.
-export function connectPaintSignal(actor, getBlurEffect) {
+// Connects the paint-signal hack: asks for a blur repaint whenever actor
+// paints, throttled so the repaint itself doesn't loop forever. requestRepaint
+// is the caller's coalescing scheduler, so a frame that a geometry or overview
+// signal already asked to repaint doesn't get a second queue_repaint() here.
+export function connectPaintSignal(actor, requestRepaint) {
     const paintSignal = new BlurPaintSignal();
     let counter = 0;
     paintSignal.connect('update-blur', () => {
         if (counter === 0) {
             counter = 2;
-            try { getBlurEffect()?.queue_repaint(); } catch (_) {}
+            requestRepaint();
         } else {
             counter--;
         }

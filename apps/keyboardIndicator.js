@@ -37,6 +37,25 @@ function _onInputSourceChanged() {
     _updateLabel();
 }
 
+// The indicator is torn down with the panel (shell shutdown, status area
+// rebuild). Its label is destroyed with it, and the destroy handler below
+// schedules an idle refresh — which then walked an already-disposed indicator.
+// Drop every reference and the pending idle while the object is still alive.
+function _onIndicatorDestroyed() {
+    if (!_state)
+        return;
+    if (_state.idleId) {
+        GLib.Source.remove(_state.idleId);
+        _state.idleId = 0;
+    }
+    _state.indicator = null;
+    _state.indicatorDestroyId = 0;
+    _state.visibilityChangedId = 0;
+    _state.label = null;
+    _state.labelChangedId = 0;
+    _state.labelDestroyId = 0;
+}
+
 function _getIndicator() {
     const sa = Main.panel?.statusArea;
     if (!sa)
@@ -255,6 +274,10 @@ function _disconnect() {
         _state.indicator.disconnect(_state.visibilityChangedId);
         _state.visibilityChangedId = 0;
     }
+    if (_state?.indicatorDestroyId && _state.indicator) {
+        _state.indicator.disconnect(_state.indicatorDestroyId);
+        _state.indicatorDestroyId = 0;
+    }
     if (_state?.idleId) {
         GLib.Source.remove(_state.idleId);
         _state.idleId = 0;
@@ -278,7 +301,9 @@ export function enable(settings) {
         shellVisible: indicator.visible,
         updatingVisibility: false,
         idleId: 0,
+        indicatorDestroyId: 0,
     };
+    _state.indicatorDestroyId = indicator.connect('destroy', _onIndicatorDestroyed);
     _ensureLabelRef();
     _connect();
     _syncIndicatorState();

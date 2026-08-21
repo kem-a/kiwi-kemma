@@ -85,7 +85,7 @@ function createBlurEffect() {
     // Force throttled blur repaints when content above the blur repaints
     // (panel button hover, shadows) — fixes lingering squared artifacts
     // (GNOME Shell #2857).
-    connectPaintSignal(blurWidget, () => blurEffect);
+    connectPaintSignal(blurWidget, _scheduleBlurRepaint);
 
     blurBackgroundGroup.insert_child_at_index(blurWidget, 0);
     panelBox.insert_child_at_index(blurBackgroundGroup, 0);

@@ -70,6 +70,12 @@ function setupNotificationIndicator() {
     });
     applyIndicatorStyle(initialStyle);
 
+    // The icon goes into a panel container we don't own; if that is torn down
+    // the icon goes with it and the 5 s poll would touch a disposed object.
+    notificationIndicator.connect('destroy', () => {
+        notificationIndicator = null;
+    });
+
     // Add small delay to ensure all other indicators are added first
     indicatorInsertTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
         indicatorInsertTimeoutId = null; // clear reference on fire
@@ -129,22 +135,44 @@ function cleanupNotificationIndicator() {
     notificationIndicatorParent = null;
 }
 
+// Sources come and go over a session. Following them keeps the indicator live
+// for sources created after us, and drops each source's handles while it is
+// still alive — a source is disposed right after 'source-removed', so handles
+// kept until disable() were being disconnected from a dead object.
+function connectSource(source) {
+    const addedId = source.connect('notification-added', () => updateNotificationIndicator());
+    notificationSignals.push({ obj: source, id: addedId });
+    const removedId = source.connect('notification-removed', () => updateNotificationIndicator());
+    notificationSignals.push({ obj: source, id: removedId });
+}
+
+function disconnectSource(source) {
+    notificationSignals = notificationSignals.filter(signal => {
+        if (signal.obj !== source)
+            return true;
+        source.disconnect(signal.id);
+        return false;
+    });
+}
+
 function connectNotificationSignals() {
     notificationSignals = [];
     // Monitor message tray sources for new notifications
     if (Main.messageTray) {
-        const sourceAddedId = Main.messageTray.connect('source-added', () => updateNotificationIndicator());
+        const sourceAddedId = Main.messageTray.connect('source-added', (_tray, source) => {
+            connectSource(source);
+            updateNotificationIndicator();
+        });
         notificationSignals.push({ obj: Main.messageTray, id: sourceAddedId });
 
-        const sourceRemovedId = Main.messageTray.connect('source-removed', () => updateNotificationIndicator());
+        const sourceRemovedId = Main.messageTray.connect('source-removed', (_tray, source) => {
+            disconnectSource(source);
+            updateNotificationIndicator();
+        });
         notificationSignals.push({ obj: Main.messageTray, id: sourceRemovedId });
 
-        for (let source of Main.messageTray._sources.values()) {
-            const notificationAddedId = source.connect('notification-added', () => updateNotificationIndicator());
-            notificationSignals.push({ obj: source, id: notificationAddedId });
-            const notificationRemovedId = source.connect('notification-removed', () => updateNotificationIndicator());
-            notificationSignals.push({ obj: source, id: notificationRemovedId });
-        }
+        for (const source of Main.messageTray._sources.values())
+            connectSource(source);
     }
 
     // Fallback periodic check
