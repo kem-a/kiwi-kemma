@@ -46,6 +46,7 @@ import { enable as dockStylingEnable, disable as dockStylingDisable } from './ap
 import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } from './apps/minimizedToDock.js';
 import { enable as downloadsStackEnable, disable as downloadsStackDisable } from './apps/downloadsStack.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
+import { setHideMediaIndicator } from './apps/quickSettingsMedia.js';
 import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
 
 export default class KiwiExtension extends Extension {
@@ -193,6 +194,9 @@ export default class KiwiExtension extends Extension {
         } else {
             hideActivitiesButtonDisable();
         }
+
+        const hideMediaIndicator = this._settings.get_boolean('hide-media-indicator');
+        setHideMediaIndicator(hideMediaIndicator);
 
         if (this._settings.get_boolean('overview-wallpaper-background')) {
             overviewWallpaperEnable(this._settings);

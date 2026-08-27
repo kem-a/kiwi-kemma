@@ -21,6 +21,7 @@ let quickSettingsGrid = null;
 let _initTimeoutId = null;
 let mediaIndicator = null;
 let gettextFunc = (message) => message;
+let hideMediaIndicator = false;
 
 // Get QuickSettings grid
 function getQuickSettingsGrid() {
@@ -30,6 +31,21 @@ function getQuickSettingsGrid() {
             quickSettingsGrid = quickSettings.menu._grid;
     }
     return quickSettingsGrid;
+}
+
+export function setHideMediaIndicator(enabled) {
+    if (!mediaIndicator)
+        return;
+
+    hideMediaIndicator = enabled;
+
+    if (hideMediaIndicator) {
+        mediaIndicator.visible = false;
+    }
+
+    if (mediaWidget) {
+        mediaWidget._refreshIndicator();
+    }
 }
 
 function ensureMediaIndicator() {
@@ -63,7 +79,7 @@ function updateMediaIndicator({ hasPlayers, isPlaying }) {
     }
 
     const indicator = ensureMediaIndicator();
-    if (!indicator)
+    if (!indicator || hideMediaIndicator)
         return;
 
     indicator.visible = true;
