@@ -67,3 +67,20 @@ menuitem:focus,
   background-color: var(--accent-bg-color, #3584e4);
   color: var(--accent-fg-color, #ffffff);
 }
+
+/* Dropdown selectors (GtkDropDown, GtkComboBox, AdwComboRow) put a listview in a
+   popover.menu, so their items are rows and none of the rules above reach them.
+   Adwaita gives those rows 9px vertical padding, taller than the 32px menu items
+   next to them; 6px lines the two up. */
+popover.menu scrolledwindow > listview > row {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+/* :selected marks the current value and keeps Adwaita's checkmark-only look, so
+   only the pointer states get the accent. */
+popover.menu listview > row:hover,
+popover.menu listview > row:active {
+  background-color: var(--accent-bg-color, #3584e4);
+  color: var(--accent-fg-color, #ffffff);
+}
