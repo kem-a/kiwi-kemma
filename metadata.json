@@ -3,13 +3,16 @@
   "name": "Kiwi (is not Apple)",
   "settings-schema": "org.gnome.shell.extensions.kiwi",
   "shell-version": [
+    "46",
+    "47",
     "48",
     "49",
-    "50"
+    "50",
+    "51"
   ],
   "url": "https://github.com/kem-a/kiwi-kemma",
   "uuid": "kiwi@kemma",
-  "version-name": "1.9.9",
+  "version-name": "2.0.0",
   "donations": {
     "kofi": "arnisk",
     "github": "kem-a"

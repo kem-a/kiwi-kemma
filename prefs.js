@@ -59,6 +59,24 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
     }
 
+    // Dropdown row for a string-enum setting; values[] maps list position to key value.
+    _createEnumComboRow(settings, title, subtitle, key, values, labels) {
+        const row = new Adw.ComboRow({
+            title,
+            subtitle,
+            model: Gtk.StringList.new(labels),
+        });
+
+        const index = values.indexOf(settings.get_string(key));
+        row.selected = index < 0 ? 0 : index;
+
+        row.connect('notify::selected', (r) => {
+            settings.set_string(key, values[r.selected]);
+        });
+
+        return row;
+    }
+
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         window._settings = settings;
@@ -513,42 +531,15 @@ export default class KiwiPreferences extends ExtensionPreferences {
         calendarExpander.add_row(keepPanelRow);
         settings.bind('keep-notification-panel', keepPanelRow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
-        const indicatorStyleRow = new Adw.ActionRow({
-            title: _('Indicator Style'),
-            subtitle: _('Notification dot recolor'),
-        });
-
-        const indicatorStyleToggleGroup = new Adw.ToggleGroup({
-            homogeneous: true,
-            can_shrink: true,
-            valign: Gtk.Align.CENTER,
-        });
-        indicatorStyleToggleGroup.add_css_class('round');
-
-        const indicatorDefaultToggle = new Adw.Toggle({
-            label: _('Default'),
-            name: 'default',
-        });
-        const indicatorAccentToggle = new Adw.Toggle({
-            label: _('Accent'),
-            name: 'accent',
-        });
-        const indicatorSymbolicToggle = new Adw.Toggle({
-            label: _('Symbolic'),
-            name: 'symbolic',
-        });
-
-        indicatorStyleToggleGroup.add(indicatorDefaultToggle);
-        indicatorStyleToggleGroup.add(indicatorAccentToggle);
-        indicatorStyleToggleGroup.add(indicatorSymbolicToggle);
-        indicatorStyleToggleGroup.set_active_name(settings.get_string('notification-indicator-style'));
-
-        indicatorStyleRow.add_suffix(indicatorStyleToggleGroup);
+        const indicatorStyleRow = this._createEnumComboRow(
+            settings,
+            _('Indicator Style'),
+            _('Notification dot recolor'),
+            'notification-indicator-style',
+            ['default', 'accent', 'symbolic'],
+            [_('Default'), _('Accent'), _('Symbolic')]
+        );
         calendarExpander.add_row(indicatorStyleRow);
-
-        indicatorStyleToggleGroup.connect('notify::active-name', (g) => {
-            settings.set_string('notification-indicator-style', g.active_name);
-        });
 
         // Battery percentage clashes with GNOME's own top bar percentage, so
         // the row is greyed out while that setting is on
@@ -825,71 +816,25 @@ export default class KiwiPreferences extends ExtensionPreferences {
         syncButtonsExpansion();
         settings.connect('changed::enable-app-window-buttons', syncButtonsExpansion);
 
-        // Button Type toggle group with round style
-        const buttonTypeRow = new Adw.ActionRow({
-            title: _('Button Type'),
-            subtitle: _('Choose the button icon set'),
-        });
-
-        const buttonTypeToggleGroup = new Adw.ToggleGroup({
-            homogeneous: true,
-            can_shrink: true,
-            valign: Gtk.Align.CENTER,
-        });
-        buttonTypeToggleGroup.add_css_class('round');
-
-        const defaultToggle = new Adw.Toggle({
-            label: _('Default'),
-            name: 'titlebuttons',
-        });
-        const altToggle = new Adw.Toggle({
-            label: _('Alternative'),
-            name: 'titlebuttons-alt',
-        });
-
-        buttonTypeToggleGroup.add(defaultToggle);
-        buttonTypeToggleGroup.add(altToggle);
-        buttonTypeToggleGroup.set_active_name(settings.get_string('button-type'));
-
-        buttonTypeRow.add_suffix(buttonTypeToggleGroup);
+        const buttonTypeRow = this._createEnumComboRow(
+            settings,
+            _('Button Type'),
+            _('Choose the button icon set'),
+            'button-type',
+            ['titlebuttons', 'titlebuttons-alt'],
+            [_('Default'), _('Alternative')]
+        );
         buttonsExpander.add_row(buttonTypeRow);
 
-        buttonTypeToggleGroup.connect('notify::active-name', (group) => {
-            settings.set_string('button-type', group.active_name);
-        });
-
-        // Button Size toggle group with round style
-        const buttonSizeRow = new Adw.ActionRow({
-            title: _('Button Size'),
-            subtitle: _('Choose button size'),
-        });
-
-        const buttonSizeToggleGroup = new Adw.ToggleGroup({
-            homogeneous: true,
-            can_shrink: true,
-            valign: Gtk.Align.CENTER,
-        });
-        buttonSizeToggleGroup.add_css_class('round');
-
-        const smallToggle = new Adw.Toggle({
-            label: _('Small'),
-            name: 'small',
-        });
-        const normalToggle = new Adw.Toggle({
-            label: _('Normal'),
-            name: 'normal',
-        });
-
-        buttonSizeToggleGroup.add(smallToggle);
-        buttonSizeToggleGroup.add(normalToggle);
-        buttonSizeToggleGroup.set_active_name(settings.get_string('button-size'));
-
-        buttonSizeRow.add_suffix(buttonSizeToggleGroup);
+        const buttonSizeRow = this._createEnumComboRow(
+            settings,
+            _('Button Size'),
+            _('Choose button size'),
+            'button-size',
+            ['small', 'normal'],
+            [_('Small'), _('Normal')]
+        );
         buttonsExpander.add_row(buttonSizeRow);
-
-        buttonSizeToggleGroup.connect('notify::active-name', (group) => {
-            settings.set_string('button-size', group.active_name);
-        });
 
         // Firefox styling switch
         const firefoxStylingSwitch = new Adw.SwitchRow({
