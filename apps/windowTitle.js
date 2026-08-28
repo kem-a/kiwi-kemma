@@ -70,7 +70,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._box = new St.BoxLayout({style_class: 'panel-button'});
         
         this._icon = new St.Icon({
-            style_class: 'app-menu-icon',
+            style_class: 'app-menu-icon kiwi-window-title-icon',
             icon_size: 16,
         });
         this._icon.visible = this._settings.get_boolean('show-window-title-icon');

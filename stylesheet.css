@@ -4,32 +4,11 @@
 /*###############################################*/
 /*           Window Title Styling               */
 /*###############################################*/
-.window-title {
-  margin-left: 8px;
-  margin-right: 8px;
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.window-title.panel-button {
-  -natural-hpadding: 6px;
-  -minimum-hpadding: 6px;
-}
-
-.window-title:hover {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.window-title .app-menu-icon {
+/* The icon is styled the moment addToStatusArea maps it, which happens before
+   panelStyling adds its gate class, and St never re-renders a texture for a
+   later icon-style change. So the symbolic request lives on the icon itself. */
+.kiwi-window-title-icon {
   -st-icon-style: symbolic;
-  margin-right: 4px;
-}
-
-.window-title StLabel {
-  margin: 0 4px;
-  padding-left: 6px;
 }
 
 .app-menu-icon {
@@ -93,7 +72,6 @@
 }
 
 #panel.kiwi-panel-styled .panel-button .app-menu-icon {
-  -st-icon-style: symbolic;
   padding: 0 4px;
 }
 
@@ -141,8 +119,7 @@
 #panel.kiwi-panel-dark-text .panel-button:checked,
 #panel.kiwi-panel-dark-text .panel-button StLabel,
 #panel.kiwi-panel-dark-text .panel-button .clock,
-#panel.kiwi-panel-dark-text .panel-button .panel-status-menu-box StLabel,
-#panel.kiwi-panel-dark-text .window-title StLabel {
+#panel.kiwi-panel-dark-text .panel-button .panel-status-menu-box StLabel {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
@@ -200,8 +177,7 @@
 #panel.kiwi-panel-light-text .panel-button:checked,
 #panel.kiwi-panel-light-text .panel-button StLabel,
 #panel.kiwi-panel-light-text .panel-button .clock,
-#panel.kiwi-panel-light-text .panel-button .panel-status-menu-box StLabel,
-#panel.kiwi-panel-light-text .window-title StLabel {
+#panel.kiwi-panel-light-text .panel-button .panel-status-menu-box StLabel {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
@@ -258,8 +234,6 @@
   icon-shadow: none;
 }
 
-#panel.kiwi-panel-styled:overview .window-title,
-#panel.kiwi-panel-styled:overview .window-title StLabel,
 #panel.kiwi-panel-styled:overview Gjs_ui_panel_AppMenuButton.panel-button,
 #panel.kiwi-panel-styled:overview .desktop-name-label {
   font-weight: normal !important;
