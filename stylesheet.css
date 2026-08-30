@@ -516,6 +516,62 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   padding-bottom: 0 !important;
 }
 
+/* Adaptive colours - apps/dockColors.js picks the class from what the dock sits
+   on, .kiwi-dock-light for light content behind it. The pill stays dark either
+   way: over a white window it is the one thing holding the dock's edge. The dot
+   and separator do flip, against what shows through the pill rather than the
+   pill itself, which at this opacity is mostly what is behind it.
+
+   The separator is the one part Dash-to-Dock leaves to CSS in every
+   configuration; the pill and the running dot are here only for the case where
+   it leaves those to CSS too (transparency left at DEFAULT, indicator colours
+   not customized). Otherwise it paints them itself from the colour keys the
+   module writes. */
+#dashtodockContainer.kiwi-dock-light #dash .dash-separator {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+#dashtodockContainer.kiwi-dock-light #dash .dash-background {
+  background-color: rgb(56, 56, 59) !important;
+}
+
+#dashtodockContainer.kiwi-dock-light #dash .app-grid-running-dot {
+  background-color: rgb(28, 28, 28) !important;
+}
+
+#dashtodockContainer.kiwi-dock-dark #dash .dash-separator {
+  background-color: rgba(250, 250, 251, 0.3) !important;
+}
+
+#dashtodockContainer.kiwi-dock-dark #dash .dash-background {
+  background-color: rgb(56, 56, 59) !important;
+}
+
+#dashtodockContainer.kiwi-dock-dark #dash .app-grid-running-dot {
+  background-color: rgb(250, 250, 251) !important;
+}
+
+/* The only border the dock has - neither the shell theme nor Dash-to-Dock draws
+   one, and Dash-to-Dock has no setting for it. An inset shadow rather than a
+   border: Dash-to-Dock writes border-left and border-color inline on the pill
+   (theming.js _adjustTheme) and an inline style beats a stylesheet in St, but it
+   never touches box-shadow. Drawn by the pill itself, so it follows its rounding
+   and its geometry with no actor of its own to keep in step.
+
+   The first rule is the border on its own; the two below flip it with the
+   separator when adaptive colours are on. */
+#dashtodockContainer.kiwi-dock-styled #dash .dash-background {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+#dashtodockContainer.kiwi-dock-styled.kiwi-dock-light #dash .dash-background {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+#dashtodockContainer.kiwi-dock-styled.kiwi-dock-dark #dash .dash-background {
+  box-shadow: inset 0 0 0 1px rgba(250, 250, 251, 0.3);
+}
+
 /* Name tooltips: the shell theme keeps them near-black in a light session, so
    they follow the session's scheme here instead, and take the palette the
    downloads pills use so the two match. apps/dockStyling.js adds the classes -

@@ -176,6 +176,11 @@
         <summary>Dock Blur</summary>
         <description>Apply a blur effect behind the Dash-to-Dock background.</description>
       </key>
+      <key name="dock-adaptive-colors" type="b">
+        <default>false</default>
+        <summary>Dock Adaptive Colors</summary>
+        <description>Flip the Dash-to-Dock running indicators and separators between light and dark to suit whatever is behind the dock, wallpaper or window. Writes Dash-to-Dock's own colour settings and puts them back when switched off.</description>
+      </key>
 
       <!-- ========================================================= -->
       <!-- Buttons page                                              -->

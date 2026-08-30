@@ -43,6 +43,7 @@ import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable 
 import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './apps/launchpadApp.js';
 import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
 import { enable as dockStylingEnable, disable as dockStylingDisable } from './apps/dockStyling.js';
+import { enable as dockColorsEnable, disable as dockColorsDisable } from './apps/dockColors.js';
 import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } from './apps/minimizedToDock.js';
 import { enable as downloadsStackEnable, disable as downloadsStackDisable } from './apps/downloadsStack.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
@@ -236,6 +237,12 @@ export default class KiwiExtension extends Extension {
         else
             dockBlurDisable();
 
+        // Dock colors that follow the wallpaper behind the dock
+        if (this._settings.get_boolean('dock-adaptive-colors'))
+            dockColorsEnable();
+        else
+            dockColorsDisable();
+
         // Reduce window open/close animations (macOS-style scale + fade)
         if (this._settings.get_boolean('reduce-window-animations'))
             reduceWindowAnimationsEnable();
@@ -321,6 +328,7 @@ export default class KiwiExtension extends Extension {
         launchpadAppDisable();
         dockBlurDisable();
         dockStylingDisable();
+        dockColorsDisable();
         // The stack borrows the minimized strip and holds a signal on it, so it
         // has to let go before that strip is destroyed
         downloadsStackDisable();

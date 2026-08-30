@@ -775,6 +775,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         this._addSwitchRows(settings, dockStylingGroup, [
             { key: 'dock-styling', title: _("Dock Styling"), subtitle: _("Tighten icon spacing, drop the icon highlight and darken icons while pressed") },
             { key: 'dock-blur', title: _("Dock Blur"), subtitle: _("Blur the background behind Dash-to-Dock") },
+            { key: 'dock-adaptive-colors', title: _("Adaptive Dock Colors"), subtitle: _("Flip the running indicators and separators to suit whatever is behind the dock, wallpaper or window") },
         ]);
 
         //

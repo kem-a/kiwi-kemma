@@ -35,9 +35,24 @@ export function disconnectAll(pairs) {
 
 /* -------------------------------------------------------- dock discovery */
 
+/**
+ * A real dock, as opposed to the bare St.Bin of the same name that Dash-to-Dock
+ * parks in the uiGroup for a moment to read alphas off the theme
+ * (theming.js _getAlphas). That one is added and removed inside a single call,
+ * so it fires 'child-added' like a dock but never gets a dash - and, since it is
+ * only unparented and not destroyed, whoever took it for a dock keeps holding it.
+ * The slider is built before the dock reaches the uiGroup, so it tells them apart
+ * from the first signal.
+ *
+ * @param actor a Main.uiGroup child
+ */
+export function isDock(actor) {
+    return actor.name === CONTAINER_NAME && actor._slider !== undefined;
+}
+
 /** Dash-to-Dock adds one container per monitor to Main.uiGroup. */
 export function dockContainers() {
-    return Main.uiGroup.get_children().filter(child => child.name === CONTAINER_NAME);
+    return Main.uiGroup.get_children().filter(isDock);
 }
 
 /**
@@ -66,7 +81,7 @@ function isHorizontal(dash) {
  */
 export function watchDocks({ attach, count, globalSignals, sources }) {
     const uiGroupId = Main.uiGroup.connect('child-added', (_group, actor) => {
-        if (actor.name === CONTAINER_NAME)
+        if (isDock(actor))
             attach(actor);
     });
     globalSignals.push([Main.uiGroup, uiGroupId]);
@@ -120,6 +135,17 @@ export function makeDashSeparator(dash) {
 
 let d2dSettings;              // undefined until looked up, null without the dock
 
+/** Dash-to-Dock's own settings, or null when it is not installed. */
+export function dockSettings() {
+    if (d2dSettings === undefined) {
+        // A schema that is not installed aborts the shell rather than throwing
+        d2dSettings = Gio.SettingsSchemaSource.get_default()?.lookup(D2D_SCHEMA, true)
+            ? new Gio.Settings({ schema_id: D2D_SCHEMA })
+            : null;
+    }
+    return d2dSettings;
+}
+
 /**
  * Whether Dash-to-Dock is set to keep its tooltips to itself. It only asks the
  * question of its own app icons - the shell shows a label for any other dash
@@ -127,13 +153,7 @@ let d2dSettings;              // undefined until looked up, null without the doc
  * setting on their own.
  */
 function tooltipsHidden() {
-    if (d2dSettings === undefined) {
-        // A schema that is not installed aborts the shell rather than throwing
-        d2dSettings = Gio.SettingsSchemaSource.get_default()?.lookup(D2D_SCHEMA, true)
-            ? new Gio.Settings({ schema_id: D2D_SCHEMA })
-            : null;
-    }
-    return d2dSettings?.get_boolean('hide-tooltip') ?? false;
+    return dockSettings()?.get_boolean('hide-tooltip') ?? false;
 }
 
 /**
