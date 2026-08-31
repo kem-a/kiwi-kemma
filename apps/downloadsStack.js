@@ -647,6 +647,13 @@ function _closeFan() {
 }
 
 function _toggleFan(info) {
+    // The fan climbs off the top of the item, which only leaves room for it on a
+    // dock along the bottom edge. Anywhere else the item is a plain folder.
+    if (!_fansOut(info.dash)) {
+        _openUri(_downloadsFile().get_uri());
+        return;
+    }
+
     if (fan)
         _closeFan();
     else
@@ -654,6 +661,17 @@ function _toggleFan(info) {
 }
 
 /* ------------------------------------------------------------------ docks */
+
+/**
+ * Whether this dock can fan at all. The fan spreads up the screen out of the
+ * item, so it only has room on a dock along the bottom edge; on the other three
+ * the stack is a plain folder that opens Downloads.
+ *
+ * @param dash the Dash-to-Dock dash actor
+ */
+function _fansOut(dash) {
+    return dash._position === St.Side.BOTTOM;
+}
 
 /**
  * How the pile is laid out at a given dash icon size. Lying on the folder, cards
@@ -726,6 +744,15 @@ function _stackIcon(dash) {
         gicon: new Gio.ThemedIcon({ name: 'folder-download' }),
         icon_size: dash.iconSize,
     });
+
+    // No fan on this dock, so nothing for a pile to come out of: the item is
+    // the folder alone
+    if (!_fansOut(dash)) {
+        box.cards = [];
+        box.add_child(folder);
+        return box;
+    }
+
     // The bottom of the pile, and what is left of it once the cards have gone
     if (!behindFolder)
         box.add_child(folder);
