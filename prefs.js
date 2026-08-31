@@ -24,6 +24,16 @@ import Gtk from 'gi://Gtk';
 import GLib from 'gi://GLib';
 import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
+const D2D_UUIDS = ['dash-to-dock@micxgx.gmail.com', 'ubuntu-dock@ubuntu.com'];
+const EXTENSION_ACTIVE = 1;
+// The shell's own end of the extensions interface. Prefs runs in the process
+// that owns org.gnome.Shell.Extensions, so asking that name is asking ourselves.
+const SHELL = {
+    name: 'org.gnome.Shell',
+    path: '/org/gnome/Shell',
+    iface: 'org.gnome.Shell.Extensions',
+};
+
 export default class KiwiPreferences extends ExtensionPreferences {
     constructor(metadata) {
         super(metadata);
@@ -48,7 +58,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
     }
 
     _addSwitchRows(settings, group, items) {
-        items.forEach((item) => {
+        return items.map((item) => {
             const switchRow = new Adw.SwitchRow({
                 title: item.title,
                 subtitle: item.subtitle,
@@ -56,7 +66,32 @@ export default class KiwiPreferences extends ExtensionPreferences {
             });
             group.add(switchRow);
             settings.bind(item.key, switchRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+            return switchRow;
         });
+    }
+
+    /**
+     * Hand back whether Dash-to-Dock is installed and running. The question goes
+     * to the shell, and it is asked rather than waited for: a call of our own is
+     * what would answer it if it went to the name this process owns. An answer
+     * that never comes leaves the options alone rather than greying them out.
+     *
+     * @param callback called with true while the dock is there
+     */
+    _withDockActive(callback) {
+        Gio.DBus.session.call(
+            SHELL.name, SHELL.path, SHELL.iface, 'ListExtensions', null, null,
+            Gio.DBusCallFlags.NONE, -1, null, (bus, result) => {
+                let active = true;
+                try {
+                    const [extensions] = bus.call_finish(result).recursiveUnpack();
+                    active = D2D_UUIDS.some(uuid =>
+                        extensions[uuid]?.state === EXTENSION_ACTIVE);
+                } catch (e) {
+                    console.error('Kiwi: could not read the dock extension state:', e);
+                }
+                callback(active);
+            });
     }
 
     // Dropdown row for a string-enum setting; values[] maps list position to key value.
@@ -625,15 +660,26 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         window.add(dockPage);
 
+        // Everything here but the Launchpad app hangs off Dash-to-Dock, and does
+        // nothing at all while it is not there. Those rows are held shut rather
+        // than left looking as though they still do something.
+        const dockBanner = new Adw.Banner({
+            title: _("These options need the Dash to Dock extension installed and enabled"),
+        });
+        const dockBannerGroup = new Adw.PreferencesGroup();
+        dockBannerGroup.add(dockBanner);
+        dockPage.add(dockBannerGroup);
+        const dockRows = [];
+
         const dockGroup = new Adw.PreferencesGroup({
             title: _('Dock Items'),
             description: _('Add extra items to Dash-to-Dock'),
         });
         dockPage.add(dockGroup);
 
-        this._addSwitchRows(settings, dockGroup, [
+        dockRows.push(...this._addSwitchRows(settings, dockGroup, [
             { key: 'minimize-to-dock', title: _("Minimize Windows to Dock"), subtitle: _("Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash") },
-        ]);
+        ]));
 
         const downloadsExpander = new Adw.ExpanderRow({
             title: _("Downloads Folder in Dock"),
@@ -641,6 +687,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             show_enable_switch: true,
         });
         dockGroup.add(downloadsExpander);
+        dockRows.push(downloadsExpander);
         settings.bind('downloads-in-dock', downloadsExpander, 'enable-expansion',
             Gio.SettingsBindFlags.DEFAULT);
 
@@ -772,11 +819,27 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         dockPage.add(dockStylingGroup);
 
-        this._addSwitchRows(settings, dockStylingGroup, [
+        dockRows.push(...this._addSwitchRows(settings, dockStylingGroup, [
             { key: 'dock-styling', title: _("Dock Styling"), subtitle: _("Tighten icon spacing, drop the icon highlight and darken icons while pressed") },
             { key: 'dock-blur', title: _("Dock Blur"), subtitle: _("Blur the background behind Dash-to-Dock. Recommended fixed dock opacity 10% - 30%, min 1%.") },
             { key: 'dock-adaptive-colors', title: _("Adaptive Dock Colors"), subtitle: _("Flip the running indicators and separators to suit whatever is behind the dock, wallpaper or window") },
-        ]);
+        ]));
+
+        // The dock can be installed or turned on while this window is open
+        const syncDockRows = () => this._withDockActive((active) => {
+            dockBanner.revealed = !active;
+            dockRows.forEach(row => (row.sensitive = active));
+        });
+        syncDockRows();
+
+        const dockStateId = Gio.DBus.session.signal_subscribe(
+            SHELL.name, SHELL.iface, 'ExtensionStateChanged',
+            SHELL.path, null, Gio.DBusSignalFlags.NONE,
+            (_conn, _sender, _path, _iface, _signal, params) => {
+                if (D2D_UUIDS.includes(params.deepUnpack()[0]))
+                    syncDockRows();
+            });
+        window.connect('close-request', () => Gio.DBus.session.signal_unsubscribe(dockStateId));
 
         //
         // Window Controls Page

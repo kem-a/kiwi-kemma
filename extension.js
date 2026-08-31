@@ -17,6 +17,7 @@
  */
 
 import Gio from 'gi://Gio';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { enable as addUsernameEnable, disable as addUsernameDisable } from './apps/addUsernameToQuickMenu.js';
 import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from './apps/moveFullscreenWindow.js';
@@ -48,7 +49,7 @@ import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } fr
 import { enable as downloadsStackEnable, disable as downloadsStackDisable } from './apps/downloadsStack.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
 import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
-import { dockInstalled } from './apps/dockUtils.js';
+import { dockActive, isDockExtension } from './apps/dockUtils.js';
 
 export default class KiwiExtension extends Extension {
     _on_settings_changed(key) {
@@ -169,9 +170,9 @@ export default class KiwiExtension extends Extension {
             popupStylingDisable();
         }
 
-        // Everything below that hangs off Dash-to-Dock stays off without it,
-        // rather than reaching for a dock that is never going to turn up
-        const hasDock = dockInstalled();
+        // Everything below that hangs off Dash-to-Dock stays off while it is not
+        // running, rather than reaching for a dock that is never going to turn up
+        const hasDock = dockActive();
         const minimizeToDock = hasDock && this._settings.get_boolean('minimize-to-dock');
 
         // A window parked in the dock should not also show up in the overview
@@ -280,6 +281,14 @@ export default class KiwiExtension extends Extension {
         this._interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
         this._batteryPercentageChangedId = this._interfaceSettings.connect('changed::show-battery-percentage',
             () => this._applyBatteryPercentage());
+
+        // The dock is a separate extension the user can turn on and off under
+        // us, and the dock features follow it either way
+        this._dockStateChangedId = Main.extensionManager.connect('extension-state-changed',
+            (_manager, extension) => {
+                if (isDockExtension(extension))
+                    this._on_settings_changed(null);
+            });
         
         // Enable GTK theme manager
         gtkThemeManagerEnable(this);
@@ -304,6 +313,10 @@ export default class KiwiExtension extends Extension {
         if (this._batteryPercentageChangedId) {
             this._interfaceSettings.disconnect(this._batteryPercentageChangedId);
             this._batteryPercentageChangedId = null;
+        }
+        if (this._dockStateChangedId) {
+            Main.extensionManager.disconnect(this._dockStateChangedId);
+            this._dockStateChangedId = null;
         }
         this._interfaceSettings = null;
         moveFullscreenDisable();

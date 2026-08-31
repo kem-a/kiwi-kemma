@@ -10,6 +10,7 @@ import GLib from 'gi://GLib';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { DashItemContainer } from 'resource:///org/gnome/shell/ui/dash.js';
+import { ExtensionState } from 'resource:///org/gnome/shell/misc/extensionUtils.js';
 
 const CONTAINER_NAME = 'dashtodockContainer';
 const D2D_SCHEMA = 'org.gnome.shell.extensions.dash-to-dock';
@@ -168,9 +169,17 @@ export function dockSettings() {
     return d2dSettings;
 }
 
-/** Nothing that hangs off the dock has anywhere to go without it. */
-export function dockInstalled() {
-    return dockSettings() !== null;
+/**
+ * Nothing that hangs off the dock has anywhere to go while the dock is not
+ * running - it is no different to it not being installed at all.
+ */
+export function dockActive() {
+    return D2D_UUIDS.some(uuid =>
+        Main.extensionManager.lookup(uuid)?.state === ExtensionState.ACTIVE);
+}
+
+export function isDockExtension(extension) {
+    return D2D_UUIDS.includes(extension.uuid);
 }
 
 /**
