@@ -8,6 +8,7 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 import { AppMenu } from 'resource:///org/gnome/shell/ui/appMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
@@ -18,6 +19,12 @@ let indicator = null;
 let _extension = null;
 
 const ACCEL_OPACITY = 110; // 0-255. CSS opacity is not applied here; set it on the actor.
+
+// GNOME 51 replaced PopupMenu.close()'s PopupAnimation bitmask with a parameters
+// object. The bitmask has no object spelling for the animation used up to 50, so
+// 51 gets the closest one: the same slide, with a fade added.
+const MENU_CLOSE_ARGS = parseInt(Config.PACKAGE_VERSION) >= 51
+    ? { animate: true } : true;
 
 // Kiwi's own entries in the app menu, in the order they are added.
 const KIWI_MENU_ITEMS = [
@@ -324,7 +331,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this.reactive = false;
         if (resetMenu && this._menu) {
             if (this.menu && this.menu.isOpen)
-                this.menu.close(true);
+                this.menu.close(MENU_CLOSE_ARGS);
             this._menu.setApp(null);
         }
         this.hide();

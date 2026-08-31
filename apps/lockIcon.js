@@ -14,7 +14,12 @@ class LockIcon extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'Lock Indicator', false);
 
-        this.keymap = Clutter.get_default_backend().get_default_seat().get_keymap();
+        // GNOME 51 dropped Clutter.get_default_backend(); the backend is reached
+        // through the actor's context instead, which only exists from 47 on.
+        const backend = Clutter.get_default_backend
+            ? Clutter.get_default_backend()
+            : global.stage.get_context().get_backend();
+        this.keymap = backend.get_default_seat().get_keymap();
 
         // Get extension object for accessing icons
         const extensionObject = Main.extensionManager.lookup('kiwi@kemma');
