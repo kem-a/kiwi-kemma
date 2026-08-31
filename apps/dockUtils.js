@@ -168,6 +168,11 @@ export function dockSettings() {
     return d2dSettings;
 }
 
+/** Nothing that hangs off the dock has anywhere to go without it. */
+export function dockInstalled() {
+    return dockSettings() !== null;
+}
+
 /**
  * Whether Dash-to-Dock is set to keep its tooltips to itself. It only asks the
  * question of its own app icons - the shell shows a label for any other dash

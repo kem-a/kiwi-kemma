@@ -48,6 +48,7 @@ import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } fr
 import { enable as downloadsStackEnable, disable as downloadsStackDisable } from './apps/downloadsStack.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
 import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
+import { dockInstalled } from './apps/dockUtils.js';
 
 export default class KiwiExtension extends Extension {
     _on_settings_changed(key) {
@@ -168,7 +169,10 @@ export default class KiwiExtension extends Extension {
             popupStylingDisable();
         }
 
-        const minimizeToDock = this._settings.get_boolean('minimize-to-dock');
+        // Everything below that hangs off Dash-to-Dock stays off without it,
+        // rather than reaching for a dock that is never going to turn up
+        const hasDock = dockInstalled();
+        const minimizeToDock = hasDock && this._settings.get_boolean('minimize-to-dock');
 
         // A window parked in the dock should not also show up in the overview
         if (this._settings.get_boolean('hide-minimized-windows') || minimizeToDock) {
@@ -183,7 +187,7 @@ export default class KiwiExtension extends Extension {
             minimizedToDockDisable();
         }
 
-        if (this._settings.get_boolean('downloads-in-dock')) {
+        if (hasDock && this._settings.get_boolean('downloads-in-dock')) {
             downloadsStackEnable(gettextFunc, this._settings);
         } else {
             downloadsStackDisable();
@@ -226,19 +230,19 @@ export default class KiwiExtension extends Extension {
             keyboardIndicatorDisable();
 
         // Dock styling
-        if (this._settings.get_boolean('dock-styling'))
+        if (hasDock && this._settings.get_boolean('dock-styling'))
             dockStylingEnable();
         else
             dockStylingDisable();
 
         // Dock blur
-        if (this._settings.get_boolean('dock-blur'))
+        if (hasDock && this._settings.get_boolean('dock-blur'))
             dockBlurEnable();
         else
             dockBlurDisable();
 
         // Dock colors that follow the wallpaper behind the dock
-        if (this._settings.get_boolean('dock-adaptive-colors'))
+        if (hasDock && this._settings.get_boolean('dock-adaptive-colors'))
             dockColorsEnable();
         else
             dockColorsDisable();

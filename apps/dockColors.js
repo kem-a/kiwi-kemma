@@ -410,7 +410,8 @@ export function disable() {
     }
     docks = [];
 
-    for (const [key, value] of Object.entries(savedColors))
+    // Nothing was saved when enable() never got as far as taking the dock over
+    for (const [key, value] of Object.entries(savedColors ?? {}))
         d2d.set_string(key, value);
     savedColors = null;
 
