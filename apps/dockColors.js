@@ -389,8 +389,6 @@ export function enable() {
 }
 
 export function disable() {
-    if (!enabled)
-        return;
     enabled = false;
 
     for (const id of [settleId, sources.dockSearch]) {
