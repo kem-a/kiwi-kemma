@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Flips the dock's own colours with whatever is behind it - the light set over
-// light content, the dark set over dark - the way panelTransparency.js flips the
-// top panel foreground.
+// Flips the dock's indicator and separator with whatever is behind it - dark over
+// light content, light over dark - the way panelTransparency.js flips the top
+// panel foreground. The pill answers to the session's own scheme instead, near
+// white in a light one and near black in a dark one, and its border is left
+// always light so it reads as a glow off the pill either way.
 //
 // The wallpaper is not the answer here: a window passing under the dock is what
 // actually decides whether the dots and separators can be read, and a white
@@ -27,23 +29,33 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-import { dashOf, dockSettings, disconnectAll, watchDocks } from './dockUtils.js';
+import { dashOf, dockSettings, disconnectAll, prefersDark, watchDocks } from './dockUtils.js';
 
+// What is behind the dock, which the indicator and separator read against
 const LIGHT_CLASS = 'kiwi-dock-light';
 const DARK_CLASS = 'kiwi-dock-dark';
+// The session's own scheme, which the pill follows instead
+const SCHEME_LIGHT_CLASS = 'kiwi-dock-scheme-light';
+const SCHEME_DARK_CLASS = 'kiwi-dock-scheme-dark';
 
 // Only the colours. background-opacity and the indicator border keys stay the
 // user's, so the dock keeps the weight they gave it and only changes hue.
-const COLOR_KEYS = ['background-color', 'custom-theme-running-dots-color'];
+const DOT_KEY = 'custom-theme-running-dots-color';
+const PILL_KEY = 'background-color';
+const SAVED_KEYS = [DOT_KEY, PILL_KEY];
 
-// The pill stays dark either way - over a white window it is the one thing
-// holding the dock's edge, and going light there washed it out. The dots and
-// separators do flip: at the opacity Dash-to-Dock paints the pill, what shows
-// through it comes mostly from behind, so that is what they have to read against.
-const PALETTE = {
-    light: { 'background-color': 'rgb(56,56,59)', 'custom-theme-running-dots-color': 'rgb(28,28,28)' },
-    dark: { 'background-color': 'rgb(56,56,59)', 'custom-theme-running-dots-color': 'rgb(250,250,251)' },
-};
+// At the opacity Dash-to-Dock paints the pill, what shows through it comes
+// mostly from behind the dock - so that, not the pill, is what the indicator has
+// to read against.
+const DOT_COLOR = { light: 'rgb(28,28,28)', dark: 'rgb(250,250,251)' };
+
+// The pill answers to the session instead of its surroundings: light in a light
+// one, near black in a dark one. This is the value that shows in practice -
+// Dash-to-Dock composes the pill's inline style out of this key, and an inline
+// style beats a stylesheet in St, so the .dash-background rules in
+// stylesheet.css only get a look in when it leaves the pill to CSS. Keep the two
+// in step.
+const PILL_COLOR = { light: 'rgb(120,120,120)', dark: 'rgb(28,28,28)' };
 
 const BAND = 4;           // thickness of the sampled strip, logical pixels
 const GAP = 6;            // clearance from the dock edge for the fallback strip
@@ -65,7 +77,8 @@ let windowSignals = [];      // [object, id], torn down and rebuilt per workspac
 let sources = {};
 let savedColors = null;
 let docks = [];              // [{ container, destroyId }]
-let mode = null;             // 'light' | 'dark', once measured
+let mode = null;             // 'light' | 'dark' behind the dock, once measured
+let scheme = null;           // 'light' | 'dark' session
 let settleId = 0;
 let sampling = false;
 
@@ -238,8 +251,14 @@ function _repaintIndicators(actor) {
 }
 
 function _styleContainer(container) {
-    container.add_style_class_name(mode === 'light' ? LIGHT_CLASS : DARK_CLASS);
-    container.remove_style_class_name(mode === 'light' ? DARK_CLASS : LIGHT_CLASS);
+    if (mode) {
+        container.add_style_class_name(mode === 'light' ? LIGHT_CLASS : DARK_CLASS);
+        container.remove_style_class_name(mode === 'light' ? DARK_CLASS : LIGHT_CLASS);
+    }
+    if (scheme) {
+        container.add_style_class_name(scheme === 'light' ? SCHEME_LIGHT_CLASS : SCHEME_DARK_CLASS);
+        container.remove_style_class_name(scheme === 'light' ? SCHEME_DARK_CLASS : SCHEME_LIGHT_CLASS);
+    }
     _repaintIndicators(container);
 }
 
@@ -251,8 +270,17 @@ function _apply(luminance) {
         return;
 
     mode = wanted;
-    for (const key of COLOR_KEYS)
-        d2d.set_string(key, PALETTE[mode][key]);
+    d2d.set_string(DOT_KEY, DOT_COLOR[mode]);
+    docks.forEach(({ container }) => _styleContainer(container));
+}
+
+function _syncScheme() {
+    const wanted = prefersDark() ? 'dark' : 'light';
+    if (wanted === scheme)
+        return;
+
+    scheme = wanted;
+    d2d.set_string(PILL_KEY, PILL_COLOR[scheme]);
     docks.forEach(({ container }) => _styleContainer(container));
 }
 
@@ -268,8 +296,7 @@ function _attach(container) {
     });
     docks.push(entry);
 
-    if (mode)
-        _styleContainer(container);
+    _styleContainer(container);
     _schedule();
 }
 
@@ -320,7 +347,7 @@ export function enable() {
         return;
     enabled = true;
 
-    savedColors = Object.fromEntries(COLOR_KEYS.map(key => [key, d2d.get_string(key)]));
+    savedColors = Object.fromEntries(SAVED_KEYS.map(key => [key, d2d.get_string(key)]));
     screenshot = new Shell.Screenshot();
     bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
 
@@ -330,12 +357,17 @@ export function enable() {
         [Main.overview, 'hidden'],
         [bgSettings, 'changed::picture-uri'],
         [bgSettings, 'changed::picture-uri-dark'],
-        // A scheme change swaps which of those two wallpapers is shown without
-        // touching either key, and repaints every window besides
-        [St.Settings.get(), 'notify::color-scheme'],
         [d2d, 'changed::dock-position'],
     ])
         globalSignals.push([object, object.connect(signal, _schedule)]);
+
+    // The scheme moves the pill on its own, and swaps which of the two
+    // wallpapers is shown without touching either key - so it needs both.
+    const stSettings = St.Settings.get();
+    globalSignals.push([stSettings, stSettings.connect('notify::color-scheme', () => {
+        _syncScheme();
+        _schedule();
+    })]);
 
     // A new wallpaper is cross-faded in over its predecessor rather than swapped
     // for it, so the reading the key change asks for is still of the old one.
@@ -351,6 +383,7 @@ export function enable() {
         global.workspace_manager.connect('active-workspace-changed', _connectWindowSignals)]);
 
     _connectWindowSignals();
+    _syncScheme();
     watchDocks({ attach: _attach, count: () => docks.length, globalSignals, sources });
     _schedule();
 }
@@ -373,8 +406,8 @@ export function disable() {
 
     for (const { container, destroyId } of docks) {
         container.disconnect(destroyId);
-        container.remove_style_class_name(LIGHT_CLASS);
-        container.remove_style_class_name(DARK_CLASS);
+        for (const name of [LIGHT_CLASS, DARK_CLASS, SCHEME_LIGHT_CLASS, SCHEME_DARK_CLASS])
+            container.remove_style_class_name(name);
         _repaintIndicators(container);
     }
     docks = [];
@@ -387,5 +420,6 @@ export function disable() {
     bgSettings = null;
     screenshot = null;
     mode = null;
+    scheme = null;
     sampling = false;
 }
