@@ -8,7 +8,6 @@
 
 import Clutter from 'gi://Clutter';
 import Cogl from 'gi://Cogl';
-import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Graphene from 'gi://Graphene';
@@ -18,11 +17,10 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {
-    applyIconOffset, dashEndsWithSeparator, dashOf, disconnectAll, isTrashItem, makeDashItem,
-    makeDashSeparator, makeStrip, scaleFactor, watchDocks,
+    applyIconOffset, dashEndsWithSeparator, dashOf, disconnectAll, dockSettings, isTrashItem,
+    makeDashItem, makeDashSeparator, makeStrip, scaleFactor, watchDocks,
 } from './dockUtils.js';
 
-const D2D_SCHEMA = 'org.gnome.shell.extensions.dash-to-dock';
 // Proportions measured off a macOS dock: every tile is the same fixed box, a
 // little wider than an icon along the dock, with the thumbnail centred in it and
 // the app icon always in the same corner, so the icons line up in one row. The
@@ -750,8 +748,8 @@ export function enable() {
 
     // Dash-to-Dock cannot take its trash item back while we hold it, so follow
     // the setting to know when the user does not want it any more
-    if (Gio.SettingsSchemaSource.get_default()?.lookup(D2D_SCHEMA, true)) {
-        d2dSettings = new Gio.Settings({ schema_id: D2D_SCHEMA });
+    d2dSettings = dockSettings();
+    if (d2dSettings) {
         const trashSettingId = d2dSettings.connect('changed::show-trash', () => {
             if (d2dSettings.get_boolean('show-trash'))
                 _queueTrashAdoption();

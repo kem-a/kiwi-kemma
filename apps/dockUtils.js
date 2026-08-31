@@ -13,6 +13,7 @@ import { DashItemContainer } from 'resource:///org/gnome/shell/ui/dash.js';
 
 const CONTAINER_NAME = 'dashtodockContainer';
 const D2D_SCHEMA = 'org.gnome.shell.extensions.dash-to-dock';
+const D2D_UUIDS = ['dash-to-dock@micxgx.gmail.com', 'ubuntu-dock@ubuntu.com'];
 const DOCK_SEARCH_INTERVAL = 1000; // ms between tries while the dock loads
 const DOCK_SEARCH_TRIES = 10;
 const PRESS_EFFECT = 'kiwi-press-darken';
@@ -135,13 +136,34 @@ export function makeDashSeparator(dash) {
 
 let d2dSettings;              // undefined until looked up, null without the dock
 
+/**
+ * The default schema source only covers the system-wide directories, so a dock
+ * installed in the user's home is only found through its own schemas directory.
+ */
+function lookupDockSchema() {
+    const source = Gio.SettingsSchemaSource.get_default();
+    // A schema that is not installed aborts the shell rather than throwing
+    const schema = source?.lookup(D2D_SCHEMA, true);
+    if (schema)
+        return schema;
+
+    for (const uuid of D2D_UUIDS) {
+        const dir = Main.extensionManager.lookup(uuid)?.dir.get_child('schemas');
+        if (!dir?.get_child('gschemas.compiled').query_exists(null))
+            continue;
+        const own = Gio.SettingsSchemaSource.new_from_directory(dir.get_path(), source, true)
+            .lookup(D2D_SCHEMA, true);
+        if (own)
+            return own;
+    }
+    return null;
+}
+
 /** Dash-to-Dock's own settings, or null when it is not installed. */
 export function dockSettings() {
     if (d2dSettings === undefined) {
-        // A schema that is not installed aborts the shell rather than throwing
-        d2dSettings = Gio.SettingsSchemaSource.get_default()?.lookup(D2D_SCHEMA, true)
-            ? new Gio.Settings({ schema_id: D2D_SCHEMA })
-            : null;
+        const schema = lookupDockSchema();
+        d2dSettings = schema ? new Gio.Settings({ settings_schema: schema }) : null;
     }
     return d2dSettings;
 }
