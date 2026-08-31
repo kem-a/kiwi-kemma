@@ -5,7 +5,6 @@
 - Edit the relevant `po/<lang>.po` file and create a PR.
 - To add a new language, copy `kiwi.pot` to `po/<lang>.po`, translate the strings, and submit a PR.
 - Run `./compile-translations.sh` to validate and regenerate `.mo` files for local testing.
-- To sync with upstream Kiwi Menu strings, run `python3 translating/update_po_translations.py` and review the resulting diffs before submitting.
 
 ## Translation Status
 
@@ -27,8 +26,9 @@
 | Polish | pl | 🟢 Complete | 180/180 (100%) |
 | Portuguese | pt | 🟢 Complete | 180/180 (100%) |
 | Swedish | sv | 🟢 Complete | 180/180 (100%) |
+| Ukrainian | uk | 🟢 Complete | 180/180 (100%) |
 
-*Stats generated on 2026‑08‑21 via `msgfmt --statistics`.*
+*Stats generated on 2026‑08‑31 via `msgfmt --statistics`.*
 
 ## Note
 
