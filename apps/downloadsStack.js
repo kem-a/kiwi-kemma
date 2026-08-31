@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// macOS-style Downloads stack: a folder item that sits in Dash-to-Dock next to
-// the trash and fans the newest files in ~/Downloads out over the desktop.
-// The fan is an arc of rows: a name pill rotated along the tangent, an icon on
-// the arc itself, so the icons climb in one gently bending column the way the
-// macOS fan does. The dock item is a pile of those same thumbnails, kept in step
-// with the folder by a file monitor, and the fan spreads out of it.
+// macOS-style Downloads stack: a folder item in Dash-to-Dock that fans the
+// newest files in ~/Downloads out over the desktop. The fan is an arc of rows -
+// a name pill and an icon, each turned to the tangent - and the dock item is a
+// pile of those same thumbnails, kept in step by a file monitor.
 
 import Clutter from 'gi://Clutter';
 import GdkPixbuf from 'gi://GdkPixbuf';
@@ -24,7 +22,7 @@ const ROW_SPACING = 1.2;      // step along the arc, in file icon sizes
 const FAN_START = 3;          // degrees of tilt on the first row
 const FAN_STEP = 1.4;         // degrees added per row
 const NAME_LIMIT = 36;        // characters before a name is elided
-const TOP_MARGIN = 24;        // px kept clear above the topmost row
+const EDGE_MARGIN = 24;       // px kept clear beyond the last row
 // Opening and closing are the same motion in reverse: one row at a time, the
 // same step apart, so the fan spreads and folds at one pace.
 const ROW_ANIMATION = 150;    // ms for a row to travel to or from the dock
@@ -42,10 +40,9 @@ const REFRESH_DELAY = 400;    // ms of a quiet Downloads folder before rereading
 // A card is as big as an app icon in the dock, give or take the rim of the
 // folder it sits on, and the pile as a whole stays inside the same box.
 const STACK_EXTENT = 1;       // how much of the icon box the whole pile fills
-// Behind the folder the pile is a hand of papers sticking out of its top rather
-// than a stack lying over it, so the cards are smaller, raised clear of the rim
-// and fanned to both sides. What they clear the rim by depends on the icon
-// theme's own folder, so these are the numbers to turn if it sits high or low.
+// Behind the folder the cards stick out of its top rather than lie over it, so
+// they are smaller, raised clear of the rim and fanned to both sides. The rim
+// depends on the icon theme, so turn these if the folder sits high or low.
 const BEHIND_SIZE = 0.6;      // card, in dash icon sizes
 const BEHIND_LIFT = 0.24;     // how far the pile is raised, in dash icon sizes
 const BEHIND_SHIFT = 0.06;    // sideways step out from the middle, same units
@@ -86,10 +83,8 @@ function _openUri(uri) {
 }
 
 /**
- * Reread the folder and rebuild every pile from it. The dock item shows the
- * newest files even while the fan is shut, so the list is kept up to date rather
- * than read on the click - which is also what lets the fan open at once, out of
- * the very thumbnails the pile is made of.
+ * Reread the folder and rebuild every pile from it. The list is kept up to date
+ * rather than read on the click, which is what lets the fan open at once.
  */
 function _refresh() {
     _listDownloads(files => {
@@ -98,9 +93,8 @@ function _refresh() {
         recent = files.slice(0, MAX_ROWS);
         recentCount = files.length;
 
-        // A download in flight touches its file for as long as it runs, and the
-        // folder monitor reports every unrelated file besides. Rebuilding a pile
-        // that would come out the same reloads five thumbnails for nothing.
+        // A download in flight touches its file for as long as it runs, and
+        // rebuilding an identical pile reloads five thumbnails for nothing
         const key = `${recentCount}:${recent.map(info => [
             info.get_name(),
             _modified(info),
@@ -179,13 +173,9 @@ function _modified(info) {
 }
 
 /**
- * The picture on a row, in a box of the size every row uses, so the icons line
- * up in one column whatever shape they are.
- *
- * Nautilus has usually thumbnailed what the user downloaded, and that preview is
- * what macOS shows on the stack. A thumbnail is loaded as a texture rather than
- * as an icon: St.Icon squares off whatever it is given, which stretches a
- * photograph, while the texture cache scales it to fit and keeps its shape.
+ * The picture on a row, in the box every row uses, so the icons line up in one
+ * column whatever shape they are. A thumbnail goes through the texture cache
+ * rather than St.Icon, which squares off what it is given and stretches photos.
  *
  * @param info a file info from the Downloads folder
  * @param size the box, in logical pixels
@@ -210,10 +200,9 @@ function _fileIcon(info, size) {
             Gio.File.new_for_path(thumbnail),
             Math.round(imageWidth * fit), Math.round(imageHeight * fit),
             scaleFactor(), 1);
-        // A thumbnailer that pads its canvas to a square has drawn the paper
-        // and the shadow under it into the picture itself - the margin around
-        // it is transparent. Matting that would fill the margin white and bury
-        // the shadow it came with, so only edge-to-edge pictures are framed.
+        // A thumbnailer that pads its canvas to a square draws the paper and
+        // its shadow into the picture, with a transparent margin around it;
+        // matting that would fill it white. Only frame edge-to-edge pictures.
         const framed = imageWidth !== imageHeight;
         // The frame is the picture's own shape, so the shadow follows the
         // picture rather than the box around it
@@ -324,9 +313,8 @@ function _rowPivot(row) {
 
 /**
  * Take the row off the pile: it starts as the card it was in the dock - same
- * place, same size, same tilt - and the card goes out from under it as it lifts,
- * so what leaves the dock is the card itself rather than a copy of it. The name
- * pill catches up on the way.
+ * place, size and tilt - and the card goes out from under it as it lifts, so
+ * what leaves the dock is the card itself rather than a copy.
  *
  * @param row a row built by _makeRow, already placed on the arc
  * @param index its place in the fan, nearest the dock first
@@ -369,11 +357,9 @@ function _animateRowIn(row, index) {
         duration: ROW_ANIMATION,
         delay,
         mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-        // Only once it has landed: a turned actor is rasterized edge by edge and
-        // the pill's rounded corners come out with steps in them, which painting
-        // it to a texture first smooths over. Doing that while the row moves
-        // makes the shell rebuild that texture every frame, and the whole fan
-        // flickers as each row arrives.
+        // Only once it has landed: painting to a texture smooths the steps a
+        // turned actor rasterizes into the pill's corners, but doing it while
+        // the row moves rebuilds that texture every frame and the fan flickers
         onComplete: () => {
             row.offscreen_redirect = Clutter.OffscreenRedirect.ALWAYS;
         },
@@ -393,8 +379,11 @@ function _showFan(info) {
     const iconSize = Math.round(info.dash.iconSize * FILE_ICON);
     const spacing = Math.round(iconSize * scale * ROW_SPACING);
 
+    // Away from the edge the dock sits on: up off the item's top on a bottom
+    // dock, down off its bottom on a top one
+    const dir = _fanDir(info.dash);
     const anchorX = buttonX + buttonWidth / 2;
-    const anchorY = buttonY;
+    const anchorY = dir < 0 ? buttonY : buttonY + buttonHeight;
     // Where the pile sits and how a card in it is placed: every row starts as
     // its own card, so it leaves the dock from exactly where the card lay
     const stack = info.button.child;
@@ -408,7 +397,9 @@ function _showFan(info) {
     };
 
     // The last row is the one that opens the folder and folds the fan back up
-    const room = Math.floor((anchorY - geometry.y - TOP_MARGIN) / spacing) - 1;
+    const reach = dir < 0
+        ? anchorY - geometry.y : geometry.y + geometry.height - anchorY;
+    const room = Math.floor((reach - EDGE_MARGIN) / spacing) - 1;
     const shown = recent.slice(0, Math.max(0, Math.min(MAX_ROWS, room)));
 
     const overlay = new St.Widget({
@@ -425,19 +416,20 @@ function _showFan(info) {
     // drawn over the desktop but every click goes to the window underneath
     Main.layoutManager.addTopChrome(overlay);
 
-    // A row leaving a pile that is behind the folder has not come out of it
-    // until it is clear of the dock item, so nothing below that edge is drawn:
-    // the fan is top chrome, over the dock, and a row would otherwise cross in
-    // front of the folder it is coming out of. Rows keep stage coordinates, the
-    // clip starting at the stage top.
+    // The fan is top chrome, over the dock, so a row coming out from behind the
+    // folder would cross in front of it. Clip the band the fan has to itself,
+    // in stage coordinates, which the rows keep.
     let rowParent = overlay;
     if (behindFolder) {
         const [, stackY] = stack.get_transformed_position();
+        const [, stackHeight] = stack.get_transformed_size();
+        const edge = Math.round(dir < 0 ? stackY : stackY + stackHeight);
         rowParent = new St.Widget({
             width: global.stage.width,
-            height: Math.round(stackY),
-            clip_to_allocation: true,
+            height: global.stage.height,
         });
+        rowParent.set_clip(0, dir < 0 ? 0 : edge, global.stage.width,
+            dir < 0 ? edge : global.stage.height - edge);
         overlay.add_child(rowParent);
     }
 
@@ -488,8 +480,10 @@ function _showFan(info) {
         // the newest card is on top there and nearest the dock here
         rowParent.insert_child_at_index(row, 0);
         x += Math.sin(angle * Math.PI / 180) * spacing;
-        y -= Math.cos(angle * Math.PI / 180) * spacing;
-        _placeRow(row, x, y, angle);
+        y += dir * Math.cos(angle * Math.PI / 180) * spacing;
+        // Growing the other way the arc is the mirror of itself, so the rows
+        // lean over the other way with it
+        _placeRow(row, x, y, -dir * angle);
         row.card = cards[index] ?? null;
         // Rows too deep to have a card of their own come out from under the
         // bottom one, which is where the pile ends
@@ -504,10 +498,9 @@ function _showFan(info) {
         card.ease({ opacity: 0, duration: 1, delay: rows.length * ROW_STAGGER });
 
     const grab = Main.pushModal(overlay, { actionMode: Shell.ActionMode.POPUP });
-    // A press on a row still bubbles up to here: St.Button tracks its press with
-    // a click action, which does not consume the event. Closing the fan on it
-    // would tear the row down before the release could make it a click, so only
-    // a press that lands on the backdrop itself closes the fan.
+    // St.Button tracks its press with a click action, which does not consume
+    // the event, so a press on a row bubbles up here and would tear the row
+    // down before the release made it a click. Only the backdrop closes it.
     overlay.connect('button-press-event', (actor, event) => {
         if (global.stage.get_event_actor(event) !== actor)
             return Clutter.EVENT_PROPAGATE;
@@ -568,11 +561,9 @@ function _closeFan() {
     _lockDock(info, false);
     overlay.reactive = false;
 
-    // A fold with nothing to animate - the shell's animations are off, or the
-    // overlay is not on show any more - is over the moment it is asked for: ease
-    // runs the callback right there rather than off a transition. Taking the
-    // overlay down from inside the walk below would destroy the rows the walk
-    // has not reached yet, so the last step waits for the walk to finish.
+    // With nothing to animate, ease runs the callback right there rather than
+    // off a transition. Taking the overlay down from inside the walk below
+    // would destroy rows it has not reached, so the last step waits for it.
     let folding = true;
     let landed = false;
     const finish = () => {
@@ -663,30 +654,42 @@ function _toggleFan(info) {
 /* ------------------------------------------------------------------ docks */
 
 /**
- * Whether this dock can fan at all. The fan spreads up the screen out of the
- * item, so it only has room on a dock along the bottom edge; on the other three
- * the stack is a plain folder that opens Downloads.
+ * Whether this dock can fan at all. The fan spreads across the screen off the
+ * item, so it only has room on a dock along the bottom or the top edge; to the
+ * left or the right the stack is a plain folder that opens Downloads.
  *
  * @param dash the Dash-to-Dock dash actor
  */
 function _fansOut(dash) {
-    return dash._position === St.Side.BOTTOM;
+    return dash._position === St.Side.BOTTOM || dash._position === St.Side.TOP;
 }
 
 /**
- * How the pile is laid out at a given dash icon size. Lying on the folder, cards
- * are as large as they can be without covering it, and a deep pile gives up just
- * enough room for its steps to stay inside the same rim. Behind it they are one
- * size, small enough that the fan stays under the folder's own width.
+ * Which way everything the fan places is measured: -1 away from a dock along
+ * the bottom, so up the screen, and +1 down off one along the top. The two are
+ * mirror images, tilts and all, which is the whole of the difference.
+ *
+ * @param dash the Dash-to-Dock dash actor
+ */
+function _fanDir(dash) {
+    return dash._position === St.Side.TOP ? 1 : -1;
+}
+
+/**
+ * How the pile is laid out at a given dash icon size. Lying on the folder, a
+ * deeper pile gives up just enough card size for its steps to stay inside the
+ * same rim; behind it the cards are one size, narrower than the folder.
  *
  * @param dash the Dash-to-Dock dash actor
  */
 function _pileMetrics(dash) {
     const depth = Math.min(recent.length, STACK_DEPTH);
     const scale = scaleFactor();
+    const dir = _fanDir(dash);
     if (behindFolder) {
         return {
             depth,
+            dir,
             size: Math.round(dash.iconSize * BEHIND_SIZE),
             step: Math.round(dash.iconSize * BEHIND_SHIFT * scale),
             lift: Math.round(dash.iconSize * BEHIND_LIFT * scale),
@@ -696,6 +699,7 @@ function _pileMetrics(dash) {
     const span = Math.max(0, depth - 1) * STACK_STEP;
     return {
         depth,
+        dir,
         size: Math.round(dash.iconSize * (STACK_EXTENT - span)),
         step: Math.round(dash.iconSize * STACK_STEP * scale),
         lift: 0,
@@ -703,31 +707,38 @@ function _pileMetrics(dash) {
 }
 
 /**
- * Where one card of the pile lies, as an offset from the middle of the item. The
- * pile in the dock and the fan that comes out of it are both placed from this: a
- * row leaves the dock as the card it was, so it has to start out exactly where
- * that card lay.
+ * Where one card of the pile lies, as an offset from the middle of the item.
+ * The pile and the fan are both placed from this: a row leaves the dock as the
+ * card it was, so it has to start exactly where that card lay.
  *
  * @param pile metrics from _pileMetrics
  * @param depth the card's place in the pile, newest first
  */
 function _cardOffset(pile, depth) {
-    if (!behindFolder)
-        return { x: depth * pile.step, y: -depth * pile.step, tilt: depth * STACK_TILT };
+    // The pile is the first step of the fan, so it climbs and leans the way the
+    // fan does: off the item's top on a bottom dock, off its bottom on a top one
+    if (!behindFolder) {
+        return {
+            x: depth * pile.step,
+            y: pile.dir * depth * pile.step,
+            tilt: -pile.dir * depth * STACK_TILT,
+        };
+    }
 
-    // Out of the folder's top: the newest card stands in the middle and the ones
-    // behind it lean out to alternating sides, a step further every pair
+    // Out of the folder's far edge: the newest card stands in the middle and the
+    // ones behind it lean out to alternating sides, a step further every pair
     const out = Math.ceil(depth / 2) * (depth % 2 ? 1 : -1);
-    return { x: out * pile.step, y: -pile.lift, tilt: out * BEHIND_TILT };
+    return {
+        x: out * pile.step,
+        y: pile.dir * pile.lift,
+        tilt: -pile.dir * out * BEHIND_TILT,
+    };
 }
 
 /**
- * The dock item: the newest files piled one on the other, newest in front, each
- * one behind it a step further up and a degree further over, with the folder
- * icon at the back of the pile. The folder is hidden while there are cards over
- * it and surfaces as they leave, which is what empties the pile. Behind the
- * folder instead, the cards stick out of its top and it is the one thing always
- * on show, the way a macOS folder holds its papers.
+ * The dock item: the newest files piled newest-first, each one behind a step
+ * further up and over. The folder sits at the back and surfaces as the cards
+ * leave; behind the folder instead, it is the one thing always on show.
  *
  * @param dash the Dash-to-Dock dash actor
  */
@@ -765,9 +776,10 @@ function _stackIcon(dash) {
         const { x, y, tilt } = _cardOffset(pile, depth);
         card.set({ translation_x: x, translation_y: y, rotation_angle_z: tilt });
         // Leaning out of the folder rather than lying over it, so the card turns
-        // about the edge that stays inside
+        // about the edge that stays inside - the one nearest the screen edge the
+        // dock sits on
         if (behindFolder)
-            card.set_pivot_point(0.5, 1);
+            card.set_pivot_point(0.5, pile.dir < 0 ? 1 : 0);
         box.add_child(card);
         box.cards[depth] = card;
     }
@@ -805,10 +817,9 @@ function _syncButton(info) {
 }
 
 /**
- * Darken the item while it is held, the way dock styling darkens the app icons.
- * That styling only reaches the icons Dash-to-Dock owns, and it is behind its
- * own setting - which the dock wears as a style class, so following the class
- * follows the setting.
+ * Darken the item while it is held, as dock styling does the app icons. That
+ * styling only reaches Dash-to-Dock's own icons, and the dock wears its setting
+ * as a style class, so following the class follows the setting.
  *
  * @param info the per-dock state
  */
@@ -829,10 +840,9 @@ function _buildItem(info) {
 }
 
 /**
- * Minimize-to-dock already keeps a strip after the app icons; join that one when
- * it is there so both features share one divider, and take the front of it, in
- * front of the minimized windows. Without it, a strip of our own holds the stack
- * alone.
+ * Minimize-to-dock already keeps a strip after the app icons; join it when it
+ * is there so both share one divider, and take its front, before the minimized
+ * windows. Without it, a strip of our own holds the stack alone.
  *
  * @param info the per-dock state
  */
@@ -871,8 +881,7 @@ function _placeItem(info) {
 
 /**
  * Let go of the strip the item is in. A strip destroyed under us has already
- * cleared this, so there is nothing to disconnect from - and nothing left to
- * disconnect it on.
+ * cleared this, so there is nothing left to disconnect from.
  *
  * @param info the per-dock state
  */
