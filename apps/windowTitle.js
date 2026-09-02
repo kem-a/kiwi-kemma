@@ -194,7 +194,6 @@ class WindowTitleIndicator extends PanelMenu.Button {
             this._menu.setApp(null);
         }
         
-        this.reactive = true;
         if (!Main.overview.visible) {
             this.show();
         }
@@ -325,10 +324,12 @@ class WindowTitleIndicator extends PanelMenu.Button {
         }
     }
 
+    // Never touch this.reactive here: hide() already blocks input, and every
+    // reactive change re-syncs St's hover state from an enter/leave count that
+    // an actor hidden under the pointer leaves stuck, latching the hover pill on.
     _clearDisplay(resetMenu = true) {
         this._label.text = '';
         this._icon.gicon = null;
-        this.reactive = false;
         if (resetMenu && this._menu) {
             if (this.menu && this.menu.isOpen)
                 this.menu.close(MENU_CLOSE_ARGS);
