@@ -611,7 +611,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         panelPage.add(panelStylingGroup);
 
         this._addSwitchRows(settings, panelStylingGroup, [
-            { key: 'panel-styling', title: _("Panel Styling"), subtitle: _("Tighter button spacing, bold titles, smaller status icons, no dropdown arrows and a transparent panel in the overview") },
+            { key: 'panel-styling', title: _("Panel Styling"), subtitle: _("Tighter button spacing, smaller status icons, no dropdown arrows and a transparent panel in the overview") },
             { key: 'popup-menu-styling', title: _("Menu and App Styling"), subtitle: _("Narrower shell menu items with accent-colored hover and selection, plus the GTK app fixes") },
         ]);
 
