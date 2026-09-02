@@ -60,12 +60,23 @@ function addAccelLabel(item, accel) {
     item.add_child(label);
 }
 
+// The pointer lands on a child of an overview preview (the clone, the icon, the
+// caption), so walk up until an ancestor names the window it stands for.
+function windowForActor(actor) {
+    for (let a = actor; a; a = a.get_parent()) {
+        if (a.metaWindow)
+            return a.metaWindow;
+    }
+    return null;
+}
+
 const WindowTitleIndicator = GObject.registerClass(
 class WindowTitleIndicator extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'window-title', true);
 
         this._syncMenuIdleId = null;
+        this._focusSyncIdleId = null;
         this._settings = _extension.getSettings();
         this._wmKeybindings = new Gio.Settings({ schema_id: 'org.gnome.desktop.wm.keybindings' });
         this._gettext = _extension.gettext.bind(_extension);
@@ -93,12 +104,20 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._box.add_child(this._label);
         this.add_child(this._box);
         this._focusWindow = null;
-        this._focusWindowSignal = global.display.connect('notify::focus-window', 
+        this._hoverWindow = null;
+        this._stageEventId = null;
+        this._focusWindowSignal = global.display.connect('notify::focus-window',
             this._onFocusedWindowChanged.bind(this));
-        
+
         this._overviewShowingId = Main.overview.connect('showing',
-            () => this._updateVisibility());
-        
+            () => this._startHoverTracking());
+        // Stop on 'hiding' rather than 'hidden': once the previews are gone the
+        // pointer would resolve to the real window actors underneath.
+        this._overviewHidingId = Main.overview.connect('hiding', () => {
+            this._stopHoverTracking();
+            this._setHoverWindow(null);
+        });
+
         this._onFocusedWindowChanged();
 
         for (const name of KIWI_MENU_ITEMS)
@@ -116,18 +135,43 @@ class WindowTitleIndicator extends PanelMenu.Button {
             () => this._onOverviewHidden());
     }
 
-    _updateVisibility() {
-        if (Main.overview.visible) {
-            this._clearDisplay();
-        } else {
-            this._updateWindowTitle();
+    // Nothing exposes which overview preview is under the pointer, so watch the
+    // stage in the capture phase and resolve the actor the event landed on.
+    // Window previews and workspace thumbnail clones both carry their window.
+    _startHoverTracking() {
+        if (this._stageEventId)
+            return;
+
+        this._stageEventId = global.stage.connect('captured-event', (stage, event) => {
+            const type = event.type();
+            if (type === Clutter.EventType.MOTION || type === Clutter.EventType.ENTER)
+                this._setHoverWindow(windowForActor(stage.get_event_actor(event)));
+            return Clutter.EVENT_PROPAGATE;
+        });
+    }
+
+    _stopHoverTracking() {
+        if (this._stageEventId) {
+            global.stage.disconnect(this._stageEventId);
+            this._stageEventId = null;
         }
+    }
+
+    _setHoverWindow(window) {
+        if (window === this._hoverWindow)
+            return;
+
+        this._hoverWindow = window;
+        this._updateWindowTitle();
     }
 
     _onFocusedWindowChanged() {
         let window = global.display.focus_window;
 
-        if (!window && this.menu && this.menu.isOpen)
+        // The overview takes the input focus, leaving no focus window at all. Keep
+        // the last one instead of blanking the panel; 'hidden' re-syncs from the
+        // real focus once the overview is done.
+        if (!window && (Main.overview.visible || (this.menu && this.menu.isOpen)))
             return;
 
         if (this._focusWindow) {
@@ -146,15 +190,27 @@ class WindowTitleIndicator extends PanelMenu.Button {
         }
     }
 
+    // The overview only drops its grab after 'hidden' is emitted, so the display
+    // still has no focus window at that point and reading it here would blank the
+    // panel until the next focus change. Let the focus land first.
     _onOverviewHidden() {
-        this._onFocusedWindowChanged();
+        if (this._focusSyncIdleId)
+            GLib.Source.remove(this._focusSyncIdleId);
+
+        this._focusSyncIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._focusSyncIdleId = null;
+            this._onFocusedWindowChanged();
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
+    // A hovered overview preview wins over the focused window.
     _updateWindowTitle() {
-        if (!this._focusWindow) return;
+        const titleWindow = this._hoverWindow ?? this._focusWindow;
+        if (!titleWindow) return;
 
-        let windowTitle = this._focusWindow.get_title();
-        
+        let windowTitle = titleWindow.get_title();
+
         // Handle null window title
         if (!windowTitle) {
             this._clearDisplay();
@@ -171,7 +227,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
         windowTitle = windowTitle.trim();
 
         const tracker = Shell.WindowTracker.get_default();
-        const app = tracker ? tracker.get_window_app(this._focusWindow) : null;
+        const app = tracker ? tracker.get_window_app(titleWindow) : null;
         const appName = app ? app.get_name() : null;
         const normalizedAppName = appName ? appName.trim().toLowerCase() : '';
         if (normalizedAppName.startsWith('com.') || normalizedAppName.startsWith('gjs')) {
@@ -193,10 +249,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
             this._label.text = ` ${windowTitle}`;
             this._menu.setApp(null);
         }
-        
-        if (!Main.overview.visible) {
-            this.show();
-        }
+
+        this.show();
 
         this._queueMenuAlignment();
     }
@@ -362,9 +416,15 @@ class WindowTitleIndicator extends PanelMenu.Button {
     }
 
     destroy() {
+        this._stopHoverTracking();
+
         if (this._syncMenuIdleId) {
             GLib.Source.remove(this._syncMenuIdleId);
             this._syncMenuIdleId = null;
+        }
+        if (this._focusSyncIdleId) {
+            GLib.Source.remove(this._focusSyncIdleId);
+            this._focusSyncIdleId = null;
         }
 
         this._destroyKiwiMenuItems();
@@ -376,6 +436,9 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._settings = null;
         if (this._overviewShowingId) {
             Main.overview.disconnect(this._overviewShowingId);
+        }
+        if (this._overviewHidingId) {
+            Main.overview.disconnect(this._overviewHidingId);
         }
         if (this._menuOpenStateId) {
             this._menu.disconnect(this._menuOpenStateId);
