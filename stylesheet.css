@@ -4,32 +4,11 @@
 /*###############################################*/
 /*           Window Title Styling               */
 /*###############################################*/
-.window-title {
-  margin-left: 8px;
-  margin-right: 8px;
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.window-title.panel-button {
-  -natural-hpadding: 6px;
-  -minimum-hpadding: 6px;
-}
-
-.window-title:hover {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.window-title .app-menu-icon {
+/* The icon is styled the moment addToStatusArea maps it, which happens before
+   panelStyling adds its gate class, and St never re-renders a texture for a
+   later icon-style change. So the symbolic request lives on the icon itself. */
+.kiwi-window-title-icon {
   -st-icon-style: symbolic;
-  margin-right: 4px;
-}
-
-.window-title StLabel {
-  margin: 0 4px;
-  padding-left: 6px;
 }
 
 .app-menu-icon {
@@ -93,7 +72,6 @@
 }
 
 #panel.kiwi-panel-styled .panel-button .app-menu-icon {
-  -st-icon-style: symbolic;
   padding: 0 4px;
 }
 
@@ -101,11 +79,6 @@
 #panel.kiwi-panel-styled Gjs_ui_panel_AggregateMenu.panel-button .system-status-icon,
 #panel.kiwi-panel-styled Gjs_ui_panel_QuickSettings.panel-button .system-status-icon {
   margin: 0 2px !important;
-}
-
-#panel.kiwi-panel-styled Gjs_ui_panel_AppMenuButton.panel-button,
-#panel.kiwi-panel-styled .desktop-name-label {
-  font-weight: bold !important;
 }
 
 #panel.kiwi-panel-styled Gjs_ui_dateMenu_DateMenuButton.panel-button {
@@ -120,8 +93,8 @@
 
 /* Dark foreground for a light background behind the panel, light foreground for
    a dark one. Toggled by apps/panelTransparency.js. Must stay after the
-   .kiwi-panel-styled rules above — same specificity, so the shadow flip depends
-   on source order. */
+   .kiwi-panel-styled rules above — same specificity, so it wins on source
+   order. */
 #panel.kiwi-panel-dark-text .panel-button,
 #panel.kiwi-panel-dark-text .panel-button:hover,
 #panel.kiwi-panel-dark-text .panel-button:active,
@@ -130,26 +103,6 @@
 #panel.kiwi-panel-dark-text .panel-button StLabel,
 #panel.kiwi-panel-dark-text .panel-button StIcon {
   color: rgba(0, 0, 0, 0.9);
-}
-
-/* The shadow has to sit on the text nodes themselves — St resolves text-shadow
-   per node, so putting it only on the button leaves the labels flat. */
-#panel.kiwi-panel-dark-text .panel-button,
-#panel.kiwi-panel-dark-text .panel-button:hover,
-#panel.kiwi-panel-dark-text .panel-button:active,
-#panel.kiwi-panel-dark-text .panel-button:focus,
-#panel.kiwi-panel-dark-text .panel-button:checked,
-#panel.kiwi-panel-dark-text .panel-button StLabel,
-#panel.kiwi-panel-dark-text .panel-button .clock,
-#panel.kiwi-panel-dark-text .panel-button .panel-status-menu-box StLabel,
-#panel.kiwi-panel-dark-text .window-title StLabel {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-}
-
-#panel.kiwi-panel-dark-text .panel-button .system-status-icon,
-#panel.kiwi-panel-dark-text .panel-button .app-menu-icon > StIcon,
-#panel.kiwi-panel-dark-text .panel-button .popup-menu-arrow {
-  icon-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 /* Hover and active pills: the shell overlays them in white, which vanishes on a
@@ -193,24 +146,6 @@
   color: rgba(255, 255, 255, 0.95);
 }
 
-#panel.kiwi-panel-light-text .panel-button,
-#panel.kiwi-panel-light-text .panel-button:hover,
-#panel.kiwi-panel-light-text .panel-button:active,
-#panel.kiwi-panel-light-text .panel-button:focus,
-#panel.kiwi-panel-light-text .panel-button:checked,
-#panel.kiwi-panel-light-text .panel-button StLabel,
-#panel.kiwi-panel-light-text .panel-button .clock,
-#panel.kiwi-panel-light-text .panel-button .panel-status-menu-box StLabel,
-#panel.kiwi-panel-light-text .window-title StLabel {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-}
-
-#panel.kiwi-panel-light-text .panel-button .system-status-icon,
-#panel.kiwi-panel-light-text .panel-button .app-menu-icon > StIcon,
-#panel.kiwi-panel-light-text .panel-button .popup-menu-arrow {
-  icon-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-}
-
 #panel.kiwi-panel-light-text .panel-button:focus,
 #panel.kiwi-panel-light-text .panel-button:hover,
 #panel.kiwi-panel-light-text .panel-button.clock-display:focus .clock,
@@ -239,30 +174,8 @@
   background-color: transparent !important;
   background: transparent !important;
   font-weight: normal;
-  text-shadow: none;
   box-shadow: none;
   transition-duration: 200ms;
-}
-
-#panel.kiwi-panel-styled:overview .panel-button,
-#panel.kiwi-panel-styled:overview .panel-button:hover,
-#panel.kiwi-panel-styled:overview .panel-button:active,
-#panel.kiwi-panel-styled:overview .panel-button:focus,
-#panel.kiwi-panel-styled:overview .panel-button:checked {
-  text-shadow: none;
-}
-
-#panel.kiwi-panel-styled:overview .panel-button .system-status-icon,
-#panel.kiwi-panel-styled:overview .panel-button .app-menu-icon > StIcon,
-#panel.kiwi-panel-styled:overview .panel-button .popup-menu-arrow {
-  icon-shadow: none;
-}
-
-#panel.kiwi-panel-styled:overview .window-title,
-#panel.kiwi-panel-styled:overview .window-title StLabel,
-#panel.kiwi-panel-styled:overview Gjs_ui_panel_AppMenuButton.panel-button,
-#panel.kiwi-panel-styled:overview .desktop-name-label {
-  font-weight: normal !important;
 }
 
 
@@ -542,6 +455,67 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   padding-bottom: 0 !important;
 }
 
+/* Adaptive colours, from apps/dockColors.js. Two things move independently, so
+   there are two pairs of classes: .kiwi-dock-light / -dark say what the dock is
+   sitting on, which the dot and separator read against - what shows through the
+   pill at this opacity is mostly what is behind it - and .kiwi-dock-scheme-light
+   / -dark say what the session is, which is what the pill itself follows.
+
+   The separator is the one part Dash-to-Dock leaves to CSS in every
+   configuration; the pill and the running dot are here only for the case where
+   it leaves those to CSS too (transparency left at DEFAULT, indicator colours
+   not customized). Otherwise it paints them itself from the colour keys the
+   module writes. */
+#dashtodockContainer.kiwi-dock-light #dash .dash-separator {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+#dashtodockContainer.kiwi-dock-light #dash .app-grid-running-dot {
+  background-color: rgb(28, 28, 28) !important;
+}
+
+#dashtodockContainer.kiwi-dock-dark #dash .dash-separator {
+  background-color: rgba(250, 250, 250, 0.3) !important;
+}
+
+#dashtodockContainer.kiwi-dock-dark #dash .app-grid-running-dot {
+  background-color: rgb(250, 250, 250) !important;
+}
+
+/* The pill answers to the session's scheme rather than its surroundings, so it
+   takes its own pair of classes. These two only apply where Dash-to-Dock leaves
+   the pill to CSS; in every other configuration it writes an inline style, which
+   beats a stylesheet in St whatever the specificity, and the colour that shows
+   is PILL_COLOR in apps/dockColors.js. Change both together. */
+#dashtodockContainer.kiwi-dock-scheme-light #dash .dash-background {
+  background-color: rgb(120, 120, 120) !important;
+}
+
+#dashtodockContainer.kiwi-dock-scheme-dark #dash .dash-background {
+  background-color: rgb(28, 28, 28) !important;
+}
+
+/* The only border the dock has - neither the shell theme nor Dash-to-Dock draws
+   one, and Dash-to-Dock has no setting for it. An inset shadow rather than a
+   border: Dash-to-Dock writes border-left and border-color inline on the pill
+   (theming.js _adjustTheme) and an inline style beats a stylesheet in St, but it
+   never touches box-shadow. Drawn by the pill itself, so it follows its rounding
+   and its geometry with no actor of its own to keep in step.
+
+   Always light, so the edge glows off the pill rather than being drawn on it.
+   Only the alpha moves: the pill is translucent enough that light content behind
+   the dock lifts it most of the way to white on its own, and a glow that reads
+   against a dark pill at a fifth has almost nothing left to climb there. Keyed on
+   the content rather than the session, since that is what decides how light the
+   pill ends up. */
+#dashtodockContainer.kiwi-dock-styled #dash .dash-background {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+#dashtodockContainer.kiwi-dock-styled.kiwi-dock-light #dash .dash-background {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
 /* Name tooltips: the shell theme keeps them near-black in a light session, so
    they follow the session's scheme here instead, and take the palette the
    downloads pills use so the two match. apps/dockStyling.js adds the classes -
@@ -696,7 +670,6 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 #panel .kiwi-input-en StLabel {
   background-color: rgba(255, 255, 255, 0.9);
   color: rgba(0, 0, 0, 0.9);
-  text-shadow: none;
 }
 
 #panel.kiwi-panel-dark-text .kiwi-input-en StLabel {
@@ -708,7 +681,6 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
    the plain .kiwi-input-en rule. */
 #panel.kiwi-panel-light-text .kiwi-input-en StLabel {
   color: rgba(0, 0, 0, 0.9);
-  text-shadow: none;
 }
 
 /*###############################################*/

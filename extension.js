@@ -17,6 +17,7 @@
  */
 
 import Gio from 'gi://Gio';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { enable as addUsernameEnable, disable as addUsernameDisable } from './apps/addUsernameToQuickMenu.js';
 import { enable as moveFullscreenEnable, disable as moveFullscreenDisable } from './apps/moveFullscreenWindow.js';
@@ -43,11 +44,13 @@ import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable 
 import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './apps/launchpadApp.js';
 import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
 import { enable as dockStylingEnable, disable as dockStylingDisable } from './apps/dockStyling.js';
+import { enable as dockColorsEnable, disable as dockColorsDisable } from './apps/dockColors.js';
 import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } from './apps/minimizedToDock.js';
 import { enable as downloadsStackEnable, disable as downloadsStackDisable } from './apps/downloadsStack.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
 import { setHideMediaIndicator } from './apps/quickSettingsMedia.js';
 import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
+import { dockActive, isDockExtension } from './apps/dockUtils.js';
 
 export default class KiwiExtension extends Extension {
     _on_settings_changed(key) {
@@ -168,7 +171,10 @@ export default class KiwiExtension extends Extension {
             popupStylingDisable();
         }
 
-        const minimizeToDock = this._settings.get_boolean('minimize-to-dock');
+        // Everything below that hangs off Dash-to-Dock stays off while it is not
+        // running, rather than reaching for a dock that is never going to turn up
+        const hasDock = dockActive();
+        const minimizeToDock = hasDock && this._settings.get_boolean('minimize-to-dock');
 
         // A window parked in the dock should not also show up in the overview
         if (this._settings.get_boolean('hide-minimized-windows') || minimizeToDock) {
@@ -183,7 +189,7 @@ export default class KiwiExtension extends Extension {
             minimizedToDockDisable();
         }
 
-        if (this._settings.get_boolean('downloads-in-dock')) {
+        if (hasDock && this._settings.get_boolean('downloads-in-dock')) {
             downloadsStackEnable(gettextFunc, this._settings);
         } else {
             downloadsStackDisable();
@@ -229,16 +235,22 @@ export default class KiwiExtension extends Extension {
             keyboardIndicatorDisable();
 
         // Dock styling
-        if (this._settings.get_boolean('dock-styling'))
+        if (hasDock && this._settings.get_boolean('dock-styling'))
             dockStylingEnable();
         else
             dockStylingDisable();
 
         // Dock blur
-        if (this._settings.get_boolean('dock-blur'))
+        if (hasDock && this._settings.get_boolean('dock-blur'))
             dockBlurEnable();
         else
             dockBlurDisable();
+
+        // Dock colors that follow the wallpaper behind the dock
+        if (hasDock && this._settings.get_boolean('dock-adaptive-colors'))
+            dockColorsEnable();
+        else
+            dockColorsDisable();
 
         // Reduce window open/close animations (macOS-style scale + fade)
         if (this._settings.get_boolean('reduce-window-animations'))
@@ -273,6 +285,14 @@ export default class KiwiExtension extends Extension {
         this._interfaceSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
         this._batteryPercentageChangedId = this._interfaceSettings.connect('changed::show-battery-percentage',
             () => this._applyBatteryPercentage());
+
+        // The dock is a separate extension the user can turn on and off under
+        // us, and the dock features follow it either way
+        this._dockStateChangedId = Main.extensionManager.connect('extension-state-changed',
+            (_manager, extension) => {
+                if (isDockExtension(extension))
+                    this._on_settings_changed(null);
+            });
         
         // Enable GTK theme manager
         gtkThemeManagerEnable(this);
@@ -297,6 +317,10 @@ export default class KiwiExtension extends Extension {
         if (this._batteryPercentageChangedId) {
             this._interfaceSettings.disconnect(this._batteryPercentageChangedId);
             this._batteryPercentageChangedId = null;
+        }
+        if (this._dockStateChangedId) {
+            Main.extensionManager.disconnect(this._dockStateChangedId);
+            this._dockStateChangedId = null;
         }
         this._interfaceSettings = null;
         moveFullscreenDisable();
@@ -325,6 +349,7 @@ export default class KiwiExtension extends Extension {
         launchpadAppDisable();
         dockBlurDisable();
         dockStylingDisable();
+        dockColorsDisable();
         // The stack borrows the minimized strip and holds a signal on it, so it
         // has to let go before that strip is destroyed
         downloadsStackDisable();

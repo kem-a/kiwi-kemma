@@ -123,21 +123,10 @@ function _tryBlurDock(dockContainer) {
     // (button hover, icon shadows) — fixes lingering squared artifacts.
     connectPaintSignal(blurWidget, _scheduleBlurRepaint);
 
-    // Border overlay matching the dash-background pill shape
-    const themeNode = dashBackground.get_theme_node();
-    const borderRadius = themeNode
-        ? themeNode.get_border_radius(St.Corner.TOPLEFT)
-        : 14;
-    const borderWidget = new St.Widget({
-        name: 'kiwi-dock-blur-border',
-        style: `border: 1px solid rgba(255, 255, 255, 0.2); border-radius: ${borderRadius}px;`,
-    });
-    backgroundGroup.add_child(borderWidget);
-
     // Insert at index 0 of dashBox (behind the dash content)
     dashBox.insert_child_at_index(backgroundGroup, 0);
 
-    // Size and position the blur and border widgets to match the dash-background
+    // Size and position the blur widget to match the dash-background
     let lastRect = null;
     const updateSize = () => {
         if (!blurWidget || !dashBackground) return;
@@ -165,8 +154,6 @@ function _tryBlurDock(dockContainer) {
 
         blurWidget.set_size(w, h);
         blurWidget.set_position(x, y);
-        borderWidget.set_size(w, h);
-        borderWidget.set_position(x, y);
         _scheduleBlurRepaint();
     };
 

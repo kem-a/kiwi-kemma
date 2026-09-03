@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Kiwi is not Apple\n"
 "Report-Msgid-Bugs-To: https://github.com/kem-a/kiwi-kemma/issues\n"
-"POT-Creation-Date: 2026-08-21 19:55+0300\n"
+"POT-Creation-Date: 2026-08-31 15:09+0300\n"
 "PO-Revision-Date: 2026-08-21 20:00+0300\n"
 "Last-Translator: arashe22 <arashe22@proton.me>\n"
 "Language-Team: Persian\n"
@@ -47,14 +47,6 @@ msgstr "باز کردن نمای برنامه‌ها"
 #: apps/quickSettingsMedia.js:414
 msgid "Media"
 msgstr "رسانه"
-
-#: apps/quickSettingsMedia/player.js:167
-msgid "Unknown artist"
-msgstr "هنرمند ناشناس"
-
-#: apps/quickSettingsMedia/player.js:172
-msgid "Unknown title"
-msgstr "عنوان ناشناس"
 
 #: apps/quickSettingsNotifications.js:97
 msgid "Disable Do Not Disturb"
@@ -124,290 +116,288 @@ msgstr "راست و چپ"
 msgid "Quarters"
 msgstr "یک‌چهارم‌ها"
 
-#: apps/windowTitle.js:274
+#: apps/windowTitle.js:281
 msgid "Leave Fullscreen"
 msgstr "خروج از تمام‌صفحه"
 
-#: apps/windowTitle.js:274
+#: apps/windowTitle.js:281
 msgid "Fullscreen"
 msgstr "تمام‌صفحه"
 
-#: apps/windowTitle.js:282
+#: apps/windowTitle.js:289
 msgid "Restore Window"
 msgstr "بازگردانی پنجره"
 
-#: apps/windowTitle.js:288
+#: apps/windowTitle.js:295
 msgid "Always on Top"
 msgstr "همیشه رو"
 
-#: prefs.js:65
+#: prefs.js:83
 msgid "Kiwi (is not Apple)"
 msgstr "Kiwi (is not Apple)"
 
-#: prefs.js:92
+#: prefs.js:110
 msgid "About"
 msgstr "درباره"
 
-#: prefs.js:151 prefs.js:165
+#: prefs.js:169 prefs.js:183
 msgid "Unknown"
 msgstr "نامشخص"
 
-#: prefs.js:158
+#: prefs.js:176
 msgid "Change log"
 msgstr "گزارش تغییرات"
 
-#: prefs.js:199
+#: prefs.js:217
 msgid "Website"
 msgstr "وبگاه"
 
-#: prefs.js:203
+#: prefs.js:221
 msgid "Report an Issue"
 msgstr "گزارش مشکل"
 
-#: prefs.js:208
+#: prefs.js:226
 msgid "Credits"
 msgstr "دست‌اندرکاران"
 
-#: prefs.js:211 prefs.js:226
+#: prefs.js:229 prefs.js:244
 msgid "Legal"
 msgstr "حقوقی"
 
-#: prefs.js:234
+#: prefs.js:252
 msgid "License"
 msgstr "مجوز"
 
-#: prefs.js:235
+#: prefs.js:253
 msgid "Kiwi is free and open source software"
 msgstr "کیوی نرم‌افزاری آزاد و متن‌باز است"
 
-#: prefs.js:240
+#: prefs.js:258
 msgid "GNU General Public License v3.0"
 msgstr " پروانهٔ جامع همگانی گنو نگارش ۳.۰"
 
-#: prefs.js:242
+#: prefs.js:260
 msgid "View the full license text on GitHub"
 msgstr "متن کامل مجوز را در گیت‌هاب ببینید"
 
-#: prefs.js:249 prefs.js:250
+#: prefs.js:267 prefs.js:268
 msgid "Copyright"
 msgstr "حق نشر"
 
-#: prefs.js:250
+#: prefs.js:268
 msgid ""
-"This program is free software: you can redistribute it and/or modify it under"
-" the terms of the GNU General Public License as published by the Free "
-"Software Foundation, either version 3 of the License, or (at your option) any"
-" later version."
+"This program is free software: you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation, either version 3 of the License, or (at your option) "
+"any later version."
 msgstr ""
 "این برنامه نرم‌افزاری آزاد است؛ می‌توانید آن را طبق شرایط مجوز عمومی همگانی "
-"گنو که توسط بنیاد نرم‌افزار آزاد منتشر شده (نسخه ۳ یا هر نسخهٔ بعدی به انتخاب"
-" شما) بازتوزیع و/یا اصلاح کنید."
+"گنو که توسط بنیاد نرم‌افزار آزاد منتشر شده (نسخه ۳ یا هر نسخهٔ بعدی به انتخاب "
+"شما) بازتوزیع و/یا اصلاح کنید."
 
-#: prefs.js:304
+#: prefs.js:322
 msgid "Become a sponsor on GitHub"
 msgstr "حامی مالی در گیت‌هاب شوید"
 
-#: prefs.js:317
+#: prefs.js:335
 msgid "Support Me ♡"
 msgstr "حمایت از من ♡"
 
-#: prefs.js:343
+#: prefs.js:361
 msgid "Panel"
 msgstr "پنل"
 
-#: prefs.js:349 prefs.js:362
+#: prefs.js:367 prefs.js:380
 msgid "Panel Transparency"
 msgstr "شفافیت پنل"
 
-#: prefs.js:350
+#: prefs.js:368
 msgid "Configure panel transparency and appearance"
 msgstr "شفافیت و ظاهر پنل را پیکربندی کنید"
 
-#: prefs.js:363
+#: prefs.js:381
 msgid "Make the top panel transparent"
 msgstr "پنل بالایی را شفاف کن"
 
-#: prefs.js:370
+#: prefs.js:388
 msgid "Transparency Level"
 msgstr "سطح شفافیت"
 
-#: prefs.js:371
+#: prefs.js:389
 msgid "Set panel transparency (0-100)"
 msgstr "شفافیت پنل را بین ۰ تا ۱۰۰ تنظیم کنید"
 
-#: prefs.js:385
+#: prefs.js:403
 msgid "Opaque When Window Touches"
 msgstr "کدر شدن هنگام لمس پنجره"
 
-#: prefs.js:386
+#: prefs.js:404
 msgid "Make panel opaque when a window touches it"
 msgstr "وقتی پنجره به پنل می‌رسد آن را کدر کن"
 
-#: prefs.js:394
+#: prefs.js:412
 msgid "Panel Blur"
 msgstr "تاری پنل"
 
-#: prefs.js:395
+#: prefs.js:413
 msgid "Blur the background behind the panel"
 msgstr "تار کردن پس‌زمینهٔ پشت پنل"
 
-#: prefs.js:403
+#: prefs.js:421
 msgid "Panel Color Fix"
 msgstr "اصلاح رنگ پنل"
 
-#: prefs.js:404
+#: prefs.js:422
 msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
 msgstr "رفع مشکل سفید شدن پنل در برخی پوسته‌ها (مثلاً Ubuntu Yaru)"
 
-#: prefs.js:411
+#: prefs.js:429
 msgid "Invert Tray Icons on Light Wallpapers"
 msgstr "وارونه‌سازی نمادهای سینی روی پس‌زمینه‌های روشن"
 
-#: prefs.js:412
+#: prefs.js:430
 msgid ""
 "Darken white monochrome tray icons when the panel adapts to a light "
 "wallpaper. Colored icons are left untouched"
 msgstr ""
-"تیره کردن نمادهای تک‌رنگ سفید سینی هنگامی که پنل با پس‌زمینه روشن هم‌ساز "
-"می‌شود. نمادهای رنگی بدون تغییر می‌مانند"
+"تیره کردن نمادهای تک‌رنگ سفید سینی هنگامی که پنل با پس‌زمینه روشن هم‌ساز می‌شود. "
+"نمادهای رنگی بدون تغییر می‌مانند"
 
-#: prefs.js:445
+#: prefs.js:463
 msgid "Panel Items"
 msgstr "موارد پنل"
 
-#: prefs.js:446
+#: prefs.js:464
 msgid "Choose what the top panel and its menus show"
 msgstr "انتخاب آنچه نوار بالا و منوهایش نشان می‌دهند"
 
-#: prefs.js:453
+#: prefs.js:471
 msgid "Show Window Title"
 msgstr "نمایش عنوان پنجره"
 
-#: prefs.js:454
+#: prefs.js:472
 msgid "Display current window title in the top panel"
 msgstr "عنوان پنجرهٔ جاری را در پنل بالا نمایش بده"
 
-#: prefs.js:463
+#: prefs.js:481
 msgid "Hide App Icon"
 msgstr "پنهان کردن نماد برنامه"
 
-#: prefs.js:464
+#: prefs.js:482
 msgid "Do not show the application icon next to the window title"
 msgstr "نماد برنامه در کنار عنوان پنجره نشان داده نشود"
 
-#: prefs.js:471
+#: prefs.js:489
 msgid "Disable Window Tiling"
 msgstr "غیرفعال کردن کاشی‌بندی پنجره"
 
-#: prefs.js:472
+#: prefs.js:490
 msgid ""
 "Drop the tiling layouts from the window title menu, and stop restoring tiled "
 "windows when their titlebar is dragged"
 msgstr ""
-"حذف چیدمان‌های کاشی‌بندی از منوی عنوان پنجره و توقف بازگردانی پنجره‌های "
-"کاشی‌شده هنگام کشیدن نوار عنوان آن‌ها"
+"حذف چیدمان‌های کاشی‌بندی از منوی عنوان پنجره و توقف بازگردانی پنجره‌های کاشی‌شده "
+"هنگام کشیدن نوار عنوان آن‌ها"
 
-#: prefs.js:492
+#: prefs.js:510
 msgid "Show Panel in Fullscreen on Hover"
 msgstr "نمایش پنل در تمام‌صفحه هنگام نزدیک شدن اشاره‌گر"
 
-#: prefs.js:492
+#: prefs.js:510
 msgid ""
 "Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
 msgstr ""
-"در حالت تمام‌صفحه وقتی ماوس نزدیک لبهٔ بالا است پنل را نشان بده. در "
-"برنامه‌های GTK4 مشکل‌دار است."
+"در حالت تمام‌صفحه وقتی ماوس نزدیک لبهٔ بالا است پنل را نشان بده. در برنامه‌های "
+"GTK4 مشکل‌دار است."
 
-#: prefs.js:500
+#: prefs.js:518
 msgid "Move Calendar to Right"
 msgstr "انتقال تقویم به راست"
 
-#: prefs.js:501
+#: prefs.js:519
 msgid "Move calendar to right side and hide notifications"
 msgstr "تقویم را به سمت راست منتقل کن و اعلان‌ها را پنهان کن"
 
-#: prefs.js:510
+#: prefs.js:528
 msgid "Keep GNOME Notification Panel"
 msgstr "نگه داشتن پنل اعلان گنوم"
 
-#: prefs.js:511
+#: prefs.js:529
 msgid "Don't split notification and calendar layout"
 msgstr "اعلان‌ها و تقویم را از هم جدا نکن"
 
-#: prefs.js:517
+#: prefs.js:536
 msgid "Indicator Style"
 msgstr "سبک نشانگر"
 
-#: prefs.js:518
+#: prefs.js:537
 msgid "Notification dot recolor"
 msgstr "تغییر رنگ نقطهٔ اعلان"
 
-#: prefs.js:529 prefs.js:842
+#: prefs.js:540 prefs.js:826
 msgid "Default"
 msgstr "پیش‌فرض"
 
-#: prefs.js:533
+#: prefs.js:540
 msgid "Accent"
 msgstr "تأکیدی"
 
-#: prefs.js:537
+#: prefs.js:540
 msgid "Symbolic"
 msgstr "نمادین"
 
-#: prefs.js:556
+#: prefs.js:547
 msgid "Battery Percentage"
 msgstr "درصد باتری"
 
-#: prefs.js:568
+#: prefs.js:559
 msgid ""
 "Unavailable while GNOME Settings shows the battery percentage in the top bar"
 msgstr ""
-"تا زمانی که تنظیمات گنوم درصد باتری را در نوار بالا نشان می‌دهد، در دسترس "
-"نیست"
+"تا زمانی که تنظیمات گنوم درصد باتری را در نوار بالا نشان می‌دهد، در دسترس نیست"
 
-#: prefs.js:569
+#: prefs.js:560
 msgid "Show battery percentage in the top bar when below 20%"
 msgstr "در صورت کمتر از ۲۰٪ بودن، درصد باتری را در نوار بالا نشان بده"
 
-#: prefs.js:575
+#: prefs.js:566
 msgid "Caps Lock and Num Lock"
 msgstr "Caps Lock و Num Lock"
 
-#: prefs.js:575
+#: prefs.js:566
 msgid "Show Caps Lock and Num Lock icon"
 msgstr "آیکون‌های Caps Lock و Num Lock را نمایش بده"
 
-#: prefs.js:576
+#: prefs.js:567
 msgid "Custom Do Not Disturb Button"
 msgstr "دکمه سفارشی عدم مزاحمت"
 
-#: prefs.js:576
+#: prefs.js:567
 msgid ""
 "Replace the system Do Not Disturb button with Kiwi's custom implementation"
-msgstr ""
-"دکمه پیش‌فرض عدم مزاحمت سیستم را با پیاده‌سازی سفارشی Kiwi جایگزین می‌کند"
+msgstr "دکمه پیش‌فرض عدم مزاحمت سیستم را با پیاده‌سازی سفارشی Kiwi جایگزین می‌کند"
 
-#: prefs.js:577
+#: prefs.js:568
 msgid "Hide Activities Button"
 msgstr "پنهان کردن دکمهٔ فعالیت‌ها"
 
-#: prefs.js:577
+#: prefs.js:568
 msgid "Hide the Activities button in the top panel"
 msgstr "دکمهٔ فعالیت‌ها را در پنل بالا پنهان کن"
 
-#: prefs.js:578
+#: prefs.js:569
 msgid "Add Username"
 msgstr "افزودن نام کاربری"
 
-#: prefs.js:578
+#: prefs.js:569
 msgid "Add username to the quick menu"
 msgstr "نام کاربری را به منوی سریع اضافه کن"
 
-#: prefs.js:582 prefs.js:780
+#: prefs.js:573 prefs.js:771
 msgid "Styling"
 msgstr "ظاهر"
 
-#: prefs.js:583
+#: prefs.js:574
 msgid ""
 "Restyle stock GNOME Shell elements and GTK apps. Log out and back in for "
 "changes to take effect"
@@ -415,23 +405,23 @@ msgstr ""
 "تغییر ظاهر عناصر پیش‌فرض گنوم شل و برنامه‌های GTK. برای اعمال تغییرات خارج و "
 "دوباره وارد شوید"
 
-#: prefs.js:588
+#: prefs.js:579
 msgid "Panel Styling"
 msgstr "ظاهر پنل"
 
-#: prefs.js:588
+#: prefs.js:579
 msgid ""
-"Tighter button spacing, bold titles, smaller status icons, no dropdown arrows"
-" and a transparent panel in the overview"
+"Tighter button spacing, bold titles, smaller status icons, no dropdown "
+"arrows and a transparent panel in the overview"
 msgstr ""
-"فاصله کمتر دکمه‌ها، عنوان‌های توپر، نمادهای وضعیت کوچک‌تر، بدون فلش‌های بازشو"
-" و پنل شفاف در نمای کلی"
+"فاصله کمتر دکمه‌ها، عنوان‌های توپر، نمادهای وضعیت کوچک‌تر، بدون فلش‌های بازشو و "
+"پنل شفاف در نمای کلی"
 
-#: prefs.js:589
+#: prefs.js:580
 msgid "Menu and App Styling"
 msgstr "ظاهر منو و برنامه"
 
-#: prefs.js:589
+#: prefs.js:580
 msgid ""
 "Narrower shell menu items with accent-colored hover and selection, plus the "
 "GTK app fixes"
@@ -439,78 +429,78 @@ msgstr ""
 "موارد منوی شل باریک‌تر با رنگ تأکیدی هنگام اشاره و گزینش، همراه با اصلاحات "
 "برنامه‌های GTK"
 
-#: prefs.js:595
+#: prefs.js:586
 msgid "Style Keyboard Indicator"
 msgstr "استایل‌دهی به نشانگر صفحه‌کلید"
 
-#: prefs.js:596
+#: prefs.js:587
 msgid ""
-"Slightly style keyboard/input source indicator by converting to uppercase and"
-" adding border"
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
 msgstr ""
 "نشانگر صفحه‌کلید/منبع ورودی را با تبدیل به حروف بزرگ و افزودن حاشیه کمی مرتب "
 "کن"
 
-#: prefs.js:603
+#: prefs.js:594
 msgid "Hide keyboard indicator"
 msgstr "نشانگر صفحه‌کلید را پنهان کن"
 
-#: prefs.js:604
+#: prefs.js:595
 msgid "Completely hide the indicator from the panel"
 msgstr "نشانگر را به طور کامل از پنل پنهان کن"
 
-#: prefs.js:632
+#: prefs.js:623
 msgid "Dock"
 msgstr "داک"
 
-#: prefs.js:638
+#: prefs.js:629
 msgid "Dock Items"
 msgstr "موارد داک"
 
-#: prefs.js:639
+#: prefs.js:630
 msgid "Add extra items to Dash-to-Dock"
 msgstr "افزودن موارد بیشتر به Dash-to-Dock"
 
-#: prefs.js:644
+#: prefs.js:635
 msgid "Minimize Windows to Dock"
 msgstr "کوچک کردن پنجره‌ها به داک"
 
-#: prefs.js:644
+#: prefs.js:635
 msgid ""
 "Park minimized windows as thumbnails in Dash-to-Dock, after the apps and "
 "before the trash"
 msgstr ""
-"قرار دادن پنجره‌های کوچک‌شده به‌صورت بندانگشتی در Dash-to-Dock، پس از "
-"برنامه‌ها و پیش از زباله‌دان"
+"قرار دادن پنجره‌های کوچک‌شده به‌صورت بندانگشتی در Dash-to-Dock، پس از برنامه‌ها "
+"و پیش از زباله‌دان"
 
-#: prefs.js:648
+#: prefs.js:639
 msgid "Downloads Folder in Dock"
 msgstr "پوشه بارگیری‌ها در داک"
 
-#: prefs.js:649
+#: prefs.js:640
 msgid ""
 "Add a Downloads folder before the trash that fans its newest files out over "
 "the desktop"
 msgstr ""
-"افزودن پوشه بارگیری‌ها پیش از زباله‌دان که تازه‌ترین پرونده‌هایش را روی "
-"میزکار پخش می‌کند"
+"افزودن پوشه بارگیری‌ها پیش از زباله‌دان که تازه‌ترین پرونده‌هایش را روی میزکار "
+"پخش می‌کند"
 
-#: prefs.js:657
+#: prefs.js:648
 msgid "Stack Behind Folder"
 msgstr "چیدن پشت پوشه"
 
-#: prefs.js:658
+#: prefs.js:649
 msgid ""
-"Show the newest files sticking out of the folder icon instead of piled on top"
-" of it"
+"Show the newest files sticking out of the folder icon instead of piled on "
+"top of it"
 msgstr ""
 "نمایش تازه‌ترین پرونده‌ها بیرون‌آمده از پشت نماد پوشه، به‌جای انباشته روی آن"
 
-#: prefs.js:676
+#: prefs.js:667
 msgid "Launchpad Application"
 msgstr "برنامهٔ لانچ‌پد"
 
-#: prefs.js:677
+#: prefs.js:668
 msgid ""
 "Add custom Launchpad icon to dock that opens application overview. "
 "Recommended to hide default app launcher."
@@ -518,151 +508,164 @@ msgstr ""
 "یک آیکون سفارشی لانچ‌پد به داک اضافه کن که نمای برنامه‌ها را باز کند. توصیه "
 "می‌شود لانچر پیش‌فرض پنهان شود."
 
-#: prefs.js:687
+#: prefs.js:678
 msgid "Custom Icon"
 msgstr "نماد سفارشی"
 
-#: prefs.js:690 prefs.js:775
+#: prefs.js:681 prefs.js:766
 msgid "Using default icon"
 msgstr "از نماد پیش‌فرض استفاده می‌شود"
 
-#: prefs.js:698
+#: prefs.js:689
 msgid "Reset to default icon"
 msgstr "بازنشانی به نماد پیش‌فرض"
 
-#: prefs.js:709
+#: prefs.js:700
 msgid "Browse for icon"
 msgstr "انتخاب نماد"
 
-#: prefs.js:714
+#: prefs.js:705
 msgid "Select Launchpad Icon"
 msgstr "انتخاب نماد لانچ‌پد"
 
-#: prefs.js:718
+#: prefs.js:709
 msgid "Images (PNG, SVG)"
 msgstr "تصاویر (PNG، SVG)"
 
-#: prefs.js:746
+#: prefs.js:737
 msgid "Icon Too Large"
 msgstr "نماد خیلی بزرگ است"
 
-#: prefs.js:747
+#: prefs.js:738
 msgid ""
 "The selected image exceeds 512×512 pixels. Please choose a smaller image."
 msgstr ""
-"تصویر انتخاب‌شده از ۵۱۲×۵۱۲ پیکسل بزرگ‌تر است. لطفاً تصویر کوچک‌تری انتخاب "
-"کنید."
+"تصویر انتخاب‌شده از ۵۱۲×۵۱۲ پیکسل بزرگ‌تر است. لطفاً تصویر کوچک‌تری انتخاب کنید."
 
-#: prefs.js:749
+#: prefs.js:740
 msgid "OK"
 msgstr "تأیید"
 
-#: prefs.js:785
+#: prefs.js:776
 msgid "Dock Styling"
 msgstr "ظاهر داک"
 
-#: prefs.js:785
+#: prefs.js:776
 msgid ""
 "Tighten icon spacing, drop the icon highlight and darken icons while pressed"
 msgstr ""
 "کاهش فاصله نمادها، حذف برجسته‌سازی نماد و تیره کردن نمادها هنگام فشار دادن"
 
-#: prefs.js:786
+#: prefs.js:777
 msgid "Dock Blur"
 msgstr "تاری داک"
 
-#: prefs.js:786
-msgid "Blur the background behind Dash-to-Dock"
-msgstr "تار کردن پس‌زمینهٔ پشت Dash-to-Dock"
+#: prefs.js:777
+msgid ""
+"Blur the background behind Dash-to-Dock. Recommended fixed dock opacity 10% "
+"- 30%, min 1%."
+msgstr ""
+"تار کردن پس‌زمینهٔ پشت Dash-to-Dock. کدری ثابت پیشنهادی داک ۱۰٪ تا ۳۰٪، دست‌کم "
+"۱٪."
 
-#: prefs.js:793
+#: prefs.js:778
+msgid "Adaptive Dock Colors"
+msgstr "رنگ‌های سازگار داک"
+
+#: prefs.js:778
+msgid ""
+"Flip the running indicators and separators to suit whatever is behind the "
+"dock, wallpaper or window"
+msgstr ""
+"تغییر نشانگرهای در حال اجرا و جداکننده‌ها متناسب با آنچه پشت داک است، "
+"کاغذدیواری یا پنجره"
+
+#: prefs.js:785
 msgid "Buttons"
 msgstr "دکمه‌ها"
 
-#: prefs.js:799
+#: prefs.js:791
 msgid "Window Control Button Style"
 msgstr "سبک دکمه‌های کنترل پنجره"
 
-#: prefs.js:800
+#: prefs.js:792
 msgid ""
 "Choose the window control button style. Log out to apply it across all apps."
 msgstr ""
-"سبک دکمه‌های کنترل پنجره را انتخاب کنید. برای اعمال در همه برنامه‌ها خارج "
-"شوید."
+"سبک دکمه‌های کنترل پنجره را انتخاب کنید. برای اعمال در همه برنامه‌ها خارج شوید."
 
-#: prefs.js:808
+#: prefs.js:800
 msgid "Enable macOS Window Buttons"
 msgstr "فعال کردن دکمه‌های پنجرهٔ macOS"
 
-#: prefs.js:809
+#: prefs.js:801
 msgid "Replace window control buttons in application windows with macOS style"
 msgstr "جایگزینی دکمه‌های کنترل پنجره در برنامه‌ها با سبک macOS"
 
-#: prefs.js:830
+#: prefs.js:822
 msgid "Button Type"
 msgstr "نوع دکمه"
 
-#: prefs.js:831
+#: prefs.js:823
 msgid "Choose the button icon set"
 msgstr "مجموعهٔ آیکون دکمه‌ها را انتخاب کنید"
 
-#: prefs.js:846
+#: prefs.js:826
 msgid "Alternative"
 msgstr "جایگزین"
 
-#: prefs.js:863
+#: prefs.js:832
 msgid "Button Size"
 msgstr "اندازه دکمه"
 
-#: prefs.js:864
+#: prefs.js:833
 msgid "Choose button size"
 msgstr "انتخاب اندازه دکمه"
 
-#: prefs.js:875
+#: prefs.js:836
 msgid "Small"
 msgstr "کوچک"
 
-#: prefs.js:879
+#: prefs.js:836
 msgid "Normal"
 msgstr "معمولی"
 
-#: prefs.js:896
+#: prefs.js:842
 msgid "Firefox Styling"
 msgstr "استایل فایرفاکس"
 
-#: prefs.js:897
+#: prefs.js:843
 msgid ""
 "Apply macOS window control styling for Firefox. Recommended to use with "
 "vertical tabs."
 msgstr ""
-"استایل کنترل‌های پنجرهٔ macOS را برای فایرفاکس اعمال کن. استفاده همراه "
-"برگه‌های عمودی توصیه می‌شود."
+"استایل کنترل‌های پنجرهٔ macOS را برای فایرفاکس اعمال کن. استفاده همراه برگه‌های "
+"عمودی توصیه می‌شود."
 
-#: prefs.js:905
+#: prefs.js:851
 msgid "Thunderbird Styling"
 msgstr "سبک تاندربرد"
 
-#: prefs.js:906
+#: prefs.js:852
 msgid "Apply macOS window control styling for Thunderbird."
 msgstr "اعمال سبک کنترل پنجره macOS برای تاندربرد."
 
-#: prefs.js:930
+#: prefs.js:876
 msgid "Show Window Controls on Panel"
 msgstr "نمایش کنترل‌های پنجره روی پنل"
 
-#: prefs.js:931
+#: prefs.js:877
 msgid ""
 "Display close, minimize, maximize buttons in the top panel when window is "
 "maximized"
 msgstr ""
-"نمایش دکمه‌های بستن، کوچک‌کردن و بزرگ‌کردن در پنل بالا هنگام بیشینه بودن "
-"پنجره"
+"نمایش دکمه‌های بستن، کوچک‌کردن و بزرگ‌کردن در پنل بالا هنگام بیشینه بودن پنجره"
 
-#: prefs.js:945
+#: prefs.js:891
 msgid "Only when Fullscreen"
 msgstr "تنها در تمام‌صفحه"
 
-#: prefs.js:946
+#: prefs.js:892
 msgid ""
 "Hide titlebars and show panel controls only for fullscreen windows, not "
 "maximized"
@@ -670,163 +673,178 @@ msgstr ""
 "پنهان کردن نوارهای عنوان و نمایش واپایشگرهای پنل تنها برای پنجره‌های "
 "تمام‌صفحه، نه بیشینه"
 
-#: prefs.js:955
+#: prefs.js:901
 msgid "Options"
 msgstr "ویژگی‌ها"
 
-#: prefs.js:961
+#: prefs.js:907
 msgid "Kiwi"
 msgstr "Kiwi"
 
-#: prefs.js:962
+#: prefs.js:908
 msgid ""
 "Kiwi is not like Apple, it's free open source project that brings macOS-like "
 "feel for GNOME"
 msgstr ""
-"Kiwi مثل Apple نیست؛ یک پروژهٔ آزاد و متن‌باز است که حس macOS را به گنوم "
-"می‌آورد"
+"Kiwi مثل Apple نیست؛ یک پروژهٔ آزاد و متن‌باز است که حس macOS را به گنوم می‌آورد"
 
-#: prefs.js:967
+#: prefs.js:913
 msgid "Overview Wallpaper Blur"
 msgstr "تاری پس‌زمینهٔ نمای کلی"
 
-#: prefs.js:967
+#: prefs.js:913
 msgid "Use blurred current wallpaper as overview background"
 msgstr "استفاده از پس‌زمینه کنونی محوشده به‌عنوان پس‌زمینه نمای کلی"
 
-#: prefs.js:968
+#: prefs.js:914
 msgid "Skip to Desktop"
 msgstr "پرش به دسکتاپ"
 
-#: prefs.js:968
+#: prefs.js:914
 msgid "Do not show the overview when logging in. Animation is still visible"
 msgstr "در هنگام ورود نمای کلی را نشان نده. انیمیشن همچنان دیده می‌شود."
 
-#: prefs.js:969
+#: prefs.js:915
 msgid "Hide Minimized Windows"
 msgstr "پنهان کردن پنجره‌های کمینه"
 
-#: prefs.js:969
+#: prefs.js:915
 msgid "Hide minimized windows in the overview"
 msgstr "پنجره‌های کمینه را در نمای کلی پنهان کن"
 
-#: prefs.js:970
+#: prefs.js:916
 msgid "Move Window to New Workspace"
 msgstr "جابه‌جایی پنجره به فضای کاری جدید"
 
-#: prefs.js:970
+#: prefs.js:916
 msgid "Move fullscreen window to a new workspace"
 msgstr "انتقال پنجره تمام‌صفحه به فضای کاری جدید"
 
-#: prefs.js:971
+#: prefs.js:917
 msgid "Reduce App Animations"
 msgstr "کاهش پویانمایی‌های برنامه"
 
-#: prefs.js:971
+#: prefs.js:917
 msgid "Mimic macOS window opening and closing with a subtle scale and fade"
 msgstr "تقلید باز و بسته شدن پنجره‌های مک‌اواس با بزرگ‌نمایی و محو شدن ملایم"
 
-#: prefs.js:972
+#: prefs.js:918
 msgid "Transparent Move"
 msgstr "جابجایی شفاف"
 
-#: prefs.js:972
+#: prefs.js:918
 msgid "Move window with transparency"
 msgstr "جابجا کردن پنجره با شفافیت"
 
-#: prefs.js:979
+#: prefs.js:925
 msgid "Advanced"
 msgstr "پیشرفته"
 
-#: prefs.js:1009
+#: prefs.js:955
 msgid "Titlebuttons Hover Effect for GTK3 apps"
 msgstr "افکت شناور دکمه‌های عنوان برای برنامه‌های GTK3"
 
-#: prefs.js:1022
+#: prefs.js:968
 msgid ""
-"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
+"The titlebuttons hover module provides macOS-like hover effects for window "
+"controls in GTK3 applications. GTK3 apps cannot natively show hover effects "
+"on all three window controls simultaneously, requiring this custom library "
+"to achieve the desired behavior.\n"
 "\n"
-"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
+"This binary code cannot be distributed through the GNOME Extensions platform "
+"due to security policies regarding native libraries, but manual installation "
+"is possible."
 msgstr ""
-"ماژول افکت شناور دکمه‌های عنوان، جلوه‌هایی شبیه macOS برای کنترل‌های پنجره در برنامه‌های GTK3 فراهم می‌کند. برنامه‌های GTK3 به طور بومی نمی‌توانند هم‌زمان روی هر سه کنترل پنجره افکت شناور نشان دهند، بنابراین برای رسیدن به رفتار موردنظر به این کتابخانه نیاز است.\n"
+"ماژول افکت شناور دکمه‌های عنوان، جلوه‌هایی شبیه macOS برای کنترل‌های پنجره در "
+"برنامه‌های GTK3 فراهم می‌کند. برنامه‌های GTK3 به طور بومی نمی‌توانند هم‌زمان روی "
+"هر سه کنترل پنجره افکت شناور نشان دهند، بنابراین برای رسیدن به رفتار موردنظر "
+"به این کتابخانه نیاز است.\n"
 "\n"
-"به دلیل سیاست‌های امنیتی دربارهٔ کتابخانه‌های بومی، این کد دودویی را نمی‌توان از طریق پلتفرم افزونه‌های گنوم توزیع کرد، اما نصب دستی ممکن است."
+"به دلیل سیاست‌های امنیتی دربارهٔ کتابخانه‌های بومی، این کد دودویی را نمی‌توان از "
+"طریق پلتفرم افزونه‌های گنوم توزیع کرد، اما نصب دستی ممکن است."
 
-#: prefs.js:1038
+#: prefs.js:984
 msgid "Installation Guide on GitHub"
 msgstr "راهنمای نصب در گیت‌هاب"
 
-#: prefs.js:1040
+#: prefs.js:986
 msgid "Open the advanced module build instructions"
 msgstr "دستورالعمل ساخت ماژول پیشرفته را باز کن"
 
-#: prefs.js:1046
+#: prefs.js:992
 msgid "More of my work..."
 msgstr "کارهای بیشتر من…"
 
-#: prefs.js:1050
+#: prefs.js:996
 msgid "Kiwi Menu"
 msgstr "Kiwi Menu"
 
-#: prefs.js:1050
+#: prefs.js:996
 msgid "MacOS style menu for GNOME"
 msgstr "منوی به سبک مک‌اواس برای گنوم"
 
-#: prefs.js:1051
+#: prefs.js:997
 msgid "AppManager"
 msgstr "AppManager"
 
-#: prefs.js:1051
+#: prefs.js:997
 msgid "MacOS style AppImage installer and management application"
 msgstr "برنامه نصب و مدیریت AppImage به سبک MacOS"
 
-#: prefs.js:1052
+#: prefs.js:998
 msgid "Catalina Reloaded Icon Pack"
 msgstr "Catalina Reloaded Icon Pack"
 
-#: prefs.js:1052
+#: prefs.js:998
 msgid "macOS Tahoe icon theme for Linux"
 msgstr "تم آیکون macOS Tahoe برای لینوکس"
 
-#: prefs.js:1053
+#: prefs.js:999
 msgid "GDM Wallpaper"
 msgstr "GDM Wallpaper"
 
-#: prefs.js:1053
+#: prefs.js:999
 msgid "Set custom GDM login screen wallpaper"
 msgstr "تنظیم تصویر پس‌زمینهٔ سفارشی برای صفحهٔ ورود GDM"
 
-#: prefs.js:1065
+#: prefs.js:1011
 msgid "Other Recommended Extensions"
 msgstr "دیگر افزونه‌های پیشنهادی"
 
-#: prefs.js:1066
+#: prefs.js:1012
 msgid "Extensions that are compatible with Kiwi"
 msgstr "افزونه‌های سازگار با Kiwi"
 
-#: prefs.js:1090 prefs.js:1104
+#: prefs.js:1036 prefs.js:1050
 msgid "Restore Defaults"
 msgstr "بازگردانی پیش‌فرض‌ها"
 
-#: prefs.js:1094
+#: prefs.js:1040
 msgid "Reset every Kiwi setting to its default value"
 msgstr "بازنشانی همه تنظیمات کیوی به مقدار پیش‌فرض"
 
-#: prefs.js:1100
+#: prefs.js:1046
 msgid "Restore Default Settings?"
 msgstr "بازگردانی تنظیمات پیش‌فرض؟"
 
-#: prefs.js:1101
+#: prefs.js:1047
 msgid ""
 "Every Kiwi setting will be reset to its default value. This cannot be undone."
 msgstr ""
 "همه تنظیمات کیوی به مقدار پیش‌فرض بازنشانی می‌شوند. این کار بازگشت‌پذیر نیست."
 
-#: prefs.js:1103
+#: prefs.js:1049
 msgid "Cancel"
 msgstr "لغو"
 
-#~ msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+#~ msgid "Unknown artist"
+#~ msgstr "هنرمند ناشناس"
+
+#~ msgid "Unknown title"
+#~ msgstr "عنوان ناشناس"
+
+#~ msgid ""
+#~ "ImageMagick not installed (install package \"imagemagick\" to enable)"
 #~ msgstr ""
 #~ "ImageMagick نصب نشده است (برای فعال‌سازی بستهٔ \"imagemagick\" را نصب کنید)"
 
@@ -840,7 +858,8 @@ msgstr "لغو"
 #~ msgstr "حمایتم کنید ♡"
 
 #~ msgid ""
-#~ "Use blurred current wallpaper as overview background (requires ImageMagick)"
+#~ "Use blurred current wallpaper as overview background (requires "
+#~ "ImageMagick)"
 #~ msgstr ""
 #~ "از تصویر پس‌زمینهٔ فعلیِ تار شده به عنوان پس‌زمینهٔ نمای کلی استفاده کن "
 #~ "(نیازمند ImageMagick)"
@@ -860,11 +879,16 @@ msgstr "لغو"
 #~ msgid ""
 #~ "Copyright © 2025 Arnis Kemlers\n"
 #~ "\n"
-#~ "This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+#~ "This program is free software: you can redistribute it and/or modify it "
+#~ "under the terms of the GNU General Public License as published by the "
+#~ "Free Software Foundation, either version 3 of the License, or (at your "
+#~ "option) any later version."
 #~ msgstr ""
 #~ "حق نشر © ۲۰۲۵ آرنيس کملرس\n"
 #~ "\n"
-#~ "این برنامه نرم‌افزاری آزاد است؛ می‌توانید آن را طبق شرایط مجوز عمومی همگانی گنو که توسط بنیاد نرم‌افزار آزاد منتشر شده (نسخه ۳ یا هر نسخهٔ بعدی به انتخاب شما) بازتوزیع و/یا اصلاح کنید."
+#~ "این برنامه نرم‌افزاری آزاد است؛ می‌توانید آن را طبق شرایط مجوز عمومی همگانی "
+#~ "گنو که توسط بنیاد نرم‌افزار آزاد منتشر شده (نسخه ۳ یا هر نسخهٔ بعدی به "
+#~ "انتخاب شما) بازتوزیع و/یا اصلاح کنید."
 
 #~ msgid "Support the project"
 #~ msgstr "از پروژه حمایت کنید"

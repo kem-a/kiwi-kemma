@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// macOS-style minimized windows: parks a thumbnail of every minimized window in
-// Dash-to-Dock, after the app icons and before the trash.
-// The window is snapshotted with paint_to_content() while it is still mapped,
-// so the tile keeps showing the last frame after the window is gone from view.
-// Dash-to-Dock's own trash item is moved to the end of our strip, which keeps
-// the macOS order (apps | minimized windows | trash) without reimplementing it.
+// macOS-style minimized windows: a thumbnail of every minimized window sits in
+// Dash-to-Dock, between the app icons and the trash. The snapshot is taken with
+// paint_to_content() while the window is still mapped.
 
 import Clutter from 'gi://Clutter';
 import Cogl from 'gi://Cogl';
-import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import Graphene from 'gi://Graphene';
@@ -18,27 +14,22 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {
-    applyIconOffset, dashEndsWithSeparator, dashOf, disconnectAll, isTrashItem, makeDashItem,
-    makeDashSeparator, makeStrip, scaleFactor, watchDocks,
+    applyIconOffset, dashEndsWithSeparator, dashOf, disconnectAll, dockSettings, isTrashItem,
+    makeDashItem, makeDashSeparator, makeStrip, scaleFactor, watchDocks,
 } from './dockUtils.js';
 
-const D2D_SCHEMA = 'org.gnome.shell.extensions.dash-to-dock';
-// Proportions measured off a macOS dock: every tile is the same fixed box, a
-// little wider than an icon along the dock, with the thumbnail centred in it and
-// the app icon always in the same corner, so the icons line up in one row. The
-// tile box holds the thumbnail alone; the selector around it is the padding on
-// .kiwi-minimized-tile, mirroring how .overview-icon frames an app icon.
+// Every tile is the same fixed box, so the badges line up in one row. The box
+// holds the thumbnail alone; the selector around it is the padding on
+// .kiwi-minimized-tile.
 const TILE_ALONG = 1.15;      // tile box along the dock, in dash icon sizes
 const TILE_ACROSS = 1;        // tile box across the dock, in dash icon sizes
 const THUMBNAIL_RADIUS = 4;   // px of corner rounding on a thumbnail, scaled
 const BADGE_FRACTION = 0.4;   // app icon badge, fraction of the dash icon size
 const RESTORE_GRACE = 500;    // ms to leave a restoring window's target alone
 const GEOMETRY_SETTLE = 100;  // ms of a still dock before recomputing targets
-// The dash opens and closes its slots in 200ms, which is too brisk next to the
-// window flying in or out: the two together match the shell's
-// MINIMIZE_WINDOW_ANIMATION_TIME so the slot and the window move as one
-// gesture. macOS splits it in two - the dock makes room along its length first,
-// then the thumbnail grows out of the dock's edge, and back down on restore.
+// Split in two like macOS: the dock makes room along its length first, then the
+// thumbnail grows out of its edge. Together they match the shell's
+// MINIMIZE_WINDOW_ANIMATION_TIME, so the slot and the window move as one.
 const TILE_SLOT_TIME = 160;   // ms to open or close the slot along the dock
 const TILE_GROW_TIME = 240;   // ms for the thumbnail itself to grow or shrink
 
@@ -65,9 +56,8 @@ function _captureSnapshot(win) {
     if (!actor)
         return null;
 
-    // Clip away client-side shadows. Despite what the docs say, mutter
-    // intersects this rectangle with the actor rect in stage coordinates,
-    // so the frame rect goes in unmodified.
+    // Clip away client-side shadows. Despite the docs, mutter intersects this
+    // with the actor rect in stage coordinates, so the frame rect goes in as is.
     const frame = win.get_frame_rect();
     const clip = new Mtk.Rectangle({
         x: frame.x,
@@ -87,10 +77,9 @@ function _captureSnapshot(win) {
 }
 
 /**
- * Windows are followed through notify::minimized rather than the window manager
- * minimize/unminimize signals: mutter emits it for every path into and out of
- * the minimized state, including windows raised by other launchers, and it does
- * so before the window is unmapped, which is what makes the snapshot possible.
+ * notify::minimized rather than the window manager's minimize signals: mutter
+ * emits it for every path into and out of the state, and before the window is
+ * unmapped, which is what makes the snapshot possible.
  *
  * @param win a Meta.Window
  */
@@ -119,8 +108,8 @@ function _addWindow(win) {
     if (!enabled || order.includes(win))
         return;
 
-    // A window that is already minimized cannot be snapshotted - it is unmapped -
-    // so the one taken on the way down is the only one there will be
+    // An already-minimized window is unmapped, so the snapshot taken on the way
+    // down is the only one there will be
     if (!snapshots.has(win)) {
         const snapshot = _captureSnapshot(win);
         if (snapshot)
@@ -128,9 +117,7 @@ function _addWindow(win) {
     }
 
     // The window manager starts the minimize animation before the queued update
-    // below runs, so whatever was written last wins — and Dash-to-Dock repoints
-    // a window at its app icon on every window-list change of that app. Aim this
-    // one at the slot it is about to land in, now.
+    // below runs, so aim this window at the slot it is about to land in, now
     const info = _dockForWindow(win);
     if (info?.strip.get_stage())
         win.set_icon_geometry(_nextSlotRect(info));
@@ -154,9 +141,8 @@ function _removeWindow(win) {
 }
 
 /**
- * The window manager reads the icon geometry when it starts the restore
- * animation, which is queued rather than immediate. Until then the window still
- * needs to point at the tile it came from, so keep it out of the next update.
+ * The restore animation is queued, and reads the icon geometry when it starts.
+ * Until then the window still has to point at the tile it came from.
  *
  * @param win a Meta.Window being restored
  */
@@ -209,10 +195,9 @@ class RoundedCornersEffect extends Clutter.ShaderEffect {
 });
 
 /**
- * GNOME 51 dropped Clutter.ShaderEffect.set_shader_source: a shader effect is
- * now built from a Cogl snippet, which hooks into the pipeline instead of
- * replacing it. The fragment stage has therefore already sampled the actor into
- * cogl_color_out by the time the snippet runs, and all it has to do is scale it.
+ * GNOME 51 dropped Clutter.ShaderEffect.set_shader_source for Cogl snippets,
+ * which hook into the pipeline instead of replacing it: the actor is already
+ * sampled into cogl_color_out by the time the snippet runs.
  */
 function _newRoundedCornersEffect() {
     if (Clutter.ShaderEffect.prototype.set_shader_source)
@@ -234,9 +219,8 @@ function _tileBox(dash) {
 }
 
 /**
- * Cut the corners off a thumbnail. A window texture is square, and the window's
- * own rounding shrinks to nothing at this size, so the corners are rounded in
- * screen space the way macOS rounds them.
+ * Cut the corners off a thumbnail. The window's own rounding shrinks to nothing
+ * at this size, so the corners are rounded in screen space instead.
  *
  * @param actor the thumbnail actor, already at its final size
  */
@@ -252,10 +236,9 @@ function _roundCorners(actor) {
     effect.set_uniform_value('height', height - 1e-6);
     effect.set_uniform_value('radius', radius - 1e-6);
 
-    // A dash item's preferred size follows its scale, so an animating tile
-    // allocates its thumbnail down to nothing. An offscreen effect on a
-    // zero-sized actor asks Cogl for an empty viewport, which it warns about;
-    // there is nothing to round off at that size anyway.
+    // An animating tile allocates its thumbnail down to nothing, and an
+    // offscreen effect on a zero-sized actor makes Cogl warn about an empty
+    // viewport
     actor.connect('notify::allocation', () => {
         const box = actor.get_allocation_box();
         effect.enabled = box.get_width() >= 1 && box.get_height() >= 1;
@@ -267,10 +250,9 @@ function _makeWindowTile(win, dash) {
         style_class: 'kiwi-minimized-tile',
         can_focus: true,
         track_hover: true,
-        // The badge expands to reach its corner and setChild() forces y_expand;
-        // Clutter propagates both up from the children, so with the default FILL
-        // the selector would stretch over the whole slot and hang out of the
-        // dock. Anything but FILL keeps it at the tile box plus its padding.
+        // The badge expands to reach its corner and setChild() forces y_expand,
+        // and Clutter propagates both up; with the default FILL the selector
+        // would stretch over the whole slot and hang out of the dock
         x_align: Clutter.ActorAlign.CENTER,
         y_align: Clutter.ActorAlign.CENTER,
     });
@@ -333,10 +315,9 @@ function _syncDocks() {
 }
 
 /**
- * Bring the strip in line with the list of minimized windows. Tiles are kept
- * across updates so that a restored window's tile can shrink out of the way
- * instead of blinking out: the item's preferred size follows its scale, so the
- * neighbours slide over and the dock closes the gap on its own.
+ * Bring the strip in line with the list of minimized windows. A restored
+ * window's tile shrinks out of the way rather than blinking out: the item's
+ * preferred size follows its scale, so the neighbours close the gap on their own.
  *
  * @param info the per-dock state
  */
@@ -385,10 +366,9 @@ function _syncDock(info) {
 }
 
 /**
- * The two axes of a tile animation: 'slot' is the one along the dock, which the
- * item container scales to open and close its place in the strip, and 'grow' is
- * the one across it, which the tile scales about the dock's own edge so it comes
- * up out of the dock rather than out of its own middle.
+ * The two axes of a tile animation: 'slot' runs along the dock, where the item
+ * scales to open its place in the strip, and 'grow' runs across it, where the
+ * tile scales about the dock's edge so it rises out of the dock.
  *
  * @param dash the Dash-to-Dock dash actor
  */
@@ -403,9 +383,8 @@ function _tileAxes(dash) {
 }
 
 /**
- * Grow a tile into place, macOS style: the strip opens the slot along the dock
- * first - the item's preferred size follows its scale, so the neighbours slide
- * over - and only then does the thumbnail rise out of the dock's edge.
+ * Grow a tile into place: the strip opens the slot along the dock first, and
+ * only then does the thumbnail rise out of the dock's edge.
  *
  * @param info the per-dock state
  * @param item a dash item container holding a tile
@@ -452,8 +431,7 @@ function _animateOut(info, item) {
         duration: TILE_SLOT_TIME,
         mode: Clutter.AnimationMode.EASE_OUT_QUAD,
         // Not onComplete: the tile is off our list before the animation starts,
-        // so a shrink cut short would leave it in the strip with nothing to
-        // free it, holding its window snapshot
+        // so a shrink cut short would strand it in the strip
         onStopped: () => item.destroy(),
     });
 }
@@ -489,9 +467,8 @@ function _syncSeparator(info) {
 }
 
 /**
- * The boundary moves with Dash-to-Dock's own box: a closed app takes its icon
- * out only once it has animated away, and until then Dash-to-Dock's separator
- * is not the last child yet and ours still looks needed. Re-check afterwards.
+ * A closed app takes its icon out only once it has animated away, so until then
+ * Dash-to-Dock's separator is not the last child and ours still looks needed.
  */
 function _queueSeparatorSync() {
     if (sources.separatorSync || !enabled)
@@ -511,10 +488,9 @@ function _findTrashItem(dash) {
 }
 
 /**
- * Move Dash-to-Dock's trash item to the end of our strip. It stays a real dock
- * icon — same menu, same drop target — it just lives after the minimized windows.
- * Dash-to-Dock rebuilds it whenever it redisplays, since it no longer finds it
- * in its own box, so the freshly built one replaces the one we hold.
+ * Move Dash-to-Dock's trash item to the end of our strip; it stays a real dock
+ * icon, just after the minimized windows. Dash-to-Dock no longer finds it in its
+ * own box, so it rebuilds one on every redisplay and we adopt that instead.
  *
  * @param info the per-dock state
  */
@@ -650,10 +626,9 @@ function _applyIconGeometry() {
 }
 
 /**
- * Recomputing the targets means asking every tile for its transformed position,
- * which can force a layout pass. Doing that from an allocation handler made the
- * strip relayout several times per frame and the animation stutter, so wait for
- * the dock to stop moving first.
+ * Asking every tile for its transformed position can force a layout pass, which
+ * from an allocation handler made the animation stutter. Wait for the dock to
+ * stop moving first.
  */
 function _queueIconGeometry() {
     if (!enabled)
@@ -702,9 +677,8 @@ function _attachDock(dockContainer) {
         });
     info.signals.push([dash._box, sizeId]);
 
-    // Dash-to-Dock rebuilds its trash item on every redisplay; take it over
-    // again. Hide it at once, or it widens the dash for the few frames until
-    // the idle-time adoption and the whole dock shifts and shifts back.
+    // Hide the rebuilt trash item at once, or it widens the dash for the few
+    // frames until the idle-time adoption and the dock shifts and shifts back
     const addedId = dash._box.connect('child-added', (_box, child) => {
         if (isTrashItem(child)) {
             child.hide();
@@ -750,8 +724,8 @@ export function enable() {
 
     // Dash-to-Dock cannot take its trash item back while we hold it, so follow
     // the setting to know when the user does not want it any more
-    if (Gio.SettingsSchemaSource.get_default()?.lookup(D2D_SCHEMA, true)) {
-        d2dSettings = new Gio.Settings({ schema_id: D2D_SCHEMA });
+    d2dSettings = dockSettings();
+    if (d2dSettings) {
         const trashSettingId = d2dSettings.connect('changed::show-trash', () => {
             if (d2dSettings.get_boolean('show-trash'))
                 _queueTrashAdoption();
@@ -775,10 +749,8 @@ export function enable() {
     const destroyId = global.window_manager.connect('destroy', () => _queueIconGeometry());
     globalSignals.push([global.window_manager, destroyId]);
 
-    // Snapshots outlive a disable, since the shell turns extensions off for the
-    // lock screen and the windows behind it are past snapshotting. Only the ones
-    // still sitting minimized are worth keeping: a window closed or brought back
-    // while we were off would come back to a picture of the past.
+    // Snapshots outlive a disable - the shell turns extensions off for the lock
+    // screen - but only for windows still sitting minimized
     const windows = global.get_window_actors().map(actor => actor.meta_window);
     for (const win of snapshots.keys()) {
         if (!windows.includes(win) || !win.minimized)

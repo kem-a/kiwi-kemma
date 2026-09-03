@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Kiwi is not Apple\n"
 "Report-Msgid-Bugs-To: https://github.com/kem-a/kiwi-kemma/issues\n"
-"POT-Creation-Date: 2026-08-21 19:55+0300\n"
+"POT-Creation-Date: 2026-08-31 15:09+0300\n"
 "PO-Revision-Date: 2026-08-21 20:00+0300\n"
 "Last-Translator: \n"
 "Language-Team: Swedish\n"
@@ -43,14 +43,6 @@ msgstr "Öppna programöversikten"
 #: apps/quickSettingsMedia.js:414
 msgid "Media"
 msgstr "Media"
-
-#: apps/quickSettingsMedia/player.js:167
-msgid "Unknown artist"
-msgstr "Okänd artist"
-
-#: apps/quickSettingsMedia/player.js:172
-msgid "Unknown title"
-msgstr "Okänd titel"
 
 #: apps/quickSettingsNotifications.js:97
 msgid "Disable Do Not Disturb"
@@ -120,147 +112,147 @@ msgstr "Höger och vänster"
 msgid "Quarters"
 msgstr "Fjärdedelar"
 
-#: apps/windowTitle.js:274
+#: apps/windowTitle.js:281
 msgid "Leave Fullscreen"
 msgstr "Lämna helskärm"
 
-#: apps/windowTitle.js:274
+#: apps/windowTitle.js:281
 msgid "Fullscreen"
 msgstr "Helskärm"
 
-#: apps/windowTitle.js:282
+#: apps/windowTitle.js:289
 msgid "Restore Window"
 msgstr "Återställ fönster"
 
-#: apps/windowTitle.js:288
+#: apps/windowTitle.js:295
 msgid "Always on Top"
 msgstr "Alltid överst"
 
-#: prefs.js:65
+#: prefs.js:83
 msgid "Kiwi (is not Apple)"
 msgstr "Kiwi (is not Apple)"
 
-#: prefs.js:92
+#: prefs.js:110
 msgid "About"
 msgstr "Om"
 
-#: prefs.js:151 prefs.js:165
+#: prefs.js:169 prefs.js:183
 msgid "Unknown"
 msgstr "Okänd"
 
-#: prefs.js:158
+#: prefs.js:176
 msgid "Change log"
 msgstr "Ändringslogg"
 
-#: prefs.js:199
+#: prefs.js:217
 msgid "Website"
 msgstr "Webbplats"
 
-#: prefs.js:203
+#: prefs.js:221
 msgid "Report an Issue"
 msgstr "Rapportera ett problem"
 
-#: prefs.js:208
+#: prefs.js:226
 msgid "Credits"
 msgstr "Tack till"
 
-#: prefs.js:211 prefs.js:226
+#: prefs.js:229 prefs.js:244
 msgid "Legal"
 msgstr "Juridisk information"
 
-#: prefs.js:234
+#: prefs.js:252
 msgid "License"
 msgstr "Licens"
 
-#: prefs.js:235
+#: prefs.js:253
 msgid "Kiwi is free and open source software"
 msgstr "Kiwi är fri programvara med öppen källkod"
 
-#: prefs.js:240
+#: prefs.js:258
 msgid "GNU General Public License v3.0"
 msgstr "GNU General Public License v3.0"
 
-#: prefs.js:242
+#: prefs.js:260
 msgid "View the full license text on GitHub"
 msgstr "Visa hela licenstexten på GitHub"
 
-#: prefs.js:249 prefs.js:250
+#: prefs.js:267 prefs.js:268
 msgid "Copyright"
 msgstr "Upphovsrätt"
 
-#: prefs.js:250
+#: prefs.js:268
 msgid ""
-"This program is free software: you can redistribute it and/or modify it under"
-" the terms of the GNU General Public License as published by the Free "
-"Software Foundation, either version 3 of the License, or (at your option) any"
-" later version."
+"This program is free software: you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation, either version 3 of the License, or (at your option) "
+"any later version."
 msgstr ""
 "Detta program är fri programvara; du kan distribuera det och/eller modifiera "
 "det enligt villkoren i GNU General Public License som publicerats av Free "
 "Software Foundation, antingen version 3 av licensen eller (om du vill) någon "
 "senare version."
 
-#: prefs.js:304
+#: prefs.js:322
 msgid "Become a sponsor on GitHub"
 msgstr "Bli en sponsor på GitHub"
 
-#: prefs.js:317
+#: prefs.js:335
 msgid "Support Me ♡"
 msgstr "Stöd mig ♡"
 
-#: prefs.js:343
+#: prefs.js:361
 msgid "Panel"
 msgstr "Panel"
 
-#: prefs.js:349 prefs.js:362
+#: prefs.js:367 prefs.js:380
 msgid "Panel Transparency"
 msgstr "Paneltransparens"
 
-#: prefs.js:350
+#: prefs.js:368
 msgid "Configure panel transparency and appearance"
 msgstr "Konfigurera panelens transparens och utseende"
 
-#: prefs.js:363
+#: prefs.js:381
 msgid "Make the top panel transparent"
 msgstr "Gör den övre panelen transparent"
 
-#: prefs.js:370
+#: prefs.js:388
 msgid "Transparency Level"
 msgstr "Transparensnivå"
 
-#: prefs.js:371
+#: prefs.js:389
 msgid "Set panel transparency (0-100)"
 msgstr "Ställ in panelens transparens (0–100)"
 
-#: prefs.js:385
+#: prefs.js:403
 msgid "Opaque When Window Touches"
 msgstr "Ogenomskinlig när ett fönster rör panelen"
 
-#: prefs.js:386
+#: prefs.js:404
 msgid "Make panel opaque when a window touches it"
 msgstr "Gör panelen ogenomskinlig när ett fönster rör den"
 
-#: prefs.js:394
+#: prefs.js:412
 msgid "Panel Blur"
 msgstr "Suddighet för panel"
 
-#: prefs.js:395
+#: prefs.js:413
 msgid "Blur the background behind the panel"
 msgstr "Sudda ut bakgrunden bakom panelen"
 
-#: prefs.js:403
+#: prefs.js:421
 msgid "Panel Color Fix"
 msgstr "Panelfärgfix"
 
-#: prefs.js:404
+#: prefs.js:422
 msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
 msgstr "Åtgärda vit panel i vissa teman (t.ex. Ubuntu Yaru)"
 
-#: prefs.js:411
+#: prefs.js:429
 msgid "Invert Tray Icons on Light Wallpapers"
 msgstr "Invertera ikoner i systemfältet på ljusa bakgrundsbilder"
 
-#: prefs.js:412
+#: prefs.js:430
 msgid ""
 "Darken white monochrome tray icons when the panel adapts to a light "
 "wallpaper. Colored icons are left untouched"
@@ -268,141 +260,141 @@ msgstr ""
 "Gör vita enfärgade ikoner i systemfältet mörkare när panelen anpassar sig "
 "till en ljus bakgrundsbild. Färgade ikoner lämnas orörda"
 
-#: prefs.js:445
+#: prefs.js:463
 msgid "Panel Items"
 msgstr "Panelobjekt"
 
-#: prefs.js:446
+#: prefs.js:464
 msgid "Choose what the top panel and its menus show"
 msgstr "Välj vad systemraden och dess menyer visar"
 
-#: prefs.js:453
+#: prefs.js:471
 msgid "Show Window Title"
 msgstr "Visa fönstertitel"
 
-#: prefs.js:454
+#: prefs.js:472
 msgid "Display current window title in the top panel"
 msgstr "Visa aktuellt fönsters titel i topppanelen"
 
-#: prefs.js:463
+#: prefs.js:481
 msgid "Hide App Icon"
 msgstr "Dölj programikon"
 
-#: prefs.js:464
+#: prefs.js:482
 msgid "Do not show the application icon next to the window title"
 msgstr "Visa inte programikonen intill fönstertiteln"
 
-#: prefs.js:471
+#: prefs.js:489
 msgid "Disable Window Tiling"
 msgstr "Inaktivera fönsterplacering"
 
-#: prefs.js:472
+#: prefs.js:490
 msgid ""
 "Drop the tiling layouts from the window title menu, and stop restoring tiled "
 "windows when their titlebar is dragged"
 msgstr ""
-"Ta bort placeringslayouterna från fönstertitelmenyn och återställ inte längre"
-" placerade fönster när deras titelrad dras"
+"Ta bort placeringslayouterna från fönstertitelmenyn och återställ inte "
+"längre placerade fönster när deras titelrad dras"
 
-#: prefs.js:492
+#: prefs.js:510
 msgid "Show Panel in Fullscreen on Hover"
 msgstr "Visa panelen i helskärm vid hovring"
 
-#: prefs.js:492
+#: prefs.js:510
 msgid ""
 "Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
 msgstr ""
 "Visa panelen när musen är nära överkanten i helskärm. Buggar för GTK4-appar."
 
-#: prefs.js:500
+#: prefs.js:518
 msgid "Move Calendar to Right"
 msgstr "Flytta kalendern åt höger"
 
-#: prefs.js:501
+#: prefs.js:519
 msgid "Move calendar to right side and hide notifications"
 msgstr "Flytta kalendern till högersidan och dölj aviseringar"
 
-#: prefs.js:510
+#: prefs.js:528
 msgid "Keep GNOME Notification Panel"
 msgstr "Behåll GNOMEs aviseringspanel"
 
-#: prefs.js:511
+#: prefs.js:529
 msgid "Don't split notification and calendar layout"
 msgstr "Dela inte upp aviserings- och kalenderlayouten"
 
-#: prefs.js:517
+#: prefs.js:536
 msgid "Indicator Style"
 msgstr "Indikatorstil"
 
-#: prefs.js:518
+#: prefs.js:537
 msgid "Notification dot recolor"
 msgstr "Färg på aviseringspunkt"
 
-#: prefs.js:529 prefs.js:842
+#: prefs.js:540 prefs.js:826
 msgid "Default"
 msgstr "Standard"
 
-#: prefs.js:533
+#: prefs.js:540
 msgid "Accent"
 msgstr "Accentfärg"
 
-#: prefs.js:537
+#: prefs.js:540
 msgid "Symbolic"
 msgstr "Symbolisk"
 
-#: prefs.js:556
+#: prefs.js:547
 msgid "Battery Percentage"
 msgstr "Batteriprocent"
 
-#: prefs.js:568
+#: prefs.js:559
 msgid ""
 "Unavailable while GNOME Settings shows the battery percentage in the top bar"
 msgstr ""
 "Inte tillgängligt medan GNOME Inställningar visar batteriprocenten i "
 "systemraden"
 
-#: prefs.js:569
+#: prefs.js:560
 msgid "Show battery percentage in the top bar when below 20%"
 msgstr "Visa batteriprocent i toppfältet när den är under 20 %"
 
-#: prefs.js:575
+#: prefs.js:566
 msgid "Caps Lock and Num Lock"
 msgstr "Caps Lock och Num Lock"
 
-#: prefs.js:575
+#: prefs.js:566
 msgid "Show Caps Lock and Num Lock icon"
 msgstr "Visa ikon för Caps Lock och Num Lock"
 
-#: prefs.js:576
+#: prefs.js:567
 msgid "Custom Do Not Disturb Button"
 msgstr "Anpassad Stör ej-knapp"
 
-#: prefs.js:576
+#: prefs.js:567
 msgid ""
 "Replace the system Do Not Disturb button with Kiwi's custom implementation"
 msgstr "Ersätter systemets Stör ej-knapp med Kiwis anpassade implementering"
 
-#: prefs.js:577
+#: prefs.js:568
 msgid "Hide Activities Button"
 msgstr "Dölj knappen Aktiviteter"
 
-#: prefs.js:577
+#: prefs.js:568
 msgid "Hide the Activities button in the top panel"
 msgstr "Dölj knappen Aktiviteter i topppanelen"
 
-#: prefs.js:578
+#: prefs.js:569
 msgid "Add Username"
 msgstr "Lägg till användarnamn"
 
-#: prefs.js:578
+#: prefs.js:569
 msgid "Add username to the quick menu"
 msgstr "Lägg till användarnamn i snabbmenyn"
 
-#: prefs.js:582 prefs.js:780
+#: prefs.js:573 prefs.js:771
 msgid "Styling"
 msgstr "Stil"
 
-#: prefs.js:583
+#: prefs.js:574
 msgid ""
 "Restyle stock GNOME Shell elements and GTK apps. Log out and back in for "
 "changes to take effect"
@@ -410,23 +402,23 @@ msgstr ""
 "Ge standardelementen i GNOME Shell och GTK-program ny stil. Logga ut och in "
 "igen för att ändringarna ska börja gälla"
 
-#: prefs.js:588
+#: prefs.js:579
 msgid "Panel Styling"
 msgstr "Panelstil"
 
-#: prefs.js:588
+#: prefs.js:579
 msgid ""
-"Tighter button spacing, bold titles, smaller status icons, no dropdown arrows"
-" and a transparent panel in the overview"
+"Tighter button spacing, bold titles, smaller status icons, no dropdown "
+"arrows and a transparent panel in the overview"
 msgstr ""
 "Tätare knappavstånd, fet text i titlar, mindre statusikoner, inga "
 "rullgardinspilar och en genomskinlig panel i översikten"
 
-#: prefs.js:589
+#: prefs.js:580
 msgid "Menu and App Styling"
 msgstr "Meny- och programstil"
 
-#: prefs.js:589
+#: prefs.js:580
 msgid ""
 "Narrower shell menu items with accent-colored hover and selection, plus the "
 "GTK app fixes"
@@ -434,43 +426,43 @@ msgstr ""
 "Smalare menyposter i skalet med accentfärgad hovring och markering, plus GTK-"
 "programfixarna"
 
-#: prefs.js:595
+#: prefs.js:586
 msgid "Style Keyboard Indicator"
 msgstr "Styla tangentbordsindikatorn"
 
-#: prefs.js:596
+#: prefs.js:587
 msgid ""
-"Slightly style keyboard/input source indicator by converting to uppercase and"
-" adding border"
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
 msgstr ""
 "Styla tangentbords-/inmatningskällindikatorn lite genom att göra texten "
 "versal och lägga till en kant"
 
-#: prefs.js:603
+#: prefs.js:594
 msgid "Hide keyboard indicator"
 msgstr "Dölj tangentbordsindikatorn"
 
-#: prefs.js:604
+#: prefs.js:595
 msgid "Completely hide the indicator from the panel"
 msgstr "Dölj indikatorn helt från panelen"
 
-#: prefs.js:632
+#: prefs.js:623
 msgid "Dock"
 msgstr "Docka"
 
-#: prefs.js:638
+#: prefs.js:629
 msgid "Dock Items"
 msgstr "Dockobjekt"
 
-#: prefs.js:639
+#: prefs.js:630
 msgid "Add extra items to Dash-to-Dock"
 msgstr "Lägg till fler objekt i Dash-to-Dock"
 
-#: prefs.js:644
+#: prefs.js:635
 msgid "Minimize Windows to Dock"
 msgstr "Minimera fönster till dockan"
 
-#: prefs.js:644
+#: prefs.js:635
 msgid ""
 "Park minimized windows as thumbnails in Dash-to-Dock, after the apps and "
 "before the trash"
@@ -478,11 +470,11 @@ msgstr ""
 "Placera minimerade fönster som miniatyrbilder i Dash-to-Dock, efter "
 "programmen och före papperskorgen"
 
-#: prefs.js:648
+#: prefs.js:639
 msgid "Downloads Folder in Dock"
 msgstr "Hämtningsmapp i dockan"
 
-#: prefs.js:649
+#: prefs.js:640
 msgid ""
 "Add a Downloads folder before the trash that fans its newest files out over "
 "the desktop"
@@ -490,23 +482,23 @@ msgstr ""
 "Lägg till en hämtningsmapp före papperskorgen som breder ut de senaste "
 "filerna över skrivbordet"
 
-#: prefs.js:657
+#: prefs.js:648
 msgid "Stack Behind Folder"
 msgstr "Stapla bakom mappen"
 
-#: prefs.js:658
+#: prefs.js:649
 msgid ""
-"Show the newest files sticking out of the folder icon instead of piled on top"
-" of it"
+"Show the newest files sticking out of the folder icon instead of piled on "
+"top of it"
 msgstr ""
 "Visa de senaste filerna stickande ut bakom mappikonen istället för staplade "
 "ovanpå den"
 
-#: prefs.js:676
+#: prefs.js:667
 msgid "Launchpad Application"
 msgstr "Launchpad-app"
 
-#: prefs.js:677
+#: prefs.js:668
 msgid ""
 "Add custom Launchpad icon to dock that opens application overview. "
 "Recommended to hide default app launcher."
@@ -514,118 +506,134 @@ msgstr ""
 "Lägg till en anpassad Launchpad-ikon i dockan som öppnar programöversikten. "
 "Rekommenderas att dölja standardstartaren."
 
-#: prefs.js:687
+#: prefs.js:678
 msgid "Custom Icon"
 msgstr "Anpassad ikon"
 
-#: prefs.js:690 prefs.js:775
+#: prefs.js:681 prefs.js:766
 msgid "Using default icon"
 msgstr "Använder standardikon"
 
-#: prefs.js:698
+#: prefs.js:689
 msgid "Reset to default icon"
 msgstr "Återställ till standardikon"
 
-#: prefs.js:709
+#: prefs.js:700
 msgid "Browse for icon"
 msgstr "Bläddra efter ikon"
 
-#: prefs.js:714
+#: prefs.js:705
 msgid "Select Launchpad Icon"
 msgstr "Välj Launchpad-ikon"
 
-#: prefs.js:718
+#: prefs.js:709
 msgid "Images (PNG, SVG)"
 msgstr "Bilder (PNG, SVG)"
 
-#: prefs.js:746
+#: prefs.js:737
 msgid "Icon Too Large"
 msgstr "Ikonen är för stor"
 
-#: prefs.js:747
+#: prefs.js:738
 msgid ""
 "The selected image exceeds 512×512 pixels. Please choose a smaller image."
 msgstr "Den valda bilden överskrider 512×512 pixlar. Välj en mindre bild."
 
-#: prefs.js:749
+#: prefs.js:740
 msgid "OK"
 msgstr "OK"
 
-#: prefs.js:785
+#: prefs.js:776
 msgid "Dock Styling"
 msgstr "Dockstil"
 
-#: prefs.js:785
+#: prefs.js:776
 msgid ""
 "Tighten icon spacing, drop the icon highlight and darken icons while pressed"
 msgstr ""
 "Minska ikonavståndet, ta bort ikonmarkeringen och gör ikoner mörkare när de "
 "trycks ned"
 
-#: prefs.js:786
+#: prefs.js:777
 msgid "Dock Blur"
 msgstr "Suddighet för docka"
 
-#: prefs.js:786
-msgid "Blur the background behind Dash-to-Dock"
-msgstr "Sudda ut bakgrunden bakom Dash-to-Dock"
+#: prefs.js:777
+msgid ""
+"Blur the background behind Dash-to-Dock. Recommended fixed dock opacity 10% "
+"- 30%, min 1%."
+msgstr ""
+"Sudda ut bakgrunden bakom Dash-to-Dock. Rekommenderad fast dockopacitet 10–"
+"30 %, minst 1 %."
 
-#: prefs.js:793
+#: prefs.js:778
+msgid "Adaptive Dock Colors"
+msgstr "Adaptiva dockfärger"
+
+#: prefs.js:778
+msgid ""
+"Flip the running indicators and separators to suit whatever is behind the "
+"dock, wallpaper or window"
+msgstr ""
+"Anpassa indikatorer för körande program och avgränsare efter det som finns "
+"bakom dockan, bakgrundsbild eller fönster"
+
+#: prefs.js:785
 msgid "Buttons"
 msgstr "Knappar"
 
-#: prefs.js:799
+#: prefs.js:791
 msgid "Window Control Button Style"
 msgstr "Stil för fönsterkontroller"
 
-#: prefs.js:800
+#: prefs.js:792
 msgid ""
 "Choose the window control button style. Log out to apply it across all apps."
 msgstr ""
 "Välj stil för fönsterkontrollknapparna. Logga ut för att tillämpa den i alla "
 "appar."
 
-#: prefs.js:808
+#: prefs.js:800
 msgid "Enable macOS Window Buttons"
 msgstr "Aktivera macOS-fönsterknappar"
 
-#: prefs.js:809
+#: prefs.js:801
 msgid "Replace window control buttons in application windows with macOS style"
 msgstr "Ersätt fönsterknapparna i programfönster med macOS-stil"
 
-#: prefs.js:830
+#: prefs.js:822
 msgid "Button Type"
 msgstr "Knapptyp"
 
-#: prefs.js:831
+#: prefs.js:823
 msgid "Choose the button icon set"
 msgstr "Välj ikonuppsättning för knapparna"
 
-#: prefs.js:846
+#: prefs.js:826
 msgid "Alternative"
 msgstr "Alternativ"
 
-#: prefs.js:863
+#: prefs.js:832
 msgid "Button Size"
 msgstr "Knappstorlek"
 
-#: prefs.js:864
+#: prefs.js:833
 msgid "Choose button size"
 msgstr "Välj knappstorlek"
 
-#: prefs.js:875
+#: prefs.js:836
 msgid "Small"
 msgstr "Liten"
 
-#: prefs.js:879
+#: prefs.js:836
 msgid "Normal"
 msgstr "Normal"
 
-#: prefs.js:896
+#: prefs.js:842
 msgid "Firefox Styling"
 msgstr "Firefox-stil"
 
-#: prefs.js:897
+#: prefs.js:843
 msgid ""
 "Apply macOS window control styling for Firefox. Recommended to use with "
 "vertical tabs."
@@ -633,19 +641,19 @@ msgstr ""
 "Använd macOS-stil för fönsterkontroller i Firefox. Rekommenderas med "
 "vertikala flikar."
 
-#: prefs.js:905
+#: prefs.js:851
 msgid "Thunderbird Styling"
 msgstr "Thunderbird-stil"
 
-#: prefs.js:906
+#: prefs.js:852
 msgid "Apply macOS window control styling for Thunderbird."
 msgstr "Använd macOS-stil för fönsterknappar i Thunderbird."
 
-#: prefs.js:930
+#: prefs.js:876
 msgid "Show Window Controls on Panel"
 msgstr "Visa fönsterkontroller i panelen"
 
-#: prefs.js:931
+#: prefs.js:877
 msgid ""
 "Display close, minimize, maximize buttons in the top panel when window is "
 "maximized"
@@ -653,11 +661,11 @@ msgstr ""
 "Visa stäng-, minimera- och maximeraknapparna i den övre panelen när fönstret "
 "är maximerat"
 
-#: prefs.js:945
+#: prefs.js:891
 msgid "Only when Fullscreen"
 msgstr "Endast i helskärm"
 
-#: prefs.js:946
+#: prefs.js:892
 msgid ""
 "Hide titlebars and show panel controls only for fullscreen windows, not "
 "maximized"
@@ -665,15 +673,15 @@ msgstr ""
 "Dölj titelrader och visa panelkontroller endast för fönster i helskärm, inte "
 "maximerade"
 
-#: prefs.js:955
+#: prefs.js:901
 msgid "Options"
 msgstr "Alternativ"
 
-#: prefs.js:961
+#: prefs.js:907
 msgid "Kiwi"
 msgstr "Kiwi"
 
-#: prefs.js:962
+#: prefs.js:908
 msgid ""
 "Kiwi is not like Apple, it's free open source project that brings macOS-like "
 "feel for GNOME"
@@ -681,153 +689,170 @@ msgstr ""
 "Kiwi är inte Apple; det är ett fritt projekt med öppen källkod som ger GNOME "
 "en macOS-lik känsla"
 
-#: prefs.js:967
+#: prefs.js:913
 msgid "Overview Wallpaper Blur"
 msgstr "Oskärpa för översiktsbakgrunn"
 
-#: prefs.js:967
+#: prefs.js:913
 msgid "Use blurred current wallpaper as overview background"
 msgstr "Använd den aktuella bakgrundsbilden suddig som översiktsbakgrund"
 
-#: prefs.js:968
+#: prefs.js:914
 msgid "Skip to Desktop"
 msgstr "Hoppa till skrivbordet"
 
-#: prefs.js:968
+#: prefs.js:914
 msgid "Do not show the overview when logging in. Animation is still visible"
 msgstr "Visa inte översikten vid inloggning. Animeringen syns fortfarande."
 
-#: prefs.js:969
+#: prefs.js:915
 msgid "Hide Minimized Windows"
 msgstr "Dölj minimerade fönster"
 
-#: prefs.js:969
+#: prefs.js:915
 msgid "Hide minimized windows in the overview"
 msgstr "Dölj minimerade fönster i översikten"
 
-#: prefs.js:970
+#: prefs.js:916
 msgid "Move Window to New Workspace"
 msgstr "Flytta fönster till ny arbetsyta"
 
-#: prefs.js:970
+#: prefs.js:916
 msgid "Move fullscreen window to a new workspace"
 msgstr "Flytta helskärmsfönster till en ny arbetsyta"
 
-#: prefs.js:971
+#: prefs.js:917
 msgid "Reduce App Animations"
 msgstr "Minska programanimeringar"
 
-#: prefs.js:971
+#: prefs.js:917
 msgid "Mimic macOS window opening and closing with a subtle scale and fade"
 msgstr ""
 "Efterlikna macOS fönsteröppning och -stängning med en subtil skalning och "
 "uttoning"
 
-#: prefs.js:972
+#: prefs.js:918
 msgid "Transparent Move"
 msgstr "Transparent förflyttning"
 
-#: prefs.js:972
+#: prefs.js:918
 msgid "Move window with transparency"
 msgstr "Flytta fönster med transparens"
 
-#: prefs.js:979
+#: prefs.js:925
 msgid "Advanced"
 msgstr "Avancerat"
 
-#: prefs.js:1009
+#: prefs.js:955
 msgid "Titlebuttons Hover Effect for GTK3 apps"
 msgstr "Hover-effekt för fönsterknappar i GTK3-appar"
 
-#: prefs.js:1022
+#: prefs.js:968
 msgid ""
-"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
+"The titlebuttons hover module provides macOS-like hover effects for window "
+"controls in GTK3 applications. GTK3 apps cannot natively show hover effects "
+"on all three window controls simultaneously, requiring this custom library "
+"to achieve the desired behavior.\n"
 "\n"
-"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
+"This binary code cannot be distributed through the GNOME Extensions platform "
+"due to security policies regarding native libraries, but manual installation "
+"is possible."
 msgstr ""
-"Modulen för hover-effekter på fönsterknappar ger macOS-liknande effekter för fönsterkontroller i GTK3-program. GTK3-appar kan inte visa hover-effekter på alla tre fönsterkontroller samtidigt och kräver därför detta bibliotek för att uppnå önskat beteende.\n"
+"Modulen för hover-effekter på fönsterknappar ger macOS-liknande effekter för "
+"fönsterkontroller i GTK3-program. GTK3-appar kan inte visa hover-effekter på "
+"alla tre fönsterkontroller samtidigt och kräver därför detta bibliotek för "
+"att uppnå önskat beteende.\n"
 "\n"
-"Denna binära kod kan inte distribueras via GNOME Extensions-plattformen på grund av säkerhetspolicys kring native-bibliotek, men manuell installation är möjlig."
+"Denna binära kod kan inte distribueras via GNOME Extensions-plattformen på "
+"grund av säkerhetspolicys kring native-bibliotek, men manuell installation "
+"är möjlig."
 
-#: prefs.js:1038
+#: prefs.js:984
 msgid "Installation Guide on GitHub"
 msgstr "Installationsguide på GitHub"
 
-#: prefs.js:1040
+#: prefs.js:986
 msgid "Open the advanced module build instructions"
 msgstr "Öppna bygginstruktionerna för den avancerade modulen"
 
-#: prefs.js:1046
+#: prefs.js:992
 msgid "More of my work..."
 msgstr "Mer av mitt arbete…"
 
-#: prefs.js:1050
+#: prefs.js:996
 msgid "Kiwi Menu"
 msgstr "Kiwi Menu"
 
-#: prefs.js:1050
+#: prefs.js:996
 msgid "MacOS style menu for GNOME"
 msgstr "Meny i macOS-stil för GNOME"
 
-#: prefs.js:1051
+#: prefs.js:997
 msgid "AppManager"
 msgstr "AppManager"
 
-#: prefs.js:1051
+#: prefs.js:997
 msgid "MacOS style AppImage installer and management application"
 msgstr "AppImage-installations- och hanteringsprogram i MacOS-stil"
 
-#: prefs.js:1052
+#: prefs.js:998
 msgid "Catalina Reloaded Icon Pack"
 msgstr "Catalina Reloaded Icon Pack"
 
-#: prefs.js:1052
+#: prefs.js:998
 msgid "macOS Tahoe icon theme for Linux"
 msgstr "macOS Tahoe-ikontema för Linux"
 
-#: prefs.js:1053
+#: prefs.js:999
 msgid "GDM Wallpaper"
 msgstr "GDM Wallpaper"
 
-#: prefs.js:1053
+#: prefs.js:999
 msgid "Set custom GDM login screen wallpaper"
 msgstr "Ange anpassad bakgrund för GDM-inloggningsskärm"
 
-#: prefs.js:1065
+#: prefs.js:1011
 msgid "Other Recommended Extensions"
 msgstr "Andra rekommenderade tillägg"
 
-#: prefs.js:1066
+#: prefs.js:1012
 msgid "Extensions that are compatible with Kiwi"
 msgstr "Tillägg som är kompatibla med Kiwi"
 
-#: prefs.js:1090 prefs.js:1104
+#: prefs.js:1036 prefs.js:1050
 msgid "Restore Defaults"
 msgstr "Återställ standardvärden"
 
-#: prefs.js:1094
+#: prefs.js:1040
 msgid "Reset every Kiwi setting to its default value"
 msgstr "Återställ alla Kiwi-inställningar till sina standardvärden"
 
-#: prefs.js:1100
+#: prefs.js:1046
 msgid "Restore Default Settings?"
 msgstr "Återställa standardinställningar?"
 
-#: prefs.js:1101
+#: prefs.js:1047
 msgid ""
 "Every Kiwi setting will be reset to its default value. This cannot be undone."
 msgstr ""
 "Alla Kiwi-inställningar återställs till sina standardvärden. Detta kan inte "
 "ångras."
 
-#: prefs.js:1103
+#: prefs.js:1049
 msgid "Cancel"
 msgstr "Avbryt"
 
-#~ msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+#~ msgid "Unknown artist"
+#~ msgstr "Okänd artist"
+
+#~ msgid "Unknown title"
+#~ msgstr "Okänd titel"
+
+#~ msgid ""
+#~ "ImageMagick not installed (install package \"imagemagick\" to enable)"
 #~ msgstr ""
-#~ "ImageMagick är inte installerat (installera paketet \"imagemagick\" för att "
-#~ "aktivera)"
+#~ "ImageMagick är inte installerat (installera paketet \"imagemagick\" för "
+#~ "att aktivera)"
 
 #~ msgid "Kiwi is not Apple"
 #~ msgstr "Kiwi is not Apple"
@@ -839,10 +864,11 @@ msgstr "Avbryt"
 #~ msgstr "Stöd mig ♡"
 
 #~ msgid ""
-#~ "Use blurred current wallpaper as overview background (requires ImageMagick)"
-#~ msgstr ""
-#~ "Använd en suddig version av nuvarande bakgrund som översiktsbakgrund (kräver "
+#~ "Use blurred current wallpaper as overview background (requires "
 #~ "ImageMagick)"
+#~ msgstr ""
+#~ "Använd en suddig version av nuvarande bakgrund som översiktsbakgrund "
+#~ "(kräver ImageMagick)"
 
 #~ msgid "Extras"
 #~ msgstr "Extra"
@@ -859,11 +885,17 @@ msgstr "Avbryt"
 #~ msgid ""
 #~ "Copyright © 2025 Arnis Kemlers\n"
 #~ "\n"
-#~ "This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+#~ "This program is free software: you can redistribute it and/or modify it "
+#~ "under the terms of the GNU General Public License as published by the "
+#~ "Free Software Foundation, either version 3 of the License, or (at your "
+#~ "option) any later version."
 #~ msgstr ""
 #~ "Copyright © 2025 Arnis Kemlers\n"
 #~ "\n"
-#~ "Detta program är fri programvara; du kan distribuera det och/eller modifiera det enligt villkoren i GNU General Public License som publicerats av Free Software Foundation, antingen version 3 av licensen eller (om du vill) någon senare version."
+#~ "Detta program är fri programvara; du kan distribuera det och/eller "
+#~ "modifiera det enligt villkoren i GNU General Public License som "
+#~ "publicerats av Free Software Foundation, antingen version 3 av licensen "
+#~ "eller (om du vill) någon senare version."
 
 #~ msgid "Support the project"
 #~ msgstr "Stöd projektet"

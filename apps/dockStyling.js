@@ -6,7 +6,7 @@
 
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import { dashOf, dockContainers, prefersDark, syncDarken } from './dockUtils.js';
+import { dashOf, dockContainers, isDock, prefersDark, syncDarken } from './dockUtils.js';
 
 const STYLE_CLASS = 'kiwi-dock-styled';
 const LABEL_CLASS = 'kiwi-dock-label';
@@ -84,7 +84,7 @@ export function enable() {
     // A dock created after us (extension enabled later, monitor added), and the
     // tooltip of every item that joins the dock from here on
     childAddedId = Main.uiGroup.connect('child-added', (_group, actor) => {
-        if (actor.name === 'dashtodockContainer')
+        if (isDock(actor))
             _applyDock(actor);
         else if (actor.has_style_class_name?.('dash-label'))
             _syncLabel(actor);

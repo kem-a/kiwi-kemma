@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Kiwi is not Apple\n"
 "Report-Msgid-Bugs-To: https://github.com/kem-a/kiwi-kemma/issues\n"
-"POT-Creation-Date: 2026-08-21 19:55+0300\n"
+"POT-Creation-Date: 2026-08-31 15:09+0300\n"
 "PO-Revision-Date: 2026-08-21 20:00+0300\n"
 "Last-Translator: \n"
 "Language-Team: Estonian\n"
@@ -43,14 +43,6 @@ msgstr "Ava rakenduste ülevaade"
 #: apps/quickSettingsMedia.js:414
 msgid "Media"
 msgstr "Meedia"
-
-#: apps/quickSettingsMedia/player.js:167
-msgid "Unknown artist"
-msgstr "Tundmatu artist"
-
-#: apps/quickSettingsMedia/player.js:172
-msgid "Unknown title"
-msgstr "Tundmatu pealkiri"
 
 #: apps/quickSettingsNotifications.js:97
 msgid "Disable Do Not Disturb"
@@ -120,146 +112,146 @@ msgstr "Parem ja vasak"
 msgid "Quarters"
 msgstr "Veerandid"
 
-#: apps/windowTitle.js:274
+#: apps/windowTitle.js:281
 msgid "Leave Fullscreen"
 msgstr "Välju täisekraanist"
 
-#: apps/windowTitle.js:274
+#: apps/windowTitle.js:281
 msgid "Fullscreen"
 msgstr "Täisekraan"
 
-#: apps/windowTitle.js:282
+#: apps/windowTitle.js:289
 msgid "Restore Window"
 msgstr "Taasta aken"
 
-#: apps/windowTitle.js:288
+#: apps/windowTitle.js:295
 msgid "Always on Top"
 msgstr "Alati pealmine"
 
-#: prefs.js:65
+#: prefs.js:83
 msgid "Kiwi (is not Apple)"
 msgstr "Kiwi (is not Apple)"
 
-#: prefs.js:92
+#: prefs.js:110
 msgid "About"
 msgstr "Teave"
 
-#: prefs.js:151 prefs.js:165
+#: prefs.js:169 prefs.js:183
 msgid "Unknown"
 msgstr "Tundmatu"
 
-#: prefs.js:158
+#: prefs.js:176
 msgid "Change log"
 msgstr "Muudatuste logi"
 
-#: prefs.js:199
+#: prefs.js:217
 msgid "Website"
 msgstr "Veebisait"
 
-#: prefs.js:203
+#: prefs.js:221
 msgid "Report an Issue"
 msgstr "Teata probleemist"
 
-#: prefs.js:208
+#: prefs.js:226
 msgid "Credits"
 msgstr "Autorid"
 
-#: prefs.js:211 prefs.js:226
+#: prefs.js:229 prefs.js:244
 msgid "Legal"
 msgstr "Õiguslik"
 
-#: prefs.js:234
+#: prefs.js:252
 msgid "License"
 msgstr "Litsents"
 
-#: prefs.js:235
+#: prefs.js:253
 msgid "Kiwi is free and open source software"
 msgstr "Kiwi on vaba ja avatud lähtekoodiga tarkvara"
 
-#: prefs.js:240
+#: prefs.js:258
 msgid "GNU General Public License v3.0"
 msgstr "GNU üldine avalik litsents v3.0"
 
-#: prefs.js:242
+#: prefs.js:260
 msgid "View the full license text on GitHub"
 msgstr "Vaata täielikku litsentsiteksti GitHubis"
 
-#: prefs.js:249 prefs.js:250
+#: prefs.js:267 prefs.js:268
 msgid "Copyright"
 msgstr "Autoriõigus"
 
-#: prefs.js:250
+#: prefs.js:268
 msgid ""
-"This program is free software: you can redistribute it and/or modify it under"
-" the terms of the GNU General Public License as published by the Free "
-"Software Foundation, either version 3 of the License, or (at your option) any"
-" later version."
+"This program is free software: you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation, either version 3 of the License, or (at your option) "
+"any later version."
 msgstr ""
 "See programm on vaba tarkvara; te võite seda levitada ja/või muuta vastavalt "
 "GNU üldise avaliku litsentsi tingimustele, nagu selle on avaldanud Free "
 "Software Foundation, kas versioon 3 või (oma valikul) mõni hilisem versioon."
 
-#: prefs.js:304
+#: prefs.js:322
 msgid "Become a sponsor on GitHub"
 msgstr "Hakka sponsoriks GitHubis"
 
-#: prefs.js:317
+#: prefs.js:335
 msgid "Support Me ♡"
 msgstr "Toeta mind ♡"
 
-#: prefs.js:343
+#: prefs.js:361
 msgid "Panel"
 msgstr "Paneel"
 
-#: prefs.js:349 prefs.js:362
+#: prefs.js:367 prefs.js:380
 msgid "Panel Transparency"
 msgstr "Paneeli läbipaistvus"
 
-#: prefs.js:350
+#: prefs.js:368
 msgid "Configure panel transparency and appearance"
 msgstr "Seadista paneeli läbipaistvust ja välimust"
 
-#: prefs.js:363
+#: prefs.js:381
 msgid "Make the top panel transparent"
 msgstr "Muuda ülemine paneel läbipaistvaks"
 
-#: prefs.js:370
+#: prefs.js:388
 msgid "Transparency Level"
 msgstr "Läbipaistvuse tase"
 
-#: prefs.js:371
+#: prefs.js:389
 msgid "Set panel transparency (0-100)"
 msgstr "Paneeli läbipaistvuse väärtus (0–100)"
 
-#: prefs.js:385
+#: prefs.js:403
 msgid "Opaque When Window Touches"
 msgstr "Läbipaistmatu kui aken puudutab"
 
-#: prefs.js:386
+#: prefs.js:404
 msgid "Make panel opaque when a window touches it"
 msgstr "Muuda paneel läbipaistmatuks, kui aken seda puudutab"
 
-#: prefs.js:394
+#: prefs.js:412
 msgid "Panel Blur"
 msgstr "Paneeli hägustamine"
 
-#: prefs.js:395
+#: prefs.js:413
 msgid "Blur the background behind the panel"
 msgstr "Hägusta paneeli taust"
 
-#: prefs.js:403
+#: prefs.js:421
 msgid "Panel Color Fix"
 msgstr "Paneeli värviparandus"
 
-#: prefs.js:404
+#: prefs.js:422
 msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
 msgstr "Paranda valge paneel mõnes teemas (nt Ubuntu Yaru)"
 
-#: prefs.js:411
+#: prefs.js:429
 msgid "Invert Tray Icons on Light Wallpapers"
 msgstr "Pööra salveikoonid heledatel taustapiltidel ümber"
 
-#: prefs.js:412
+#: prefs.js:430
 msgid ""
 "Darken white monochrome tray icons when the panel adapts to a light "
 "wallpaper. Colored icons are left untouched"
@@ -267,35 +259,35 @@ msgstr ""
 "Tumenda valged ühevärvilised salveikoonid, kui paneel kohandub heleda "
 "taustapildiga. Värvilisi ikoone ei muudeta"
 
-#: prefs.js:445
+#: prefs.js:463
 msgid "Panel Items"
 msgstr "Paneeli elemendid"
 
-#: prefs.js:446
+#: prefs.js:464
 msgid "Choose what the top panel and its menus show"
 msgstr "Vali, mida ülemine paneel ja selle menüüd näitavad"
 
-#: prefs.js:453
+#: prefs.js:471
 msgid "Show Window Title"
 msgstr "Näita akna pealkirja"
 
-#: prefs.js:454
+#: prefs.js:472
 msgid "Display current window title in the top panel"
 msgstr "Kuva praeguse akna pealkiri ülemisel paneelil"
 
-#: prefs.js:463
+#: prefs.js:481
 msgid "Hide App Icon"
 msgstr "Peida rakenduse ikoon"
 
-#: prefs.js:464
+#: prefs.js:482
 msgid "Do not show the application icon next to the window title"
 msgstr "Ära näita rakenduse ikooni akna pealkirja kõrval"
 
-#: prefs.js:471
+#: prefs.js:489
 msgid "Disable Window Tiling"
 msgstr "Keela akende paigutamine"
 
-#: prefs.js:472
+#: prefs.js:490
 msgid ""
 "Drop the tiling layouts from the window title menu, and stop restoring tiled "
 "windows when their titlebar is dragged"
@@ -303,105 +295,105 @@ msgstr ""
 "Eemalda paigutused akna pealkirja menüüst ja lõpeta paigutatud akende "
 "taastamine tiitliriba lohistamisel"
 
-#: prefs.js:492
+#: prefs.js:510
 msgid "Show Panel in Fullscreen on Hover"
 msgstr "Näita paneeli täisekraanil hiire lähenedes"
 
-#: prefs.js:492
+#: prefs.js:510
 msgid ""
 "Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
 msgstr ""
 "Näita paneeli, kui hiir on täisekraanil ülemise serva lähedal. GTK4 "
 "rakendustes võib esineda tõrkeid."
 
-#: prefs.js:500
+#: prefs.js:518
 msgid "Move Calendar to Right"
 msgstr "Liiguta kalender paremale"
 
-#: prefs.js:501
+#: prefs.js:519
 msgid "Move calendar to right side and hide notifications"
 msgstr "Liiguta kalender paremale ja peida teavitused"
 
-#: prefs.js:510
+#: prefs.js:528
 msgid "Keep GNOME Notification Panel"
 msgstr "Säilita GNOME märguannete paneel"
 
-#: prefs.js:511
+#: prefs.js:529
 msgid "Don't split notification and calendar layout"
 msgstr "Ära eralda märguannete ja kalendri paigutust"
 
-#: prefs.js:517
+#: prefs.js:536
 msgid "Indicator Style"
 msgstr "Näidiku stiil"
 
-#: prefs.js:518
+#: prefs.js:537
 msgid "Notification dot recolor"
 msgstr "Märguandepunkti värvimine"
 
-#: prefs.js:529 prefs.js:842
+#: prefs.js:540 prefs.js:826
 msgid "Default"
 msgstr "Vaikimisi"
 
-#: prefs.js:533
+#: prefs.js:540
 msgid "Accent"
 msgstr "Aktsentvärv"
 
-#: prefs.js:537
+#: prefs.js:540
 msgid "Symbolic"
 msgstr "Sümboolne"
 
-#: prefs.js:556
+#: prefs.js:547
 msgid "Battery Percentage"
 msgstr "Aku protsent"
 
-#: prefs.js:568
+#: prefs.js:559
 msgid ""
 "Unavailable while GNOME Settings shows the battery percentage in the top bar"
 msgstr ""
 "Pole saadaval, kuni GNOME sätted näitavad aku protsenti ülemisel paneelil"
 
-#: prefs.js:569
+#: prefs.js:560
 msgid "Show battery percentage in the top bar when below 20%"
 msgstr "Näita aku protsenti ülaribal, kui see on alla 20%"
 
-#: prefs.js:575
+#: prefs.js:566
 msgid "Caps Lock and Num Lock"
 msgstr "Caps Lock ja Num Lock"
 
-#: prefs.js:575
+#: prefs.js:566
 msgid "Show Caps Lock and Num Lock icon"
 msgstr "Näita Caps Locki ja Num Locki ikooni"
 
-#: prefs.js:576
+#: prefs.js:567
 msgid "Custom Do Not Disturb Button"
 msgstr "Kohandatud mitte segada nupp"
 
-#: prefs.js:576
+#: prefs.js:567
 msgid ""
 "Replace the system Do Not Disturb button with Kiwi's custom implementation"
 msgstr "Asendab süsteemi mitte segada nupu Kiwi kohandatud toteutusega"
 
-#: prefs.js:577
+#: prefs.js:568
 msgid "Hide Activities Button"
 msgstr "Peida Tegevused nupp"
 
-#: prefs.js:577
+#: prefs.js:568
 msgid "Hide the Activities button in the top panel"
 msgstr "Peida ülemise paneeli Tegevuste nupp"
 
-#: prefs.js:578
+#: prefs.js:569
 msgid "Add Username"
 msgstr "Lisa kasutajanimi"
 
-#: prefs.js:578
+#: prefs.js:569
 msgid "Add username to the quick menu"
 msgstr "Lisa kasutajanimi kiirmenüüsse"
 
-#: prefs.js:582 prefs.js:780
+#: prefs.js:573 prefs.js:771
 msgid "Styling"
 msgstr "Kujundus"
 
-#: prefs.js:583
+#: prefs.js:574
 msgid ""
 "Restyle stock GNOME Shell elements and GTK apps. Log out and back in for "
 "changes to take effect"
@@ -409,23 +401,23 @@ msgstr ""
 "Muuda GNOME Shelli ja GTK rakenduste välimust. Muudatuste rakendumiseks logi "
 "välja ja tagasi sisse"
 
-#: prefs.js:588
+#: prefs.js:579
 msgid "Panel Styling"
 msgstr "Paneeli kujundus"
 
-#: prefs.js:588
+#: prefs.js:579
 msgid ""
-"Tighter button spacing, bold titles, smaller status icons, no dropdown arrows"
-" and a transparent panel in the overview"
+"Tighter button spacing, bold titles, smaller status icons, no dropdown "
+"arrows and a transparent panel in the overview"
 msgstr ""
-"Tihedam nuppude vahe, rasvased pealkirjad, väiksemad olekuikoonid, ripploendi"
-" nooled puuduvad ja läbipaistev paneel ülevaates"
+"Tihedam nuppude vahe, rasvased pealkirjad, väiksemad olekuikoonid, "
+"ripploendi nooled puuduvad ja läbipaistev paneel ülevaates"
 
-#: prefs.js:589
+#: prefs.js:580
 msgid "Menu and App Styling"
 msgstr "Menüüde ja rakenduste kujundus"
 
-#: prefs.js:589
+#: prefs.js:580
 msgid ""
 "Narrower shell menu items with accent-colored hover and selection, plus the "
 "GTK app fixes"
@@ -433,43 +425,43 @@ msgstr ""
 "Kitsamad shelli menüükirjed rõhuvärvilise esiletõstu ja valikuga ning GTK "
 "rakenduste parandused"
 
-#: prefs.js:595
+#: prefs.js:586
 msgid "Style Keyboard Indicator"
 msgstr "Kohanda klaviatuuri indikaatorit"
 
-#: prefs.js:596
+#: prefs.js:587
 msgid ""
-"Slightly style keyboard/input source indicator by converting to uppercase and"
-" adding border"
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
 msgstr ""
-"Muuda klaviatuuri/sisendallika indikaatorit veidi, muutes selle suurtähtedeks"
-" ja lisades raami"
+"Muuda klaviatuuri/sisendallika indikaatorit veidi, muutes selle "
+"suurtähtedeks ja lisades raami"
 
-#: prefs.js:603
+#: prefs.js:594
 msgid "Hide keyboard indicator"
 msgstr "Peida klaviatuuri indikaator"
 
-#: prefs.js:604
+#: prefs.js:595
 msgid "Completely hide the indicator from the panel"
 msgstr "Peida indikaator paneelilt täielikult"
 
-#: prefs.js:632
+#: prefs.js:623
 msgid "Dock"
 msgstr "Dokk"
 
-#: prefs.js:638
+#: prefs.js:629
 msgid "Dock Items"
 msgstr "Doki elemendid"
 
-#: prefs.js:639
+#: prefs.js:630
 msgid "Add extra items to Dash-to-Dock"
 msgstr "Lisa Dash-to-Docki täiendavaid elemente"
 
-#: prefs.js:644
+#: prefs.js:635
 msgid "Minimize Windows to Dock"
 msgstr "Minimeeri aknad dokki"
 
-#: prefs.js:644
+#: prefs.js:635
 msgid ""
 "Park minimized windows as thumbnails in Dash-to-Dock, after the apps and "
 "before the trash"
@@ -477,11 +469,11 @@ msgstr ""
 "Paiguta minimeeritud aknad pisipiltidena Dash-to-Docki, rakenduste järele ja "
 "prügikasti ette"
 
-#: prefs.js:648
+#: prefs.js:639
 msgid "Downloads Folder in Dock"
 msgstr "Allalaadimiste kaust dokis"
 
-#: prefs.js:649
+#: prefs.js:640
 msgid ""
 "Add a Downloads folder before the trash that fans its newest files out over "
 "the desktop"
@@ -489,23 +481,23 @@ msgstr ""
 "Lisa prügikasti ette allalaadimiste kaust, mis laotab uusimad failid "
 "töölauale"
 
-#: prefs.js:657
+#: prefs.js:648
 msgid "Stack Behind Folder"
 msgstr "Virnasta kausta taha"
 
-#: prefs.js:658
+#: prefs.js:649
 msgid ""
-"Show the newest files sticking out of the folder icon instead of piled on top"
-" of it"
+"Show the newest files sticking out of the folder icon instead of piled on "
+"top of it"
 msgstr ""
 "Näita uusimaid faile kausta ikooni tagant välja ulatuvana, mitte selle peal "
 "virnas"
 
-#: prefs.js:676
+#: prefs.js:667
 msgid "Launchpad Application"
 msgstr "Launchpadi rakendus"
 
-#: prefs.js:677
+#: prefs.js:668
 msgid ""
 "Add custom Launchpad icon to dock that opens application overview. "
 "Recommended to hide default app launcher."
@@ -513,117 +505,133 @@ msgstr ""
 "Lisa dokki kohandatud Launchpadi ikoon, mis avab rakenduste ülevaate. "
 "Soovitatav on peita vaikimisi käivitaja."
 
-#: prefs.js:687
+#: prefs.js:678
 msgid "Custom Icon"
 msgstr "Kohandatud ikoon"
 
-#: prefs.js:690 prefs.js:775
+#: prefs.js:681 prefs.js:766
 msgid "Using default icon"
 msgstr "Kasutatakse vaikeikooni"
 
-#: prefs.js:698
+#: prefs.js:689
 msgid "Reset to default icon"
 msgstr "Lähtesta vaikeikoonile"
 
-#: prefs.js:709
+#: prefs.js:700
 msgid "Browse for icon"
 msgstr "Vali ikoon"
 
-#: prefs.js:714
+#: prefs.js:705
 msgid "Select Launchpad Icon"
 msgstr "Vali Launchpadi ikoon"
 
-#: prefs.js:718
+#: prefs.js:709
 msgid "Images (PNG, SVG)"
 msgstr "Pildid (PNG, SVG)"
 
-#: prefs.js:746
+#: prefs.js:737
 msgid "Icon Too Large"
 msgstr "Ikoon on liiga suur"
 
-#: prefs.js:747
+#: prefs.js:738
 msgid ""
 "The selected image exceeds 512×512 pixels. Please choose a smaller image."
 msgstr "Valitud pilt ületab 512×512 pikslit. Palun vali väiksem pilt."
 
-#: prefs.js:749
+#: prefs.js:740
 msgid "OK"
 msgstr "Sobib"
 
-#: prefs.js:785
+#: prefs.js:776
 msgid "Dock Styling"
 msgstr "Doki kujundus"
 
-#: prefs.js:785
+#: prefs.js:776
 msgid ""
 "Tighten icon spacing, drop the icon highlight and darken icons while pressed"
 msgstr ""
 "Vähenda ikoonide vahet, eemalda ikooni esiletõst ja tumenda ikoonid "
 "vajutamisel"
 
-#: prefs.js:786
+#: prefs.js:777
 msgid "Dock Blur"
 msgstr "Doki hägustamine"
 
-#: prefs.js:786
-msgid "Blur the background behind Dash-to-Dock"
-msgstr "Hägusta Dash-to-Docki taust"
+#: prefs.js:777
+msgid ""
+"Blur the background behind Dash-to-Dock. Recommended fixed dock opacity 10% "
+"- 30%, min 1%."
+msgstr ""
+"Hägusta Dash-to-Docki taust. Soovituslik doki püsiv läbipaistmatus 10%–30%, "
+"vähemalt 1%."
 
-#: prefs.js:793
+#: prefs.js:778
+msgid "Adaptive Dock Colors"
+msgstr "Kohanduvad doki värvid"
+
+#: prefs.js:778
+msgid ""
+"Flip the running indicators and separators to suit whatever is behind the "
+"dock, wallpaper or window"
+msgstr ""
+"Muuda töötavate rakenduste tähised ja eraldajad vastavaks sellele, mis on "
+"doki taga – taustapilt või aken"
+
+#: prefs.js:785
 msgid "Buttons"
 msgstr "Nupud"
 
-#: prefs.js:799
+#: prefs.js:791
 msgid "Window Control Button Style"
 msgstr "Akna juhtnuppude stiil"
 
-#: prefs.js:800
+#: prefs.js:792
 msgid ""
 "Choose the window control button style. Log out to apply it across all apps."
 msgstr ""
 "Vali akna juhtnuppude stiil. Logi välja, et rakendada kõigis rakendustes."
 
-#: prefs.js:808
+#: prefs.js:800
 msgid "Enable macOS Window Buttons"
 msgstr "Luba macOS-i aknanupud"
 
-#: prefs.js:809
+#: prefs.js:801
 msgid "Replace window control buttons in application windows with macOS style"
 msgstr "Asenda rakenduste akende juhtnupud macOSi stiiliga"
 
-#: prefs.js:830
+#: prefs.js:822
 msgid "Button Type"
 msgstr "Nupu tüüp"
 
-#: prefs.js:831
+#: prefs.js:823
 msgid "Choose the button icon set"
 msgstr "Vali nupu ikoonide komplekt"
 
-#: prefs.js:846
+#: prefs.js:826
 msgid "Alternative"
 msgstr "Alternatiivne"
 
-#: prefs.js:863
+#: prefs.js:832
 msgid "Button Size"
 msgstr "Nupu suurus"
 
-#: prefs.js:864
+#: prefs.js:833
 msgid "Choose button size"
 msgstr "Vali nupu suurus"
 
-#: prefs.js:875
+#: prefs.js:836
 msgid "Small"
 msgstr "Väike"
 
-#: prefs.js:879
+#: prefs.js:836
 msgid "Normal"
 msgstr "Tavaline"
 
-#: prefs.js:896
+#: prefs.js:842
 msgid "Firefox Styling"
 msgstr "Firefoxi stiil"
 
-#: prefs.js:897
+#: prefs.js:843
 msgid ""
 "Apply macOS window control styling for Firefox. Recommended to use with "
 "vertical tabs."
@@ -631,19 +639,19 @@ msgstr ""
 "Rakenda Firefoxile macOS-i aknanuppude stiil. Soovitatav koos vertikaalsete "
 "kaartidega."
 
-#: prefs.js:905
+#: prefs.js:851
 msgid "Thunderbird Styling"
 msgstr "Thunderbirdi stiil"
 
-#: prefs.js:906
+#: prefs.js:852
 msgid "Apply macOS window control styling for Thunderbird."
 msgstr "Rakenda macOSi akna juhtnuppude stiil Thunderbirdile."
 
-#: prefs.js:930
+#: prefs.js:876
 msgid "Show Window Controls on Panel"
 msgstr "Näita aknajuhtnuppe paneelil"
 
-#: prefs.js:931
+#: prefs.js:877
 msgid ""
 "Display close, minimize, maximize buttons in the top panel when window is "
 "maximized"
@@ -651,11 +659,11 @@ msgstr ""
 "Kuva üleval paneelil sulgemise, minimeerimise ja maksimeerimise nupud, kui "
 "aken on maksimeeritud"
 
-#: prefs.js:945
+#: prefs.js:891
 msgid "Only when Fullscreen"
 msgstr "Ainult täisekraanil"
 
-#: prefs.js:946
+#: prefs.js:892
 msgid ""
 "Hide titlebars and show panel controls only for fullscreen windows, not "
 "maximized"
@@ -663,15 +671,15 @@ msgstr ""
 "Peida tiitliribad ja näita paneeli juhtnuppe ainult täisekraanil olevate "
 "akende puhul, mitte maksimeeritud akende puhul"
 
-#: prefs.js:955
+#: prefs.js:901
 msgid "Options"
 msgstr "Valikud"
 
-#: prefs.js:961
+#: prefs.js:907
 msgid "Kiwi"
 msgstr "Kiwi"
 
-#: prefs.js:962
+#: prefs.js:908
 msgid ""
 "Kiwi is not like Apple, it's free open source project that brings macOS-like "
 "feel for GNOME"
@@ -679,151 +687,168 @@ msgstr ""
 "Kiwi ei ole Apple – see on vaba avatud lähtekoodiga projekt, mis annab GNOME-"
 "le macOS-i sarnase tunde"
 
-#: prefs.js:967
+#: prefs.js:913
 msgid "Overview Wallpaper Blur"
 msgstr "Ülevaate tausta hägusus"
 
-#: prefs.js:967
+#: prefs.js:913
 msgid "Use blurred current wallpaper as overview background"
 msgstr "Kasuta ülevaate taustana hägustatud praegust taustapilti"
 
-#: prefs.js:968
+#: prefs.js:914
 msgid "Skip to Desktop"
 msgstr "Liigu otse töölauale"
 
-#: prefs.js:968
+#: prefs.js:914
 msgid "Do not show the overview when logging in. Animation is still visible"
 msgstr "Ära näita sisselogimisel ülevaadet. Animatsioon jääb nähtavaks."
 
-#: prefs.js:969
+#: prefs.js:915
 msgid "Hide Minimized Windows"
 msgstr "Peida minimeeritud aknad"
 
-#: prefs.js:969
+#: prefs.js:915
 msgid "Hide minimized windows in the overview"
 msgstr "Peida minimeeritud aknad ülevaates"
 
-#: prefs.js:970
+#: prefs.js:916
 msgid "Move Window to New Workspace"
 msgstr "Liiguta aken uuele tööalale"
 
-#: prefs.js:970
+#: prefs.js:916
 msgid "Move fullscreen window to a new workspace"
 msgstr "Liiguta täisekraan aken uuele tööalale"
 
-#: prefs.js:971
+#: prefs.js:917
 msgid "Reduce App Animations"
 msgstr "Vähenda rakenduste animatsioone"
 
-#: prefs.js:971
+#: prefs.js:917
 msgid "Mimic macOS window opening and closing with a subtle scale and fade"
 msgstr ""
 "Jäljenda macOS-i akende avanemist ja sulgumist õrna suurendusega ja "
 "hajumisega"
 
-#: prefs.js:972
+#: prefs.js:918
 msgid "Transparent Move"
 msgstr "Läbipaistev liigutamine"
 
-#: prefs.js:972
+#: prefs.js:918
 msgid "Move window with transparency"
 msgstr "Liiguta akent läbipaistvusega"
 
-#: prefs.js:979
+#: prefs.js:925
 msgid "Advanced"
 msgstr "Täpsemad"
 
-#: prefs.js:1009
+#: prefs.js:955
 msgid "Titlebuttons Hover Effect for GTK3 apps"
 msgstr "GTK3 aknanuppude hõljutusefekt"
 
-#: prefs.js:1022
+#: prefs.js:968
 msgid ""
-"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
+"The titlebuttons hover module provides macOS-like hover effects for window "
+"controls in GTK3 applications. GTK3 apps cannot natively show hover effects "
+"on all three window controls simultaneously, requiring this custom library "
+"to achieve the desired behavior.\n"
 "\n"
-"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
+"This binary code cannot be distributed through the GNOME Extensions platform "
+"due to security policies regarding native libraries, but manual installation "
+"is possible."
 msgstr ""
-"Aknanuppude hõljutusmoodul pakub macOS-i sarnaseid hõljutusefekte GTK3 rakenduste aknajuhtnuppudele. GTK3 rakendused ei suuda kõiki kolme aknanuppu korraga hõljutusefektiga kuvada, mistõttu on soovitud käitumise saavutamiseks vaja seda teeki.\n"
+"Aknanuppude hõljutusmoodul pakub macOS-i sarnaseid hõljutusefekte GTK3 "
+"rakenduste aknajuhtnuppudele. GTK3 rakendused ei suuda kõiki kolme aknanuppu "
+"korraga hõljutusefektiga kuvada, mistõttu on soovitud käitumise "
+"saavutamiseks vaja seda teeki.\n"
 "\n"
-"Seda binaari ei saa GNOME laienduste platvormil levitada kohalike teekide turvapoliitika tõttu, kuid käsitsi paigaldus on võimalik."
+"Seda binaari ei saa GNOME laienduste platvormil levitada kohalike teekide "
+"turvapoliitika tõttu, kuid käsitsi paigaldus on võimalik."
 
-#: prefs.js:1038
+#: prefs.js:984
 msgid "Installation Guide on GitHub"
 msgstr "Paigaldusjuhend GitHubis"
 
-#: prefs.js:1040
+#: prefs.js:986
 msgid "Open the advanced module build instructions"
 msgstr "Ava täiendmooduli koostejuhised"
 
-#: prefs.js:1046
+#: prefs.js:992
 msgid "More of my work..."
 msgstr "Rohkem minu töid…"
 
-#: prefs.js:1050
+#: prefs.js:996
 msgid "Kiwi Menu"
 msgstr "Kiwi Menu"
 
-#: prefs.js:1050
+#: prefs.js:996
 msgid "MacOS style menu for GNOME"
 msgstr "macOS-i stiilis menüü GNOME-le"
 
-#: prefs.js:1051
+#: prefs.js:997
 msgid "AppManager"
 msgstr "AppManager"
 
-#: prefs.js:1051
+#: prefs.js:997
 msgid "MacOS style AppImage installer and management application"
 msgstr "MacOS-stiilis AppImage'ide paigaldus- ja haldusrakendus"
 
-#: prefs.js:1052
+#: prefs.js:998
 msgid "Catalina Reloaded Icon Pack"
 msgstr "Catalina Reloaded Icon Pack"
 
-#: prefs.js:1052
+#: prefs.js:998
 msgid "macOS Tahoe icon theme for Linux"
 msgstr "macOS Tahoe ikooniteema Linuxile"
 
-#: prefs.js:1053
+#: prefs.js:999
 msgid "GDM Wallpaper"
 msgstr "GDM Wallpaper"
 
-#: prefs.js:1053
+#: prefs.js:999
 msgid "Set custom GDM login screen wallpaper"
 msgstr "Määra kohandatud GDMi sisselogimisekraani taustapilt"
 
-#: prefs.js:1065
+#: prefs.js:1011
 msgid "Other Recommended Extensions"
 msgstr "Muud soovitatud laiendused"
 
-#: prefs.js:1066
+#: prefs.js:1012
 msgid "Extensions that are compatible with Kiwi"
 msgstr "Kiwi-ga ühilduvad laiendused"
 
-#: prefs.js:1090 prefs.js:1104
+#: prefs.js:1036 prefs.js:1050
 msgid "Restore Defaults"
 msgstr "Taasta vaikeseaded"
 
-#: prefs.js:1094
+#: prefs.js:1040
 msgid "Reset every Kiwi setting to its default value"
 msgstr "Lähtesta kõik Kiwi seaded vaikeväärtusele"
 
-#: prefs.js:1100
+#: prefs.js:1046
 msgid "Restore Default Settings?"
 msgstr "Kas taastada vaikeseaded?"
 
-#: prefs.js:1101
+#: prefs.js:1047
 msgid ""
 "Every Kiwi setting will be reset to its default value. This cannot be undone."
 msgstr ""
 "Kõik Kiwi seaded lähtestatakse vaikeväärtusele. Seda ei saa tagasi võtta."
 
-#: prefs.js:1103
+#: prefs.js:1049
 msgid "Cancel"
 msgstr "Loobu"
 
-#~ msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
+#~ msgid "Unknown artist"
+#~ msgstr "Tundmatu artist"
+
+#~ msgid "Unknown title"
+#~ msgstr "Tundmatu pealkiri"
+
+#~ msgid ""
+#~ "ImageMagick not installed (install package \"imagemagick\" to enable)"
 #~ msgstr ""
-#~ "ImageMagick ei ole paigaldatud (paigalda pakett \"imagemagick\", et lubada)"
+#~ "ImageMagick ei ole paigaldatud (paigalda pakett \"imagemagick\", et "
+#~ "lubada)"
 
 #~ msgid "Kiwi is not Apple"
 #~ msgstr "Kiwi is not Apple"
@@ -835,9 +860,11 @@ msgstr "Loobu"
 #~ msgstr "Toeta mind ♡"
 
 #~ msgid ""
-#~ "Use blurred current wallpaper as overview background (requires ImageMagick)"
+#~ "Use blurred current wallpaper as overview background (requires "
+#~ "ImageMagick)"
 #~ msgstr ""
-#~ "Kasuta hägustatud praegust taustapilti ülevaate taustana (vajab ImageMagicki)"
+#~ "Kasuta hägustatud praegust taustapilti ülevaate taustana (vajab "
+#~ "ImageMagicki)"
 
 #~ msgid "Extras"
 #~ msgstr "Lisad"
@@ -854,11 +881,17 @@ msgstr "Loobu"
 #~ msgid ""
 #~ "Copyright © 2025 Arnis Kemlers\n"
 #~ "\n"
-#~ "This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
+#~ "This program is free software: you can redistribute it and/or modify it "
+#~ "under the terms of the GNU General Public License as published by the "
+#~ "Free Software Foundation, either version 3 of the License, or (at your "
+#~ "option) any later version."
 #~ msgstr ""
 #~ "Autoriõigus © 2025 Arnis Kemlers\n"
 #~ "\n"
-#~ "See programm on vaba tarkvara; te võite seda levitada ja/või muuta vastavalt GNU üldise avaliku litsentsi tingimustele, nagu selle on avaldanud Free Software Foundation, kas versioon 3 või (oma valikul) mõni hilisem versioon."
+#~ "See programm on vaba tarkvara; te võite seda levitada ja/või muuta "
+#~ "vastavalt GNU üldise avaliku litsentsi tingimustele, nagu selle on "
+#~ "avaldanud Free Software Foundation, kas versioon 3 või (oma valikul) mõni "
+#~ "hilisem versioon."
 
 #~ msgid "Support the project"
 #~ msgstr "Toeta projekti"

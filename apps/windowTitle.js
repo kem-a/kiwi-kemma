@@ -8,6 +8,7 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 import { AppMenu } from 'resource:///org/gnome/shell/ui/appMenu.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
@@ -18,6 +19,12 @@ let indicator = null;
 let _extension = null;
 
 const ACCEL_OPACITY = 110; // 0-255. CSS opacity is not applied here; set it on the actor.
+
+// GNOME 51 replaced PopupMenu.close()'s PopupAnimation bitmask with a parameters
+// object. The bitmask has no object spelling for the animation used up to 50, so
+// 51 gets the closest one: the same slide, with a fade added.
+const MENU_CLOSE_ARGS = parseInt(Config.PACKAGE_VERSION) >= 51
+    ? { animate: true } : true;
 
 // Kiwi's own entries in the app menu, in the order they are added.
 const KIWI_MENU_ITEMS = [
@@ -53,12 +60,23 @@ function addAccelLabel(item, accel) {
     item.add_child(label);
 }
 
+// The pointer lands on a child of an overview preview (the clone, the icon, the
+// caption), so walk up until an ancestor names the window it stands for.
+function windowForActor(actor) {
+    for (let a = actor; a; a = a.get_parent()) {
+        if (a.metaWindow)
+            return a.metaWindow;
+    }
+    return null;
+}
+
 const WindowTitleIndicator = GObject.registerClass(
 class WindowTitleIndicator extends PanelMenu.Button {
     _init() {
         super._init(0.0, 'window-title', true);
 
         this._syncMenuIdleId = null;
+        this._focusSyncIdleId = null;
         this._settings = _extension.getSettings();
         this._wmKeybindings = new Gio.Settings({ schema_id: 'org.gnome.desktop.wm.keybindings' });
         this._gettext = _extension.gettext.bind(_extension);
@@ -70,7 +88,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._box = new St.BoxLayout({style_class: 'panel-button'});
         
         this._icon = new St.Icon({
-            style_class: 'app-menu-icon',
+            style_class: 'app-menu-icon kiwi-window-title-icon',
             icon_size: 16,
         });
         this._icon.visible = this._settings.get_boolean('show-window-title-icon');
@@ -86,12 +104,20 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._box.add_child(this._label);
         this.add_child(this._box);
         this._focusWindow = null;
-        this._focusWindowSignal = global.display.connect('notify::focus-window', 
+        this._hoverWindow = null;
+        this._stageEventId = null;
+        this._focusWindowSignal = global.display.connect('notify::focus-window',
             this._onFocusedWindowChanged.bind(this));
-        
+
         this._overviewShowingId = Main.overview.connect('showing',
-            () => this._updateVisibility());
-        
+            () => this._startHoverTracking());
+        // Stop on 'hiding' rather than 'hidden': once the previews are gone the
+        // pointer would resolve to the real window actors underneath.
+        this._overviewHidingId = Main.overview.connect('hiding', () => {
+            this._stopHoverTracking();
+            this._setHoverWindow(null);
+        });
+
         this._onFocusedWindowChanged();
 
         for (const name of KIWI_MENU_ITEMS)
@@ -109,18 +135,43 @@ class WindowTitleIndicator extends PanelMenu.Button {
             () => this._onOverviewHidden());
     }
 
-    _updateVisibility() {
-        if (Main.overview.visible) {
-            this._clearDisplay();
-        } else {
-            this._updateWindowTitle();
+    // Nothing exposes which overview preview is under the pointer, so watch the
+    // stage in the capture phase and resolve the actor the event landed on.
+    // Window previews and workspace thumbnail clones both carry their window.
+    _startHoverTracking() {
+        if (this._stageEventId)
+            return;
+
+        this._stageEventId = global.stage.connect('captured-event', (stage, event) => {
+            const type = event.type();
+            if (type === Clutter.EventType.MOTION || type === Clutter.EventType.ENTER)
+                this._setHoverWindow(windowForActor(stage.get_event_actor(event)));
+            return Clutter.EVENT_PROPAGATE;
+        });
+    }
+
+    _stopHoverTracking() {
+        if (this._stageEventId) {
+            global.stage.disconnect(this._stageEventId);
+            this._stageEventId = null;
         }
+    }
+
+    _setHoverWindow(window) {
+        if (window === this._hoverWindow)
+            return;
+
+        this._hoverWindow = window;
+        this._updateWindowTitle();
     }
 
     _onFocusedWindowChanged() {
         let window = global.display.focus_window;
 
-        if (!window && this.menu && this.menu.isOpen)
+        // The overview takes the input focus, leaving no focus window at all. Keep
+        // the last one instead of blanking the panel; 'hidden' re-syncs from the
+        // real focus once the overview is done.
+        if (!window && (Main.overview.visible || (this.menu && this.menu.isOpen)))
             return;
 
         if (this._focusWindow) {
@@ -139,15 +190,27 @@ class WindowTitleIndicator extends PanelMenu.Button {
         }
     }
 
+    // The overview only drops its grab after 'hidden' is emitted, so the display
+    // still has no focus window at that point and reading it here would blank the
+    // panel until the next focus change. Let the focus land first.
     _onOverviewHidden() {
-        this._onFocusedWindowChanged();
+        if (this._focusSyncIdleId)
+            GLib.Source.remove(this._focusSyncIdleId);
+
+        this._focusSyncIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            this._focusSyncIdleId = null;
+            this._onFocusedWindowChanged();
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
+    // A hovered overview preview wins over the focused window.
     _updateWindowTitle() {
-        if (!this._focusWindow) return;
+        const titleWindow = this._hoverWindow ?? this._focusWindow;
+        if (!titleWindow) return;
 
-        let windowTitle = this._focusWindow.get_title();
-        
+        let windowTitle = titleWindow.get_title();
+
         // Handle null window title
         if (!windowTitle) {
             this._clearDisplay();
@@ -164,7 +227,7 @@ class WindowTitleIndicator extends PanelMenu.Button {
         windowTitle = windowTitle.trim();
 
         const tracker = Shell.WindowTracker.get_default();
-        const app = tracker ? tracker.get_window_app(this._focusWindow) : null;
+        const app = tracker ? tracker.get_window_app(titleWindow) : null;
         const appName = app ? app.get_name() : null;
         const normalizedAppName = appName ? appName.trim().toLowerCase() : '';
         if (normalizedAppName.startsWith('com.') || normalizedAppName.startsWith('gjs')) {
@@ -186,11 +249,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
             this._label.text = ` ${windowTitle}`;
             this._menu.setApp(null);
         }
-        
-        this.reactive = true;
-        if (!Main.overview.visible) {
-            this.show();
-        }
+
+        this.show();
 
         this._queueMenuAlignment();
     }
@@ -318,13 +378,15 @@ class WindowTitleIndicator extends PanelMenu.Button {
         }
     }
 
+    // Never touch this.reactive here: hide() already blocks input, and every
+    // reactive change re-syncs St's hover state from an enter/leave count that
+    // an actor hidden under the pointer leaves stuck, latching the hover pill on.
     _clearDisplay(resetMenu = true) {
         this._label.text = '';
         this._icon.gicon = null;
-        this.reactive = false;
         if (resetMenu && this._menu) {
             if (this.menu && this.menu.isOpen)
-                this.menu.close(true);
+                this.menu.close(MENU_CLOSE_ARGS);
             this._menu.setApp(null);
         }
         this.hide();
@@ -354,9 +416,15 @@ class WindowTitleIndicator extends PanelMenu.Button {
     }
 
     destroy() {
+        this._stopHoverTracking();
+
         if (this._syncMenuIdleId) {
             GLib.Source.remove(this._syncMenuIdleId);
             this._syncMenuIdleId = null;
+        }
+        if (this._focusSyncIdleId) {
+            GLib.Source.remove(this._focusSyncIdleId);
+            this._focusSyncIdleId = null;
         }
 
         this._destroyKiwiMenuItems();
@@ -368,6 +436,9 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._settings = null;
         if (this._overviewShowingId) {
             Main.overview.disconnect(this._overviewShowingId);
+        }
+        if (this._overviewHidingId) {
+            Main.overview.disconnect(this._overviewHidingId);
         }
         if (this._menuOpenStateId) {
             this._menu.disconnect(this._menuOpenStateId);

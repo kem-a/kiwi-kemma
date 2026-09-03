@@ -1,0 +1,849 @@
+# Ukrainian translations
+# Copyright (C) YEAR Arnis Kemlers
+# This file is distributed under the same license as the Kiwi Menu package.
+# FIRST AUTHOR Dymko <Dymkovych@proton.me>, 2026.
+# Dymko <Dymkovych@proton.me>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Kiwi is not Apple\n"
+"Report-Msgid-Bugs-To: https://github.com/kem-a/kiwi-kemma/issues\n"
+"POT-Creation-Date: 2026-08-31 15:09+0300\n"
+"PO-Revision-Date: 2026-08-27 12:51+0300\n"
+"Last-Translator: Dymko <Dymkovych@proton.me>\n"
+"Language-Team: Ukrainian\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Gtranslator 50.0\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : "
+"n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+
+#: apps/downloadsStack.js:457
+msgid "Open in Files"
+msgstr "Відкрити у Файлах"
+
+#: apps/downloadsStack.js:459
+#, javascript-format
+msgid "%d More in Files"
+msgstr "Ще %d у Файлах"
+
+#: apps/downloadsStack.js:461
+msgid "Empty"
+msgstr "Порожньо"
+
+#: apps/downloadsStack.js:795
+msgid "Downloads"
+msgstr "Завантаження"
+
+#: apps/launchpadApp.js:298
+msgid "Launchpad"
+msgstr "Програми"
+
+#: apps/launchpadApp.js:299
+msgid "Open Application Overview"
+msgstr "Відкрити огляд програм"
+
+#: apps/quickSettingsMedia.js:414
+msgid "Media"
+msgstr "Програється"
+
+#: apps/quickSettingsNotifications.js:97
+msgid "Disable Do Not Disturb"
+msgstr "Вимкнути «Не турбувати»"
+
+#: apps/quickSettingsNotifications.js:97 apps/quickSettingsNotifications.js:152
+msgid "Enable Do Not Disturb"
+msgstr "Увімкнути «Не турбувати»"
+
+#: apps/quickSettingsNotifications.js:148
+msgid "Do Not Disturb"
+msgstr "Не турбувати"
+
+#: apps/quickSettingsNotifications.js:548
+msgid "Notifications"
+msgstr "Сповіщення"
+
+#: apps/quickSettingsNotifications.js:558
+msgid "Clear"
+msgstr "Очистити"
+
+#: apps/quickSettingsNotifications.js:563
+msgid "Clear all notifications"
+msgstr "Очистити всі сповіщення"
+
+#: apps/quickSettingsNotifications.js:770
+msgid "Do Not Disturb Indicator"
+msgstr "Індикатор Не турбувати"
+
+#: apps/windowTiling.js:324
+msgid "Move & Resize"
+msgstr "Розмір і розташування"
+
+#: apps/windowTiling.js:325
+msgid "Left"
+msgstr "Ліворуч"
+
+#: apps/windowTiling.js:326
+msgid "Right"
+msgstr "Праворуч"
+
+#: apps/windowTiling.js:327
+msgid "Top"
+msgstr "Угору"
+
+#: apps/windowTiling.js:328
+msgid "Bottom"
+msgstr "Вниз"
+
+#: apps/windowTiling.js:330
+msgid "Fill & Arrange"
+msgstr "Заповнення і впорядкування"
+
+#: apps/windowTiling.js:331
+msgid "Fill"
+msgstr "На весь екран"
+
+#: apps/windowTiling.js:338
+msgid "Left & Right"
+msgstr "Ліворуч і праворуч"
+
+#: apps/windowTiling.js:341
+msgid "Right & Left"
+msgstr "Праворуч і ліворуч"
+
+#: apps/windowTiling.js:344
+msgid "Quarters"
+msgstr "Чверті"
+
+#: apps/windowTitle.js:281
+msgid "Leave Fullscreen"
+msgstr "Вийти з повноекранного режиму"
+
+#: apps/windowTitle.js:281
+msgid "Fullscreen"
+msgstr "Повноекранний режим"
+
+#: apps/windowTitle.js:289
+msgid "Restore Window"
+msgstr "Відновити вікно"
+
+#: apps/windowTitle.js:295
+msgid "Always on Top"
+msgstr "Завжди зверху"
+
+#: prefs.js:83
+msgid "Kiwi (is not Apple)"
+msgstr "Ківі (це не Apple)"
+
+#: prefs.js:110
+msgid "About"
+msgstr "Довідка"
+
+#: prefs.js:169 prefs.js:183
+msgid "Unknown"
+msgstr "Невідомо"
+
+#: prefs.js:176
+msgid "Change log"
+msgstr "Журнал змін"
+
+#: prefs.js:217
+msgid "Website"
+msgstr "Сайт"
+
+#: prefs.js:221
+msgid "Report an Issue"
+msgstr "Повідомити про ваду"
+
+#: prefs.js:226
+msgid "Credits"
+msgstr "Подяки"
+
+#: prefs.js:229 prefs.js:244
+msgid "Legal"
+msgstr "Юридичне"
+
+#: prefs.js:252
+msgid "License"
+msgstr "Ліцензія"
+
+#: prefs.js:253
+msgid "Kiwi is free and open source software"
+msgstr "Ківі поширюється під вільною ліцензією і має відкритий вихідний код"
+
+#: prefs.js:258
+msgid "GNU General Public License v3.0"
+msgstr "Загальна громадська ліцензія GNU v3.0"
+
+#: prefs.js:260
+msgid "View the full license text on GitHub"
+msgstr "Переглянути повний текст ліцензії на GitHub"
+
+#: prefs.js:267 prefs.js:268
+msgid "Copyright"
+msgstr "Авторські права"
+
+#: prefs.js:268
+msgid ""
+"This program is free software: you can redistribute it and/or modify it "
+"under the terms of the GNU General Public License as published by the Free "
+"Software Foundation, either version 3 of the License, or (at your option) "
+"any later version."
+msgstr ""
+"Ця програма є вільним програмним забезпеченням: ви можете розповсюджувати її "
+"та/або змінювати за умов Загальної громадської ліцензії GNU, опублікованої "
+"Фондом вільного програмного забезпечення, версії 3 або (на ваш розсуд) будь-"
+"якої пізнішої версії."
+
+#: prefs.js:322
+msgid "Become a sponsor on GitHub"
+msgstr "Стати спонсором на GitHub"
+
+#: prefs.js:335
+msgid "Support Me ♡"
+msgstr "Підтримати ♡"
+
+#: prefs.js:361
+msgid "Panel"
+msgstr "Панель"
+
+#: prefs.js:367 prefs.js:380
+msgid "Panel Transparency"
+msgstr "Прозорість панелі"
+
+#: prefs.js:368
+msgid "Configure panel transparency and appearance"
+msgstr "Налаштування прозорості та вигляду панелі"
+
+#: prefs.js:381
+msgid "Make the top panel transparent"
+msgstr "Зробити верхню панель прозорою"
+
+#: prefs.js:388
+msgid "Transparency Level"
+msgstr "Рівень прозорості"
+
+#: prefs.js:389
+msgid "Set panel transparency (0-100)"
+msgstr "Встановити рівень прозорості панелі (0-100)"
+
+#: prefs.js:403
+msgid "Opaque When Window Touches"
+msgstr "Суцільна при дотику"
+
+#: prefs.js:404
+msgid "Make panel opaque when a window touches it"
+msgstr "Робити панель непрозорою, коли її дотикається вікно"
+
+#: prefs.js:412
+msgid "Panel Blur"
+msgstr "Розмиття"
+
+#: prefs.js:413
+msgid "Blur the background behind the panel"
+msgstr "Розмивати тло позаду панелі"
+
+#: prefs.js:421
+msgid "Panel Color Fix"
+msgstr "Виправлення кольору"
+
+#: prefs.js:422
+msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
+msgstr "Виправити білу панель у деяких темах (Ubuntu Yaru)"
+
+#: prefs.js:429
+msgid "Invert Tray Icons on Light Wallpapers"
+msgstr "Інвертувати піктограми для світлих шпалер"
+
+#: prefs.js:430
+msgid ""
+"Darken white monochrome tray icons when the panel adapts to a light "
+"wallpaper. Colored icons are left untouched"
+msgstr ""
+"Затемнювати білі монохромні піктограми, якщо панель підлаштовується під "
+"світлі шпалери. Кольорові піктограми залишаються без змін"
+
+#: prefs.js:463
+msgid "Panel Items"
+msgstr "Елементи панелі"
+
+#: prefs.js:464
+msgid "Choose what the top panel and its menus show"
+msgstr "Виберіть, що відображатиметься на верхній панелі та в її меню"
+
+#: prefs.js:471
+msgid "Show Window Title"
+msgstr "Заголовок вікна"
+
+#: prefs.js:472
+msgid "Display current window title in the top panel"
+msgstr "Відображати заголовок поточного вікна на панелі"
+
+#: prefs.js:481
+msgid "Hide App Icon"
+msgstr "Приховати піктограму програми"
+
+#: prefs.js:482
+msgid "Do not show the application icon next to the window title"
+msgstr "Прибрати піктограму програми поруч із заголовком вікна"
+
+#: prefs.js:489
+msgid "Disable Window Tiling"
+msgstr "Вимкнути параметри укладання вікон"
+
+#: prefs.js:490
+msgid ""
+"Drop the tiling layouts from the window title menu, and stop restoring tiled "
+"windows when their titlebar is dragged"
+msgstr ""
+"Прибрати укладання вікон з меню заголовка та припинити відновлення вікон під "
+"час перетягування"
+
+#: prefs.js:510
+msgid "Show Panel in Fullscreen on Hover"
+msgstr "Панель у повноекранному режимі при наведенні"
+
+#: prefs.js:510
+msgid ""
+"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
+msgstr ""
+"Показувати панель, коли курсор біля верхнього краю екрана. (Може працювати "
+"нестабільно з програмами GTK4)."
+
+#: prefs.js:518
+msgid "Move Calendar to Right"
+msgstr "Календар праворуч"
+
+#: prefs.js:519
+msgid "Move calendar to right side and hide notifications"
+msgstr "Перемістити календар у правий кут і перенести сповіщення"
+
+#: prefs.js:528
+msgid "Keep GNOME Notification Panel"
+msgstr "Звичайна панель сповіщень GNOME"
+
+#: prefs.js:529
+msgid "Don't split notification and calendar layout"
+msgstr "Не розділяти макет сповіщень та календаря"
+
+#: prefs.js:536
+msgid "Indicator Style"
+msgstr "Стиль індикаторів"
+
+#: prefs.js:537
+msgid "Notification dot recolor"
+msgstr "Колір крапки сповіщень"
+
+#: prefs.js:540 prefs.js:826
+msgid "Default"
+msgstr "Типово"
+
+#: prefs.js:540
+msgid "Accent"
+msgstr "Акцент"
+
+#: prefs.js:540
+msgid "Symbolic"
+msgstr "Силует"
+
+#: prefs.js:547
+msgid "Battery Percentage"
+msgstr "Відсоток наснаги акумулятора"
+
+#: prefs.js:559
+msgid ""
+"Unavailable while GNOME Settings shows the battery percentage in the top bar"
+msgstr "Недоступно, доки Параметри GNOME показують відсоток наснаги на панелі"
+
+#: prefs.js:560
+msgid "Show battery percentage in the top bar when below 20%"
+msgstr "Відсоток на панелі, коли акумулятор виснажено нижче 20%"
+
+#: prefs.js:566
+msgid "Caps Lock and Num Lock"
+msgstr "Caps Lock та Num Lock"
+
+#: prefs.js:566
+msgid "Show Caps Lock and Num Lock icon"
+msgstr "Показувати індикатори Caps Lock та Num Lock"
+
+#: prefs.js:567
+msgid "Custom Do Not Disturb Button"
+msgstr "Власна кнопка Не турбувати"
+
+#: prefs.js:567
+msgid ""
+"Replace the system Do Not Disturb button with Kiwi's custom implementation"
+msgstr "Замінити системну кнопку Не турбувати на реалізацію від Ківі"
+
+#: prefs.js:568
+msgid "Hide Activities Button"
+msgstr "Приховати «Діяльність»"
+
+#: prefs.js:568
+msgid "Hide the Activities button in the top panel"
+msgstr "Прибрати кнопку з панелі"
+
+#: prefs.js:569
+msgid "Add Username"
+msgstr "Ім'я користувача"
+
+#: prefs.js:569
+msgid "Add username to the quick menu"
+msgstr "Додати ім'я користувача до швидких параметрів"
+
+#: prefs.js:573 prefs.js:771
+msgid "Styling"
+msgstr "Стилізація"
+
+#: prefs.js:574
+msgid ""
+"Restyle stock GNOME Shell elements and GTK apps. Log out and back in for "
+"changes to take effect"
+msgstr ""
+"Змінити стиль базових елементів GNOME Shell та програм GTK. Вийдіть із "
+"системи та зайдіть знову, щоб зміни набули чинності"
+
+#: prefs.js:579
+msgid "Panel Styling"
+msgstr "Стилізація панелі"
+
+#: prefs.js:579
+msgid ""
+"Tighter button spacing, bold titles, smaller status icons, no dropdown "
+"arrows and a transparent panel in the overview"
+msgstr ""
+"Щільніші інтервали, жирні заголовки, менші піктограми статусу, без стрілок "
+"випадних списків та прозора панель під час огляду діяльностей"
+
+#: prefs.js:580
+msgid "Menu and App Styling"
+msgstr "Стилізація меню та програм"
+
+#: prefs.js:580
+msgid ""
+"Narrower shell menu items with accent-colored hover and selection, plus the "
+"GTK app fixes"
+msgstr ""
+"Вужчі елементи меню із виділенням акцентним кольором при наведенні, плюс "
+"виправлення для програм GTK"
+
+#: prefs.js:586
+msgid "Style Keyboard Indicator"
+msgstr "Стилізація індикатора клавіатури"
+
+#: prefs.js:587
+msgid ""
+"Slightly style keyboard/input source indicator by converting to uppercase "
+"and adding border"
+msgstr "Легка стилізація джерела вводу, заголовні літери в рамці"
+
+#: prefs.js:594
+msgid "Hide keyboard indicator"
+msgstr "Приховати індикатор клавіатури"
+
+#: prefs.js:595
+msgid "Completely hide the indicator from the panel"
+msgstr "Прибрати індикатор із панелі"
+
+#: prefs.js:623
+msgid "Dock"
+msgstr "Полиця"
+
+#: prefs.js:629
+msgid "Dock Items"
+msgstr "Область завдань"
+
+#: prefs.js:630
+msgid "Add extra items to Dash-to-Dock"
+msgstr "Додаткові елементи до панелі Dash-to-Dock"
+
+#: prefs.js:635
+msgid "Minimize Windows to Dock"
+msgstr "Згортати вікна до області завдань"
+
+#: prefs.js:635
+msgid ""
+"Park minimized windows as thumbnails in Dash-to-Dock, after the apps and "
+"before the trash"
+msgstr ""
+"Розміщувати згорнуті вікна як мініатюри в Dash-to-Dock /n(після програм і "
+"перед смітником)"
+
+#: prefs.js:639
+msgid "Downloads Folder in Dock"
+msgstr "Тека завантажень"
+
+#: prefs.js:640
+msgid ""
+"Add a Downloads folder before the trash that fans its newest files out over "
+"the desktop"
+msgstr ""
+"Додає теку завантажень перед смітником. При натисканні розгортає віялом "
+"найновіші файли на стільниці"
+
+#: prefs.js:648
+msgid "Stack Behind Folder"
+msgstr "Ефект стосів за текою"
+
+#: prefs.js:649
+msgid ""
+"Show the newest files sticking out of the folder icon instead of piled on "
+"top of it"
+msgstr ""
+"Показувати найновіші файли так, ніби вони виглядають з-за теки, а не лежать "
+"згори"
+
+#: prefs.js:667
+msgid "Launchpad Application"
+msgstr "Програмотека"
+
+#: prefs.js:668
+msgid ""
+"Add custom Launchpad icon to dock that opens application overview. "
+"Recommended to hide default app launcher."
+msgstr ""
+"Додати піктограму Програмотеки до області завдань / панелі приладів, що "
+"відкриватиме огляд програм. Рекомендується приховати стандартний запускач."
+
+#: prefs.js:678
+msgid "Custom Icon"
+msgstr "Власна піктограма"
+
+#: prefs.js:681 prefs.js:766
+msgid "Using default icon"
+msgstr "Використовується типова піктограма"
+
+#: prefs.js:689
+msgid "Reset to default icon"
+msgstr "Скинути до типової піктограми"
+
+#: prefs.js:700
+msgid "Browse for icon"
+msgstr "Огляд піктограми"
+
+#: prefs.js:705
+msgid "Select Launchpad Icon"
+msgstr "Вибрати піктограму"
+
+#: prefs.js:709
+msgid "Images (PNG, SVG)"
+msgstr "Зображення (PNG, SVG)"
+
+#: prefs.js:737
+msgid "Icon Too Large"
+msgstr "Піктограма завелика"
+
+#: prefs.js:738
+msgid ""
+"The selected image exceeds 512×512 pixels. Please choose a smaller image."
+msgstr ""
+"Вибране зображення перевищує розмір 512×512 пікселів. Будь ласка, виберіть "
+"менше."
+
+#: prefs.js:740
+msgid "OK"
+msgstr "ОК"
+
+#: prefs.js:776
+msgid "Dock Styling"
+msgstr "Область завдань"
+
+#: prefs.js:776
+msgid ""
+"Tighten icon spacing, drop the icon highlight and darken icons while pressed"
+msgstr ""
+"Зменшити інтервали, прибрати підсвічування та затемнювати піктограми при "
+"натисканні"
+
+#: prefs.js:777
+msgid "Dock Blur"
+msgstr "Розмиття"
+
+#: prefs.js:777
+msgid ""
+"Blur the background behind Dash-to-Dock. Recommended fixed dock opacity 10% "
+"- 30%, min 1%."
+msgstr ""
+"Розмивати тло позаду Dash-to-Dock. Рекомендована фіксована непрозорість "
+"полиці 10%–30%, щонайменше 1%."
+
+#: prefs.js:778
+msgid "Adaptive Dock Colors"
+msgstr "Адаптивні кольори полиці"
+
+#: prefs.js:778
+msgid ""
+"Flip the running indicators and separators to suit whatever is behind the "
+"dock, wallpaper or window"
+msgstr ""
+"Змінювати індикатори запущених програм і роздільники відповідно до того, що "
+"позаду полиці, шпалер чи вікна"
+
+#: prefs.js:785
+msgid "Buttons"
+msgstr "Кнопки"
+
+#: prefs.js:791
+msgid "Window Control Button Style"
+msgstr "Стиль кнопок керування вікном"
+
+#: prefs.js:792
+msgid ""
+"Choose the window control button style. Log out to apply it across all apps."
+msgstr ""
+"Виберіть стиль кнопок керування вікном. Вийдіть із системи, щоб застосувати "
+"для всіх програм."
+
+#: prefs.js:800
+msgid "Enable macOS Window Buttons"
+msgstr "Кнопки вікон у стилі macOS"
+
+#: prefs.js:801
+msgid "Replace window control buttons in application windows with macOS style"
+msgstr "Замінити кнопки керування вікнами на стиль macOS"
+
+#: prefs.js:822
+msgid "Button Type"
+msgstr "Тип кнопок"
+
+#: prefs.js:823
+msgid "Choose the button icon set"
+msgstr "Набір піктограм для кнопок"
+
+#: prefs.js:826
+msgid "Alternative"
+msgstr "Додатковий"
+
+#: prefs.js:832
+msgid "Button Size"
+msgstr "Розмір кнопок"
+
+#: prefs.js:833
+msgid "Choose button size"
+msgstr "Вибрати розмір кнопок"
+
+#: prefs.js:836
+msgid "Small"
+msgstr "Малий"
+
+#: prefs.js:836
+msgid "Normal"
+msgstr "Звичайний"
+
+#: prefs.js:842
+msgid "Firefox Styling"
+msgstr "Стилізація Firefox"
+
+#: prefs.js:843
+msgid ""
+"Apply macOS window control styling for Firefox. Recommended to use with "
+"vertical tabs."
+msgstr ""
+"Застосувати стиль керування вікнами macOS для Firefox. Рекомендується для "
+"вертикальних вкладок."
+
+#: prefs.js:851
+msgid "Thunderbird Styling"
+msgstr "Стилізація Thunderbird"
+
+#: prefs.js:852
+msgid "Apply macOS window control styling for Thunderbird."
+msgstr "Застосувати стиль керування вікнами macOS для Thunderbird."
+
+#: prefs.js:876
+msgid "Show Window Controls on Panel"
+msgstr "Керування вікном на панелі"
+
+#: prefs.js:877
+msgid ""
+"Display close, minimize, maximize buttons in the top panel when window is "
+"maximized"
+msgstr ""
+"Відображати кнопки закриття, згортання та розгортання на панелі для "
+"розгорнутих вікон"
+
+#: prefs.js:891
+msgid "Only when Fullscreen"
+msgstr "Лише у повноекранному режимі"
+
+#: prefs.js:892
+msgid ""
+"Hide titlebars and show panel controls only for fullscreen windows, not "
+"maximized"
+msgstr ""
+"Ховати заголовки та показувати елементи керування на панелі лише для "
+"повноекранних вікон, не для розгорнутих"
+
+#: prefs.js:901
+msgid "Options"
+msgstr "Параметри"
+
+#: prefs.js:907
+msgid "Kiwi"
+msgstr "Ківі"
+
+#: prefs.js:908
+msgid ""
+"Kiwi is not like Apple, it's free open source project that brings macOS-like "
+"feel for GNOME"
+msgstr ""
+"Ківі не копіює Apple, це відкритий проєкт, що додає GNOME естетики macOS"
+
+#: prefs.js:913
+msgid "Overview Wallpaper Blur"
+msgstr "Розмиття тла в огляді"
+
+#: prefs.js:913
+msgid "Use blurred current wallpaper as overview background"
+msgstr "Розмивати тло в огляді діяльностей"
+
+#: prefs.js:914
+msgid "Skip to Desktop"
+msgstr "Одразу стільниця"
+
+#: prefs.js:914
+msgid "Do not show the overview when logging in. Animation is still visible"
+msgstr "Пропускати огляд під час входу в систему. Анімація залишається"
+
+#: prefs.js:915
+msgid "Hide Minimized Windows"
+msgstr "Приховати згорнуті вікна"
+
+#: prefs.js:915
+msgid "Hide minimized windows in the overview"
+msgstr "Ховати згорнуті вікна в огляді діяльностей"
+
+#: prefs.js:916
+msgid "Move Window to New Workspace"
+msgstr "Перемістити вікно на новий робочий простір"
+
+#: prefs.js:916
+msgid "Move fullscreen window to a new workspace"
+msgstr "Переміщати повноекранні вікна на новий робочий простір"
+
+#: prefs.js:917
+msgid "Reduce App Animations"
+msgstr "Спростити анімацію програм"
+
+#: prefs.js:917
+msgid "Mimic macOS window opening and closing with a subtle scale and fade"
+msgstr ""
+"Імітувати відкриття та закриття вікон у стилі macOS, плавне масштабування і "
+"згасання"
+
+#: prefs.js:918
+msgid "Transparent Move"
+msgstr "Прозоре перетягування"
+
+#: prefs.js:918
+msgid "Move window with transparency"
+msgstr "Вікно ставатиме напівпрозорим під час переміщення"
+
+#: prefs.js:925
+msgid "Advanced"
+msgstr "Додатково"
+
+#: prefs.js:955
+msgid "Titlebuttons Hover Effect for GTK3 apps"
+msgstr "Ефект наведення кнопок заголовка для програм GTK3"
+
+#: prefs.js:968
+msgid ""
+"The titlebuttons hover module provides macOS-like hover effects for window "
+"controls in GTK3 applications. GTK3 apps cannot natively show hover effects "
+"on all three window controls simultaneously, requiring this custom library "
+"to achieve the desired behavior.\n"
+"\n"
+"This binary code cannot be distributed through the GNOME Extensions platform "
+"due to security policies regarding native libraries, but manual installation "
+"is possible."
+msgstr ""
+"Модуль забезпечує ефекти наведення у стилі macOS для кнопок керування "
+"вікнами в програмах GTK3. Оскільки GTK3 не підтримує наведення одразу на всі "
+"три кнопки, для цього потрібна стороння бібліотека.\n"
+"\n"
+"Бінарник не можна поширювати на платформі розширень GNOME через політику "
+"безпеки стосовно сторонніх бібліотек, проте його можна встановити вручну."
+
+#: prefs.js:984
+msgid "Installation Guide on GitHub"
+msgstr "Посібник зі встановлення на GitHub"
+
+#: prefs.js:986
+msgid "Open the advanced module build instructions"
+msgstr "Відкрити сторінку інструкцій зі збирання модуля"
+
+#: prefs.js:992
+msgid "More of my work..."
+msgstr "Ще мої доробки..."
+
+#: prefs.js:996
+msgid "Kiwi Menu"
+msgstr "Панель-список Ківі"
+
+#: prefs.js:996
+msgid "MacOS style menu for GNOME"
+msgstr "Панель керування у стилі macOS для GNOME"
+
+#: prefs.js:997
+msgid "AppManager"
+msgstr "Розпорядник AppImage"
+
+#: prefs.js:997
+msgid "MacOS style AppImage installer and management application"
+msgstr "Встановлювач та засіб керування AppImage у стилі macOS"
+
+#: prefs.js:998
+msgid "Catalina Reloaded Icon Pack"
+msgstr "Catalina Reloaded Icon Pack"
+
+#: prefs.js:998
+msgid "macOS Tahoe icon theme for Linux"
+msgstr "Тема піктограм macOS Tahoe для Linux"
+
+#: prefs.js:999
+msgid "GDM Wallpaper"
+msgstr "Шпалери GDM"
+
+#: prefs.js:999
+msgid "Set custom GDM login screen wallpaper"
+msgstr "Встановлення тла для екрана входу GDM"
+
+#: prefs.js:1011
+msgid "Other Recommended Extensions"
+msgstr "Рекомендую до огляду"
+
+#: prefs.js:1012
+msgid "Extensions that are compatible with Kiwi"
+msgstr "Розширення, які сумісні з Ківі"
+
+#: prefs.js:1036 prefs.js:1050
+msgid "Restore Defaults"
+msgstr "Відновити типові"
+
+#: prefs.js:1040
+msgid "Reset every Kiwi setting to its default value"
+msgstr "Скинути всі налаштування Ківі до типових значень"
+
+#: prefs.js:1046
+msgid "Restore Default Settings?"
+msgstr "Відновити параметри?"
+
+#: prefs.js:1047
+msgid ""
+"Every Kiwi setting will be reset to its default value. This cannot be undone."
+msgstr ""
+"Налаштування буде скинуто до типових значень. Цю дію неможливо скасувати."
+
+#: prefs.js:1049
+msgid "Cancel"
+msgstr "Скасувати"
+
+#~ msgid "Unknown artist"
+#~ msgstr "Невідомий виконавець"
+
+#~ msgid "Unknown title"
+#~ msgstr "Невідома назва"
