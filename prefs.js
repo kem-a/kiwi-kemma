@@ -601,6 +601,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'lock-icon', title: _("Caps Lock and Num Lock"), subtitle: _("Show Caps Lock and Num Lock icon") },
             { key: 'custom-dnd-button', title: _("Custom Do Not Disturb Button"), subtitle: _("Replace the system Do Not Disturb button with Kiwi's custom implementation") },
             { key: 'hide-activities-button', title: _("Hide Activities Button"), subtitle: _("Hide the Activities button in the top panel") },
+            { key: 'hide-media-player', title: _("Hide Media Player"), subtitle: _("Hide the Media Player in Quick Settings") },
             { key: 'hide-media-indicator', title: _("Hide Media Status Indicator"), subtitle: _("Hide the Media Status indicator in the quick menu while media is playing") },
             { key: 'add-username-to-quick-menu', title: _("Add Username"), subtitle: _("Add username to the quick menu") },
         ]);

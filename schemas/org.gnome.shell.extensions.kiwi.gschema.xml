@@ -101,6 +101,11 @@
         <summary>Custom Do Not Disturb Button</summary>
         <description>Replace the system Do Not Disturb quick settings button with Kiwi's custom implementation.</description>
       </key>
+      <key name="hide-media-player" type="b">
+        <default>false</default>
+        <summary>Hide Media Player</summary>
+        <description>Hide the Media Player from Quick Settings</description>
+      </key>
       <key name="hide-media-indicator" type="b">
         <default>false</default>
         <summary>Hide Media Status Indicator</summary>

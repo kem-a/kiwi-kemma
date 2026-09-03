@@ -22,6 +22,7 @@ let _initTimeoutId = null;
 let mediaIndicator = null;
 let gettextFunc = (message) => message;
 let hideMediaIndicator = false;
+let hideMediaPlayer = false;
 
 // Get QuickSettings grid
 function getQuickSettingsGrid() {
@@ -33,11 +34,19 @@ function getQuickSettingsGrid() {
     return quickSettingsGrid;
 }
 
+export function setHideMediaPlayer(enabled) {
+    hideMediaPlayer = enabled;
+
+    if (mediaWidget) {
+        mediaWidget._syncEmpty();
+    }
+}
+
 export function setHideMediaIndicator(enabled) {
+    hideMediaIndicator = enabled;
+
     if (!mediaIndicator)
         return;
-
-    hideMediaIndicator = enabled;
 
     if (hideMediaIndicator) {
         mediaIndicator.visible = false;
@@ -534,7 +543,7 @@ class MediaWidget extends St.BoxLayout {
 
     _syncEmpty() {
         const isEmpty = this._list.empty;
-        this.visible = !isEmpty;
+        this.visible = !isEmpty && !hideMediaPlayer;
         if (isEmpty)
             this._updateBodySpacing(0);
     }
@@ -561,6 +570,7 @@ export function enable(gettext) {
             return GLib.SOURCE_CONTINUE; // Retry if grid not ready
 
         mediaWidget = new MediaWidget();
+        mediaWidget.visible = !hideMediaPlayer;
         const existingChildren = grid.get_children?.() ?? [];
         const notificationsActor = existingChildren.find(child =>
             typeof child.has_style_class_name === 'function' && child.has_style_class_name('kiwi-notifications'));

@@ -48,7 +48,7 @@ import { enable as dockColorsEnable, disable as dockColorsDisable } from './apps
 import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } from './apps/minimizedToDock.js';
 import { enable as downloadsStackEnable, disable as downloadsStackDisable } from './apps/downloadsStack.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
-import { setHideMediaIndicator } from './apps/quickSettingsMedia.js';
+import { setHideMediaIndicator, setHideMediaPlayer } from './apps/quickSettingsMedia.js';
 import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
 import { dockActive, isDockExtension } from './apps/dockUtils.js';
 
@@ -203,6 +203,9 @@ export default class KiwiExtension extends Extension {
 
         const hideMediaIndicator = this._settings.get_boolean('hide-media-indicator');
         setHideMediaIndicator(hideMediaIndicator);
+
+        const hideMediaPlayer = this._settings.get_boolean('hide-media-player');
+        setHideMediaPlayer(hideMediaPlayer);
 
         if (this._settings.get_boolean('overview-wallpaper-background')) {
             overviewWallpaperEnable(this._settings);
