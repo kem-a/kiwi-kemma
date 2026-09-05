@@ -72,6 +72,12 @@ export default class KiwiExtension extends Extension {
     // GTK theme updates are handled by gtkThemeManager module
         // No need to handle 'enable-app-window-buttons' or 'button-type' here for GTK updates
 
+        if (this._settings.get_boolean('focus-launched-window')) {
+            focusLaunchedWindowEnable();
+        } else {
+            focusLaunchedWindowDisable();
+        }
+
         if (this._settings.get_boolean('move-window-to-new-workspace')) {
             moveFullscreenEnable();
         } else {
@@ -298,8 +304,6 @@ export default class KiwiExtension extends Extension {
         // Enable Thunderbird theme manager based on setting
         if (this._settings.get_boolean('enable-thunderbird-styling') || this._settings.get_boolean('show-window-controls'))
             thunderbirdThemeManagerEnable(this);
-
-        focusLaunchedWindowEnable();
 
         this._on_settings_changed(null);
         overviewWallpaperRefresh();

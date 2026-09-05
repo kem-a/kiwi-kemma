@@ -245,6 +245,11 @@
         <summary>Hide minimized windows</summary>
         <description>Hide minimized windows in the overview.</description>
       </key>
+      <key name="focus-launched-window" type="b">
+        <default>true</default>
+        <summary>Focus Launched Window</summary>
+        <description>Focus newly launched windows, instead of leaving them to the window-ready notification. Windows that ask for attention later are left to the dock.</description>
+      </key>
       <key name="move-window-to-new-workspace" type="b">
         <default>true</default>
         <summary>Move Window to New Workspace</summary>

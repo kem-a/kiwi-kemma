@@ -976,6 +976,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Blur"), subtitle: _("Use blurred current wallpaper as overview background") },
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
+            { key: 'focus-launched-window', title: _("Focus Launched Window"), subtitle: _("Focus newly launched windows and skip the window-ready notification") },
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
             { key: 'reduce-window-animations', title: _("Reduce App Animations"), subtitle: _("Mimic macOS window opening and closing with a subtle scale and fade") },
             { key: 'transparent-move', title: _("Transparent Move"), subtitle: _("Move window with transparency") },
