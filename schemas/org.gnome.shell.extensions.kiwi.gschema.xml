@@ -176,6 +176,11 @@
         <summary>Dock Blur</summary>
         <description>Apply a blur effect behind the Dash-to-Dock background.</description>
       </key>
+      <key name="dock-bounce-on-launch" type="b">
+        <default>true</default>
+        <summary>Bounce Icon on Launch</summary>
+        <description>Hop a Dash-to-Dock icon up and down while its app is starting.</description>
+      </key>
       <key name="dock-adaptive-colors" type="b">
         <default>false</default>
         <summary>Dock Adaptive Colors</summary>

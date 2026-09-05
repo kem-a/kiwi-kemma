@@ -45,6 +45,7 @@ import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './
 import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
 import { enable as dockStylingEnable, disable as dockStylingDisable } from './apps/dockStyling.js';
 import { enable as dockColorsEnable, disable as dockColorsDisable } from './apps/dockColors.js';
+import { enable as dockBounceEnable, disable as dockBounceDisable } from './apps/dockBounce.js';
 import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } from './apps/minimizedToDock.js';
 import { enable as downloadsStackEnable, disable as downloadsStackDisable } from './apps/downloadsStack.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
@@ -248,6 +249,12 @@ export default class KiwiExtension extends Extension {
         else
             dockColorsDisable();
 
+        // Bounce a dock icon while its app starts
+        if (hasDock && this._settings.get_boolean('dock-bounce-on-launch'))
+            dockBounceEnable();
+        else
+            dockBounceDisable();
+
         // Reduce window open/close animations (macOS-style scale + fade)
         if (this._settings.get_boolean('reduce-window-animations'))
             reduceWindowAnimationsEnable();
@@ -346,6 +353,7 @@ export default class KiwiExtension extends Extension {
         dockBlurDisable();
         dockStylingDisable();
         dockColorsDisable();
+        dockBounceDisable();
         // The stack borrows the minimized strip and holds a signal on it, so it
         // has to let go before that strip is destroyed
         downloadsStackDisable();
