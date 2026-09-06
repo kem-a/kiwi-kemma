@@ -26,8 +26,8 @@
       </key>
       <key name="panel-opaque-on-window" type="b">
         <default>false</default>
-        <summary>Panel Opaque on Window Touch</summary>
-        <description>Make panel opaque when a window touches it.</description>
+        <summary>Panel Opaque on Maximized Window</summary>
+        <description>Make panel opaque when a maximized window touches it.</description>
       </key>
       <key name="panel-blur" type="b">
         <default>false</default>

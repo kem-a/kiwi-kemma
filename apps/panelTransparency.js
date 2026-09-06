@@ -589,21 +589,19 @@ function checkWindowTouchingPanel() {
         return;
     }
 
-    const panel = Main.panel;
-    const scale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
-    const [, panelTop] = panel.get_transformed_position();
-    const threshold = 5 * scale;
-
+    // A maximized window fills the work area, which starts right below the
+    // panel, so it always touches it — no geometry check needed.
     const windowTouching = global.workspace_manager
         .get_active_workspace()
         .list_windows()
-        .some(win => 
+        .some(win =>
             win.is_on_primary_monitor() &&
             win.showing_on_its_workspace() &&
             !win.is_hidden() &&
             win.get_window_type() !== Meta.WindowType.DESKTOP &&
             !win.skip_taskbar &&
-            win.get_frame_rect().y <= (panelTop + panel.height + threshold)
+            win.maximized_horizontally &&
+            win.maximized_vertically
         );
     if (_isFullscreenActive()) {
         updatePanelStyle(1.0);

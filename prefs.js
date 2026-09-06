@@ -433,10 +433,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         transparencyExpander.add_row(transparencySpinRow);
 
-        // Opaque on window touch switch
+        // Opaque on maximized window switch
         const opaqueOnWindowSwitch = new Adw.SwitchRow({
-            title: _("Opaque When Window Touches"),
-            subtitle: _("Make panel opaque when a window touches it"),
+            title: _("Opaque When Window Maximized"),
+            subtitle: _("Make panel opaque when a maximized window touches it"),
             active: settings.get_boolean('panel-opaque-on-window'),
             sensitive: settings.get_boolean('panel-transparency'),
         });
