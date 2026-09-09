@@ -39,6 +39,12 @@
   opacity: 1.0 !important;
 }
 
+/* Suppress the theme's 250ms background fade while the overview hides,
+   so restoring our alpha doesn't animate from a stale :overview reading */
+#panel.kiwi-panel-no-transition {
+  transition-duration: 0ms !important;
+}
+
 /* Panel color inherit fix for theme compatibility */
 #panel.kiwi-panel-color-inherit {
   /* this often inherits transparency causing unwanted visual bugs */
