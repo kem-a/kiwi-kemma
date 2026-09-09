@@ -474,7 +474,10 @@ function applyPanelColorFix() {
     // Clear the inline background so the theme node reports the class colour
     // instead of the rgba() we last wrote, then rebuild it from that reading.
     setPanelBackground('');
-    GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+    if (colorFixIdleId)
+        GLib.Source.remove(colorFixIdleId);
+    colorFixIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        colorFixIdleId = 0;
         if (enabled) updatePanelStyle(lastForcedAlpha);
         return GLib.SOURCE_REMOVE;
     });
@@ -662,7 +665,12 @@ function checkWindowTouchingPanel() {
 function handleWindowSignals(connect = true) {
     if (!connect) {
         windowSignals.forEach(({ actor, signals }) => {
-            signals.forEach(signalId => actor.disconnect(signalId));
+            signals.forEach(signalId => {
+                // Some display signal connections fall back to 0 when the
+                // signal doesn't exist — disconnect(0) would throw
+                if (signalId)
+                    actor.disconnect(signalId);
+            });
         });
         windowSignals = [];
         return;
@@ -837,7 +845,10 @@ function setupSignals() {
 function forceThemeUpdate() {
     const panel = Main.panel;
     panel.remove_style_class_name('panel');
-    GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+    if (themeUpdateIdleId)
+        GLib.Source.remove(themeUpdateIdleId);
+    themeUpdateIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        themeUpdateIdleId = 0;
         panel.add_style_class_name('panel');
         ownBackground = '';
         panel.style = null;
@@ -867,7 +878,10 @@ export function enable(_settings) {
     interfaceSettingsSignal = interfaceSettings.connect('changed::color-scheme', () => {
         updateWallpaperLightness();
         forceThemeUpdate();
-        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        if (colorSchemeIdleId)
+            GLib.Source.remove(colorSchemeIdleId);
+        colorSchemeIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            colorSchemeIdleId = 0;
             updatePanelStyle();
             return GLib.SOURCE_REMOVE;
         });
@@ -926,6 +940,18 @@ export function disable() {
         panelStyleSignal = null;
     }
     _cancelNoTransitionIdle();
+    if (colorFixIdleId) {
+        GLib.Source.remove(colorFixIdleId);
+        colorFixIdleId = 0;
+    }
+    if (themeUpdateIdleId) {
+        GLib.Source.remove(themeUpdateIdleId);
+        themeUpdateIdleId = 0;
+    }
+    if (colorSchemeIdleId) {
+        GLib.Source.remove(colorSchemeIdleId);
+        colorSchemeIdleId = 0;
+    }
     ownBackground = '';
     
     settingsSignals.forEach(signal => {
