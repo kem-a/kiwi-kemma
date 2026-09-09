@@ -235,6 +235,11 @@
         <summary>Overview Wallpaper Background</summary>
         <description>Use the current desktop wallpaper as a blurred background in the overview.</description>
       </key>
+      <key name="overview-seamless-zoom" type="b">
+        <default>true</default>
+        <summary>Seamless Overview Zoom</summary>
+        <description>Zoom the whole monitor in and out of the overview, including the desktop strip behind the top panel.</description>
+      </key>
       <key name="skip-overview-on-login" type="b">
         <default>false</default>
         <summary>Skip Overview on Login</summary>

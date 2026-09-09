@@ -974,6 +974,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         this._addSwitchRows(settings, group, [
             { key: 'overview-wallpaper-background', title: _("Overview Wallpaper Blur"), subtitle: _("Use blurred current wallpaper as overview background") },
+            { key: 'overview-seamless-zoom', title: _("Seamless Overview Zoom"), subtitle: _("Zoom the whole desktop, including the strip behind the panel, in and out of the overview") },
             { key: 'skip-overview-on-login', title: _("Skip to Desktop"), subtitle: _("Do not show the overview when logging in. Animation is still visible") },
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
