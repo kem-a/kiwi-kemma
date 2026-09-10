@@ -43,7 +43,7 @@ let contentIcons = new WeakMap(); // St.ImageContent -> 'light' | 'dark' | null
 
 const SAMPLE_SIZE = 32; // wallpaper is downscaled to this before sampling
 const SAMPLE_ROWS = 4;  // top rows only — that's what sits behind the panel
-const LIGHT_THRESHOLD = 0.6;
+const LIGHT_THRESHOLD = 0.45;
 const DARKEN_EFFECT = 'kiwi-tray-darken';
 const LIGHTEN_EFFECT = 'kiwi-tray-lighten';
 const ICON_SAMPLE_SIZE = 24;
