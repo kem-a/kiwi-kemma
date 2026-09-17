@@ -245,6 +245,11 @@
         <summary>Skip Overview on Login</summary>
         <description>Do not show the overview when logging into GNOME. Still shows animation.</description>
       </key>
+      <key name="focus-new-windows" type="b">
+        <default>true</default>
+        <summary>Focus New Windows</summary>
+        <description>Automatically focus newly launched windows instead of showing window-ready notifications. Reload the extension after changing this.</description>
+      </key>
       <key name="hide-minimized-windows" type="b">
         <default>false</default>
         <summary>Hide minimized windows</summary>
