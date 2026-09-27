@@ -38,6 +38,7 @@ import { enable as thunderbirdThemeManagerEnable, disable as thunderbirdThemeMan
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
 import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
 import { enable as overviewSeamlessZoomEnable, disable as overviewSeamlessZoomDisable } from './apps/overviewSeamlessZoom.js';
+import { enable as focusOnOverviewExitEnable, disable as focusOnOverviewExitDisable } from './apps/focusOnOverviewExit.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
 import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNotificationsDisable } from './apps/quickSettingsNotifications.js';
 import { enable as quickSettingsMediaEnable, disable as quickSettingsMediaDisable } from './apps/quickSettingsMedia.js';
@@ -213,6 +214,12 @@ export default class KiwiExtension extends Extension {
             overviewSeamlessZoomDisable();
         }
 
+        if (this._settings.get_boolean('focus-on-overview-exit')) {
+            focusOnOverviewExitEnable();
+        } else {
+            focusOnOverviewExitDisable();
+        }
+
         if (this._settings.get_boolean('skip-overview-on-login')) {
             skipOverviewEnable();
         } else {
@@ -343,6 +350,7 @@ export default class KiwiExtension extends Extension {
         hideActivitiesButtonDisable();
         overviewWallpaperDisable();
         overviewSeamlessZoomDisable();
+        focusOnOverviewExitDisable();
         skipOverviewDisable();
         keyboardIndicatorDisable();
         gtkThemeManagerDisable();

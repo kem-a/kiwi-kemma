@@ -26,6 +26,7 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Battery Percentage**: Show battery percentage in the system menu when below 20% and on battery.
 - **Move calendar to the right**: Move calendar to right side and hide and add notifications and media controls to Quick Settings.
 - **Overview Wallpaper Background blur**: Use blurred current wallpaper as overview background.
+- **Focus on Overview Exit**: Focus the window under the cursor instead of the previously focused one when leaving the overview, like macOS Mission Control.
 - **Panel and Dash-to-Dock dynamic blur**: Add dynamic blur to top panel or Dash-to-Dock.
 - **Adaptive Dock Colors**: Flip the Dash-to-Dock running indicators and separators between light and dark to suit whatever is behind the dock — a window passing under it as much as the wallpaper.
 - **Minimize Windows to Dock**: Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash, macOS style. Minimize and restore animations run to and from the thumbnail.

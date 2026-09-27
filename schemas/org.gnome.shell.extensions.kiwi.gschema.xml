@@ -240,6 +240,11 @@
         <summary>Seamless Overview Zoom</summary>
         <description>Zoom the whole monitor in and out of the overview, including the desktop strip behind the top panel.</description>
       </key>
+      <key name="focus-on-overview-exit" type="b">
+        <default>false</default>
+        <summary>Focus Window Under Cursor on Overview Exit</summary>
+        <description>Focus the window under the cursor instead of the previously focused window when leaving the overview.</description>
+      </key>
       <key name="skip-overview-on-login" type="b">
         <default>false</default>
         <summary>Skip Overview on Login</summary>
