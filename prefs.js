@@ -543,7 +543,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         this._addSwitchRows(settings, windowTitleGroup, [
             { key: 'panel-hover-fullscreen', title: _("Show Panel in Fullscreen on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
-            { key: 'focus-new-windows', title: _("Focus New Windows"), subtitle: _("Automatically focus new windows instead of showing window-ready alerts. Requires extension reload") },
         ]);
 
         // Expander with notification indicator style sub-option
@@ -981,6 +980,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             { key: 'hide-minimized-windows', title: _("Hide Minimized Windows"), subtitle: _("Hide minimized windows in the overview") },
             { key: 'move-window-to-new-workspace', title: _("Move Window to New Workspace"), subtitle: _("Move fullscreen window to a new workspace") },
             { key: 'reduce-window-animations', title: _("Reduce App Animations"), subtitle: _("Mimic macOS window opening and closing with a subtle scale and fade") },
+            { key: 'focus-new-windows', title: _("Focus New Windows"), subtitle: _("Automatically focus new windows instead of showing window-ready alerts. Requires extension reload") },
             { key: 'transparent-move', title: _("Transparent Move"), subtitle: _("Move window with transparency") },
         ]);
 
