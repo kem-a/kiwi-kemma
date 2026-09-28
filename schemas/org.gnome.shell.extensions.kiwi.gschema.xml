@@ -126,7 +126,7 @@
       <key name="popup-menu-styling" type="b">
         <default>true</default>
         <summary>Menu and App Styling</summary>
-        <description>Restyle shell popup menus with taller items and accent-colored hover, selected and checked entries, and apply the GTK 3 and GTK 4 app fixes (fixes3.css, fixes4.css).</description>
+        <description>Restyle shell popup menus with taller items and accent-colored hover, selected and checked entries, compact dialog and headerbar text buttons, and apply the GTK 3 and GTK 4 app fixes (fixes3.css, fixes4.css).</description>
       </key>
       <key name="keyboard-indicator" type="b">
         <default>true</default>

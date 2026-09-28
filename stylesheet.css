@@ -355,6 +355,13 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   color: -st-accent-fg-color;
 }
 
+/* Compact modal dialog buttons, matching css/fixes{3,4}.css. */
+.kiwi-popup-styled .modal-dialog .modal-dialog-button-box .modal-dialog-button {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-weight: normal;
+}
+
 /* Ensure content fills the space */
 .maximized .window-content {
   margin-top: 0;
