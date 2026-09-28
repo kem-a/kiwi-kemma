@@ -500,6 +500,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
         });
         panelPage.add(windowTitleGroup);
 
+        this._addSwitchRows(settings, windowTitleGroup, [
+            { key: 'panel-hover-fullscreen', title: _("Show Panel in Fullscreen on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
+        ]);
+
         // Tiling lives under the window title because the layouts are reached from its
         // menu; without the title in the panel there is no way to open them.
         const windowTitleExpander = new Adw.ExpanderRow({
@@ -511,13 +515,21 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('show-window-title', windowTitleExpander, 'enable-expansion',
             Gio.SettingsBindFlags.DEFAULT);
 
-        // Both sub-options are stored as positive keys, so their rows invert them.
+        // The sub-options are stored as positive keys, so their rows invert them.
         const titleIconRow = new Adw.SwitchRow({
             title: _("Hide App Icon"),
             subtitle: _("Do not show the application icon next to the window title"),
         });
         windowTitleExpander.add_row(titleIconRow);
         settings.bind('show-window-title-icon', titleIconRow, 'active',
+            Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.INVERT_BOOLEAN);
+
+        const subtitleRow = new Adw.SwitchRow({
+            title: _("Hide Window Subtitle"),
+            subtitle: _("Show only the application name, without the window's own title"),
+        });
+        windowTitleExpander.add_row(subtitleRow);
+        settings.bind('show-window-subtitle', subtitleRow, 'active',
             Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.INVERT_BOOLEAN);
 
         const tilingTitleMenuRow = new Adw.SwitchRow({
@@ -528,10 +540,11 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('show-tiling-title-menu', tilingTitleMenuRow, 'active',
             Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.INVERT_BOOLEAN);
 
-        // Keep the expander closed while both sub-options sit at their default (off) state.
+        // Keep the expander closed while all sub-options sit at their default (off) state.
         const syncWindowTitleExpansion = () => {
             const titleEnabled = settings.get_boolean('show-window-title');
             const hasSubOption = !settings.get_boolean('show-window-title-icon') ||
+                !settings.get_boolean('show-window-subtitle') ||
                 !settings.get_boolean('show-tiling-title-menu');
             windowTitleExpander.expanded = titleEnabled && hasSubOption;
         };
@@ -539,11 +552,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         syncWindowTitleExpansion();
         settings.connect('changed::show-window-title', syncWindowTitleExpansion);
         settings.connect('changed::show-window-title-icon', syncWindowTitleExpansion);
+        settings.connect('changed::show-window-subtitle', syncWindowTitleExpansion);
         settings.connect('changed::show-tiling-title-menu', syncWindowTitleExpansion);
-
-        this._addSwitchRows(settings, windowTitleGroup, [
-            { key: 'panel-hover-fullscreen', title: _("Show Panel in Fullscreen on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
-        ]);
 
         // Expander with notification indicator style sub-option
         const calendarHasNonDefault =

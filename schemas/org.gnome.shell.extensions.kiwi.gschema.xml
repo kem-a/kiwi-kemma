@@ -56,6 +56,11 @@
         <summary>Show app icon next to the window title</summary>
         <description>Display the focused application's icon next to the window title in the top panel.</description>
       </key>
+      <key name="show-window-subtitle" type="b">
+        <default>true</default>
+        <summary>Show window subtitle next to the app name</summary>
+        <description>Display the window's own title after the application name in the top panel.</description>
+      </key>
       <key name="show-tiling-title-menu" type="b">
         <default>true</default>
         <summary>Add Tiling Layouts to the Window Title Menu</summary>

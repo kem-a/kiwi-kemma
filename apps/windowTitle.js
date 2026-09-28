@@ -95,6 +95,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
         this._iconVisibilityId = this._settings.connect('changed::show-window-title-icon',
             () => this._icon.visible = this._settings.get_boolean('show-window-title-icon'));
         this._box.add_child(this._icon);
+        this._subtitleVisibilityId = this._settings.connect('changed::show-window-subtitle',
+            () => this._updateWindowTitle());
 
         this._label = new St.Label({
             y_align: Clutter.ActorAlign.CENTER,
@@ -242,7 +244,8 @@ class WindowTitleIndicator extends PanelMenu.Button {
 
         if (app) {
             this._icon.gicon = app.get_icon();
-            this._label.text = ` ${app.get_name()} — ${windowTitle}`;
+            this._label.text = this._settings.get_boolean('show-window-subtitle')
+                ? ` ${app.get_name()} — ${windowTitle}` : ` ${app.get_name()}`;
             this._menu.setApp(app);
         } else {
             this._icon.gicon = null;
@@ -432,6 +435,10 @@ class WindowTitleIndicator extends PanelMenu.Button {
         if (this._iconVisibilityId) {
             this._settings.disconnect(this._iconVisibilityId);
             this._iconVisibilityId = null;
+        }
+        if (this._subtitleVisibilityId) {
+            this._settings.disconnect(this._subtitleVisibilityId);
+            this._subtitleVisibilityId = null;
         }
         this._settings = null;
         if (this._overviewShowingId) {
