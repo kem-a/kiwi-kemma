@@ -12,6 +12,12 @@
   padding: 3px 9px;
 }
 
+/* Nautilus grid view: light text on selected file names. The accent pills
+   behind each line come from nautilus/kiwi-grid-labels.py. */
+.nautilus-grid-view gridview > child:selected .kiwi-name-highlight > label {
+  color: var(--accent-fg-color, #ffffff);
+}
+
 /* Filepicker */
 listview.view > row.activatable > cell {
   padding: 0px 9px;
