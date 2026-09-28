@@ -543,6 +543,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         this._addSwitchRows(settings, windowTitleGroup, [
             { key: 'panel-hover-fullscreen', title: _("Show Panel in Fullscreen on Hover"), subtitle: _("Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.") },
+            { key: 'focus-new-windows', title: _("Focus New Windows"), subtitle: _("Automatically focus new windows instead of showing window-ready alerts. Requires extension reload") },
         ]);
 
         // Expander with notification indicator style sub-option

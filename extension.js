@@ -313,7 +313,8 @@ export default class KiwiExtension extends Extension {
         if (this._settings.get_boolean('enable-thunderbird-styling') || this._settings.get_boolean('show-window-controls'))
             thunderbirdThemeManagerEnable(this);
 
-        focusLaunchedWindowEnable();
+        if (this._settings.get_boolean('focus-new-windows'))
+            focusLaunchedWindowEnable();
 
         this._on_settings_changed(null);
         overviewWallpaperRefresh();
