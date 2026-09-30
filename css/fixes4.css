@@ -12,6 +12,20 @@
   padding: 3px 9px;
 }
 
+/* Nautilus grid view: accent background on selected file names, like macOS.
+   Nautilus forces a gray accent on its gridview, so the real one is captured
+   on the parent first. */
+.nautilus-grid-view {
+  --kiwi-accent-bg-color: var(--accent-bg-color, #3584e4);
+}
+
+.nautilus-grid-view gridview > child:selected .icon-ui-labels-box > label:first-child {
+  background-color: var(--kiwi-accent-bg-color);
+  color: var(--accent-fg-color, #ffffff);
+  border-radius: 5px;
+  padding: 0 4px;
+}
+
 /* Accent colored selection in Nautilus list view. Nautilus sets a grey
    --accent-bg-color on its views, so the system accent comes from the named color. */
 .nautilus-list-view columnview > listview > row:selected {
