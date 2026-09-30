@@ -1,10 +1,5 @@
 <!-- Row 1: install & reach -->
-[![Install on GNOME Extensions](https://img.shields.io/badge/Install_on-GNOME_Extensions-blue?logo=gnome)](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
-[![EGO Downloads](https://img.shields.io/gnome-extensions/dt/kiwi@kemma?logo=gnome&label=EGO%20downloads)](https://extensions.gnome.org/extension/8276/kiwi-is-not-apple/)
-![Shell 48–49](https://img.shields.io/badge/GNOME_Shell-48–50-informational?logo=gnome)
-[![License](https://img.shields.io/github/license/kem-a/kiwi-kemma)](https://github.com/kem-a/kiwi-kemma/blob/main/LICENSE)
-[![Latest release](https://img.shields.io/github/v/release/kem-a/kiwi-kemma?semver)](https://github.com/kem-a/kiwi-kemma/releases/latest)
-[![Stars](https://img.shields.io/github/stars/kem-a/kiwi-kemma?style=social)](https://github.com/kem-a/kiwi-kemma/stargazers)
+![Install on GNOME Extensions](https://img.shields.io/badge/Install_on-GNOME_Extensions-blue?logo=gnome)![EGO Downloads](https://img.shields.io/gnome-extensions/dt/kiwi@kemma?logo=gnome&label=EGO%20downloads)![Shell 48–49](https://img.shields.io/badge/GNOME_Shell-48%E2%80%9350-informational?logo=gnome)![License](https://img.shields.io/github/license/kem-a/kiwi-kemma)![Latest release](https://img.shields.io/github/v/release/kem-a/kiwi-kemma?semver)![Stars](https://img.shields.io/github/stars/kem-a/kiwi-kemma?style=social)
 
 # <img width="48" height="48" alt="kiwi_logo" src="https://github.com/user-attachments/assets/f7820666-899a-46b8-b022-d5349bb1731b" /> Kiwi (is not Apple)
 
@@ -33,8 +28,8 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Downloads Folder in Dock**: Add a Downloads folder before the trash that fans its newest files out over the desktop, macOS stack style. Click a file to open it, or the last row to open the folder. Optionally the files stick out of the folder icon instead of piling on top of it.
 - **Multilingual UI**: Fully translatable interface and is easy to extend via `po/` files.
 
-<details> <summary> <H3> Extras </H3> <b>(click to open)</b> </summary>
-
+<details>
+<summary><H3> Extras </H3> <b>(click to open)</b></summary>
 - **Add Username to Quick Menu**: Display the username in the quick settings menu.
 - **Caps Lock Icon**: Display Caps Lock or Num Lock icon in the GNOME top panel.
 - **Hide Activities Button**: Hide the Activities button in the top panel
@@ -45,17 +40,16 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - **Focus Launched Window**: Focus on newly launched windows. Removes the annoying window-ready notification.
 
 </details>
-  
 ## Recommended Extensions for better experience
 
-- **[Kiwi Menu](https://extensions.gnome.org/extension/8697/)** by kem-a (Me)
-- **[Dash to Dock](https://extensions.gnome.org/extension/307/)** by michele_g
-- **[Compiz alike magic lamp effect](https://extensions.gnome.org/extension/3740/)** by hermes83
-- **[AppIndicator Support](https://extensions.gnome.org/extension/615/)** by 3v1n0
-- **[Clipboard Indicator](https://extensions.gnome.org/extension/779/)** by Tudmotu
-- **[Gtk4 Desktop Icons NG (DING)](https://extensions.gnome.org/extension/5263/)** by smedius
-- **[Light Style](https://extensions.gnome.org/extension/6198/)** by fmuellner
-- **[Weather or Not](https://extensions.gnome.org/extension/5660/)** by somepaulo
+- [**Kiwi Menu**](https://extensions.gnome.org/extension/8697/) by kem-a (Me)
+- [**Dash to Dock**](https://extensions.gnome.org/extension/307/) by michele_g
+- [**Compiz alike magic lamp effect**](https://extensions.gnome.org/extension/3740/) by hermes83
+- [**AppIndicator Support**](https://extensions.gnome.org/extension/615/) by 3v1n0
+- [**Clipboard Indicator**](https://extensions.gnome.org/extension/779/) by Tudmotu
+- [**Gtk4 Desktop Icons NG (DING)**](https://extensions.gnome.org/extension/5263/) by smedius
+- [**Light Style**](https://extensions.gnome.org/extension/6198/) by fmuellner
+- [**Weather or Not**](https://extensions.gnome.org/extension/5660/) by somepaulo
 
 ## Known Issues
 
@@ -65,7 +59,8 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 - Electron apps now by default have wayland enabled which causes to use CSD and thus many title bar issues, like blurry icons or completely different window control icons. There is no CSS fix beyond avoiding forced Wayland or passing `--ozone-platform=x11` argument to force `Xwayland` usage.
 - similarly to electron apps also KDE apps by default uses CSD on wayland causing the same issues. To force `Xwayland` usage for KDE apps have to pass environmental variable `QT_QPA_PLATFORM=xcb`.
 
-<details> <summary> <H2>Flatpak theming</H2> <b>(click to open)</b> </summary>
+<details>
+<summary><H2>Flatpak theming</H2> <b>(click to open)</b></summary>
 Run this command to override `xdg-config` and theme window control buttons for Flatpak apps:
 
 ```sh
@@ -76,7 +71,6 @@ flatpak override --user --filesystem=$HOME/.local/share/gnome-shell/extensions/k
 ```
 
 </details>
-
 ## Contributing Translations
 
 Want to help translate Kiwi to your language? See the [translation guide](translating/README.md) for instructions.
