@@ -81,30 +81,3 @@ menuitem:hover,
   background-color: @theme_selected_bg_color;
   color: @theme_selected_fg_color;
 }
-
-/* Compact dialog buttons, closer to macOS push buttons. Solid borders
-   undo the separator-style buttons some themes give message dialogs. */
-messagedialog .dialog-action-area {
-  padding: 12px 18px 18px;
-}
-
-messagedialog .dialog-action-area > button {
-  margin: 0 4px;
-}
-
-dialog .dialog-action-area > button,
-messagedialog .dialog-action-area > button,
-headerbar > button.text-button {
-  min-height: 20px;
-  padding: 3px 14px;
-  border-style: solid;
-  border-radius: 6px;
-  -gtk-outline-radius: 6px;
-  font-weight: normal;
-}
-
-/* Headerbar buttons fill the bar height, so the margins set their size. */
-headerbar > button.text-button {
-  margin-top: 9px;
-  margin-bottom: 9px;
-}
