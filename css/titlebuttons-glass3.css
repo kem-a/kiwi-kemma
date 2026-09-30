@@ -1,0 +1,201 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* GTK3 - Glass icon set, overrides images of titlebuttons3.css */
+
+headerbar button.titlebutton.close,
+.titlebar button.titlebutton.close {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close.png"),
+    url("../icons/titlebuttons-glass/button-close@2.png")
+  );
+}
+
+headerbar button.titlebutton.close:backdrop,
+.titlebar button.titlebutton.close:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close-backdrop.png"),
+    url("../icons/titlebuttons-glass/button-close-backdrop@2.png")
+  );
+}
+
+headerbar button.titlebutton.close:hover,
+.titlebar button.titlebutton.close:hover,
+headerbar button.titlebutton.close:backdrop:hover,
+.titlebar button.titlebutton.close:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close-hover.png"),
+    url("../icons/titlebuttons-glass/button-close-hover@2.png")
+  );
+}
+
+headerbar button.titlebutton.minimize,
+.titlebar button.titlebutton.minimize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize.png"),
+    url("../icons/titlebuttons-glass/button-minimize@2.png")
+  );
+}
+
+headerbar button.titlebutton.minimize:backdrop,
+.titlebar button.titlebutton.minimize:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize-backdrop.png"),
+    url("../icons/titlebuttons-glass/button-minimize-backdrop@2.png")
+  );
+}
+
+headerbar button.titlebutton.minimize:hover,
+.titlebar button.titlebutton.minimize:hover,
+headerbar button.titlebutton.minimize:backdrop:hover,
+.titlebar button.titlebutton.minimize:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize-hover.png"),
+    url("../icons/titlebuttons-glass/button-minimize-hover@2.png")
+  );
+}
+
+headerbar button.titlebutton.maximize,
+.titlebar button.titlebutton.maximize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize.png"),
+    url("../icons/titlebuttons-glass/button-maximize@2.png")
+  );
+}
+
+headerbar button.titlebutton.maximize:backdrop,
+.titlebar button.titlebutton.maximize:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize-backdrop.png"),
+    url("../icons/titlebuttons-glass/button-maximize-backdrop@2.png")
+  );
+}
+
+headerbar button.titlebutton.maximize:hover,
+.titlebar button.titlebutton.maximize:hover,
+headerbar button.titlebutton.maximize:backdrop:hover,
+.titlebar button.titlebutton.maximize:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize-hover.png"),
+    url("../icons/titlebuttons-glass/button-maximize-hover@2.png")
+  );
+}
+
+headerbar button.titlebutton.restore,
+.titlebar button.titlebutton.restore {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore.png"),
+    url("../icons/titlebuttons-glass/button-restore@2.png")
+  );
+}
+
+headerbar button.titlebutton.restore:backdrop,
+.titlebar button.titlebutton.restore:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore-backdrop.png"),
+    url("../icons/titlebuttons-glass/button-restore-backdrop@2.png")
+  );
+}
+
+headerbar button.titlebutton.restore:hover,
+.titlebar button.titlebutton.restore:hover,
+headerbar button.titlebutton.restore:backdrop:hover,
+.titlebar button.titlebutton.restore:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore-hover.png"),
+    url("../icons/titlebuttons-glass/button-restore-hover@2.png")
+  );
+}
+
+headerbar.titlebuttons-hover button.titlebutton.close,
+.titlebar.titlebuttons-hover button.titlebutton.close,
+headerbar box.titlebuttons-hover button.titlebutton.close,
+.titlebar box.titlebuttons-hover button.titlebutton.close {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close-hover.png"),
+    url("../icons/titlebuttons-glass/button-close-hover@2.png")
+  );
+}
+
+headerbar.titlebuttons-hover button.titlebutton.minimize,
+.titlebar.titlebuttons-hover button.titlebutton.minimize,
+headerbar box.titlebuttons-hover button.titlebutton.minimize,
+.titlebar box.titlebuttons-hover button.titlebutton.minimize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize-hover.png"),
+    url("../icons/titlebuttons-glass/button-minimize-hover@2.png")
+  );
+}
+
+headerbar.titlebuttons-hover button.titlebutton.maximize,
+.titlebar.titlebuttons-hover button.titlebutton.maximize,
+headerbar box.titlebuttons-hover button.titlebutton.maximize,
+.titlebar box.titlebuttons-hover button.titlebutton.maximize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize-hover.png"),
+    url("../icons/titlebuttons-glass/button-maximize-hover@2.png")
+  );
+}
+
+headerbar.titlebuttons-hover button.titlebutton.restore,
+.titlebar.titlebuttons-hover button.titlebutton.restore,
+headerbar box.titlebuttons-hover button.titlebutton.restore,
+.titlebar box.titlebuttons-hover button.titlebutton.restore {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore-hover.png"),
+    url("../icons/titlebuttons-glass/button-restore-hover@2.png")
+  );
+}
+
+headerbar button.titlebutton.close:active,
+.titlebar button.titlebutton.close:active,
+headerbar.titlebuttons-hover button.titlebutton.close:active,
+.titlebar.titlebuttons-hover button.titlebutton.close:active,
+headerbar box.titlebuttons-hover button.titlebutton.close:active,
+.titlebar box.titlebuttons-hover button.titlebutton.close:active {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close-active.png"),
+    url("../icons/titlebuttons-glass/button-close-active@2.png")
+  );
+}
+
+headerbar button.titlebutton.minimize:active,
+.titlebar button.titlebutton.minimize:active,
+headerbar.titlebuttons-hover button.titlebutton.minimize:active,
+.titlebar.titlebuttons-hover button.titlebutton.minimize:active,
+headerbar box.titlebuttons-hover button.titlebutton.minimize:active,
+.titlebar box.titlebuttons-hover button.titlebutton.minimize:active {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize-active.png"),
+    url("../icons/titlebuttons-glass/button-minimize-active@2.png")
+  );
+}
+
+headerbar button.titlebutton.maximize:active,
+.titlebar button.titlebutton.maximize:active,
+headerbar.titlebuttons-hover button.titlebutton.maximize:active,
+.titlebar.titlebuttons-hover button.titlebutton.maximize:active,
+headerbar box.titlebuttons-hover button.titlebutton.maximize:active,
+.titlebar box.titlebuttons-hover button.titlebutton.maximize:active {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize-active.png"),
+    url("../icons/titlebuttons-glass/button-maximize-active@2.png")
+  );
+}
+
+headerbar button.titlebutton.restore:active,
+.titlebar button.titlebutton.restore:active,
+headerbar.titlebuttons-hover button.titlebutton.restore:active,
+.titlebar.titlebuttons-hover button.titlebutton.restore:active,
+headerbar box.titlebuttons-hover button.titlebutton.restore:active,
+.titlebar box.titlebuttons-hover button.titlebutton.restore:active {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore-active.png"),
+    url("../icons/titlebuttons-glass/button-restore-active@2.png")
+  );
+}
+
+/* Press zoom: icons are edge to edge, so grow into the button padding */
+headerbar button.titlebutton:active,
+.titlebar button.titlebutton:active {
+  background-size: 18px 18px;
+}

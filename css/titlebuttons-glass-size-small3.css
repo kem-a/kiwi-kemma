@@ -1,0 +1,8 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* GTK3 - Glass small size press zoom (14px -> 16px) */
+
+headerbar button.titlebutton:active,
+.titlebar button.titlebutton:active {
+  background-size: 16px 16px;
+}

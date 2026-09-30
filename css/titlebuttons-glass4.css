@@ -1,0 +1,189 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* GTK4 - Glass icon set, overrides images of titlebuttons4.css */
+
+windowcontrols button.close {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close.png"),
+    url("../icons/titlebuttons-glass/button-close@2.png")
+  );
+}
+
+windowcontrols button.close:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close-backdrop.png"),
+    url("../icons/titlebuttons-glass/button-close-backdrop@2.png")
+  );
+}
+
+windowcontrols button.close:hover,
+windowcontrols:hover button.close,
+windowcontrols:hover button.close:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close-hover.png"),
+    url("../icons/titlebuttons-glass/button-close-hover@2.png")
+  );
+}
+
+windowcontrols button.close:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close-hover.png"),
+    url("../icons/titlebuttons-glass/button-close-hover@2.png")
+  );
+}
+
+windowcontrols button.minimize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize.png"),
+    url("../icons/titlebuttons-glass/button-minimize@2.png")
+  );
+}
+
+windowcontrols button.minimize:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize-backdrop.png"),
+    url("../icons/titlebuttons-glass/button-minimize-backdrop@2.png")
+  );
+}
+
+windowcontrols button.minimize:hover,
+windowcontrols:hover button.minimize,
+windowcontrols:hover button.minimize:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize-hover.png"),
+    url("../icons/titlebuttons-glass/button-minimize-hover@2.png")
+  );
+}
+
+windowcontrols button.minimize:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize-hover.png"),
+    url("../icons/titlebuttons-glass/button-minimize-hover@2.png")
+  );
+}
+
+windowcontrols button.maximize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize.png"),
+    url("../icons/titlebuttons-glass/button-maximize@2.png")
+  );
+}
+
+windowcontrols button.maximize:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize-backdrop.png"),
+    url("../icons/titlebuttons-glass/button-maximize-backdrop@2.png")
+  );
+}
+
+windowcontrols button.maximize:hover,
+windowcontrols:hover button.maximize,
+windowcontrols:hover button.maximize:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize-hover.png"),
+    url("../icons/titlebuttons-glass/button-maximize-hover@2.png")
+  );
+}
+
+windowcontrols button.maximize:backdrop:hover {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize-hover.png"),
+    url("../icons/titlebuttons-glass/button-maximize-hover@2.png")
+  );
+}
+
+.fullscreen windowcontrols button.maximize,
+.maximized windowcontrols button.maximize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore.png"),
+    url("../icons/titlebuttons-glass/button-restore@2.png")
+  );
+}
+
+.fullscreen windowcontrols button.maximize:backdrop,
+.maximized windowcontrols button.maximize:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore-backdrop.png"),
+    url("../icons/titlebuttons-glass/button-restore-backdrop@2.png")
+  );
+}
+
+.fullscreen windowcontrols button.maximize:hover,
+.maximized windowcontrols button.maximize:hover,
+.fullscreen windowcontrols:hover button.maximize,
+.maximized windowcontrols:hover button.maximize,
+.fullscreen windowcontrols:hover button.maximize:backdrop,
+.maximized windowcontrols:hover button.maximize:backdrop {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore-hover.png"),
+    url("../icons/titlebuttons-glass/button-restore-hover@2.png")
+  );
+}
+
+windowcontrols:hover button.close {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close-hover.png"),
+    url("../icons/titlebuttons-glass/button-close-hover@2.png")
+  );
+}
+
+windowcontrols:hover button.minimize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize-hover.png"),
+    url("../icons/titlebuttons-glass/button-minimize-hover@2.png")
+  );
+}
+
+windowcontrols:hover button.maximize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize-hover.png"),
+    url("../icons/titlebuttons-glass/button-maximize-hover@2.png")
+  );
+}
+
+.fullscreen windowcontrols:hover button.maximize,
+.maximized windowcontrols:hover button.maximize {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore-hover.png"),
+    url("../icons/titlebuttons-glass/button-restore-hover@2.png")
+  );
+}
+
+windowcontrols button.close:active,
+windowcontrols:hover button.close:active {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-close-active.png"),
+    url("../icons/titlebuttons-glass/button-close-active@2.png")
+  );
+}
+
+windowcontrols button.minimize:active,
+windowcontrols:hover button.minimize:active {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-minimize-active.png"),
+    url("../icons/titlebuttons-glass/button-minimize-active@2.png")
+  );
+}
+
+windowcontrols button.maximize:active,
+windowcontrols:hover button.maximize:active {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-maximize-active.png"),
+    url("../icons/titlebuttons-glass/button-maximize-active@2.png")
+  );
+}
+
+.fullscreen windowcontrols button.maximize:active,
+.maximized windowcontrols button.maximize:active,
+.fullscreen windowcontrols:hover button.maximize:active,
+.maximized windowcontrols:hover button.maximize:active {
+  background-image: -gtk-scaled(
+    url("../icons/titlebuttons-glass/button-restore-active.png"),
+    url("../icons/titlebuttons-glass/button-restore-active@2.png")
+  );
+}
+
+/* Press zoom: icons are edge to edge, so grow into the button padding */
+windowcontrols button:active {
+  background-size: 18px 18px;
+}

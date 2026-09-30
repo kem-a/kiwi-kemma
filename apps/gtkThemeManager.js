@@ -49,13 +49,20 @@ class GtkThemeManager {
 
         // Titlebutton styling only if app window buttons are enabled
         if (enableAppButtons) {
-            if (buttonType === 'titlebuttons-alt')
+            if (buttonType === 'titlebuttons-alt') {
                 sheets.push(`titlebuttons-alt${version}.css`);
-            else
+            } else {
                 sheets.push(`titlebuttons${version}.css`);
+                // Glass only overrides the images of the default set
+                if (buttonType === 'titlebuttons-glass')
+                    sheets.push(`titlebuttons-glass${version}.css`);
+            }
 
-            if (buttonSize === 'small')
+            if (buttonSize === 'small') {
                 sheets.push(`titlebuttons-size-small${version}.css`);
+                if (buttonType === 'titlebuttons-glass')
+                    sheets.push(`titlebuttons-glass-size-small${version}.css`);
+            }
         }
 
         // Hide the titlebar when window controls live in the panel

@@ -96,10 +96,15 @@ export class MozillaThemeManager {
             if (enableStyling && enableAppButtons) {
                 const themingPath = `${cssRoot}/${prefix}.css`;
                 const altThemingPath = `${cssRoot}/${prefix}.alt.css`;
-                if (buttonType === 'titlebuttons-alt')
+                const glassThemingPath = `${cssRoot}/${prefix}.glass.css`;
+                if (buttonType === 'titlebuttons-alt') {
                     imports.push(`@import url("file://${altThemingPath}");`);
-                else
+                } else {
                     imports.push(`@import url("file://${themingPath}");`);
+                    // Glass only overrides the images of the default set
+                    if (buttonType === 'titlebuttons-glass')
+                        imports.push(`@import url("file://${glassThemingPath}");`);
+                }
 
                 if (buttonSize === 'small') {
                     const smallSizePath = `${cssRoot}/${prefix}-size-small.css`;

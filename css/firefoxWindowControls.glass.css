@@ -1,0 +1,236 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Firefox - Glass icon set, overrides images of firefoxWindowControls.css */
+
+#nav-bar .titlebar-close,
+#toolbar-menubar .titlebar-close,
+#TabsToolbar .titlebar-close {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-close.png") 1x,
+    url("../icons/titlebuttons-glass/button-close@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-max,
+#toolbar-menubar .titlebar-max,
+#TabsToolbar .titlebar-max {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-maximize.png") 1x,
+    url("../icons/titlebuttons-glass/button-maximize@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-min,
+#toolbar-menubar .titlebar-min,
+#TabsToolbar .titlebar-min {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-minimize.png") 1x,
+    url("../icons/titlebuttons-glass/button-minimize@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-restore,
+#toolbar-menubar .titlebar-restore,
+#TabsToolbar .titlebar-restore,
+:root[sizemode="maximized"] #nav-bar .titlebar-max,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-max,
+:root[sizemode="maximized"] #TabsToolbar .titlebar-max {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-restore.png") 1x,
+    url("../icons/titlebuttons-glass/button-restore@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-close:hover,
+#toolbar-menubar .titlebar-close:hover,
+#TabsToolbar .titlebar-close:hover {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-close-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-close-hover@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-max:hover,
+#toolbar-menubar .titlebar-max:hover,
+#TabsToolbar .titlebar-max:hover {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-maximize-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-maximize-hover@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-min:hover,
+#toolbar-menubar .titlebar-min:hover,
+#TabsToolbar .titlebar-min:hover {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-minimize-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-minimize-hover@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-restore:hover,
+#toolbar-menubar .titlebar-restore:hover,
+#TabsToolbar .titlebar-restore:hover,
+:root[sizemode="maximized"] #nav-bar .titlebar-max:hover,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-max:hover,
+:root[sizemode="maximized"] #TabsToolbar .titlebar-max:hover {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-restore-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-restore-hover@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-buttonbox-container:hover .titlebar-close,
+#toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-close,
+#TabsToolbar .titlebar-buttonbox-container:hover .titlebar-close,
+#nav-bar .titlebar-buttonbox:hover .titlebar-close,
+#toolbar-menubar .titlebar-buttonbox:hover .titlebar-close,
+#TabsToolbar .titlebar-buttonbox:hover .titlebar-close {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-close-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-close-hover@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-buttonbox-container:hover .titlebar-min,
+#toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-min,
+#TabsToolbar .titlebar-buttonbox-container:hover .titlebar-min,
+#nav-bar .titlebar-buttonbox:hover .titlebar-min,
+#toolbar-menubar .titlebar-buttonbox:hover .titlebar-min,
+#TabsToolbar .titlebar-buttonbox:hover .titlebar-min {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-minimize-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-minimize-hover@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-buttonbox-container:hover .titlebar-max,
+#toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-max,
+#TabsToolbar .titlebar-buttonbox-container:hover .titlebar-max,
+#nav-bar .titlebar-buttonbox:hover .titlebar-max,
+#toolbar-menubar .titlebar-buttonbox:hover .titlebar-max,
+#TabsToolbar .titlebar-buttonbox:hover .titlebar-max {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-maximize-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-maximize-hover@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-buttonbox-container:hover .titlebar-restore,
+#toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-restore,
+#TabsToolbar .titlebar-buttonbox-container:hover .titlebar-restore,
+#nav-bar .titlebar-buttonbox:hover .titlebar-restore,
+#toolbar-menubar .titlebar-buttonbox:hover .titlebar-restore,
+#TabsToolbar .titlebar-buttonbox:hover .titlebar-restore,
+:root[sizemode="maximized"] #nav-bar .titlebar-buttonbox-container:hover .titlebar-max,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-max,
+:root[sizemode="maximized"] #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-max,
+:root[sizemode="maximized"] #nav-bar .titlebar-buttonbox:hover .titlebar-max,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox:hover .titlebar-max,
+:root[sizemode="maximized"] #TabsToolbar .titlebar-buttonbox:hover .titlebar-max {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-restore-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-restore-hover@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-close:active,
+#toolbar-menubar .titlebar-close:active,
+#TabsToolbar .titlebar-close:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-close-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-close-active@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-buttonbox-container:hover .titlebar-close:active,
+#toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-close:active,
+#nav-bar .titlebar-buttonbox:hover .titlebar-close:active,
+#toolbar-menubar .titlebar-buttonbox:hover .titlebar-close:active,
+#TabsToolbar .titlebar-buttonbox-container:hover .titlebar-close:active,
+#TabsToolbar .titlebar-buttonbox:hover .titlebar-close:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-close-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-close-active@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-min:active,
+#toolbar-menubar .titlebar-min:active,
+#TabsToolbar .titlebar-min:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-minimize-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-minimize-active@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-buttonbox-container:hover .titlebar-min:active,
+#toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-min:active,
+#nav-bar .titlebar-buttonbox:hover .titlebar-min:active,
+#toolbar-menubar .titlebar-buttonbox:hover .titlebar-min:active,
+#TabsToolbar .titlebar-buttonbox-container:hover .titlebar-min:active,
+#TabsToolbar .titlebar-buttonbox:hover .titlebar-min:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-minimize-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-minimize-active@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-max:active,
+#toolbar-menubar .titlebar-max:active,
+#TabsToolbar .titlebar-max:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-maximize-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-maximize-active@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-buttonbox-container:hover .titlebar-max:active,
+#toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-max:active,
+#nav-bar .titlebar-buttonbox:hover .titlebar-max:active,
+#toolbar-menubar .titlebar-buttonbox:hover .titlebar-max:active,
+#TabsToolbar .titlebar-buttonbox-container:hover .titlebar-max:active,
+#TabsToolbar .titlebar-buttonbox:hover .titlebar-max:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-maximize-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-maximize-active@2.png") 2x
+  ) !important;
+}
+
+#nav-bar .titlebar-restore:active,
+#toolbar-menubar .titlebar-restore:active,
+#TabsToolbar .titlebar-restore:active,
+:root[sizemode="maximized"] #nav-bar .titlebar-max:active,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-max:active,
+:root[sizemode="maximized"] #nav-bar .titlebar-buttonbox .titlebar-max:active,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox .titlebar-max:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-restore-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-restore-active@2.png") 2x
+  ) !important;
+}
+
+:root[sizemode="maximized"] #nav-bar .titlebar-buttonbox-container:hover .titlebar-max:active,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-max:active,
+:root[sizemode="maximized"] #nav-bar .titlebar-buttonbox:hover .titlebar-max:active,
+:root[sizemode="maximized"] #toolbar-menubar .titlebar-buttonbox:hover .titlebar-max:active,
+:root[tabsintitlebar][sizemode="maximized"] #TabsToolbar .titlebar-buttonbox-container:hover .titlebar-max:active,
+:root[tabsintitlebar][sizemode="maximized"] #TabsToolbar .titlebar-buttonbox:hover .titlebar-max:active,
+#nav-bar .titlebar-buttonbox-container:hover .titlebar-restore:active,
+#toolbar-menubar .titlebar-buttonbox-container:hover .titlebar-restore:active,
+#nav-bar .titlebar-buttonbox:hover .titlebar-restore:active,
+#toolbar-menubar .titlebar-buttonbox:hover .titlebar-restore:active,
+#TabsToolbar .titlebar-buttonbox-container:hover .titlebar-restore:active,
+#TabsToolbar .titlebar-buttonbox:hover .titlebar-restore:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-restore-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-restore-active@2.png") 2x
+  ) !important;
+}
+
+/* Press zoom: buttons have no padding, so scale instead of growing the background */
+#nav-bar .titlebar-button:active,
+#toolbar-menubar .titlebar-button:active,
+#TabsToolbar .titlebar-button:active {
+  transform: scale(1.125) !important;
+}

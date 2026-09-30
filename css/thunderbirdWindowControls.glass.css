@@ -1,0 +1,139 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Thunderbird - Glass icon set, overrides images of thunderbirdWindowControls.css */
+
+#titlebar .titlebar-close {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-close.png") 1x,
+    url("../icons/titlebuttons-glass/button-close@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-max {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-maximize.png") 1x,
+    url("../icons/titlebuttons-glass/button-maximize@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-min {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-minimize.png") 1x,
+    url("../icons/titlebuttons-glass/button-minimize@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-restore,
+:root[sizemode="maximized"] #titlebar .titlebar-max {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-restore.png") 1x,
+    url("../icons/titlebuttons-glass/button-restore@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-close:hover {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-close-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-close-hover@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-max:hover {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-maximize-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-maximize-hover@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-min:hover {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-minimize-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-minimize-hover@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-restore:hover,
+:root[sizemode="maximized"] #titlebar .titlebar-max:hover {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-restore-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-restore-hover@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-buttonbox-container:hover .titlebar-close,
+#titlebar .titlebar-buttonbox:hover .titlebar-close {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-close-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-close-hover@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-buttonbox-container:hover .titlebar-min,
+#titlebar .titlebar-buttonbox:hover .titlebar-min {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-minimize-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-minimize-hover@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-buttonbox-container:hover .titlebar-max,
+#titlebar .titlebar-buttonbox:hover .titlebar-max {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-maximize-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-maximize-hover@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-buttonbox-container:hover .titlebar-restore,
+#titlebar .titlebar-buttonbox:hover .titlebar-restore,
+:root[sizemode="maximized"] #titlebar .titlebar-buttonbox-container:hover .titlebar-max,
+:root[sizemode="maximized"] #titlebar .titlebar-buttonbox:hover .titlebar-max {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-restore-hover.png") 1x,
+    url("../icons/titlebuttons-glass/button-restore-hover@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-close:active,
+#titlebar .titlebar-buttonbox-container:hover .titlebar-close:active,
+#titlebar .titlebar-buttonbox:hover .titlebar-close:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-close-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-close-active@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-min:active,
+#titlebar .titlebar-buttonbox-container:hover .titlebar-min:active,
+#titlebar .titlebar-buttonbox:hover .titlebar-min:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-minimize-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-minimize-active@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-max:active,
+#titlebar .titlebar-buttonbox-container:hover .titlebar-max:active,
+#titlebar .titlebar-buttonbox:hover .titlebar-max:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-maximize-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-maximize-active@2.png") 2x
+  ) !important;
+}
+
+#titlebar .titlebar-restore:active,
+#titlebar .titlebar-buttonbox-container:hover .titlebar-restore:active,
+#titlebar .titlebar-buttonbox:hover .titlebar-restore:active,
+:root[sizemode="maximized"] #titlebar .titlebar-max:active,
+:root[sizemode="maximized"] #titlebar .titlebar-buttonbox-container:hover .titlebar-max:active,
+:root[sizemode="maximized"] #titlebar .titlebar-buttonbox:hover .titlebar-max:active {
+  background-image: image-set(
+    url("../icons/titlebuttons-glass/button-restore-active.png") 1x,
+    url("../icons/titlebuttons-glass/button-restore-active@2.png") 2x
+  ) !important;
+}
+
+/* Press zoom: buttons have no padding, so scale instead of growing the background */
+#titlebar .titlebar-button:active {
+  transform: scale(1.125) !important;
+}

@@ -1,0 +1,7 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* GTK4 - Glass small size press zoom (14px -> 16px) */
+
+windowcontrols button:active {
+  background-size: 16px 16px;
+}

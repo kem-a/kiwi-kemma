@@ -895,8 +895,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
             _('Button Type'),
             _('Choose the button icon set'),
             'button-type',
-            ['titlebuttons', 'titlebuttons-alt'],
-            [_('Default'), _('Alternative')]
+            ['titlebuttons', 'titlebuttons-alt', 'titlebuttons-glass'],
+            [_('Default'), _('Alternative'), _('Glass')]
         );
         buttonsExpander.add_row(buttonTypeRow);
 

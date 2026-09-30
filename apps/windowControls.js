@@ -341,6 +341,11 @@ class WindowControlsIndicator extends PanelMenu.Button {
             const state = button.has_style_pseudo_class('active') ? '-active' : isHovered ? '-hover' : '';
             const iconName = `button-${buttonName}${state}.png`;
             this._setButtonIcon(button, iconName);
+            // Glass icons are edge to edge, so the press zoom comes from scaling
+            if (state === '-active' && this._settings.get_string('button-type') === 'titlebuttons-glass') {
+                button.child.set_pivot_point(0.5, 0.5);
+                button.child.set_scale(1.125, 1.125);
+            }
         } else {
             // System mode: symbolic icons, only update if icon actually changed
             this._setSystemIcon(button, buttonName);
