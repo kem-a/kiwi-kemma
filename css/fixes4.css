@@ -12,6 +12,13 @@
   padding: 3px 9px;
 }
 
+/* Accent colored selection in Nautilus list view. Nautilus sets a grey
+   --accent-bg-color on its views, so the system accent comes from the named color. */
+.nautilus-list-view columnview > listview > row:selected {
+  background-color: @accent_bg_color;
+  color: var(--accent-fg-color, #ffffff);
+}
+
 /* Filepicker */
 listview.view > row.activatable > cell {
   padding: 0px 9px;
