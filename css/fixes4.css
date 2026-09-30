@@ -19,6 +19,12 @@
   color: var(--accent-fg-color, #ffffff);
 }
 
+/* Nautilus sidebar: shorter rows than Adwaita's 36px. The drag placeholder row
+   keeps its own 2px height. */
+.nautilus-window placessidebar .navigation-sidebar > row:not(.sidebar-placeholder-row) {
+  min-height: 32px;
+}
+
 /* Filepicker */
 listview.view > row.activatable > cell {
   padding: 0px 9px;
