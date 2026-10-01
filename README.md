@@ -7,49 +7,62 @@ Kiwi is a GNOME Shell extension that mimics various macOS features. This extensi
 
 <img src="https://extensions.gnome.org/extension-data/screenshots/screenshot_8276_to4T5k0.png" />
 
-## Features
+## Panel
 
-- **Under the hood restyling**: very minimal Gnome shell and GTK/Adwaita app restyling keeping maximum look and compatibility. Reduced menu item spacing; menu item accent colors; uniform top panel status icon padding and more...
-- **Window Control Button Style**: Set macOS window control button styles and sizes.
-- **Firefox and Thunderbird Styling**: Apply macOS window control styling for Firefox.
-- **Show Window Controls in Panel**: Move buttons to top panel for maximized windows and remove window titlebars for maximum space.
-- **Show Window title**: Display current window title in the top panel
-- **Show Panel on Hover**: Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps.
-- **Move Window to New Workspace**: Automatically move fullscreen app to new workspace.
-- **Set Panel Transparnecy**: Make the top panel transparent or opaque when window touches it
-- **Transparent Move**: Make windows slightly transparent when moving.
-- **Battery Percentage**: Show battery percentage in the system menu when below 20% and on battery.
-- **Move calendar to the right**: Move calendar to right side and hide and add notifications and media controls to Quick Settings.
-- **Overview Wallpaper Background blur**: Use blurred current wallpaper as overview background.
-- **Focus on Overview Exit**: Focus the window under the cursor instead of the previously focused one when leaving the overview, like macOS Mission Control.
-- **Panel and Dash-to-Dock dynamic blur**: Add dynamic blur to top panel or Dash-to-Dock.
-- **Adaptive Dock Colors**: Flip the Dash-to-Dock running indicators and separators between light and dark to suit whatever is behind the dock — a window passing under it as much as the wallpaper.
-- **Minimize Windows to Dock**: Park minimized windows as thumbnails in Dash-to-Dock, after the apps and before the trash, macOS style. Minimize and restore animations run to and from the thumbnail.
-- **Downloads Folder in Dock**: Add a Downloads folder before the trash that fans its newest files out over the desktop, macOS stack style. Click a file to open it, or the last row to open the folder. Optionally the files stick out of the folder icon instead of piling on top of it.
-- **Multilingual UI**: Fully translatable interface and is easy to extend via `po/` files.
+- **Panel Transparency**: Make the top panel transparent, with optional blur and opaque mode when a window is maximized.
+- **Show Panel in Fullscreen on Hover**: Show the panel when the mouse is near the top edge in fullscreen. Bugged for GTK4 apps.
+- **Show Window Title**: Display the current window title in the top panel, with a tiling layouts menu.
+- **Move Calendar to Right**: Move the calendar to the right side and move notifications and media controls to Quick Settings.
+- **Battery Percentage**: Show battery percentage in the top bar when below 20%.
+- **Caps Lock and Num Lock**: Show a Caps Lock and Num Lock icon in the top panel.
+- **Custom Do Not Disturb Button**: Replace the system Do Not Disturb button with Kiwi's own.
+- **Hide Activities Button**: Hide the Activities button in the top panel.
+- **Add Username**: Add the username to the quick settings menu.
+- **Panel Styling**: Tighter button spacing, smaller status icons, no dropdown arrows and a transparent panel in the overview.
+- **Menu and App Styling**: Narrower shell menu items with accent colored hover and selection, plus GTK/Adwaita app fixes.
+- **Style Keyboard Indicator**: Uppercase and border the keyboard/input source indicator, or hide it.
+
+## Dock
+
+Requires [Dash to Dock](https://extensions.gnome.org/extension/307/), except Launchpad Application.
+
+- **Minimize Windows to Dock**: Park minimized windows as thumbnails after the apps and before the trash, macOS style.
+- **Downloads Folder in Dock**: Add a Downloads folder before the trash that fans its newest files out over the desktop, macOS stack style.
+- **Launchpad Application**: Add a custom Launchpad icon to the dock that opens the application overview.
+- **Dock Styling**: Tighter icon spacing, no icon highlight and darker icons while pressed.
+- **Dock Blur**: Blur the background behind the dock.
+- **Adaptive Dock Colors**: Flip running indicators and separators between light and dark to suit whatever is behind the dock.
+
+## Buttons
+
+- **macOS Window Buttons**: Replace window control buttons with macOS style. Default, Alternative and Glass styles in two sizes, plus Firefox and Thunderbird styling.
+- **Show Window Controls on Panel**: Move window controls to the top panel for maximized windows and remove their titlebars for maximum space.
+
+## Options
+
+- **Overview Wallpaper Blur**: Use the blurred current wallpaper as overview background.
+- **Seamless Overview Zoom**: Zoom the whole desktop, including the strip behind the panel, in and out of the overview.
+- **Focus on Overview Exit**: Focus the window under the cursor when leaving the overview, like macOS Mission Control.
+- **Skip to Desktop**: Do not show the overview when logging in.
+- **Hide Minimized Windows**: Hide minimized windows in the overview.
+- **Move Window to New Workspace**: Move fullscreen windows to a new workspace.
+- **Reduce App Animations**: Mimic macOS window opening and closing with a subtle scale and fade.
+- **Focus New Windows**: Focus newly launched windows instead of showing window-ready notifications.
+- **Transparent Move**: Make windows slightly transparent while moving.
+- **Multilingual UI**: Fully translatable interface, easy to extend via `po/` files.
 
 <details>
-<summary><H3> Extras </H3> <b>(click to open)</b></summary>
-- **Add Username to Quick Menu**: Display the username in the quick settings menu.
-- **Caps Lock Icon**: Display Caps Lock or Num Lock icon in the GNOME top panel.
-- **Hide Activities Button**: Hide the Activities button in the top panel
-- **Hide Minimized Windows**: Hide minimized windows in the overview
-- **Skip Overview on Login**: Do not show the overview when logging into GNOME; go directly to the desktop.
-- **Launchpad Applications**: Add custom launch applications icon to the dock. Move it freely to any place.
-- **Style Keyboard Indicator**. Style keyboard/input source indicator in panel by converting to uppercase and adding border. Also can hide it.
-- **Focus Launched Window**: Focus on newly launched windows. Removes the annoying window-ready notification.
-
-</details>
-## Recommended Extensions for better experience
+<summary><H2>Recommended Gnome Shell Extensions</H2> <b>(click to open)</b></summary>
 
 - [**Kiwi Menu**](https://extensions.gnome.org/extension/8697/) by kem-a (Me)
 - [**Dash to Dock**](https://extensions.gnome.org/extension/307/) by michele_g
+- [**Superbar**](https://github.com/Furkan-rgb/superbar) by Furkan-rgb
 - [**Compiz alike magic lamp effect**](https://extensions.gnome.org/extension/3740/) by hermes83
 - [**AppIndicator Support**](https://extensions.gnome.org/extension/615/) by 3v1n0
-- [**Clipboard Indicator**](https://extensions.gnome.org/extension/779/) by Tudmotu
-- [**Gtk4 Desktop Icons NG (DING)**](https://extensions.gnome.org/extension/5263/) by smedius
+- [**Blur My Shell**](https://github.com/aunetx/blur-my-shell) by aunetx
 - [**Light Style**](https://extensions.gnome.org/extension/6198/) by fmuellner
 - [**Weather or Not**](https://extensions.gnome.org/extension/5660/) by somepaulo
+</details>
 
 ## Known Issues
 
@@ -69,8 +82,8 @@ flatpak override --user --filesystem=xdg-config/gtk-4.0:ro
 flatpak override --user --filesystem=xdg-config/environment.d/:ro
 flatpak override --user --filesystem=$HOME/.local/share/gnome-shell/extensions/kiwi@kemma/:ro
 ```
-
 </details>
+
 ## Contributing Translations
 
 Want to help translate Kiwi to your language? See the [translation guide](translating/README.md) for instructions.
