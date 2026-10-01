@@ -3,8 +3,6 @@
   "name": "Kiwi (is not Apple)",
   "settings-schema": "org.gnome.shell.extensions.kiwi",
   "shell-version": [
-    "46",
-    "47",
     "48",
     "49",
     "50",

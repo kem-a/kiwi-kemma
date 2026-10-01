@@ -408,7 +408,7 @@ GObject.registerClass({
 
 class MediaHeader extends St.BoxLayout {
     constructor() {
-        super({ style_class: 'kiwi-header', vertical: true });
+        super({ style_class: 'kiwi-header', orientation: Clutter.Orientation.VERTICAL });
         this.spacing = 4;
         this._headerLabel = new St.Label({
             text: gettextFunc('Media'),
@@ -459,7 +459,7 @@ GObject.registerClass(MediaHeader);
 class MediaWidget extends St.BoxLayout {
     constructor() {
         super({
-            vertical: true,
+            orientation: Clutter.Orientation.VERTICAL,
             x_expand: true,
             reactive: true,
             style_class: 'kiwi-media',

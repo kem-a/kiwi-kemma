@@ -34,9 +34,11 @@ function _onStageEvent(stage, event) {
         return Clutter.EVENT_PROPAGATE;
 
     _hoveredWindow = window;
-    // Raising here keeps the preview that should lead the exit animation on top
-    if (window)
-        window.raise();
+    // Raising here keeps the preview that should lead the exit animation on top.
+    // Off a preview, the focused window leads again, so it is not left buried.
+    const leader = window ?? global.display.focus_window;
+    if (leader)
+        leader.raise();
 
     return Clutter.EVENT_PROPAGATE;
 }

@@ -37,7 +37,6 @@ class LockIcon extends PanelMenu.Button {
 
         // Create a layout container to hold both icons
         this._lockKeysLayout = new St.BoxLayout({
-            vertical: false,
             style_class: 'lockkeys-container',
         });
         this._lockKeysLayout.add_child(this._numLockIcon);
