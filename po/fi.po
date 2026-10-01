@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Kiwi is not Apple\n"
 "Report-Msgid-Bugs-To: https://github.com/kem-a/kiwi-kemma/issues\n"
-"POT-Creation-Date: 2026-08-31 15:09+0300\n"
+"POT-Creation-Date: 2026-10-01 09:56+0300\n"
 "PO-Revision-Date: 2026-08-21 20:00+0300\n"
 "Last-Translator: \n"
 "Language-Team: Finnish\n"
@@ -15,34 +15,42 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: apps/downloadsStack.js:457
+#: apps/downloadsStack.js:449
 msgid "Open in Files"
 msgstr "Avaa Tiedostoissa"
 
-#: apps/downloadsStack.js:459
+#: apps/downloadsStack.js:451
 #, javascript-format
 msgid "%d More in Files"
 msgstr "%d muuta Tiedostoissa"
 
-#: apps/downloadsStack.js:461
+#: apps/downloadsStack.js:453
 msgid "Empty"
 msgstr "Tyhjä"
 
-#: apps/downloadsStack.js:795
+#: apps/downloadsStack.js:833
 msgid "Downloads"
 msgstr "Lataukset"
 
-#: apps/launchpadApp.js:298
+#: apps/launchpadApp.js:84
 msgid "Launchpad"
 msgstr "Launchpad"
 
-#: apps/launchpadApp.js:299
+#: apps/launchpadApp.js:85
 msgid "Open Application Overview"
 msgstr "Avaa sovellusnäkymä"
 
 #: apps/quickSettingsMedia.js:414
 msgid "Media"
 msgstr "Media"
+
+#: apps/quickSettingsMedia/player.js:167
+msgid "Unknown artist"
+msgstr "Tuntematon artisti"
+
+#: apps/quickSettingsMedia/player.js:172
+msgid "Unknown title"
+msgstr "Tuntematon otsikko"
 
 #: apps/quickSettingsNotifications.js:97
 msgid "Disable Do Not Disturb"
@@ -112,183 +120,202 @@ msgstr "Oikea ja vasen"
 msgid "Quarters"
 msgstr "Neljännekset"
 
-#: apps/windowTitle.js:281
+#: apps/windowTitle.js:337
 msgid "Leave Fullscreen"
 msgstr "Poistu koko näytöstä"
 
-#: apps/windowTitle.js:281
+#: apps/windowTitle.js:337
 msgid "Fullscreen"
 msgstr "Koko näyttö"
 
-#: apps/windowTitle.js:289
+#: apps/windowTitle.js:345
 msgid "Restore Window"
 msgstr "Palauta ikkuna"
 
-#: apps/windowTitle.js:295
+#: apps/windowTitle.js:351
 msgid "Always on Top"
 msgstr "Aina päällimmäisenä"
 
-#: prefs.js:83
+#: prefs.js:118
 msgid "Kiwi (is not Apple)"
 msgstr "Kiwi (is not Apple)"
 
-#: prefs.js:110
+#: prefs.js:145
 msgid "About"
 msgstr "Tietoja"
 
-#: prefs.js:169 prefs.js:183
+#: prefs.js:204 prefs.js:218
 msgid "Unknown"
 msgstr "Tuntematon"
 
-#: prefs.js:176
+#: prefs.js:211
 msgid "Change log"
 msgstr "Muutosloki"
 
-#: prefs.js:217
+#: prefs.js:252
 msgid "Website"
 msgstr "Verkkosivusto"
 
-#: prefs.js:221
+#: prefs.js:256
 msgid "Report an Issue"
 msgstr "Ilmoita ongelmasta"
 
-#: prefs.js:226
+#: prefs.js:261
 msgid "Credits"
 msgstr "Tekijät"
 
-#: prefs.js:229 prefs.js:244
+#: prefs.js:264 prefs.js:279
 msgid "Legal"
 msgstr "Lakiasiat"
 
-#: prefs.js:252
+#: prefs.js:287
 msgid "License"
 msgstr "Lisenssi"
 
-#: prefs.js:253
+#: prefs.js:288
 msgid "Kiwi is free and open source software"
 msgstr "Kiwi on vapaa ja avoimen lähdekoodin ohjelmisto"
 
-#: prefs.js:258
+#: prefs.js:293
 msgid "GNU General Public License v3.0"
 msgstr "GNU yleinen julkinen lisenssi v3.0"
 
-#: prefs.js:260
+#: prefs.js:295
 msgid "View the full license text on GitHub"
 msgstr "Katso koko lisenssiteksti GitHubista"
 
-#: prefs.js:267 prefs.js:268
+#: prefs.js:302 prefs.js:303
 msgid "Copyright"
 msgstr "Tekijänoikeus"
 
-#: prefs.js:268
+#: prefs.js:303
 msgid ""
-"This program is free software: you can redistribute it and/or modify it "
-"under the terms of the GNU General Public License as published by the Free "
-"Software Foundation, either version 3 of the License, or (at your option) "
-"any later version."
+"This program is free software: you can redistribute it and/or modify it under"
+" the terms of the GNU General Public License as published by the Free "
+"Software Foundation, either version 3 of the License, or (at your option) any"
+" later version."
 msgstr ""
-"Tämä ohjelma on vapaa ohjelmisto; voit levittää sitä ja/tai muokata sitä "
-"Free Software Foundationin julkaisemien GNU General Public License -ehtojen "
+"Tämä ohjelma on vapaa ohjelmisto; voit levittää sitä ja/tai muokata sitä Free"
+" Software Foundationin julkaisemien GNU General Public License -ehtojen "
 "mukaisesti, joko version 3 tai (valintasi mukaan) minkä tahansa myöhemmän "
 "version."
 
-#: prefs.js:322
+#: prefs.js:357
 msgid "Become a sponsor on GitHub"
 msgstr "Ryhdy sponsoriksi GitHubissa"
 
-#: prefs.js:335
+#: prefs.js:370
 msgid "Support Me ♡"
 msgstr "Tue minua ♡"
 
-#: prefs.js:361
+#: prefs.js:396
 msgid "Panel"
 msgstr "Paneeli"
 
-#: prefs.js:367 prefs.js:380
+#: prefs.js:402 prefs.js:415
 msgid "Panel Transparency"
 msgstr "Paneelin läpinäkyvyys"
 
-#: prefs.js:368
+#: prefs.js:403
 msgid "Configure panel transparency and appearance"
 msgstr "Säädä paneelin läpinäkyvyyttä ja ulkoasua"
 
-#: prefs.js:381
+#: prefs.js:416
 msgid "Make the top panel transparent"
 msgstr "Tee yläpaneelista läpinäkyvä"
 
-#: prefs.js:388
+#: prefs.js:423
 msgid "Transparency Level"
 msgstr "Läpinäkyvyyden taso"
 
-#: prefs.js:389
+#: prefs.js:424
 msgid "Set panel transparency (0-100)"
 msgstr "Aseta paneelin läpinäkyvyys (0–100)"
 
-#: prefs.js:403
-msgid "Opaque When Window Touches"
-msgstr "Läpinäkymätön kun ikkuna koskettaa"
+#: prefs.js:438
+msgid "Opaque When Window Maximized"
+msgstr "Läpinäkymätön, kun ikkuna on suurennettu"
 
-#: prefs.js:404
-msgid "Make panel opaque when a window touches it"
-msgstr "Muuta paneeli läpinäkymättömäksi, kun ikkuna koskettaa sitä"
+#: prefs.js:439
+msgid "Make panel opaque when a maximized window touches it"
+msgstr "Tee paneelista läpinäkymätön, kun suurennettu ikkuna koskettaa sitä"
 
-#: prefs.js:412
+#: prefs.js:447
 msgid "Panel Blur"
 msgstr "Paneelin sumennus"
 
-#: prefs.js:413
+#: prefs.js:448
 msgid "Blur the background behind the panel"
 msgstr "Sumenna paneelin tausta"
 
-#: prefs.js:421
+#: prefs.js:456
 msgid "Panel Color Fix"
 msgstr "Paneelin värikorjaus"
 
-#: prefs.js:422
+#: prefs.js:457
 msgid "Fix white panel on some themes (e.g., Ubuntu Yaru)"
 msgstr "Korjaa valkoinen paneeli joissakin teemoissa (esim. Ubuntu Yaru)"
 
-#: prefs.js:429
+#: prefs.js:464
 msgid "Invert Tray Icons on Light Wallpapers"
 msgstr "Käännä ilmoitusalueen kuvakkeet vaaleilla taustakuvilla"
 
-#: prefs.js:430
+#: prefs.js:465
 msgid ""
 "Darken white monochrome tray icons when the panel adapts to a light "
 "wallpaper. Colored icons are left untouched"
 msgstr ""
-"Tummenna valkoiset yksiväriset ilmoitusalueen kuvakkeet, kun paneeli "
-"mukautuu vaaleaan taustakuvaan. Värillisiä kuvakkeita ei muuteta"
+"Tummenna valkoiset yksiväriset ilmoitusalueen kuvakkeet, kun paneeli mukautuu"
+" vaaleaan taustakuvaan. Värillisiä kuvakkeita ei muuteta"
 
-#: prefs.js:463
+#: prefs.js:498
 msgid "Panel Items"
 msgstr "Paneelin kohteet"
 
-#: prefs.js:464
+#: prefs.js:499
 msgid "Choose what the top panel and its menus show"
 msgstr "Valitse, mitä ylläpaneeli ja sen valikot näyttävät"
 
-#: prefs.js:471
+#: prefs.js:504
+msgid "Show Panel in Fullscreen on Hover"
+msgstr "Näytä paneeli koko näytön tilassa hiirtä lähennettäessä"
+
+#: prefs.js:504
+msgid ""
+"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
+msgstr ""
+"Näytä paneeli, kun hiiri on lähellä yläreunaa koko näytön tilassa. "
+"GTK4-sovelluksissa saattaa olla virheitä."
+
+#: prefs.js:510
 msgid "Show Window Title"
 msgstr "Näytä ikkunan otsikko"
 
-#: prefs.js:472
+#: prefs.js:511
 msgid "Display current window title in the top panel"
 msgstr "Näytä nykyisen ikkunan otsikko yläpaneelissa"
 
-#: prefs.js:481
+#: prefs.js:520
 msgid "Hide App Icon"
 msgstr "Piilota sovelluskuvake"
 
-#: prefs.js:482
+#: prefs.js:521
 msgid "Do not show the application icon next to the window title"
 msgstr "Älä näytä sovelluksen kuvaketta ikkunan otsikon vieressä"
 
-#: prefs.js:489
+#: prefs.js:528
+msgid "Hide Window Subtitle"
+msgstr "Piilota ikkunan alaotsikko"
+
+#: prefs.js:529
+msgid "Show only the application name, without the window's own title"
+msgstr "Näytä vain sovelluksen nimi ilman ikkunan omaa otsikkoa"
+
+#: prefs.js:536
 msgid "Disable Window Tiling"
 msgstr "Poista ikkunoiden vierekkäisasettelu käytöstä"
 
-#: prefs.js:490
+#: prefs.js:537
 msgid ""
 "Drop the tiling layouts from the window title menu, and stop restoring tiled "
 "windows when their titlebar is dragged"
@@ -296,131 +323,120 @@ msgstr ""
 "Poista asettelut ikkunan otsikkovalikosta ja lopeta vierekkäin asetettujen "
 "ikkunoiden palauttaminen otsikkopalkkia raahattaessa"
 
-#: prefs.js:510
-msgid "Show Panel in Fullscreen on Hover"
-msgstr "Näytä paneeli koko näytön tilassa hiirtä lähennettäessä"
-
-#: prefs.js:510
-msgid ""
-"Show panel when mouse is near top edge in fullscreen. Bugged for GTK4 apps."
-msgstr ""
-"Näytä paneeli, kun hiiri on lähellä yläreunaa koko näytön tilassa. GTK4-"
-"sovelluksissa saattaa olla virheitä."
-
-#: prefs.js:518
+#: prefs.js:563
 msgid "Move Calendar to Right"
 msgstr "Siirrä kalenteri oikealle"
 
-#: prefs.js:519
+#: prefs.js:564
 msgid "Move calendar to right side and hide notifications"
 msgstr "Siirrä kalenteri oikealle ja piilota ilmoitukset"
 
-#: prefs.js:528
+#: prefs.js:573
 msgid "Keep GNOME Notification Panel"
 msgstr "Säilytä GNOMEn ilmoituspaneeli"
 
-#: prefs.js:529
+#: prefs.js:574
 msgid "Don't split notification and calendar layout"
 msgstr "Älä erottele ilmoitusten ja kalenterin asettelua"
 
-#: prefs.js:536
+#: prefs.js:581
 msgid "Indicator Style"
 msgstr "Ilmaisimen tyyli"
 
-#: prefs.js:537
+#: prefs.js:582
 msgid "Notification dot recolor"
 msgstr "Ilmoituspisteen väritys"
 
-#: prefs.js:540 prefs.js:826
+#: prefs.js:585 prefs.js:899
 msgid "Default"
 msgstr "Oletus"
 
-#: prefs.js:540
+#: prefs.js:585
 msgid "Accent"
 msgstr "Korostusväri"
 
-#: prefs.js:540
+#: prefs.js:585
 msgid "Symbolic"
 msgstr "Symbolinen"
 
-#: prefs.js:547
+#: prefs.js:592
 msgid "Battery Percentage"
 msgstr "Akun prosentti"
 
-#: prefs.js:559
+#: prefs.js:604
 msgid ""
 "Unavailable while GNOME Settings shows the battery percentage in the top bar"
 msgstr ""
 "Ei käytettävissä, kun GNOMEn asetukset näyttävät akun prosentit "
 "ylläpaneelissa"
 
-#: prefs.js:560
+#: prefs.js:605
 msgid "Show battery percentage in the top bar when below 20%"
 msgstr "Näytä akun prosentti yläpalkissa, kun varausta on alle 20 %"
 
-#: prefs.js:566
+#: prefs.js:611
 msgid "Caps Lock and Num Lock"
 msgstr "Caps Lock ja Num Lock"
 
-#: prefs.js:566
+#: prefs.js:611
 msgid "Show Caps Lock and Num Lock icon"
 msgstr "Näytä Caps Lock- ja Num Lock -kuvake"
 
-#: prefs.js:567
+#: prefs.js:612
 msgid "Custom Do Not Disturb Button"
 msgstr "Mukautettu Älä häiritse -painike"
 
-#: prefs.js:567
+#: prefs.js:612
 msgid ""
 "Replace the system Do Not Disturb button with Kiwi's custom implementation"
 msgstr ""
 "Korvaa järjestelmän Älä häiritse -painikkeen Kiwin omalla toteutuksella"
 
-#: prefs.js:568
+#: prefs.js:613
 msgid "Hide Activities Button"
 msgstr "Piilota Aktiviteetit-painike"
 
-#: prefs.js:568
+#: prefs.js:613
 msgid "Hide the Activities button in the top panel"
 msgstr "Piilota Aktiviteetit-painike yläpalkista"
 
-#: prefs.js:569
+#: prefs.js:614
 msgid "Add Username"
 msgstr "Lisää käyttäjänimi"
 
-#: prefs.js:569
+#: prefs.js:614
 msgid "Add username to the quick menu"
 msgstr "Lisää käyttäjänimi pikavalikkoon"
 
-#: prefs.js:573 prefs.js:771
+#: prefs.js:618 prefs.js:828
 msgid "Styling"
 msgstr "Ulkoasu"
 
-#: prefs.js:574
+#: prefs.js:619
 msgid ""
 "Restyle stock GNOME Shell elements and GTK apps. Log out and back in for "
 "changes to take effect"
 msgstr ""
-"Muotoile GNOME Shellin vakio-osat ja GTK-sovellukset uudelleen. Kirjaudu "
-"ulos ja takaisin sisään, jotta muutokset tulevat voimaan"
+"Muotoile GNOME Shellin vakio-osat ja GTK-sovellukset uudelleen. Kirjaudu ulos"
+" ja takaisin sisään, jotta muutokset tulevat voimaan"
 
-#: prefs.js:579
+#: prefs.js:624
 msgid "Panel Styling"
 msgstr "Paneelin ulkoasu"
 
-#: prefs.js:579
+#: prefs.js:624
 msgid ""
-"Tighter button spacing, bold titles, smaller status icons, no dropdown "
-"arrows and a transparent panel in the overview"
+"Tighter button spacing, smaller status icons, no dropdown arrows and a "
+"transparent panel in the overview"
 msgstr ""
-"Tiiviimmät painikevälit, lihavoidut otsikot, pienemmät tilakuvakkeet, ei "
-"alasvetonuolia ja läpinäkyvä paneeli yleisnäkymässä"
+"Tiiviimmät painikevälit, pienemmät tilakuvakkeet, ei alasvetonuolia ja "
+"läpinäkyvä paneeli yleisnäkymässä"
 
-#: prefs.js:580
+#: prefs.js:625
 msgid "Menu and App Styling"
 msgstr "Valikoiden ja sovellusten ulkoasu"
 
-#: prefs.js:580
+#: prefs.js:625
 msgid ""
 "Narrower shell menu items with accent-colored hover and selection, plus the "
 "GTK app fixes"
@@ -428,43 +444,49 @@ msgstr ""
 "Kapeammat shell-valikon kohteet korostusvärillä osoitettaessa ja valittaessa "
 "sekä GTK-sovelluskorjaukset"
 
-#: prefs.js:586
+#: prefs.js:631
 msgid "Style Keyboard Indicator"
 msgstr "Tyylittele näppäimistöindikaattori"
 
-#: prefs.js:587
+#: prefs.js:632
 msgid ""
-"Slightly style keyboard/input source indicator by converting to uppercase "
-"and adding border"
+"Slightly style keyboard/input source indicator by converting to uppercase and"
+" adding border"
 msgstr ""
 "Tyylittele näppäimistö-/syöttölähdeindikaattoria muuttamalla se isoiksi "
 "kirjaimiksi ja lisäämällä reunus"
 
-#: prefs.js:594
+#: prefs.js:639
 msgid "Hide keyboard indicator"
 msgstr "Piilota näppäimistöindikaattori"
 
-#: prefs.js:595
+#: prefs.js:640
 msgid "Completely hide the indicator from the panel"
 msgstr "Piilota indikaattori kokonaan paneelista"
 
-#: prefs.js:623
+#: prefs.js:668
 msgid "Dock"
 msgstr "Telakka"
 
-#: prefs.js:629
+#: prefs.js:677
+msgid "These options need the Dash to Dock extension installed and enabled"
+msgstr ""
+"Nämä asetukset vaativat, että Dash to Dock -laajennus on asennettu ja "
+"käytössä"
+
+#: prefs.js:685
 msgid "Dock Items"
 msgstr "Telakan kohteet"
 
-#: prefs.js:630
+#: prefs.js:686
 msgid "Add extra items to Dash-to-Dock"
 msgstr "Lisää kohteita Dash-to-Dockiin"
 
-#: prefs.js:635
+#: prefs.js:691
 msgid "Minimize Windows to Dock"
 msgstr "Pienennä ikkunat telakkaan"
 
-#: prefs.js:635
+#: prefs.js:691
 msgid ""
 "Park minimized windows as thumbnails in Dash-to-Dock, after the apps and "
 "before the trash"
@@ -472,11 +494,11 @@ msgstr ""
 "Aseta pienennetyt ikkunat pikkukuvina Dash-to-Dockiin sovellusten jälkeen ja "
 "roskakorin eteen"
 
-#: prefs.js:639
+#: prefs.js:695
 msgid "Downloads Folder in Dock"
 msgstr "Lataukset-kansio telakassa"
 
-#: prefs.js:640
+#: prefs.js:696
 msgid ""
 "Add a Downloads folder before the trash that fans its newest files out over "
 "the desktop"
@@ -484,23 +506,23 @@ msgstr ""
 "Lisää roskakorin eteen Lataukset-kansio, joka levittää uusimmat tiedostonsa "
 "työpöydälle"
 
-#: prefs.js:648
+#: prefs.js:705
 msgid "Stack Behind Folder"
 msgstr "Pinoa kansion taakse"
 
-#: prefs.js:649
+#: prefs.js:706
 msgid ""
-"Show the newest files sticking out of the folder icon instead of piled on "
-"top of it"
+"Show the newest files sticking out of the folder icon instead of piled on top"
+" of it"
 msgstr ""
-"Näytä uusimmat tiedostot kansiokuvakkeen takaa pilkistäen sen sijaan, että "
-"ne olisivat pinossa sen päällä"
+"Näytä uusimmat tiedostot kansiokuvakkeen takaa pilkistäen sen sijaan, että ne"
+" olisivat pinossa sen päällä"
 
-#: prefs.js:667
+#: prefs.js:724
 msgid "Launchpad Application"
 msgstr "Launchpad-sovellus"
 
-#: prefs.js:668
+#: prefs.js:725
 msgid ""
 "Add custom Launchpad icon to dock that opens application overview. "
 "Recommended to hide default app launcher."
@@ -508,134 +530,138 @@ msgstr ""
 "Lisää telakkaan mukautettu Launchpad-kuvake, joka avaa sovellusnäkymän. "
 "Suositellaan piilottamaan oletuslaukaisin."
 
-#: prefs.js:678
+#: prefs.js:735
 msgid "Custom Icon"
 msgstr "Mukautettu kuvake"
 
-#: prefs.js:681 prefs.js:766
+#: prefs.js:738 prefs.js:823
 msgid "Using default icon"
 msgstr "Käytetään oletuskuvaketta"
 
-#: prefs.js:689
+#: prefs.js:746
 msgid "Reset to default icon"
 msgstr "Palauta oletuskuvakkeeseen"
 
-#: prefs.js:700
+#: prefs.js:757
 msgid "Browse for icon"
 msgstr "Selaa kuvaketta"
 
-#: prefs.js:705
+#: prefs.js:762
 msgid "Select Launchpad Icon"
 msgstr "Valitse Launchpad-kuvake"
 
-#: prefs.js:709
+#: prefs.js:766
 msgid "Images (PNG, SVG)"
 msgstr "Kuvat (PNG, SVG)"
 
-#: prefs.js:737
+#: prefs.js:794
 msgid "Icon Too Large"
 msgstr "Kuvake on liian suuri"
 
-#: prefs.js:738
+#: prefs.js:795
 msgid ""
 "The selected image exceeds 512×512 pixels. Please choose a smaller image."
 msgstr "Valittu kuva ylittää 512×512 kuvapistettä. Valitse pienempi kuva."
 
-#: prefs.js:740
+#: prefs.js:797
 msgid "OK"
 msgstr "OK"
 
-#: prefs.js:776
+#: prefs.js:833
 msgid "Dock Styling"
 msgstr "Telakan ulkoasu"
 
-#: prefs.js:776
+#: prefs.js:833
 msgid ""
 "Tighten icon spacing, drop the icon highlight and darken icons while pressed"
 msgstr ""
 "Tiivistä kuvakevälit, poista kuvakkeen korostus ja tummenna kuvakkeet "
 "painettaessa"
 
-#: prefs.js:777
+#: prefs.js:834
 msgid "Dock Blur"
 msgstr "Telakan sumennus"
 
-#: prefs.js:777
+#: prefs.js:834
 msgid ""
-"Blur the background behind Dash-to-Dock. Recommended fixed dock opacity 10% "
-"- 30%, min 1%."
+"Blur the background behind Dash-to-Dock. Recommended fixed dock opacity 10% -"
+" 30%, min 1%."
 msgstr ""
-"Sumenna Dash-to-Dockin tausta. Suositeltu kiinteä telakan peittävyys 10–30 "
-"%, vähintään 1 %."
+"Sumenna Dash-to-Dockin tausta. Suositeltu kiinteä telakan peittävyys 10–30 %,"
+" vähintään 1 %."
 
-#: prefs.js:778
+#: prefs.js:835
 msgid "Adaptive Dock Colors"
 msgstr "Mukautuvat telakan värit"
 
-#: prefs.js:778
+#: prefs.js:835
 msgid ""
 "Flip the running indicators and separators to suit whatever is behind the "
 "dock, wallpaper or window"
 msgstr ""
-"Vaihda käynnissä olevien sovellusten ilmaisimet ja erottimet sen mukaan, "
-"mitä telakan takana on, taustakuva tai ikkuna"
+"Vaihda käynnissä olevien sovellusten ilmaisimet ja erottimet sen mukaan, mitä"
+" telakan takana on, taustakuva tai ikkuna"
 
-#: prefs.js:785
+#: prefs.js:858
 msgid "Buttons"
 msgstr "Painikkeet"
 
-#: prefs.js:791
+#: prefs.js:864
 msgid "Window Control Button Style"
 msgstr "Ikkunanohjauspainikkeiden tyyli"
 
-#: prefs.js:792
+#: prefs.js:865
 msgid ""
 "Choose the window control button style. Log out to apply it across all apps."
 msgstr ""
 "Valitse ikkunanohjauspainikkeiden tyyli. Kirjaudu ulos ottaaksesi sen "
 "käyttöön kaikissa sovelluksissa."
 
-#: prefs.js:800
+#: prefs.js:873
 msgid "Enable macOS Window Buttons"
 msgstr "Ota macOS-ikkunapainikkeet käyttöön"
 
-#: prefs.js:801
+#: prefs.js:874
 msgid "Replace window control buttons in application windows with macOS style"
 msgstr "Korvaa sovellusikkunoiden ikkunanhallintapainikkeet macOS-tyylillä"
 
-#: prefs.js:822
+#: prefs.js:895
 msgid "Button Type"
 msgstr "Painikkeen tyyppi"
 
-#: prefs.js:823
+#: prefs.js:896
 msgid "Choose the button icon set"
 msgstr "Valitse painikkeiden kuvakejoukko"
 
-#: prefs.js:826
+#: prefs.js:899
 msgid "Alternative"
 msgstr "Vaihtoehtoinen"
 
-#: prefs.js:832
+#: prefs.js:899
+msgid "Glass"
+msgstr "Lasi"
+
+#: prefs.js:905
 msgid "Button Size"
 msgstr "Painikkeen koko"
 
-#: prefs.js:833
+#: prefs.js:906
 msgid "Choose button size"
 msgstr "Valitse painikkeen koko"
 
-#: prefs.js:836
+#: prefs.js:909
 msgid "Small"
 msgstr "Pieni"
 
-#: prefs.js:836
+#: prefs.js:909
 msgid "Normal"
 msgstr "Normaali"
 
-#: prefs.js:842
+#: prefs.js:915
 msgid "Firefox Styling"
 msgstr "Firefoxin tyyli"
 
-#: prefs.js:843
+#: prefs.js:916
 msgid ""
 "Apply macOS window control styling for Firefox. Recommended to use with "
 "vertical tabs."
@@ -643,19 +669,19 @@ msgstr ""
 "Käytä macOS-ikkunapainikkeiden tyyliä Firefoxissa. Suositeltavaa käyttää "
 "pystysuorien välilehtien kanssa."
 
-#: prefs.js:851
+#: prefs.js:924
 msgid "Thunderbird Styling"
 msgstr "Thunderbird-tyyli"
 
-#: prefs.js:852
+#: prefs.js:925
 msgid "Apply macOS window control styling for Thunderbird."
 msgstr "Käytä macOS-ikkunanhallintapainikkeiden tyyliä Thunderbirdissä."
 
-#: prefs.js:876
+#: prefs.js:949
 msgid "Show Window Controls on Panel"
 msgstr "Näytä ikkunanohjaimet paneelissa"
 
-#: prefs.js:877
+#: prefs.js:950
 msgid ""
 "Display close, minimize, maximize buttons in the top panel when window is "
 "maximized"
@@ -663,11 +689,11 @@ msgstr ""
 "Näytä sulkemis-, pienennys- ja suurennuspainikkeet yläpaneelissa, kun ikkuna "
 "on suurennettu"
 
-#: prefs.js:891
+#: prefs.js:964
 msgid "Only when Fullscreen"
 msgstr "Vain koko näytön tilassa"
 
-#: prefs.js:892
+#: prefs.js:965
 msgid ""
 "Hide titlebars and show panel controls only for fullscreen windows, not "
 "maximized"
@@ -675,184 +701,203 @@ msgstr ""
 "Piilota otsikkopalkit ja näytä paneelin painikkeet vain koko näytön "
 "ikkunoille, ei suurennetuille"
 
-#: prefs.js:901
+#: prefs.js:974
 msgid "Options"
 msgstr "Asetukset"
 
-#: prefs.js:907
+#: prefs.js:980
 msgid "Kiwi"
 msgstr "Kiwi"
 
-#: prefs.js:908
+#: prefs.js:981
 msgid ""
 "Kiwi is not like Apple, it's free open source project that brings macOS-like "
 "feel for GNOME"
 msgstr ""
-"Kiwi ei ole Apple; se on vapaa avoimen lähdekoodin projekti, joka tuo "
-"GNOMEen macOS-tyylisen tuntuman"
+"Kiwi ei ole Apple; se on vapaa avoimen lähdekoodin projekti, joka tuo GNOMEen"
+" macOS-tyylisen tuntuman"
 
-#: prefs.js:913
+#: prefs.js:986
 msgid "Overview Wallpaper Blur"
 msgstr "Yleisnäkymän taustan sumennus"
 
-#: prefs.js:913
+#: prefs.js:986
 msgid "Use blurred current wallpaper as overview background"
 msgstr "Käytä sumennettua nykyistä taustakuvaa yleisnäkymän taustana"
 
-#: prefs.js:914
+#: prefs.js:987
+msgid "Seamless Overview Zoom"
+msgstr "Saumaton yleisnäkymän zoomaus"
+
+#: prefs.js:987
+msgid ""
+"Zoom the whole desktop, including the strip behind the panel, in and out of "
+"the overview"
+msgstr ""
+"Zoomaa koko työpöytää, myös paneelin takana olevaa kaistaletta, yleisnäkymään"
+" siirryttäessä ja siitä poistuttaessa"
+
+#: prefs.js:988
+msgid "Focus on Overview Exit"
+msgstr "Kohdistus yleisnäkymästä poistuttaessa"
+
+#: prefs.js:988
+msgid ""
+"Focus the window under the cursor instead of the previously focused one when "
+"leaving the overview"
+msgstr ""
+"Kohdista osoittimen alla oleva ikkuna aiemmin kohdistetun sijaan, kun "
+"yleisnäkymästä poistutaan"
+
+#: prefs.js:989
 msgid "Skip to Desktop"
 msgstr "Siirry suoraan työpöydälle"
 
-#: prefs.js:914
+#: prefs.js:989
 msgid "Do not show the overview when logging in. Animation is still visible"
 msgstr "Älä näytä yleisnäkymää kirjautuessa sisään. Animaatio näkyy silti."
 
-#: prefs.js:915
+#: prefs.js:990
 msgid "Hide Minimized Windows"
 msgstr "Piilota pienennetyt ikkunat"
 
-#: prefs.js:915
+#: prefs.js:990
 msgid "Hide minimized windows in the overview"
 msgstr "Piilota pienennetyt ikkunat yleisnäkymässä"
 
-#: prefs.js:916
+#: prefs.js:991
 msgid "Move Window to New Workspace"
 msgstr "Siirrä ikkuna uuteen työtilaan"
 
-#: prefs.js:916
+#: prefs.js:991
 msgid "Move fullscreen window to a new workspace"
 msgstr "Siirrä koko näytön ikkuna uuteen työtilaan"
 
-#: prefs.js:917
+#: prefs.js:992
 msgid "Reduce App Animations"
 msgstr "Vähennä sovellusanimaatioita"
 
-#: prefs.js:917
+#: prefs.js:992
 msgid "Mimic macOS window opening and closing with a subtle scale and fade"
 msgstr ""
 "Jäljittele macOSin ikkunoiden avautumista ja sulkeutumista hienovaraisella "
 "skaalauksella ja häivytyksellä"
 
-#: prefs.js:918
+#: prefs.js:993
+msgid "Focus New Windows"
+msgstr "Kohdista uudet ikkunat"
+
+#: prefs.js:993
+msgid ""
+"Automatically focus new windows instead of showing window-ready alerts. "
+"Requires extension reload"
+msgstr ""
+"Kohdista uudet ikkunat automaattisesti ikkuna valmis -ilmoitusten sijaan. "
+"Vaatii laajennuksen uudelleenlatauksen"
+
+#: prefs.js:994
 msgid "Transparent Move"
 msgstr "Läpinäkyvä siirto"
 
-#: prefs.js:918
+#: prefs.js:994
 msgid "Move window with transparency"
 msgstr "Siirrä ikkunaa läpinäkyvyydellä"
 
-#: prefs.js:925
+#: prefs.js:1001
 msgid "Advanced"
 msgstr "Lisäasetukset"
 
-#: prefs.js:955
+#: prefs.js:1031
 msgid "Titlebuttons Hover Effect for GTK3 apps"
 msgstr "GTK3-sovellusten otsikkopainikkeiden hover-efekti"
 
-#: prefs.js:968
+#: prefs.js:1044
 msgid ""
-"The titlebuttons hover module provides macOS-like hover effects for window "
-"controls in GTK3 applications. GTK3 apps cannot natively show hover effects "
-"on all three window controls simultaneously, requiring this custom library "
-"to achieve the desired behavior.\n"
+"The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n"
 "\n"
-"This binary code cannot be distributed through the GNOME Extensions platform "
-"due to security policies regarding native libraries, but manual installation "
-"is possible."
+"This binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible."
 msgstr ""
-"Otsikkopainikkeiden hover-moduuli tuo macOS-tyyliset hover-efektit GTK3-"
-"sovellusten ikkunanhallintapainikkeisiin. GTK3-sovellukset eivät pysty "
-"näyttämään hover-efektiä kaikissa kolmessa painikkeessa yhtä aikaa, joten "
-"halutun toiminnan saavuttamiseksi tarvitaan tämä kirjasto.\n"
+"Otsikkopainikkeiden hover-moduuli tuo macOS-tyyliset hover-efektit GTK3-sovellusten ikkunanhallintapainikkeisiin. GTK3-sovellukset eivät pysty näyttämään hover-efektiä kaikissa kolmessa painikkeessa yhtä aikaa, joten halutun toiminnan saavuttamiseksi tarvitaan tämä kirjasto.\n"
 "\n"
-"Tätä binaaria ei voi levittää GNOME-laajennusten alustalla natiivikirjastoja "
-"koskevien turvallisuussääntöjen vuoksi, mutta manuaalinen asennus on "
-"mahdollinen."
+"Tätä binaaria ei voi levittää GNOME-laajennusten alustalla natiivikirjastoja koskevien turvallisuussääntöjen vuoksi, mutta manuaalinen asennus on mahdollinen."
 
-#: prefs.js:984
+#: prefs.js:1060
 msgid "Installation Guide on GitHub"
 msgstr "Asennusohje GitHubissa"
 
-#: prefs.js:986
+#: prefs.js:1062
 msgid "Open the advanced module build instructions"
 msgstr "Avaa lisämoduulin käännösohjeet"
 
-#: prefs.js:992
+#: prefs.js:1068
 msgid "More of my work..."
 msgstr "Lisää töitäni…"
 
-#: prefs.js:996
+#: prefs.js:1072
 msgid "Kiwi Menu"
 msgstr "Kiwi Menu"
 
-#: prefs.js:996
+#: prefs.js:1072
 msgid "MacOS style menu for GNOME"
 msgstr "macOS-tyylinen valikko GNOMElle"
 
-#: prefs.js:997
+#: prefs.js:1073
 msgid "AppManager"
 msgstr "AppManager"
 
-#: prefs.js:997
+#: prefs.js:1073
 msgid "MacOS style AppImage installer and management application"
 msgstr "MacOS-tyylinen AppImage-asennus- ja hallintasovellus"
 
-#: prefs.js:998
+#: prefs.js:1074
 msgid "Catalina Reloaded Icon Pack"
 msgstr "Catalina Reloaded Icon Pack"
 
-#: prefs.js:998
+#: prefs.js:1074
 msgid "macOS Tahoe icon theme for Linux"
 msgstr "macOS Tahoe -kuvaketeema Linuxille"
 
-#: prefs.js:999
+#: prefs.js:1075
 msgid "GDM Wallpaper"
 msgstr "GDM Wallpaper"
 
-#: prefs.js:999
+#: prefs.js:1075
 msgid "Set custom GDM login screen wallpaper"
 msgstr "Aseta mukautettu taustakuva GDM-kirjautumisruudulle"
 
-#: prefs.js:1011
+#: prefs.js:1087
 msgid "Other Recommended Extensions"
 msgstr "Muut suositellut laajennukset"
 
-#: prefs.js:1012
+#: prefs.js:1088
 msgid "Extensions that are compatible with Kiwi"
 msgstr "Kiwin kanssa yhteensopivat laajennukset"
 
-#: prefs.js:1036 prefs.js:1050
+#: prefs.js:1112 prefs.js:1126
 msgid "Restore Defaults"
 msgstr "Palauta oletukset"
 
-#: prefs.js:1040
+#: prefs.js:1116
 msgid "Reset every Kiwi setting to its default value"
 msgstr "Palauta jokainen Kiwin asetus oletusarvoonsa"
 
-#: prefs.js:1046
+#: prefs.js:1122
 msgid "Restore Default Settings?"
 msgstr "Palautetaanko oletusasetukset?"
 
-#: prefs.js:1047
+#: prefs.js:1123
 msgid ""
 "Every Kiwi setting will be reset to its default value. This cannot be undone."
 msgstr "Jokainen Kiwin asetus palautetaan oletusarvoonsa. Tätä ei voi kumota."
 
-#: prefs.js:1049
+#: prefs.js:1125
 msgid "Cancel"
 msgstr "Peruuta"
 
-#~ msgid "Unknown artist"
-#~ msgstr "Tuntematon artisti"
-
-#~ msgid "Unknown title"
-#~ msgstr "Tuntematon otsikko"
-
-#~ msgid ""
-#~ "ImageMagick not installed (install package \"imagemagick\" to enable)"
+#~ msgid "ImageMagick not installed (install package \"imagemagick\" to enable)"
 #~ msgstr ""
-#~ "ImageMagickia ei ole asennettu (asenna \"imagemagick\"-paketti "
-#~ "käyttöönottoa varten)"
+#~ "ImageMagickia ei ole asennettu (asenna \"imagemagick\"-paketti käyttöönottoa "
+#~ "varten)"
 
 #~ msgid "Kiwi is not Apple"
 #~ msgstr "Kiwi is not Apple"
@@ -864,8 +909,7 @@ msgstr "Peruuta"
 #~ msgstr "Tue minua ♡"
 
 #~ msgid ""
-#~ "Use blurred current wallpaper as overview background (requires "
-#~ "ImageMagick)"
+#~ "Use blurred current wallpaper as overview background (requires ImageMagick)"
 #~ msgstr ""
 #~ "Käytä sumennettua nykyistä taustakuvaa yleisnäkymän taustana (vaatii "
 #~ "ImageMagickin)"
@@ -885,17 +929,11 @@ msgstr "Peruuta"
 #~ msgid ""
 #~ "Copyright © 2025 Arnis Kemlers\n"
 #~ "\n"
-#~ "This program is free software: you can redistribute it and/or modify it "
-#~ "under the terms of the GNU General Public License as published by the "
-#~ "Free Software Foundation, either version 3 of the License, or (at your "
-#~ "option) any later version."
+#~ "This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."
 #~ msgstr ""
 #~ "Tekijänoikeus © 2025 Arnis Kemlers\n"
 #~ "\n"
-#~ "Tämä ohjelma on vapaa ohjelmisto; voit levittää sitä ja/tai muokata sitä "
-#~ "Free Software Foundationin julkaisemien GNU General Public License "
-#~ "-ehtojen mukaisesti, joko version 3 tai (valintasi mukaan) minkä tahansa "
-#~ "myöhemmän version."
+#~ "Tämä ohjelma on vapaa ohjelmisto; voit levittää sitä ja/tai muokata sitä Free Software Foundationin julkaisemien GNU General Public License -ehtojen mukaisesti, joko version 3 tai (valintasi mukaan) minkä tahansa myöhemmän version."
 
 #~ msgid "Support the project"
 #~ msgstr "Tue projektia"
@@ -908,5 +946,4 @@ msgstr "Peruuta"
 
 #~ msgid ""
 #~ "Display window control buttons in the top panel when window is maximized"
-#~ msgstr ""
-#~ "Näytä ikkunanohjauspainikkeet yläpaneelissa, kun ikkuna on maksimoitu"
+#~ msgstr "Näytä ikkunanohjauspainikkeet yläpaneelissa, kun ikkuna on maksimoitu"
