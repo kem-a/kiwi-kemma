@@ -10,6 +10,7 @@ export function enable(ext) {
         _manager = new MozillaThemeManager(ext, {
             settingsKey: 'enable-thunderbird-styling',
             profileBaseDir: '.thunderbird',
+            xdgProfileDir: 'thunderbird',
             cssPrefix: 'thunderbirdWindowControls',
             logPrefix: 'ThunderbirdTheme',
         });

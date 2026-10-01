@@ -15,6 +15,7 @@ const KIWI_MARKER_FILENAME = '.kiwi-managed';
  * @param {object} config
  * @param {string} config.settingsKey    – GSettings boolean key that toggles this app's styling
  * @param {string} config.profileBaseDir – relative path under $HOME (e.g. '.mozilla/firefox')
+ * @param {string} config.xdgProfileDir  – relative path under $XDG_CONFIG_HOME (e.g. 'mozilla/firefox')
  * @param {string} config.cssPrefix      – CSS filename prefix (e.g. 'firefoxWindowControls')
  * @param {string} config.logPrefix      – label used in log messages
  */
@@ -65,8 +66,10 @@ export class MozillaThemeManager {
         }
 
         const profile = await this._getDefaultProfile();
-        if (!profile)
+        if (!profile) {
+            console.debug(`[Kiwi] ${this._config.logPrefix} no profile found`);
             return;
+        }
 
         const ext = this._extension;
         const cssRoot = `${ext.path}/css`;
@@ -192,11 +195,19 @@ export class MozillaThemeManager {
      * Tries installs.ini first, falls back to profiles.ini.
      */
     async _getDefaultProfile() {
-        const home = GLib.get_home_dir();
-        const baseDir = GLib.build_filenamev([home, ...this._config.profileBaseDir.split('/')]);
+        // Legacy $HOME dir wins when present, same as Mozilla; else XDG config dir (Firefox 147+)
+        const baseDirs = [
+            GLib.build_filenamev([GLib.get_home_dir(), ...this._config.profileBaseDir.split('/')]),
+            GLib.build_filenamev([GLib.get_user_config_dir(), ...this._config.xdgProfileDir.split('/')]),
+        ];
 
-        return (await this._getProfileFromInstallsIni(baseDir))
-            ?? (await this._getProfileFromProfilesIni(baseDir));
+        for (const baseDir of baseDirs) {
+            const profile = (await this._getProfileFromInstallsIni(baseDir))
+                ?? (await this._getProfileFromProfilesIni(baseDir));
+            if (profile)
+                return profile;
+        }
+        return null;
     }
 
     async _getProfileFromInstallsIni(baseDir) {
