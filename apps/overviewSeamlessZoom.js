@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Zooms the whole monitor in and out of the overview instead of just the work area,
 // so the desktop strip behind the top panel stops popping in and out.
+// Also tames the touchpad overview swipe: lower sensitivity and per-frame smoothing.
 //
 // Ported from Overview Seamless Zoom by jguece, GPL-2.0-or-later:
 // https://gitlab.com/jguece/overview-seamless-zoom
@@ -17,11 +18,24 @@ import { Workspace, WorkspaceBackground } from 'resource:///org/gnome/shell/ui/w
 // Keep in sync with the shell's src/shell-workspace-background.c
 const BACKGROUND_MARGIN = 12;
 
+// Touchpad swipe distance multiplier and smoothing time constant in ms
+const SWIPE_DISTANCE_SCALE = 1.5;
+const SWIPE_SMOOTHING_MS = 50;
+// Release animation speed range, as ms to travel one full overview state, and a floor
+const RELEASE_FASTEST_MS = 350;
+const RELEASE_SLOWEST_MS = 450;
+const RELEASE_MIN_MS = 350;
+
 let _overviewHiddenId = 0;
 let _controlsLayout = null;
 let _origComputeBox = null;
 let _origInit = null;
 let _initPatch = null;
+let _touchpadGesture = null;
+let _controls = null;
+let _smoothTimeline = null;
+let _smoothTarget = 0;
+let _smoothStep = 0;
 
 // Replaces the C base class allocation, which offsets and oversizes the wallpaper so
 // only the work-area crop stays visible.
@@ -133,6 +147,63 @@ function applyPatches() {
             patchWorkspace(this);
     };
     Workspace.prototype._init = _initPatch;
+
+    // The tracker binds its handlers at construction, so scale the distance where the
+    // touchpad gesture emits it. Touchscreen swipes keep 1:1 tracking.
+    _touchpadGesture = Main.overview._swipeTracker._touchpadGesture;
+    const origEmit = _touchpadGesture.emit;
+    _touchpadGesture.emit = function (name, ...args) {
+        if (name === 'update' || name === 'end')
+            args[args.length - 1] *= SWIPE_DISTANCE_SCALE;
+        return origEmit.call(this, name, ...args);
+    };
+
+    // Ease toward the finger position on the frame clock instead of jumping per event.
+    _controls = Main.overview._overview.controls;
+    const adjustment = _controls._stateAdjustment;
+    _smoothTimeline = new Clutter.Timeline({ actor: _controls, duration: 1000, repeat_count: -1 });
+    _smoothTimeline.connect('new-frame', timeline => {
+        if (!adjustment.gestureInProgress) {
+            timeline.stop();
+            return;
+        }
+        const diff = _smoothTarget - adjustment.value;
+        if (Math.abs(diff) < 0.001) {
+            adjustment.value = _smoothTarget;
+            _smoothStep = 0;
+            timeline.stop();
+            return;
+        }
+        _smoothStep = diff * (1 - Math.exp(-timeline.get_delta() / SWIPE_SMOOTHING_MS));
+        adjustment.value += _smoothStep;
+    });
+    _controls.gestureProgress = progress => {
+        _smoothTarget = progress;
+        if (!_smoothTimeline.is_playing())
+            _smoothTimeline.start();
+    };
+
+    // Stock release duration follows lift-off velocity down to 100ms; keep its speed in range.
+    const origGestureEnd = _controls.gestureEnd;
+    _controls.gestureEnd = function (target, duration, onComplete) {
+        const remaining = target - adjustment.value;
+        const distance = Math.abs(remaining);
+        if (distance <= 0.001) {
+            origGestureEnd.call(this, target, duration, onComplete);
+            return;
+        }
+        duration = Math.max(RELEASE_MIN_MS,
+            Math.clamp(duration, distance * RELEASE_FASTEST_MS, distance * RELEASE_SLOWEST_MS));
+        origGestureEnd.call(this, target, duration, onComplete);
+
+        // Stock EASE_OUT_CUBIC bursts at 3x speed. Snapping back or releasing a still finger
+        // starts from rest; continuing the swipe keeps a gentler ease-out.
+        const mode = _smoothStep * remaining > 0
+            ? Clutter.AnimationMode.EASE_OUT_QUAD
+            : Clutter.AnimationMode.EASE_IN_OUT_QUAD;
+        adjustment.get_transition('value')?.set_progress_mode(mode);
+        _smoothStep = 0;
+    };
 }
 
 export function enable() {
@@ -167,6 +238,14 @@ export function disable() {
         Workspace.prototype._init = _origInit;
     restoreLiveWorkspaces();
 
+    _smoothTimeline.stop();
+    delete _controls.gestureProgress;
+    delete _controls.gestureEnd;
+    delete _touchpadGesture.emit;
+
+    _smoothTimeline = null;
+    _controls = null;
+    _touchpadGesture = null;
     _controlsLayout = null;
     _origComputeBox = null;
     _origInit = null;
