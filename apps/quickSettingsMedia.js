@@ -80,6 +80,25 @@ function destroyMediaIndicator() {
     }
 }
 
+// Drops any media widget left behind by an earlier init that was never tracked,
+// so repeated enable() calls cannot stack duplicate players.
+function removeStrayMediaWidgets(grid) {
+    if (!grid || typeof grid.get_children !== 'function')
+        return;
+
+    for (const child of grid.get_children()) {
+        if (child === mediaWidget)
+            continue;
+        if (typeof child.has_style_class_name !== 'function')
+            continue;
+        if (!child.has_style_class_name('kiwi-media'))
+            continue;
+
+        grid.remove_child(child);
+        child.destroy();
+    }
+}
+
 // #region Media Classes
 // Player, Source, and MediaItem helpers are provided by modules in apps/quickSettingsMedia.
 
@@ -536,13 +555,16 @@ GObject.registerClass(MediaWidget);
 
 export function enable(gettext) {
     gettextFunc = typeof gettext === 'function' ? gettext : (message) => message;
-    if (enabled)
+    if (enabled || _initTimeoutId)
         return;
 
     _initTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         const grid = getQuickSettingsGrid();
         if (!grid)
             return GLib.SOURCE_CONTINUE; // Retry if grid not ready
+
+        _initTimeoutId = null;
+        removeStrayMediaWidgets(grid);
 
         mediaWidget = new MediaWidget();
         const existingChildren = grid.get_children?.() ?? [];
@@ -564,15 +586,11 @@ export function enable(gettext) {
             layout.child_set_property(grid, mediaWidget, 'column-span', 2);
 
         enabled = true;
-        _initTimeoutId = null;
         return GLib.SOURCE_REMOVE;
     });
 }
 
 export function disable() {
-    if (!enabled)
-        return;
-
     if (_initTimeoutId) {
         GLib.Source.remove(_initTimeoutId);
         _initTimeoutId = null;
@@ -582,11 +600,14 @@ export function disable() {
     if (grid && mediaWidget) {
         grid.remove_child(mediaWidget);
         mediaWidget.destroy();
-        mediaWidget = null;
     }
+    mediaWidget = null;
+
+    removeStrayMediaWidgets(grid);
 
     destroyMediaIndicator();
 
+    quickSettingsGrid = null;
     enabled = false;
     gettextFunc = (message) => message;
 }
