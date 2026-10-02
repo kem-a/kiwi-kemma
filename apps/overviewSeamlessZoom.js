@@ -117,7 +117,7 @@ function restoreWorkspace(workspace) {
 // Only reaches anything while the overview is open; workspaces are rebuilt on show.
 function restoreLiveWorkspaces() {
     const display = Main.overview._overview.controls._workspacesDisplay;
-    for (const view of display._workspacesViews ?? []) {
+    for (const view of display._workspacesViews) {
         const inner = view._workspacesView ?? view;
         const workspaces = inner._workspaces ?? (inner._workspace ? [inner._workspace] : []);
         workspaces.forEach(restoreWorkspace);
@@ -230,18 +230,17 @@ export function disable() {
         Main.overview.disconnect(_overviewHiddenId);
         _overviewHiddenId = 0;
     }
-    if (!_origInit)
-        return;
 
-    _controlsLayout._computeWorkspacesBoxForState = _origComputeBox;
-    if (Workspace.prototype._init === _initPatch)
+    if (_controlsLayout)
+        _controlsLayout._computeWorkspacesBoxForState = _origComputeBox;
+    if (_initPatch && Workspace.prototype._init === _initPatch)
         Workspace.prototype._init = _origInit;
     restoreLiveWorkspaces();
 
-    _smoothTimeline.stop();
-    delete _controls.gestureProgress;
-    delete _controls.gestureEnd;
-    delete _touchpadGesture.emit;
+    _smoothTimeline?.stop();
+    delete _controls?.gestureProgress;
+    delete _controls?.gestureEnd;
+    delete _touchpadGesture?.emit;
 
     _smoothTimeline = null;
     _controls = null;

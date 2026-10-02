@@ -38,8 +38,6 @@ const _grab_resizing_operations = [
 export class TransparentMove {
     constructor() {
         this._window_opacity = {};
-        this._allowed_grab_operations = [];
-        this.init_grab_operations();
     }
 
     init_grab_operations() {
@@ -155,7 +153,19 @@ export class TransparentMove {
     disable() {
         global.display.disconnect(this._on_window_grab_begin);
         global.display.disconnect(this._on_window_grab_end);
-    
+
+        // A window mid-move or mid-fade would stay dimmed; stopping the fade also
+        // skips its onComplete, which would touch the state deleted below
+        for (const actor of global.get_window_actors()) {
+            const opacity = this._window_opacity[actor.meta_window.get_pid()];
+            if (opacity === undefined)
+                continue;
+            for (const surface of this.get_window_surfaces(actor.meta_window)) {
+                surface.remove_all_transitions();
+                surface.opacity = opacity;
+            }
+        }
+
         delete this._window_opacity;
         delete this._allowed_grab_operations;
         delete this._on_window_grab_begin;

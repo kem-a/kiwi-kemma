@@ -107,8 +107,7 @@ export function enable(extension, gettext) {
     if (_enabled)
         return;
 
-    const gettextFunc = typeof gettext === 'function' ? gettext : message => message;
-    if (!_writeDesktopFile(extension, gettextFunc))
+    if (!_writeDesktopFile(extension, gettext))
         return;
 
     _enabled = true;

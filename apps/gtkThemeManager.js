@@ -9,8 +9,6 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
-Gio._promisify(Gio.File.prototype, 'load_contents_async', 'load_contents_finish');
-
 const MARKER_BEGIN = '/* Kiwi (is not Apple) - managed imports: begin */';
 const MARKER_END = '/* Kiwi (is not Apple) - managed imports: end */';
 
@@ -90,18 +88,14 @@ class GtkThemeManager {
     }
 
     async updateGtkCss() {
-        try {
-            const configDir = GLib.get_user_config_dir();
+        const configDir = GLib.get_user_config_dir();
 
-            for (const version of ['3', '4']) {
-                const gtkConfigDir = GLib.build_filenamev([configDir, `gtk-${version}.0`]);
-                GLib.mkdir_with_parents(gtkConfigDir, 0o755);
+        for (const version of ['3', '4']) {
+            const gtkConfigDir = GLib.build_filenamev([configDir, `gtk-${version}.0`]);
+            GLib.mkdir_with_parents(gtkConfigDir, 0o755);
 
-                const userPath = GLib.build_filenamev([gtkConfigDir, 'gtk.css']);
-                await this.processUserGtkFile(userPath, this._buildManagedBlock(version));
-            }
-        } catch (error) {
-            console.error(`[Kiwi] Error updating GTK CSS files: ${error}`);
+            const userPath = GLib.build_filenamev([gtkConfigDir, 'gtk.css']);
+            await this.processUserGtkFile(userPath, this._buildManagedBlock(version));
         }
     }
 
@@ -143,42 +137,34 @@ class GtkThemeManager {
     }
 
     async removeUserGtkConfig() {
-        try {
-            const configDir = GLib.get_user_config_dir();
+        const configDir = GLib.get_user_config_dir();
 
-            for (const version of ['3', '4']) {
-                const userPath = GLib.build_filenamev([configDir, `gtk-${version}.0`, 'gtk.css']);
-                await this.processUserGtkFile(userPath, '');
-            }
-        } catch (error) {
-            console.error(`[Kiwi] Error removing user GTK config: ${error}`);
+        for (const version of ['3', '4']) {
+            const userPath = GLib.build_filenamev([configDir, `gtk-${version}.0`, 'gtk.css']);
+            await this.processUserGtkFile(userPath, '');
         }
     }
 
     enable() {
-        if (!this._settings) {
-            this._settings = this._extension.getSettings();
-            this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
-                if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls' || key === 'show-window-controls-fullscreen-only' || key === 'popup-menu-styling') {
-                    this.updateGtkCss().catch(error => {
-                        console.error(`[Kiwi] Error in settings changed handler: ${error}`);
-                    });
-                }
-            });
+        this._settings = this._extension.getSettings();
+        this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
+            if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls' || key === 'show-window-controls-fullscreen-only' || key === 'popup-menu-styling') {
+                this.updateGtkCss().catch(error => {
+                    console.error(`[Kiwi] Error in settings changed handler: ${error}`);
+                });
+            }
+        });
 
-            // Initial update
-            this.updateGtkCss().catch(error => {
-                console.error(`[Kiwi] Error in initial update: ${error}`);
-            });
-        }
+        // Initial update
+        this.updateGtkCss().catch(error => {
+            console.error(`[Kiwi] Error in initial update: ${error}`);
+        });
     }
 
     disable() {
-        if (this._settingsChangedId && this._settings) {
-            this._settings.disconnect(this._settingsChangedId);
-            this._settingsChangedId = null;
-            this._settings = null;
-        }
+        this._settings.disconnect(this._settingsChangedId);
+        this._settingsChangedId = null;
+        this._settings = null;
 
         // Remove our imports from user GTK config files
         this.removeUserGtkConfig().catch(error => {
@@ -190,6 +176,7 @@ class GtkThemeManager {
 }
 
 export function enable(ext) {
+    Gio._promisify(Gio.File.prototype, 'load_contents_async', 'load_contents_finish');
     if (!gtkThemeManager) {
         gtkThemeManager = new GtkThemeManager(ext);
         gtkThemeManager.enable();

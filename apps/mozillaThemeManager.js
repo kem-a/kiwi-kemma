@@ -28,32 +28,24 @@ export class MozillaThemeManager {
     }
 
     enable() {
-        if (!this._settings) {
-            this._settings = this._extension.getSettings();
-            this._settingsChangedId = this._settings.connect('changed', (_settings, key) => {
-                if (key === this._config.settingsKey || key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
-                    this.updateCss().catch(e => console.error(`[Kiwi] ${this._config.logPrefix} update error: ${e}`));
-                }
-            });
-            this.updateCss().catch(e => console.error(`[Kiwi] ${this._config.logPrefix} initial update error: ${e}`));
-        }
+        this._settings = this._extension.getSettings();
+        this._settingsChangedId = this._settings.connect('changed', (_settings, key) => {
+            if (key === this._config.settingsKey || key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
+                this.updateCss().catch(e => console.error(`[Kiwi] ${this._config.logPrefix} update error: ${e}`));
+            }
+        });
+        this.updateCss().catch(e => console.error(`[Kiwi] ${this._config.logPrefix} initial update error: ${e}`));
     }
 
     disable() {
-        if (this._settings && this._settingsChangedId) {
-            this._settings.disconnect(this._settingsChangedId);
-            this._settingsChangedId = null;
-            this._settings = null;
-        }
+        this._settings.disconnect(this._settingsChangedId);
+        this._settingsChangedId = null;
+        this._settings = null;
         this.removeCss().catch(e => console.error(`[Kiwi] ${this._config.logPrefix} disable cleanup error: ${e}`));
         this._extension = null;
     }
 
     async updateCss() {
-        if (!this._settings) {
-            await this.removeCss();
-            return;
-        }
         const enableStyling = this._settings.get_boolean(this._config.settingsKey);
         const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
         const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
@@ -164,12 +156,8 @@ export class MozillaThemeManager {
     }
 
     _isChromeManagedByKiwi(chromeDirPath) {
-        try {
-            const markerPath = GLib.build_filenamev([chromeDirPath, KIWI_MARKER_FILENAME]);
-            return Gio.File.new_for_path(markerPath).query_exists(null);
-        } catch (_e) {
-            return false;
-        }
+        const markerPath = GLib.build_filenamev([chromeDirPath, KIWI_MARKER_FILENAME]);
+        return Gio.File.new_for_path(markerPath).query_exists(null);
     }
 
     async _ensureLegacyPref(profileDir) {

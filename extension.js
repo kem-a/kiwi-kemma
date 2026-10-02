@@ -36,7 +36,7 @@ import { enable as gtkThemeManagerEnable, disable as gtkThemeManagerDisable } fr
 import { enable as firefoxThemeManagerEnable, disable as firefoxThemeManagerDisable } from './apps/firefoxThemeManager.js';
 import { enable as thunderbirdThemeManagerEnable, disable as thunderbirdThemeManagerDisable } from './apps/thunderbirdThemeManager.js';
 import { enable as hideActivitiesButtonEnable, disable as hideActivitiesButtonDisable } from './apps/hideActivitiesButton.js';
-import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable, refresh as overviewWallpaperRefresh } from './apps/overviewWallpaper.js';
+import { enable as overviewWallpaperEnable, disable as overviewWallpaperDisable } from './apps/overviewWallpaper.js';
 import { enable as overviewSeamlessZoomEnable, disable as overviewSeamlessZoomDisable } from './apps/overviewSeamlessZoom.js';
 import { enable as focusOnOverviewExitEnable, disable as focusOnOverviewExitDisable } from './apps/focusOnOverviewExit.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
@@ -51,19 +51,16 @@ import { enable as minimizedToDockEnable, disable as minimizedToDockDisable } fr
 import { enable as downloadsStackEnable, disable as downloadsStackDisable } from './apps/downloadsStack.js';
 import { enable as reduceWindowAnimationsEnable, disable as reduceWindowAnimationsDisable } from './apps/reduceWindowAnimations.js';
 import { enableDragRestore, disableDragRestore } from './apps/windowTiling.js';
-import { dockActive, isDockExtension } from './apps/dockUtils.js';
+import { dockActive, isDockExtension, resetDockSettings } from './apps/dockUtils.js';
 
 export default class KiwiExtension extends Extension {
     _on_settings_changed(key) {
         const gettextFunc = this.gettext.bind(this);
         // Re-apply keyboard indicator module on any of its keys changing
         if (key === 'keyboard-indicator' || key === 'hide-keyboard-indicator') {
-            if (this._settings.get_boolean('keyboard-indicator')) {
-                keyboardIndicatorDisable();
+            keyboardIndicatorDisable();
+            if (this._settings.get_boolean('keyboard-indicator'))
                 keyboardIndicatorEnable(this._settings);
-            } else {
-                keyboardIndicatorDisable();
-            }
         }
 
         if ((key === 'button-type' || key === 'enable-app-window-buttons') && this._settings.get_boolean('show-window-controls')) {
@@ -203,7 +200,7 @@ export default class KiwiExtension extends Extension {
         }
 
         if (this._settings.get_boolean('overview-wallpaper-background')) {
-            overviewWallpaperEnable(this._settings);
+            overviewWallpaperEnable();
         } else {
             overviewWallpaperDisable();
         }
@@ -306,18 +303,11 @@ export default class KiwiExtension extends Extension {
         
         // Enable GTK theme manager
         gtkThemeManagerEnable(this);
-        // Enable Firefox theme manager based on setting
-        if (this._settings.get_boolean('enable-firefox-styling') || this._settings.get_boolean('show-window-controls'))
-            firefoxThemeManagerEnable(this);
-        // Enable Thunderbird theme manager based on setting
-        if (this._settings.get_boolean('enable-thunderbird-styling') || this._settings.get_boolean('show-window-controls'))
-            thunderbirdThemeManagerEnable(this);
 
         if (this._settings.get_boolean('focus-new-windows'))
             focusLaunchedWindowEnable();
 
         this._on_settings_changed(null);
-        overviewWallpaperRefresh();
     }
 
     disable() {
@@ -369,6 +359,7 @@ export default class KiwiExtension extends Extension {
         minimizedToDockDisable();
         reduceWindowAnimationsDisable();
         disableDragRestore();
+        resetDockSettings();
         this._settings = null;
     }
 }

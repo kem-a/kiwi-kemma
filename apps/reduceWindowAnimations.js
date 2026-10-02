@@ -72,8 +72,8 @@ export function enable() {
 }
 
 export function disable() {
-    if (!_origShouldAnimateActor)
-        return;
-    Main.wm._shouldAnimateActor = _origShouldAnimateActor;
-    _origShouldAnimateActor = null;
+    if (_origShouldAnimateActor) {
+        Main.wm._shouldAnimateActor = _origShouldAnimateActor;
+        _origShouldAnimateActor = null;
+    }
 }

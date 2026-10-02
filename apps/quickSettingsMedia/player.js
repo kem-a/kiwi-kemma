@@ -40,10 +40,11 @@ const MEDIA_DBUS_XML = `<?xml version="1.0"?>
     </interface>
 </node>`;
 
-const MEDIA_NODE_INFO = Gio.DBusNodeInfo.new_for_xml(MEDIA_DBUS_XML);
+let mediaNodeInfo = null;
 
 function _lookupInterface(name) {
-    return MEDIA_NODE_INFO.interfaces.find(iface => iface.name === name);
+    mediaNodeInfo ??= Gio.DBusNodeInfo.new_for_xml(MEDIA_DBUS_XML);
+    return mediaNodeInfo.interfaces.find(iface => iface.name === name);
 }
 
 const PROPERTIES_IFACE_NAME = 'org.freedesktop.DBus.Properties';
@@ -54,7 +55,7 @@ export class Player extends GObject.Object {
     constructor(busName, gettext) {
         super();
         this._busName = busName;
-        this._gettext = typeof gettext === 'function' ? gettext : (message) => message;
+        this._gettext = gettext;
         this.source = new MessageList.Source();
         this._canPlay = false;
         this._canSeek = false;
@@ -67,7 +68,7 @@ export class Player extends GObject.Object {
         const playerIface = _lookupInterface(PLAYER_IFACE_NAME);
         const propertiesIface = _lookupInterface(PROPERTIES_IFACE_NAME);
 
-        const mprisPromise = mprisIface ? Gio.DBusProxy.new(
+        const mprisPromise = Gio.DBusProxy.new(
             Gio.DBus.session,
             Gio.DBusProxyFlags.NONE,
             mprisIface,
@@ -77,9 +78,9 @@ export class Player extends GObject.Object {
             null
         )
             .then(proxy => this._mprisProxy = proxy)
-            .catch(() => {}) : Promise.resolve();
+            .catch(() => {});
 
-        const playerPromise = playerIface ? Gio.DBusProxy.new(
+        const playerPromise = Gio.DBusProxy.new(
             Gio.DBus.session,
             Gio.DBusProxyFlags.NONE,
             playerIface,
@@ -89,24 +90,19 @@ export class Player extends GObject.Object {
             null
         )
             .then(proxy => this._playerProxy = proxy)
-            .catch(() => {}) : Promise.resolve();
+            .catch(() => {});
 
-        let propertiesPromise = Promise.resolve();
-        if (propertiesIface) {
-            propertiesPromise = Gio.DBusProxy.new(
-                Gio.DBus.session,
-                Gio.DBusProxyFlags.NONE,
-                propertiesIface,
-                busName,
-                '/org/mpris/MediaPlayer2',
-                propertiesIface.name,
-                null
-            )
-                .then(proxy => this._propertiesProxy = proxy)
-                .catch(() => {});
-        } else {
-            this._propertiesProxy = null;
-        }
+        const propertiesPromise = Gio.DBusProxy.new(
+            Gio.DBus.session,
+            Gio.DBusProxyFlags.NONE,
+            propertiesIface,
+            busName,
+            '/org/mpris/MediaPlayer2',
+            propertiesIface.name,
+            null
+        )
+            .then(proxy => this._propertiesProxy = proxy)
+            .catch(() => {});
 
         Promise.all([playerPromise, propertiesPromise, mprisPromise])
             .then(this._ready.bind(this))
@@ -141,11 +137,6 @@ export class Player extends GObject.Object {
             return;
         this._destroyed = true;
         this._close();
-        try {
-            this.source?.destroy?.();
-        } catch (error) {
-            logError(error, '[kiwi] Failed to destroy MessageList source for media player');
-        }
     }
 
     _parseMetadata(metadata) {
@@ -211,7 +202,8 @@ export class Player extends GObject.Object {
     isPlaying() { return this.status === 'Playing'; }
 
     _ready() {
-        if (!this._mprisProxy || !this._playerProxy)
+        // The proxies can resolve after destroy(); don't wire a dead player up
+        if (this._destroyed || !this._mprisProxy || !this._playerProxy)
             return;
 
         const mprisProxy = this._mprisProxy;

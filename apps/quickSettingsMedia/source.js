@@ -16,7 +16,7 @@ export class Source extends GObject.Object {
         this._players = new Map();
         this._proxy = null;
         this._nameOwnerChangedId = 0;
-        this._gettext = typeof gettext === 'function' ? gettext : (message) => message;
+        this._gettext = gettext;
     }
 
     start() {
@@ -72,11 +72,15 @@ export class Source extends GObject.Object {
     }
 
     async _onProxyReady() {
-        if (!this._proxy)
+        const proxy = this._proxy;
+        if (!proxy)
             return;
 
         try {
-            const [names] = await this._proxy.ListNamesAsync();
+            const [names] = await proxy.ListNamesAsync();
+            // stop(), or stop() and start() again, while the call was out
+            if (this._proxy !== proxy)
+                return;
             for (const name of names) {
                 if (!name.startsWith(MPRIS_PLAYER_PREFIX))
                     continue;

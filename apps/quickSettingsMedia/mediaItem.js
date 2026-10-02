@@ -11,10 +11,8 @@ export class MediaItem extends MessageList.Message {
         super(player.source);
         this.add_style_class_name('media-message');
         this._player = player;
-        this._destroyed = false;
         this.connect('destroy', () => {
-            this._destroyed = true;
-            this._player?.disconnectObject(this);
+            this._player.disconnectObject(this);
             this._player = null;
         });
 
@@ -24,41 +22,29 @@ export class MediaItem extends MessageList.Message {
     }
 
     _createControlButtons() {
-        if (!this._prevButton)
-            this._prevButton = this.addMediaControl('media-skip-backward-symbolic', () => this._player?.previous());
-
-        if (!this._pauseButton)
-            this._pauseButton = this.addMediaControl('', () => this._player?.playPause());
-
-        if (!this._nextButton)
-            this._nextButton = this.addMediaControl('media-skip-forward-symbolic', () => this._player?.next());
+        this._prevButton = this.addMediaControl('media-skip-backward-symbolic', () => this._player.previous());
+        this._pauseButton = this.addMediaControl('', () => this._player.playPause());
+        this._nextButton = this.addMediaControl('media-skip-forward-symbolic', () => this._player.next());
     }
 
     _update() {
-        if (this._destroyed)
-            return;
-
         let icon;
-        if (this._player?.trackCoverUrl) {
+        if (this._player.trackCoverUrl) {
             const file = Gio.File.new_for_uri(this._player.trackCoverUrl);
             icon = new Gio.FileIcon({ file });
         } else {
             icon = new Gio.ThemedIcon({ name: 'audio-x-generic-symbolic' });
         }
 
-        const trackArtists = this._player?.trackArtists?.join(', ') ?? '';
+        const trackArtists = this._player.trackArtists?.join(', ') ?? '';
 
-        this.set({ title: this._player?.trackTitle, body: trackArtists, icon });
+        this.set({ title: this._player.trackTitle, body: trackArtists, icon });
 
-        if (this._pauseButton && this._player) {
-            const isPlaying = this._player.status === 'Playing';
-            this._pauseButton.child.icon_name = isPlaying ? 'media-playback-pause-symbolic' : 'media-playback-start-symbolic';
-        }
+        const isPlaying = this._player.status === 'Playing';
+        this._pauseButton.child.icon_name = isPlaying ? 'media-playback-pause-symbolic' : 'media-playback-start-symbolic';
 
-        if (this._prevButton)
-            this._prevButton.reactive = !!this._player?.canGoPrevious;
-        if (this._nextButton)
-            this._nextButton.reactive = !!this._player?.canGoNext;
+        this._prevButton.reactive = !!this._player.canGoPrevious;
+        this._nextButton.reactive = !!this._player.canGoNext;
     }
 
     vfunc_button_press_event() { return Clutter.EVENT_PROPAGATE; }

@@ -44,10 +44,8 @@ class AddUsernameToQuickMenu extends St.Widget {
         } else {
             this._mappedId = this.connect('notify::mapped', () => {
                 if (this.mapped) {
-                    if (this._mappedId) {
-                        this.disconnect(this._mappedId);
-                        this._mappedId = null;
-                    }
+                    this.disconnect(this._mappedId);
+                    this._mappedId = null;
                     this._startSlideIn();
                 }
             });
@@ -128,8 +126,6 @@ export function disable() {
         const instance = addUsernameInstance;
         addUsernameInstance = null;
 
-        const QuickSettingsMenu = Main.panel.statusArea.quickSettings;
-        QuickSettingsMenu._indicators.remove_child(instance);
         instance.destroy();
     }
 }

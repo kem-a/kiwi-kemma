@@ -150,7 +150,7 @@ function _readBatch(enumerator, found, callback) {
             try {
                 infos = source.next_files_finish(result);
             } catch (_) {
-                infos = [];
+                // A read error ends the listing with what was found so far
             }
 
             if (infos.length === 0) {
@@ -869,7 +869,7 @@ function _placeItem(info) {
     // At the head of the strip, after the divider that opens it: the stack comes
     // before the minimized windows, and the trash stays at the end
     const first = strip.get_first_child();
-    const divider = first?.get_style_class_name?.()?.includes('dash-separator');
+    const divider = first?.get_style_class_name()?.includes('dash-separator');
     const index = divider ? 1 : 0;
     // Clutter reorders by taking the child out and putting it back, relayout and
     // all, so ask only when we are not already there

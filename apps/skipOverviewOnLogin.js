@@ -12,7 +12,7 @@ export function enable() {
     if (firstLogin && !originalShow) {
         originalShow = Main.overview.show;
         Main.overview.show = function(...args) {
-            if (firstLogin && Main.layoutManager?._startingUp) {
+            if (firstLogin && Main.layoutManager._startingUp) {
                 // Do nothing - completely prevent showing during startup
                 return;
             }
@@ -22,28 +22,24 @@ export function enable() {
     }
 
     // If shell is still starting up, wait for startup-complete
-    if (Main.layoutManager?._startingUp) {
+    if (Main.layoutManager._startingUp) {
         if (startupId)
             return; // already connected
 
         startupId = Main.layoutManager.connect('startup-complete', () => {
-            try {
-                // Restore original show method after startup
-                if (originalShow) {
-                    Main.overview.show = originalShow;
-                    originalShow = null;
-                }
-                firstLogin = false;
-                
-                // Hide if somehow still visible
-                if (Main.overview.visible)
-                    Main.overview.hide();
-            } finally {
-                if (startupId) {
-                    Main.layoutManager.disconnect(startupId);
-                    startupId = 0;
-                }
+            Main.layoutManager.disconnect(startupId);
+            startupId = 0;
+
+            // Restore original show method after startup
+            if (originalShow) {
+                Main.overview.show = originalShow;
+                originalShow = null;
             }
+            firstLogin = false;
+
+            // Hide if somehow still visible
+            if (Main.overview.visible)
+                Main.overview.hide();
         });
         return;
     }

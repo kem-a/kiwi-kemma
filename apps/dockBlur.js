@@ -23,9 +23,8 @@ function _scheduleBlurRepaint() {
     blurRepaintIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
         blurRepaintIdleId = 0;
         for (const info of dashes) {
-            if (info.blurEffect && info.blurWidget?.visible) {
-                try { info.blurEffect.queue_repaint(); } catch (_) {}
-            }
+            if (info.blurWidget.visible)
+                info.blurEffect.queue_repaint();
         }
         return GLib.SOURCE_REMOVE;
     });
@@ -41,29 +40,25 @@ function _connectRepaintSignals() {
     // Window lifecycle events
     const wmSignals = ['map', 'destroy', 'minimize', 'unminimize', 'switch-workspace'];
     for (const sigName of wmSignals) {
-        try {
-            const id = global.window_manager.connect(sigName, _scheduleBlurRepaint);
-            blurRepaintSignals.push({ obj: global.window_manager, id });
-        } catch (_) {}
+        const id = global.window_manager.connect(sigName, _scheduleBlurRepaint);
+        blurRepaintSignals.push({ obj: global.window_manager, id });
     }
 
     // Background/wallpaper changes
-    const backgroundGroup = Main.layoutManager?._backgroundGroup;
-    if (backgroundGroup) {
-        for (const bg of backgroundGroup) {
-            const id = bg.connect('notify::content', _scheduleBlurRepaint);
-            blurRepaintSignals.push({ obj: bg, id });
-        }
-        const addId = backgroundGroup.connect('child-added', (_group, child) => {
-            const id = child.connect('notify::content', _scheduleBlurRepaint);
-            blurRepaintSignals.push({ obj: child, id });
-        });
-        const removeId = backgroundGroup.connect('child-removed', (_group, child) => {
-            blurRepaintSignals = blurRepaintSignals.filter(s => s.obj !== child);
-        });
-        blurRepaintSignals.push({ obj: backgroundGroup, id: addId });
-        blurRepaintSignals.push({ obj: backgroundGroup, id: removeId });
+    const backgroundGroup = Main.layoutManager._backgroundGroup;
+    for (const bg of backgroundGroup) {
+        const id = bg.connect('notify::content', _scheduleBlurRepaint);
+        blurRepaintSignals.push({ obj: bg, id });
     }
+    const addId = backgroundGroup.connect('child-added', (_group, child) => {
+        const id = child.connect('notify::content', _scheduleBlurRepaint);
+        blurRepaintSignals.push({ obj: child, id });
+    });
+    const removeId = backgroundGroup.connect('child-removed', (_group, child) => {
+        blurRepaintSignals = blurRepaintSignals.filter(s => s.obj !== child);
+    });
+    blurRepaintSignals.push({ obj: backgroundGroup, id: addId });
+    blurRepaintSignals.push({ obj: backgroundGroup, id: removeId });
 
     // Overview transitions
     const showId = Main.overview.connect('showing', _scheduleBlurRepaint);
@@ -73,9 +68,8 @@ function _connectRepaintSignals() {
 }
 
 function _disconnectRepaintSignals() {
-    for (const { obj, id } of blurRepaintSignals) {
-        try { obj.disconnect(id); } catch (_) {}
-    }
+    for (const { obj, id } of blurRepaintSignals)
+        obj.disconnect(id);
     blurRepaintSignals = [];
     if (blurRepaintIdleId) {
         GLib.Source.remove(blurRepaintIdleId);
@@ -84,7 +78,7 @@ function _disconnectRepaintSignals() {
 }
 
 function _hasValidAllocation(actor) {
-    return actor && actor.has_allocation() && actor.width > 0 && actor.height > 0;
+    return actor.has_allocation() && actor.width > 0 && actor.height > 0;
 }
 
 function _tryBlurDock(dockContainer) {
@@ -98,7 +92,7 @@ function _tryBlurDock(dockContainer) {
 
     // Find the dash-background (the translucent pill)
     const dashBackground = dash.get_children().find(c =>
-        c.get_style_class_name?.()?.includes('dash-background')
+        c.get_style_class_name()?.includes('dash-background')
     );
     if (!dashBackground) return;
 
@@ -129,7 +123,6 @@ function _tryBlurDock(dockContainer) {
     // Size and position the blur widget to match the dash-background
     let lastRect = null;
     const updateSize = () => {
-        if (!blurWidget || !dashBackground) return;
         // Before an actor is allocated, width/height report the *natural* size
         // instead of the allocation — for the dash-background that is a few
         // pixels tall, which is where the slim blur strip came from. Wait for a
@@ -201,10 +194,7 @@ function _tryBlurDock(dockContainer) {
     }
 
     const info = {
-        dockContainer,
-        dashBox,
         dash,
-        dashBackground,
         backgroundGroup,
         blurWidget,
         blurEffect,
@@ -236,27 +226,15 @@ function _removeDashBlur(info, disconnectDestroy = true) {
     info.cancelUpdate();
 
     // Disconnect size signals
-    for (const { actor, id } of info.signals) {
-        try { actor.disconnect(id); } catch (_) {}
-    }
-    info.signals = [];
+    for (const { actor, id } of info.signals)
+        actor.disconnect(id);
 
-    if (disconnectDestroy && info.destroyId && info.dash) {
-        try { info.dash.disconnect(info.destroyId); } catch (_) {}
-    }
-    info.destroyId = null;
+    if (disconnectDestroy)
+        info.dash.disconnect(info.destroyId);
 
     // Remove blur group from dock tree
-    if (info.backgroundGroup && info.dashBox) {
-        try { info.dashBox.remove_child(info.backgroundGroup); } catch (_) {}
-    }
-    if (info.backgroundGroup) {
-        info.backgroundGroup.destroy_all_children();
-        info.backgroundGroup.destroy();
-    }
-    info.backgroundGroup = null;
-    info.blurWidget = null;
-    info.blurEffect = null;
+    info.backgroundGroup.destroy_all_children();
+    info.backgroundGroup.destroy();
 
     // Remove from dashes array
     const idx = dashes.indexOf(info);
@@ -344,5 +322,4 @@ export function disable() {
     }
 
     _removeAllBlurs();
-    _disconnectRepaintSignals(); // safety, in case _removeAllBlurs didn't trigger it
 }

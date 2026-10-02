@@ -92,7 +92,7 @@ let sampling = false;
 function _band(container) {
     const dash = dashOf(container);
     const pill = dash?.get_children().find(child =>
-        child.get_style_class_name?.()?.includes('dash-background'));
+        child.get_style_class_name()?.includes('dash-background'));
     const monitor = Main.layoutManager.findMonitorForActor(container);
     if (!pill?.has_allocation() || !monitor)
         return null;
@@ -374,10 +374,8 @@ export function enable() {
     // The outgoing actor being dropped at the end of that fade is what says the
     // new one is really on screen.
     const backgrounds = Main.layoutManager._backgroundGroup;
-    if (backgrounds) {
-        for (const signal of ['child-added', 'child-removed'])
-            globalSignals.push([backgrounds, backgrounds.connect(signal, _schedule)]);
-    }
+    for (const signal of ['child-added', 'child-removed'])
+        globalSignals.push([backgrounds, backgrounds.connect(signal, _schedule)]);
 
     globalSignals.push([global.workspace_manager,
         global.workspace_manager.connect('active-workspace-changed', _connectWindowSignals)]);

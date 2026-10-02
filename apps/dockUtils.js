@@ -169,6 +169,11 @@ export function dockSettings() {
     return d2dSettings;
 }
 
+/** Drops the cached settings, so the next enable looks the dock up again. */
+export function resetDockSettings() {
+    d2dSettings = undefined;
+}
+
 /**
  * Nothing that hangs off the dock has anywhere to go while the dock is not
  * running - it is no different to it not being installed at all.
@@ -201,7 +206,7 @@ function tooltipsHidden() {
  * @param labelText text for the hover label
  */
 export function makeDashItem(dash, child, labelText) {
-    const sibling = dash._box.get_children().find(c => typeof c.setLabelText === 'function');
+    const sibling = dash._box.get_children().find(c => c instanceof DashItemContainer);
     const Container = sibling ? sibling.constructor : DashItemContainer;
     const item = sibling ? new Container(dash._position) : new Container();
     item.setChild(child);
@@ -231,7 +236,7 @@ export function isTrashItem(child) {
  */
 export function dashEndsWithSeparator(dash) {
     const last = dash._box.get_children().findLast(child => !isTrashItem(child));
-    return !!last?.get_style_class_name?.()?.includes('dash-separator');
+    return !!last?.get_style_class_name()?.includes('dash-separator');
 }
 
 /**
