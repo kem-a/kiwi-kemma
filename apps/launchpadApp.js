@@ -15,7 +15,11 @@ const LAUNCHPAD_POSITION = 1;
 let _enabled = false; // Guards repeated enable() calls
 let globalSignals = [];
 let docks = [];
-const sources = { dockSearch: 0 };
+const sources = { dockSearch: 0, overviewDashSearch: 0 };
+// Dash-to-Dock keeps a placeholder in place of the overview dash for the whole
+// startup animation, so the real one may only arrive after login
+const OVERVIEW_DASH_INTERVAL = 250; // ms
+const OVERVIEW_DASH_TRIES = 40;     // ~10s
 
 function _desktopPath(id) {
     return GLib.build_filenamev([GLib.get_user_data_dir(), 'applications', id]);
@@ -57,6 +61,33 @@ function _takeOver(dash, item) {
 function _watchDash(dash) {
     dash._box.get_children().forEach(item => _takeOver(dash, item));
     return dash._box.connect('child-added', (_box, item) => _takeOver(dash, item));
+}
+
+/**
+ * Watch the overview's own dash. Dash-to-Dock parks a placeholder actor there
+ * for the whole startup animation - it has a showAppsButton but no icon box -
+ * and swaps the real dash back in on 'startup-complete'. We run before that at
+ * login, so wait for the box rather than dereferencing it.
+ */
+function _watchOverviewDash() {
+    let attempts = 0;
+    const tryWatch = () => {
+        const {dash} = Main.overview;
+        if (dash?._box) {
+            globalSignals.push([dash._box, _watchDash(dash)]);
+            sources.overviewDashSearch = 0;
+            return GLib.SOURCE_REMOVE;
+        }
+        if (++attempts < OVERVIEW_DASH_TRIES)
+            return GLib.SOURCE_CONTINUE;
+        sources.overviewDashSearch = 0;
+        return GLib.SOURCE_REMOVE;
+    };
+
+    if (tryWatch() === GLib.SOURCE_CONTINUE) {
+        sources.overviewDashSearch = GLib.timeout_add(
+            GLib.PRIORITY_DEFAULT, OVERVIEW_DASH_INTERVAL, tryWatch);
+    }
 }
 
 function _attach(container) {
@@ -113,7 +144,7 @@ export function enable(extension, gettext) {
     _enabled = true;
 
     if (!Main.overview.isDummy)
-        globalSignals.push([Main.overview.dash._box, _watchDash(Main.overview.dash)]);
+        _watchOverviewDash();
     watchDocks({ attach: _attach, count: () => docks.length, globalSignals, sources });
 
     globalSignals.push([global.settings,
@@ -124,9 +155,11 @@ export function enable(extension, gettext) {
 export function disable() {
     _enabled = false;
 
-    if (sources.dockSearch)
-        GLib.Source.remove(sources.dockSearch);
-    sources.dockSearch = 0;
+    for (const key of ['dockSearch', 'overviewDashSearch']) {
+        if (sources[key])
+            GLib.Source.remove(sources[key]);
+        sources[key] = 0;
+    }
 
     disconnectAll(globalSignals);
     globalSignals = [];

@@ -204,8 +204,8 @@ class NotificationWidget extends St.BoxLayout {
         this.add_child(this._header);
         this.add_child(this._scroll);
 
-        this._list.connectObject('notify::empty', this._syncEmpty.bind(this));
-        this._list.connectObject('notify::can-clear', this._syncClear.bind(this));
+        this._list.connectObject('notify::empty', this._syncEmpty.bind(this), this);
+        this._list.connectObject('notify::can-clear', this._syncClear.bind(this), this);
         this._syncEmpty();
         this._syncClear();
     }
@@ -223,7 +223,7 @@ class NotificationWidget extends St.BoxLayout {
 
     _createHeader() {
         this._header = new NotificationHeader();
-        this._header._clearButton.connectObject('clicked', this._list.clear.bind(this._list));
+        this._header._clearButton.connectObject('clicked', this._list.clear.bind(this._list), this);
     }
 
     _syncClear() {
