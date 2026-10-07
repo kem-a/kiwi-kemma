@@ -239,6 +239,21 @@ export function makeDashItem(dash, child, labelText) {
     return item;
 }
 
+/**
+ * Whether an item Kiwi built is the dock's own kind of container. One built
+ * before the dock had any icons to copy lands on the plain shell container,
+ * whose label sits above the item wherever the dock is; the caller rebuilds it
+ * once the dock has an icon of its own.
+ *
+ * @param dash the Dash-to-Dock dash actor
+ * @param item the item to check
+ */
+export function dashItemMatchesDock(dash, item) {
+    const sibling = dash._box.get_children()
+        .find(child => child instanceof DashItemContainer);
+    return !sibling || item.constructor === sibling.constructor;
+}
+
 export function isTrashItem(child) {
     return !!child.child?._delegate?.app?.isTrash;
 }

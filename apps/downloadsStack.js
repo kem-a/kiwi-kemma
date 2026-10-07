@@ -13,8 +13,8 @@ import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {
     applyIconOffset, beforeRedraw, cancelBeforeRedraw, dashEndsWithSeparator, dashOf,
-    disconnectAll, makeDashItem, makeDashSeparator, makeStrip, prefersDark, scaleFactor,
-    syncDarken, watchDocks,
+    dashItemMatchesDock, disconnectAll, makeDashItem, makeDashSeparator, makeStrip,
+    prefersDark, scaleFactor, syncDarken, watchDocks,
 } from './dockUtils.js';
 
 const MAX_ROWS = 10;          // files in the fan, as macOS caps it
@@ -851,6 +851,13 @@ function _buildItem(info) {
  * @param info the per-dock state
  */
 function _placeItem(info) {
+    // We are attached the moment the dock appears, before it has filled its box
+    // of icons. A stack built then has no icon to copy and takes the shell's
+    // container, whose hover label sits above it wherever the dock is; rebuild
+    // it as soon as the dock has one of its own.
+    if (info.item && !dashItemMatchesDock(info.dash, info.item))
+        info.item.destroy();
+
     if (!info.item)
         _buildItem(info);
 

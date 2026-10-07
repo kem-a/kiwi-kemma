@@ -15,8 +15,8 @@ import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {
     applyIconOffset, beforeRedraw, cancelBeforeRedraw, dashEndsWithSeparator, dashOf,
-    disconnectAll, dockSettings, isTrashItem, makeDashItem, makeDashSeparator, makeStrip,
-    scaleFactor, watchDocks,
+    dashItemMatchesDock, disconnectAll, dockSettings, isTrashItem, makeDashItem,
+    makeDashSeparator, makeStrip, scaleFactor, watchDocks,
 } from './dockUtils.js';
 
 // Every tile is the same fixed box, so the badges line up in one row. The box
@@ -337,9 +337,13 @@ function _syncDock(info) {
     }
 
     info.tiles = info.tiles.filter(({ win, item }) => {
-        if (!rebuild && order.includes(win))
+        // A tile built before Dash-to-Dock filled its box of icons copied the
+        // shell's container, whose label sits above it wherever the dock is;
+        // rebuild it now the dock has an icon to copy
+        const stale = !dashItemMatchesDock(dash, item);
+        if (!rebuild && !stale && order.includes(win))
             return true;
-        if (rebuild)
+        if (rebuild || stale)
             item.destroy();
         else
             _animateOut(info, item);
@@ -689,6 +693,10 @@ function _attachDock(dockContainer) {
             _queueTrashAdoption();
         } else {
             _queueSeparatorSync();
+            // Tiles are built the moment the dock appears, before this box has
+            // any icons; rebuild them once the dock has one to copy
+            if (info.tiles.some(({ item }) => !dashItemMatchesDock(dash, item)))
+                _syncDock(info);
         }
     });
     info.signals.push([dash._box, addedId]);
