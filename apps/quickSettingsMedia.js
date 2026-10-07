@@ -434,7 +434,7 @@ class MediaWidget extends St.BoxLayout {
         this._list.y_align = Clutter.ActorAlign.START;
         this.add_child(this._list);
 
-        this._list.connectObject('notify::empty', this._syncEmpty.bind(this));
+        this._list.connectObject('notify::empty', this._syncEmpty.bind(this), this);
 
         this._syncEmpty();
         this._header.page = this._list.page;
@@ -443,12 +443,12 @@ class MediaWidget extends St.BoxLayout {
         this._list.connectObject('page-updated', (_, page) => {
             if (this._header.page !== page)
                 this._header.page = page;
-        });
+        }, this);
         this._list.connectObject('max-page-updated', (_, maxPage) => {
             if (this._header.maxPage !== maxPage)
                 this._header.maxPage = maxPage;
             this._updateBodySpacing(maxPage);
-        });
+        }, this);
         this._list.connectObject('playback-active-changed', () => {
             this._refreshIndicator();
         }, this);
