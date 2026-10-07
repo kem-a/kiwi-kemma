@@ -97,7 +97,7 @@
         <description>Enable or disable showing battery percentage.</description>
       </key>
       <key name="lock-icon" type="b">
-        <default>true</default>
+        <default>false</default>
         <summary>Lock Icon</summary>
         <description>Enable or disable the lock icon.</description>
       </key>
@@ -236,7 +236,7 @@
 
       <!-- Kiwi -->
       <key name="overview-wallpaper-background" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Overview Wallpaper Background</summary>
         <description>Use the current desktop wallpaper as a blurred background in the overview.</description>
       </key>
@@ -246,7 +246,7 @@
         <description>Zoom the whole monitor in and out of the overview, including the desktop strip behind the top panel.</description>
       </key>
       <key name="focus-on-overview-exit" type="b">
-        <default>false</default>
+        <default>true</default>
         <summary>Focus Window Under Cursor on Overview Exit</summary>
         <description>Focus the window under the cursor instead of the previously focused window when leaving the overview.</description>
       </key>
