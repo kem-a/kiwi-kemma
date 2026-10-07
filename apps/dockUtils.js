@@ -40,24 +40,16 @@ export function disconnectAll(pairs) {
 
 /**
  * Run a callback before the next redraw instead of from a GLib idle, which the
- * busy frames after an unlock can starve for seconds. GNOME 46 moved the laters
- * from Meta onto the compositor - use whichever is there.
+ * busy frames after an unlock can starve for seconds.
  *
  * @param callback called once, before the next redraw
  */
 export function beforeRedraw(callback) {
-    const laters = global.compositor?.get_laters?.();
-    if (laters)
-        return laters.add(Meta.LaterType.BEFORE_REDRAW, callback);
-    return Meta.later_add(Meta.LaterType.BEFORE_REDRAW, callback);
+    return global.compositor.get_laters().add(Meta.LaterType.BEFORE_REDRAW, callback);
 }
 
 export function cancelBeforeRedraw(id) {
-    const laters = global.compositor?.get_laters?.();
-    if (laters)
-        laters.remove(id);
-    else
-        Meta.later_remove(id);
+    global.compositor.get_laters().remove(id);
 }
 
 /* -------------------------------------------------------- dock discovery */

@@ -15,6 +15,9 @@ const LAUNCHPAD_POSITION = 1;
 let _enabled = false; // Guards repeated enable() calls
 let globalSignals = [];
 let docks = [];
+// The watched overview dash can be swapped out from under us, so it is kept
+// apart from globalSignals and each watch drops itself when its box dies
+let overviewWatches = [];
 const sources = { dockSearch: 0, overviewDashSearch: 0 };
 // Dash-to-Dock keeps a placeholder in place of the overview dash for the whole
 // startup animation, so the real one may only arrive after login
@@ -74,7 +77,13 @@ function _watchOverviewDash() {
     const tryWatch = () => {
         const {dash} = Main.overview;
         if (dash?._box) {
-            globalSignals.push([dash._box, _watchDash(dash)]);
+            const watch = { box: dash._box, childId: _watchDash(dash) };
+            // Dash-to-Dock swaps the overview dash in and out; drop the watch
+            // with the box so disable() never disconnects a dead actor
+            watch.destroyId = watch.box.connect('destroy', () => {
+                overviewWatches = overviewWatches.filter(other => other !== watch);
+            });
+            overviewWatches.push(watch);
             sources.overviewDashSearch = 0;
             return GLib.SOURCE_REMOVE;
         }
@@ -123,6 +132,17 @@ NoDisplay=false
 
     const desktopPath = _desktopPath(LAUNCHPAD_DESKTOP_ID);
     GLib.mkdir_with_parents(GLib.path_get_dirname(desktopPath), 0o755);
+
+    // Touching the file makes the shell's app cache wait out its reload debounce
+    // before the icon is known again, so leave it alone when it already matches
+    try {
+        const [, current] = Gio.File.new_for_path(desktopPath).load_contents(null);
+        if (new TextDecoder().decode(current) === desktopContent)
+            return true;
+    } catch (_) {
+        // Missing or unreadable; write it below
+    }
+
     try {
         GLib.file_set_contents(desktopPath, desktopContent);
     } catch (e) {
@@ -164,11 +184,24 @@ export function disable() {
     disconnectAll(globalSignals);
     globalSignals = [];
 
+    for (const { box, childId, destroyId } of overviewWatches) {
+        box.disconnect(childId);
+        box.disconnect(destroyId);
+    }
+    overviewWatches = [];
+
     for (const { container, destroyId, box, boxId } of docks) {
         container.disconnect(destroyId);
         box.disconnect(boxId);
     }
     docks = [];
+
+    // The shell turns every extension off while the lock screen is up and back on
+    // at unlock. Keep the entry and the pin across that: the app cache only
+    // rescans seconds after the directory changes, so removing them here would
+    // hide the icon on every unlock. A real disable still cleans up.
+    if (Main.sessionMode.isLocked)
+        return;
 
     const favorites = _otherFavorites();
     if (favorites.length !== global.settings.get_strv('favorite-apps').length)
