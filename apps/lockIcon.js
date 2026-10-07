@@ -31,8 +31,10 @@ class LockIcon extends PanelMenu.Button {
             style_class: 'system-status-icon',
         });
 
-        // Create a layout container to hold both icons
+        // Create a layout container to hold both icons. GNOME 51 removed the
+        // `vertical` property from StBoxLayout; use `orientation` instead.
         this._lockKeysLayout = new St.BoxLayout({
+            orientation: Clutter.Orientation.HORIZONTAL,
             style_class: 'lockkeys-container',
         });
         this._lockKeysLayout.add_child(this._numLockIcon);
