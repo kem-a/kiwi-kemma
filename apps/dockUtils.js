@@ -7,6 +7,7 @@
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import Meta from 'gi://Meta';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { DashItemContainer } from 'resource:///org/gnome/shell/ui/dash.js';
@@ -33,6 +34,30 @@ export function prefersDark() {
 export function disconnectAll(pairs) {
     for (const [object, id] of pairs)
         object.disconnect(id);
+}
+
+/* ------------------------------------------------------ frame scheduling */
+
+/**
+ * Run a callback before the next redraw instead of from a GLib idle, which the
+ * busy frames after an unlock can starve for seconds. GNOME 46 moved the laters
+ * from Meta onto the compositor - use whichever is there.
+ *
+ * @param callback called once, before the next redraw
+ */
+export function beforeRedraw(callback) {
+    const laters = global.compositor?.get_laters?.();
+    if (laters)
+        return laters.add(Meta.LaterType.BEFORE_REDRAW, callback);
+    return Meta.later_add(Meta.LaterType.BEFORE_REDRAW, callback);
+}
+
+export function cancelBeforeRedraw(id) {
+    const laters = global.compositor?.get_laters?.();
+    if (laters)
+        laters.remove(id);
+    else
+        Meta.later_remove(id);
 }
 
 /* -------------------------------------------------------- dock discovery */

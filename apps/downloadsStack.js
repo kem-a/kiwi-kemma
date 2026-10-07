@@ -12,8 +12,9 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {
-    applyIconOffset, dashEndsWithSeparator, dashOf, disconnectAll, makeDashItem,
-    makeDashSeparator, makeStrip, prefersDark, scaleFactor, syncDarken, watchDocks,
+    applyIconOffset, beforeRedraw, cancelBeforeRedraw, dashEndsWithSeparator, dashOf,
+    disconnectAll, makeDashItem, makeDashSeparator, makeStrip, prefersDark, scaleFactor,
+    syncDarken, watchDocks,
 } from './dockUtils.js';
 
 const MAX_ROWS = 10;          // files in the fan, as macOS caps it
@@ -68,7 +69,10 @@ let recentKey = '';           // fingerprint of the list the piles were built fr
 let folderMonitor = null;     // Gio.FileMonitor on the Downloads folder
 let behindFolder = false;     // cards stick out of the folder rather than lie on it
 let gettextFunc = message => message;
-const sources = { dockSearch: 0, replace: 0, refresh: 0 };
+const sources = { dockSearch: 0, refresh: 0 };
+// A re-place has to land on a frame boundary, not whenever the main loop next
+// goes idle, so it is a compositor later and stays out of the table above
+let replaceLater = 0;
 
 /* ------------------------------------------------------------- file list */
 
@@ -920,12 +924,11 @@ function _syncSeparator(info, own) {
  * that is going on.
  */
 function _queueReplace() {
-    if (sources.replace || !enabled)
+    if (replaceLater || !enabled)
         return;
-    sources.replace = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-        sources.replace = 0;
+    replaceLater = beforeRedraw(() => {
+        replaceLater = 0;
         docks.forEach(_placeItem);
-        return GLib.SOURCE_REMOVE;
     });
 }
 
@@ -1048,6 +1051,11 @@ export function enable(gettext, settings) {
 
 export function disable() {
     enabled = false;
+
+    if (replaceLater) {
+        cancelBeforeRedraw(replaceLater);
+        replaceLater = 0;
+    }
 
     for (const key of Object.keys(sources)) {
         if (sources[key])

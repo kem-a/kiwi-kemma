@@ -14,8 +14,9 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {
-    applyIconOffset, dashEndsWithSeparator, dashOf, disconnectAll, dockSettings, isTrashItem,
-    makeDashItem, makeDashSeparator, makeStrip, scaleFactor, watchDocks,
+    applyIconOffset, beforeRedraw, cancelBeforeRedraw, dashEndsWithSeparator, dashOf,
+    disconnectAll, dockSettings, isTrashItem, makeDashItem, makeDashSeparator, makeStrip,
+    scaleFactor, watchDocks,
 } from './dockUtils.js';
 
 // Every tile is the same fixed box, so the badges line up in one row. The box
@@ -42,8 +43,12 @@ let globalSignals = [];         // [[object, id]]
 let restoring = new Set();      // windows whose restore animation is still running
 let d2dSettings = null;
 const sources = {
-    dockSearch: 0, restoreGrace: 0, geometryUpdate: 0, trashAdoption: 0, separatorSync: 0,
+    dockSearch: 0, restoreGrace: 0, geometryUpdate: 0,
 };
+// Reveals and reparents that have to land on a frame boundary, not whenever the
+// main loop next goes idle, are compositor laters and stay out of the table above
+let trashAdoptionLater = 0;
+let separatorSyncLater = 0;
 
 /* -------------------------------------------------------------- snapshots */
 
@@ -471,13 +476,12 @@ function _syncSeparator(info) {
  * Dash-to-Dock's separator is not the last child and ours still looks needed.
  */
 function _queueSeparatorSync() {
-    if (sources.separatorSync || !enabled)
+    if (separatorSyncLater || !enabled)
         return;
     // Dash-to-Dock pulls its separator out and puts it back mid-redisplay
-    sources.separatorSync = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-        sources.separatorSync = 0;
+    separatorSyncLater = beforeRedraw(() => {
+        separatorSyncLater = 0;
         docks.forEach(_syncSeparator);
-        return GLib.SOURCE_REMOVE;
     });
 }
 
@@ -513,13 +517,13 @@ function _adoptTrash(info) {
 }
 
 function _queueTrashAdoption() {
-    if (sources.trashAdoption || !enabled)
+    if (trashAdoptionLater || !enabled)
         return;
-    // Never restructure the dash while Dash-to-Dock is in the middle of a redisplay
-    sources.trashAdoption = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-        sources.trashAdoption = 0;
+    // Same before-redraw phase as Dash-to-Dock's own rebuild, not an idle the
+    // post-unlock playback can push back
+    trashAdoptionLater = beforeRedraw(() => {
+        trashAdoptionLater = 0;
         docks.forEach(_adoptTrash);
-        return GLib.SOURCE_REMOVE;
     });
 }
 
@@ -778,6 +782,16 @@ function _watchDocks() {
 
 export function disable() {
     enabled = false;
+
+    if (trashAdoptionLater) {
+        cancelBeforeRedraw(trashAdoptionLater);
+        trashAdoptionLater = 0;
+    }
+
+    if (separatorSyncLater) {
+        cancelBeforeRedraw(separatorSyncLater);
+        separatorSyncLater = 0;
+    }
 
     for (const key of Object.keys(sources)) {
         if (sources[key])
