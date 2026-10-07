@@ -2,6 +2,7 @@
 // Kiwi Extension - Quick Settings Media playback widget
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
@@ -19,6 +20,8 @@ let enabled = false;
 let mediaWidget = null;
 let _initTimeoutId = null;
 let mediaIndicator = null;
+let panelButton = null;
+let moveToPanel = false;
 let gettextFunc = (message) => message;
 
 function ensureMediaIndicator() {
@@ -28,12 +31,18 @@ function ensureMediaIndicator() {
             style_class: 'system-status-icon kiwi-media-indicator',
             visible: false,
         });
-        Main.panel.statusArea.quickSettings._indicators.insert_child_at_index(mediaIndicator, 0);
+        if (panelButton)
+            panelButton.add_child(mediaIndicator);
+        else
+            Main.panel.statusArea.quickSettings._indicators.insert_child_at_index(mediaIndicator, 0);
     }
     return mediaIndicator;
 }
 
 function updateMediaIndicator({ hasPlayers, isPlaying }) {
+    if (panelButton)
+        panelButton.visible = hasPlayers;
+
     if (!hasPlayers) {
         if (mediaIndicator)
             mediaIndicator.visible = false;
@@ -467,8 +476,10 @@ class MediaWidget extends St.BoxLayout {
 
     _updateBodySpacing(maxPage = this._list.maxPage) {
         const multiplePages = maxPage > 1;
-        this.spacing = multiplePages ? 0 : 6;
-        this._headerSpacer.visible = !multiplePages;
+        this._header._headerLabel.visible = !moveToPanel;
+        this._header.visible = !moveToPanel || multiplePages;
+        this.spacing = moveToPanel || multiplePages ? 0 : 6;
+        this._headerSpacer.visible = !moveToPanel && !multiplePages;
     }
 
     _syncEmpty() {
@@ -489,14 +500,29 @@ class MediaWidget extends St.BoxLayout {
 GObject.registerClass(MediaWidget);
 // #endregion Media Classes
 
-export function enable(gettext) {
-    gettextFunc = gettext;
-    if (enabled || _initTimeoutId)
-        return;
+function setMediaLocation() {
+    const parent = mediaWidget.get_parent();
+    if (parent)
+        parent.remove_child(mediaWidget);
 
-    _initTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+    destroyMediaIndicator();
+    if (panelButton) {
+        panelButton.destroy();
+        panelButton = null;
+    }
+
+    if (moveToPanel) {
+        panelButton = new PanelMenu.Button(1.0, gettextFunc('Media'));
+        panelButton.visible = false;
+        ensureMediaIndicator();
+        panelButton.menu.actor.set_x_align(Clutter.ActorAlign.END);
+        panelButton.menu.actor.set_x_expand(false);
+        panelButton.menu.setSourceAlignment(0.5);
+        panelButton.menu.box.add_style_class_name('kiwi-media-menu');
+        panelButton.menu.box.add_child(mediaWidget);
+        Main.panel.addToStatusArea('kiwi-media', panelButton, 1, 'right');
+    } else {
         const grid = Main.panel.statusArea.quickSettings.menu._grid;
-        mediaWidget = new MediaWidget();
         const existingChildren = grid.get_children();
         const notificationsActor = existingChildren.find(child =>
             child instanceof St.Widget && child.has_style_class_name('kiwi-notifications'));
@@ -504,6 +530,29 @@ export function enable(gettext) {
         const targetIndex = notificationsActor ? existingChildren.indexOf(notificationsActor) : existingChildren.length;
         grid.insert_child_at_index(mediaWidget, targetIndex);
         grid.layout_manager.child_set_property(grid, mediaWidget, 'column-span', 2);
+    }
+
+    mediaWidget._updateBodySpacing();
+    mediaWidget._refreshIndicator();
+}
+
+export function enable(gettext, inPanel = false) {
+    gettextFunc = gettext;
+    if (enabled) {
+        if (moveToPanel !== inPanel) {
+            moveToPanel = inPanel;
+            setMediaLocation();
+        }
+        return;
+    }
+
+    moveToPanel = inPanel;
+    if (_initTimeoutId)
+        return;
+
+    _initTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+        mediaWidget = new MediaWidget();
+        setMediaLocation();
 
         enabled = true;
         _initTimeoutId = null;
@@ -524,6 +573,12 @@ export function disable() {
 
     destroyMediaIndicator();
 
+    if (panelButton) {
+        panelButton.destroy();
+        panelButton = null;
+    }
+
     enabled = false;
+    moveToPanel = false;
     gettextFunc = (message) => message;
 }

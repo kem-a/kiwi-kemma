@@ -116,7 +116,12 @@ export class Player extends GObject.Object {
     }
 
     set position(value) {
-        this._playerProxy?.SetPositionAsync(this._trackId, Math.min(this._length, Math.max(1, value))).catch(() => {});
+        if (!this._canSeek || !this._trackId ||
+            this._trackId === '/org/mpris/MediaPlayer2/TrackList/NoTrack' ||
+            !Number.isFinite(this._length) || this._length <= 0 || !Number.isFinite(value))
+            return;
+        this._playerProxy.SetPositionAsync(this._trackId,
+            Math.round(Math.min(this._length, Math.max(0, value)))).catch(() => {});
     }
 
     get busName() { return this._busName; }
@@ -148,8 +153,13 @@ export class Player extends GObject.Object {
             this._trackCoverUrl = null;
             return;
         }
-        this._trackId = metadata['mpris:trackid']?.deepUnpack();
-        this._length = metadata['mpris:length']?.deepUnpack();
+        const trackId = metadata['mpris:trackid']?.deepUnpack();
+        const length = metadata['mpris:length']?.deepUnpack();
+        if (this._trackId !== trackId)
+            this._length = null;
+        this._trackId = trackId;
+        if (Number.isFinite(length) && length > 0)
+            this._length = length;
 
         this._trackArtists = metadata['xesam:artist']?.deepUnpack();
         if (typeof this._trackArtists === 'string') {

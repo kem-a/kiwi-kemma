@@ -107,7 +107,7 @@ export default class KiwiExtension extends Extension {
             calendarEnable(this);
             if (!this._settings.get_boolean('keep-notification-panel')) {
                 quickSettingsNotificationsEnable(gettextFunc, this._settings);
-                quickSettingsMediaEnable(gettextFunc);
+                quickSettingsMediaEnable(gettextFunc, this._settings.get_boolean('media-controls-in-panel'));
             } else {
                 quickSettingsNotificationsDisable();
                 quickSettingsMediaDisable();
