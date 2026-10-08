@@ -565,8 +565,8 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 }
 
 .kiwi-media-menu {
-  width: 360px;
-  padding: 12px;
+  width: 310px;
+  padding: 8px 12px;
 }
 
 .kiwi-media {
@@ -576,7 +576,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 
 .kiwi-media-list {
   spacing: 12px;
-  padding: 0 12px;
+  padding: 0 2px;
 }
 
 /* Media cards float inside the panel popup without their own card look */
@@ -605,7 +605,7 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 }
 
 .kiwi-media .message-body {
-  font-weight: bold;
+  font-weight: normal;
 }
 
 .kiwi-media .kiwi-media-controls {
@@ -621,7 +621,21 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 }
 
 .kiwi-media .kiwi-track-title .message-title {
-  font-weight: normal;
+  font-weight: bold;
+}
+
+.kiwi-media-artist-row {
+  spacing: 6px;
+}
+
+.kiwi-media-soundwave {
+  spacing: 2px;
+}
+
+.kiwi-media-soundwave-bar {
+  width: 2px;
+  height: 12px;
+  border-radius: 1px;
 }
 
 .kiwi-media-progress {
@@ -630,6 +644,11 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 
 .kiwi-media-progress .slider {
   height: 18px;
+  -slider-handle-radius: 0px;
+}
+
+.kiwi-media-progress .slider:hover {
+  -slider-handle-radius: 5px;
 }
 
 .kiwi-media-times {

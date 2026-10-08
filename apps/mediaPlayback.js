@@ -17,6 +17,7 @@ import { loadInterfaceXML } from 'resource:///org/gnome/shell/misc/fileUtils.js'
 const TITLE_SCROLL_GAP = '        ';
 const TITLE_SCROLL_SPEED = 40;
 const ARTWORK_SIZE = 112;
+const SECONDARY_OPACITY = Math.round(255 * 0.9);
 const METADATA_REFRESH_ATTEMPTS = 5;
 // Ignore bogus remote positions for this long after our own seek
 const SEEK_SETTLE_TIME = 10 * 1000000;
@@ -62,11 +63,13 @@ export class MediaItem extends MessageList.Message {
         this._scrollDistance = 0;
         this._titleScrollId = null;
         this._titleCycleStarting = false;
+        this._soundWaveTimerId = null;
         this.connect('destroy', () => {
             if (this._artworkCancellable)
                 this._artworkCancellable.cancel();
             this._stopUpdates();
             this._stopTitleScroll();
+            this._stopVisualizer();
             this._player.disconnectObject(this);
             this._player = null;
         });
@@ -74,6 +77,7 @@ export class MediaItem extends MessageList.Message {
         this._header.hide();
         this._createArtwork();
         this._createInlineTitle();
+        this._createArtistRow();
         this._moveControlsUnderArtist();
         this._createControlButtons();
         this._createProgress();
@@ -188,11 +192,87 @@ export class MediaItem extends MessageList.Message {
         this._titleViewport.connect('notify::allocation', this._queueTitleScroll.bind(this));
     }
 
+    _createArtistRow() {
+        const contentBox = this._bodyBin.get_parent();
+        const index = contentBox.get_children().indexOf(this._bodyBin);
+        contentBox.remove_child(this._bodyBin);
+        this._artistRow = new St.BoxLayout({
+            style_class: 'kiwi-media-artist-row',
+            x_expand: true,
+        });
+        this._bodyBin.x_expand = true;
+        this._artistRow.add_child(this._bodyBin);
+        this._soundWave = new St.BoxLayout({
+            style_class: 'kiwi-media-soundwave',
+            opacity: SECONDARY_OPACITY,
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        for (let i = 0; i < 4; i++) {
+            const bar = new St.Widget({
+                style_class: 'kiwi-media-soundwave-bar',
+                scale_y: 0.25,
+            });
+            bar.set_pivot_point(0.5, 0.5);
+            this._soundWave.add_child(bar);
+        }
+        this._artistRow.add_child(this._soundWave);
+        contentBox.insert_child_at_index(this._artistRow, index);
+        this._soundWave.connect('notify::mapped', this._syncVisualizer.bind(this));
+        this._soundWave.connect('style-changed', () => {
+            // St does not resolve currentColor for widget backgrounds.
+            const color = this._soundWave.get_theme_node().get_foreground_color();
+            const style = `background-color: rgba(${color.red}, ${color.green}, ${color.blue}, ${color.alpha / 255});`;
+            for (const bar of this._soundWave.get_children()) {
+                if (bar.style !== style)
+                    bar.style = style;
+            }
+        });
+        St.Settings.get().connectObject('notify::enable-animations', this._syncVisualizer.bind(this), this);
+    }
+
+    _syncVisualizer() {
+        if (!this._soundWave?.mapped || !this._player?.isPlaying() || !St.Settings.get().enable_animations) {
+            this._stopVisualizer();
+            return;
+        }
+        if (this._soundWaveTimerId)
+            return;
+
+        // A compact playback indicator; transform the bars without relayout.
+        const bars = this._soundWave.get_children();
+        const levels = [0.3, 0.85, 0.5, 1, 0.65];
+        let phase = 0;
+        const animate = () => {
+            bars.forEach((bar, index) => bar.ease({
+                scale_y: levels[(phase + index * 2) % levels.length],
+                duration: 220,
+                mode: Clutter.AnimationMode.EASE_IN_OUT_SINE,
+            }));
+            phase++;
+            return GLib.SOURCE_CONTINUE;
+        };
+        animate();
+        this._soundWaveTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 240, animate);
+        GLib.Source.set_name_by_id(this._soundWaveTimerId, '[kiwi] MediaItem soundwave');
+    }
+
+    _stopVisualizer() {
+        if (this._soundWaveTimerId) {
+            GLib.Source.remove(this._soundWaveTimerId);
+            this._soundWaveTimerId = null;
+        }
+        for (const bar of this._soundWave?.get_children() ?? []) {
+            bar.remove_all_transitions();
+            bar.scale_y = 0.25;
+        }
+    }
+
     _moveControlsUnderArtist() {
+        this._bodyBin.opacity = SECONDARY_OPACITY;
         this._mediaControls.get_parent().remove_child(this._mediaControls);
         this._mediaControls.add_style_class_name('kiwi-media-controls');
         this._mediaControls.x_align = Clutter.ActorAlign.CENTER;
-        this._bodyBin.get_parent().add_child(this._mediaControls);
+        this._artistRow.get_parent().add_child(this._mediaControls);
     }
 
     _createControlButtons() {
@@ -207,7 +287,7 @@ export class MediaItem extends MessageList.Message {
             orientation: Clutter.Orientation.VERTICAL,
             x_expand: true,
         });
-        this._bodyBin.get_parent().add_child(this._progress);
+        this._mediaControls.get_parent().add_child(this._progress);
         this._slider = new Slider(0);
         this._slider.accessible_name = this._player.trackTitle;
         this._progress.add_child(this._slider);
@@ -369,6 +449,18 @@ export class MediaItem extends MessageList.Message {
         return `${this._titleText}${TITLE_SCROLL_GAP}${this._titleText}`;
     }
 
+    _syncTitlePlayback() {
+        const transition = this._titleTrack.get_transition('translation-x');
+        if (!transition)
+            return;
+        if (this.mapped && this._player.isPlaying() && this._scrollingTitle === this._titleText) {
+            if (!transition.is_playing())
+                transition.start();
+        } else if (transition.is_playing()) {
+            transition.pause();
+        }
+    }
+
     // Endless marquee: the title is doubled inside one label and the track
     // translates by exactly one period, so the wrap shows identical glyphs
     // at identical positions.
@@ -381,9 +473,13 @@ export class MediaItem extends MessageList.Message {
             this._stopTitleScroll();
             return;
         }
-        if (this._scrollingTitle === text && this._titleTrack.get_transition('translation-x'))
+        if (this._scrollingTitle === text && this._titleTrack.get_transition('translation-x')) {
+            this._syncTitlePlayback();
             return;
+        }
         this._stopTitleScroll();
+        if (!this._player.isPlaying())
+            return;
         if (this.titleLabel.text !== text)
             this.titleLabel.text = text;
         const [, titleWidth] = this.titleLabel.get_preferred_width(-1);
@@ -408,7 +504,7 @@ export class MediaItem extends MessageList.Message {
             this._stopTitleScroll();
             return;
         }
-        if (this._titleCycleStarting)
+        if (this._titleCycleStarting || !this._player.isPlaying())
             return;
 
         this._titleTrack.translation_x = 0;
@@ -448,6 +544,8 @@ export class MediaItem extends MessageList.Message {
 
         const isPlaying = this._player.status === 'Playing';
         this._pauseButton.child.icon_name = isPlaying ? 'media-playback-pause-symbolic' : 'media-playback-start-symbolic';
+        this._syncTitlePlayback();
+        this._syncVisualizer();
 
         this._updateControl(this._prevButton, this._player.canGoPrevious);
         this._updateControl(this._nextButton, this._player.canGoNext);

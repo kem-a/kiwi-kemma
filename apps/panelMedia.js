@@ -12,7 +12,6 @@ import { MediaItem, Source } from './mediaPlayback.js';
 const MAX_VISIBLE_PLAYERS = 3;
 
 let panelButton = null;
-let mediaIndicator = null;
 
 class MediaList extends St.BoxLayout {
     constructor(gettext) {
@@ -35,7 +34,6 @@ class MediaList extends St.BoxLayout {
             this._items.delete(player);
             this.remove_child(item);
             item.destroy();
-            player.disconnectObject(this);
             this.emit('changed');
         }, this);
         this._source.connectObject('player-added', (_source, player) => {
@@ -44,7 +42,6 @@ class MediaList extends St.BoxLayout {
             const item = new MediaItem(player);
             this._items.set(player, item);
             this.add_child(item);
-            player.connectObject('changed', () => this.emit('changed'), this);
             this.emit('changed');
         }, this);
         this._source.start();
@@ -54,17 +51,11 @@ class MediaList extends St.BoxLayout {
         return this._items.size;
     }
 
-    get playbackActive() {
-        return [...this._items.keys()].some(player => player.isPlaying());
-    }
-
     _onDestroy() {
         this._destroyed = true;
         this._source.disconnectObject(this);
-        for (const [player, item] of this._items) {
-            player.disconnectObject(this);
+        for (const item of this._items.values())
             item.destroy();
-        }
         this._items.clear();
         this._source.destroy();
         this._source = null;
@@ -128,8 +119,6 @@ class MediaWidget extends St.ScrollView {
             ? St.PolicyType.ALWAYS : St.PolicyType.EXTERNAL;
         this.visible = hasPlayers;
         panelButton.visible = hasPlayers;
-        mediaIndicator.icon_name = this.child.playbackActive
-            ? 'media-playback-start-symbolic' : 'media-playback-pause-symbolic';
     }
 }
 
@@ -141,7 +130,7 @@ export function enable(gettext) {
 
     panelButton = new PanelMenu.Button(1.0, gettext('Media'));
     panelButton.visible = false;
-    mediaIndicator = new St.Icon({
+    const mediaIndicator = new St.Icon({
         icon_name: 'media-playback-start-symbolic',
         style_class: 'system-status-icon kiwi-media-indicator',
     });
@@ -158,6 +147,5 @@ export function disable() {
     if (panelButton) {
         panelButton.destroy();
         panelButton = null;
-        mediaIndicator = null;
     }
 }
