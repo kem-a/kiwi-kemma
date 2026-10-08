@@ -11,6 +11,7 @@ import GLib from 'gi://GLib';
 import Pango from 'gi://Pango';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
+import { BarLevel } from 'resource:///org/gnome/shell/ui/barLevel.js';
 import { Slider } from 'resource:///org/gnome/shell/ui/slider.js';
 import { loadInterfaceXML } from 'resource:///org/gnome/shell/misc/fileUtils.js';
 
@@ -19,6 +20,7 @@ const TITLE_SCROLL_SPEED = 40;
 const ARTWORK_SIZE = 112;
 const SECONDARY_OPACITY = Math.round(255 * 0.9);
 const METADATA_REFRESH_ATTEMPTS = 5;
+const HANDLE_FADE_DURATION = 140;
 // Ignore bogus remote positions for this long after our own seek
 const SEEK_SETTLE_TIME = 10 * 1000000;
 
@@ -37,8 +39,64 @@ function formatTime(position, withHours = false) {
     return `${minutes}:${secondsPart}`;
 }
 
+class MediaProgressSlider extends Slider {
+    _init(value) {
+        super._init(value);
+        this._handleOpacity = new St.Adjustment({ actor: this, lower: 0, upper: 1, value: 0 });
+        this._handleOpacity.connect('notify::value', () => this.queue_repaint());
+        // Slider updates its handle radius after DrawingArea's style repaint.
+        this.connect_after('style-changed', () => this.queue_repaint());
+        this.connect('notify::hover', () => this._syncHandle());
+        this.connect('notify::reactive', () => this._syncHandle());
+        this.connect('notify::mapped', () => this._syncHandle());
+        this.connect('drag-begin', () => {
+            this._handleDragging = true;
+            this._syncHandle();
+        });
+        this.connect('drag-end', () => {
+            this._handleDragging = false;
+            this._syncHandle();
+        });
+        this.connect('destroy', () => this._handleOpacity.remove_transition('value'));
+    }
+
+    _syncHandle() {
+        if (!this.mapped) {
+            this._handleOpacity.remove_transition('value');
+            this._handleOpacity.value = 0;
+            return;
+        }
+        this._handleOpacity.ease(this.reactive && (this.hover || this._handleDragging) ? 1 : 0, {
+            duration: HANDLE_FADE_DURATION,
+            mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+        });
+    }
+
+    vfunc_repaint() {
+        // Paint the bar normally, then fade only the handle.
+        BarLevel.prototype.vfunc_repaint.call(this);
+        const opacity = this._handleOpacity?.value ?? 0;
+        if (opacity === 0)
+            return;
+
+        const cr = this.get_context();
+        const [width, height] = this.get_surface_size();
+        const radius = this._handleRadius;
+        let x = radius + (width - 2 * radius) * this._value / this._maxValue;
+        if (this.get_text_direction() === Clutter.TextDirection.RTL)
+            x = width - x;
+        const color = this.get_theme_node().get_foreground_color();
+        cr.setSourceRGBA(color.red / 255, color.green / 255, color.blue / 255,
+            color.alpha / 255 * opacity);
+        cr.arc(x, height / 2, radius, 0, 2 * Math.PI);
+        cr.fill();
+        cr.$dispose();
+    }
+}
+GObject.registerClass(MediaProgressSlider);
+
 export class MediaItem extends MessageList.Message {
-    constructor(player) {
+    constructor(player, requestRedraw = null) {
         super(player.source);
         this.add_style_class_name('media-message');
         // Only the controls are clickable; the inherited message button must
@@ -47,6 +105,7 @@ export class MediaItem extends MessageList.Message {
         this.can_focus = false;
         this.track_hover = false;
         this._player = player;
+        this._requestRedraw = requestRedraw;
         this._position = 0;
         this._positionRequest = 0;
         this._positionPending = false;
@@ -180,6 +239,7 @@ export class MediaItem extends MessageList.Message {
         // loop wrap shows identical glyphs at identical positions.
         this._titleTrack = new St.Widget({ layout_manager: new Clutter.FixedLayout() });
         this._titleTrack.add_child(this.titleLabel);
+        this._titleTrack.connect('notify::translation-x', () => this._requestRedraw?.());
 
         this._titleViewport = new St.Widget({
             style_class: 'kiwi-track-title',
@@ -289,8 +349,9 @@ export class MediaItem extends MessageList.Message {
             x_expand: true,
         });
         this._mediaControls.get_parent().add_child(this._progress);
-        this._slider = new Slider(0);
+        this._slider = new MediaProgressSlider(0);
         this._slider.accessible_name = this._player.trackTitle;
+        this._slider.connect('repaint', () => this._requestRedraw?.());
         this._progress.add_child(this._slider);
         const times = new St.BoxLayout({ style_class: 'kiwi-media-times' });
         this._elapsed = new St.Label({ x_expand: true, x_align: Clutter.ActorAlign.START });

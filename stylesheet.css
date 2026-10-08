@@ -644,10 +644,6 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 
 .kiwi-media-progress .slider {
   height: 18px;
-  -slider-handle-radius: 0px;
-}
-
-.kiwi-media-progress .slider:hover {
   -slider-handle-radius: 5px;
 }
 

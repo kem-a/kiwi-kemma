@@ -14,7 +14,7 @@ const MAX_VISIBLE_PLAYERS = 3;
 let panelButton = null;
 
 class MediaList extends St.BoxLayout {
-    constructor(gettext) {
+    constructor(gettext, requestRedraw) {
         super({
             orientation: Clutter.Orientation.VERTICAL,
             style_class: 'kiwi-media-list',
@@ -39,7 +39,7 @@ class MediaList extends St.BoxLayout {
         this._source.connectObject('player-added', (_source, player) => {
             if (this._destroyed || this._items.has(player))
                 return;
-            const item = new MediaItem(player);
+            const item = new MediaItem(player, requestRedraw);
             this._items.set(player, item);
             this.add_child(item);
             this.emit('changed');
@@ -67,9 +67,9 @@ GObject.registerClass({
 }, MediaList);
 
 class MediaWidget extends St.ScrollView {
-    constructor(gettext) {
+    constructor(gettext, requestRedraw) {
         super({
-            child: new MediaList(gettext),
+            child: new MediaList(gettext, requestRedraw),
             style_class: 'kiwi-media',
             x_expand: true,
             y_expand: true,
@@ -139,7 +139,14 @@ export function enable(gettext) {
     panelButton.menu.actor.set_x_expand(false);
     panelButton.menu.setSourceAlignment(1);
     panelButton.menu.box.add_style_class_name('kiwi-media-menu');
-    panelButton.menu.box.add_child(new MediaWidget(gettext));
+    const popupActor = panelButton.menu.actor;
+    // Redraw the whole popup during media animations so dynamic background
+    // blur does not rely on damage limited to the title or slider.
+    const requestRedraw = () => {
+        if (popupActor.mapped)
+            popupActor.queue_redraw();
+    };
+    panelButton.menu.box.add_child(new MediaWidget(gettext, requestRedraw));
     Main.panel.addToStatusArea('kiwi-media', panelButton, 1, 'right');
 }
 
