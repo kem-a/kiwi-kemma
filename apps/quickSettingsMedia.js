@@ -517,7 +517,7 @@ function setMediaLocation() {
         ensureMediaIndicator();
         panelButton.menu.actor.set_x_align(Clutter.ActorAlign.END);
         panelButton.menu.actor.set_x_expand(false);
-        panelButton.menu.setSourceAlignment(0.5);
+        panelButton.menu.setSourceAlignment(1);
         panelButton.menu.box.add_style_class_name('kiwi-media-menu');
         panelButton.menu.box.add_child(mediaWidget);
         Main.panel.addToStatusArea('kiwi-media', panelButton, 1, 'right');

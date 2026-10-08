@@ -22,6 +22,9 @@ const MEDIA_DBUS_XML = `<?xml version="1.0"?>
             <arg type="o" name="TrackId" direction="in"/>
             <arg type="x" name="Position" direction="in"/>
         </method>
+        <method name="Seek">
+            <arg type="x" name="Offset" direction="in"/>
+        </method>
         <method name="PlayPause"/>
         <method name="Next"/>
         <method name="Previous"/>
@@ -116,12 +119,23 @@ export class Player extends GObject.Object {
     }
 
     set position(value) {
-        if (!this._canSeek || !this._trackId ||
-            this._trackId === '/org/mpris/MediaPlayer2/TrackList/NoTrack' ||
-            !Number.isFinite(this._length) || this._length <= 0 || !Number.isFinite(value))
+        if (!this._canSeek || !this._playerProxy || !Number.isFinite(value))
             return;
-        this._playerProxy.SetPositionAsync(this._trackId,
-            Math.round(Math.min(this._length, Math.max(0, value)))).catch(() => {});
+        const length = Number.isFinite(this._length) && this._length > 0 ? this._length : null;
+        const target = Math.round(length ? Math.min(length, Math.max(0, value)) : Math.max(0, value));
+        if (this._trackId && this._trackId !== '/org/mpris/MediaPlayer2/TrackList/NoTrack') {
+            this._playerProxy.SetPositionAsync(this._trackId, target).catch(() => {});
+            return;
+        }
+        // Players without a track id (e.g. Gapless) only support relative seeks
+        const currentPosition = this.position;
+        if (!currentPosition)
+            return;
+        currentPosition.then(current => {
+            if (!Number.isFinite(current) || !this._playerProxy)
+                return;
+            this._playerProxy.SeekAsync(target - current).catch(() => {});
+        });
     }
 
     get busName() { return this._busName; }
