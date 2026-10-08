@@ -6,13 +6,22 @@ import Gio from 'gi://Gio';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { dashOf, disconnectAll, watchDocks } from './dockUtils.js';
 
+Gio._promisify(Gio.File.prototype, 'query_info_async', 'query_info_finish');
+Gio._promisify(Gio.File.prototype, 'make_directory_async', 'make_directory_finish');
+Gio._promisify(Gio.File.prototype, 'load_contents_async', 'load_contents_finish');
+Gio._promisify(Gio.File.prototype, 'replace_contents_bytes_async', 'replace_contents_finish');
+Gio._promisify(Gio.File.prototype, 'delete_async', 'delete_finish');
+
 const LAUNCHPAD_DESKTOP_ID = 'org.gnome.Shell.Extensions.Kiwi.Launchpad.desktop';
 const OLD_DESKTOP_ID = 'launchpad-kiwi.desktop';
 const ICON_RELATIVE_PATH = 'icons/launchpad.svg';
 // Right after the first favorite, like Launchpad after Finder
 const LAUNCHPAD_POSITION = 1;
 
-let _enabled = false; // Guards repeated enable() calls
+let _enabled = false; // Guards repeated enable() calls, including pending initialization
+let _enableCancellable = null;
+// Keep writes and disable-time deletions in order across rapid enable cycles.
+let _fileOperations = Promise.resolve();
 let globalSignals = [];
 let docks = [];
 // The watched overview dash can be swapped out from under us, so it is kept
@@ -42,14 +51,8 @@ function _pinFavorite() {
         global.settings.set_strv('favorite-apps', favorites);
 }
 
-/**
- * Our favorite stands in for the dash's own Show Apps button. Its click toggles
- * that button, so the dock and overview react exactly as they do to the native
- * one, and there is no app menu to offer.
- *
- * @param dash the dash the item belongs to
- * @param item a child of the dash's icon box
- */
+// Route our favorite through the native Show Apps button so dock and overview
+// behavior matches it; suppress the app menu.
 function _takeOver(dash, item) {
     const appIcon = item.child?._delegate;
     if (appIcon?.app?.get_id() !== LAUNCHPAD_DESKTOP_ID)
@@ -66,12 +69,8 @@ function _watchDash(dash) {
     return dash._box.connect('child-added', (_box, item) => _takeOver(dash, item));
 }
 
-/**
- * Watch the overview's own dash. Dash-to-Dock parks a placeholder actor there
- * for the whole startup animation - it has a showAppsButton but no icon box -
- * and swaps the real dash back in on 'startup-complete'. We run before that at
- * login, so wait for the box rather than dereferencing it.
- */
+// Dash-to-Dock uses a placeholder without an icon box until startup completes,
+// so wait for the real overview dash before attaching.
 function _watchOverviewDash() {
     let attempts = 0;
     const tryWatch = () => {
@@ -111,12 +110,44 @@ function _attach(container) {
     docks.push(entry);
 }
 
-function _writeDesktopFile(extension, gettextFunc) {
+function _queueFileOperation(operation) {
+    const pending = _fileOperations.then(operation);
+    _fileOperations = pending.catch(() => {});
+    return pending;
+}
+
+async function _ensureDirectory(directory, cancellable) {
+    try {
+        await directory.make_directory_async(GLib.PRIORITY_DEFAULT, cancellable);
+    } catch (error) {
+        if (error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.EXISTS))
+            return;
+        const parent = directory.get_parent();
+        if (!error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND) || !parent)
+            throw error;
+        await _ensureDirectory(parent, cancellable);
+        await _ensureDirectory(directory, cancellable);
+    }
+}
+
+async function _writeDesktopFile(extension, gettextFunc, cancellable) {
+    if (cancellable.is_cancelled())
+        return false;
+
     // Use custom icon if set and valid, otherwise default
     const customIconPath = extension.getSettings().get_string('launchpad-app-custom-icon');
-    const iconPath = customIconPath && Gio.File.new_for_path(customIconPath).query_exists(null)
-        ? customIconPath
-        : extension.dir.resolve_relative_path(ICON_RELATIVE_PATH).get_path();
+    let iconPath = extension.dir.resolve_relative_path(ICON_RELATIVE_PATH).get_path();
+    if (customIconPath) {
+        try {
+            await Gio.File.new_for_path(customIconPath).query_info_async(
+                'standard::type', Gio.FileQueryInfoFlags.NONE, GLib.PRIORITY_DEFAULT, cancellable);
+            iconPath = customIconPath;
+        } catch (error) {
+            if (cancellable.is_cancelled())
+                throw error;
+            // Missing or unreadable custom icon; use the bundled one.
+        }
+    }
 
     // NoDisplay=true would make AppFavorites drop it from the dash
     const desktopContent = `[Desktop Entry]
@@ -130,38 +161,51 @@ StartupNotify=false
 NoDisplay=false
 `;
 
-    const desktopPath = _desktopPath(LAUNCHPAD_DESKTOP_ID);
-    GLib.mkdir_with_parents(GLib.path_get_dirname(desktopPath), 0o755);
+    const desktopFile = Gio.File.new_for_path(_desktopPath(LAUNCHPAD_DESKTOP_ID));
 
     // Touching the file makes the shell's app cache wait out its reload debounce
     // before the icon is known again, so leave it alone when it already matches
     try {
-        const [, current] = Gio.File.new_for_path(desktopPath).load_contents(null);
+        const [current] = await desktopFile.load_contents_async(cancellable);
         if (new TextDecoder().decode(current) === desktopContent)
             return true;
-    } catch (_) {
+    } catch (error) {
+        if (cancellable.is_cancelled())
+            throw error;
         // Missing or unreadable; write it below
     }
 
-    try {
-        GLib.file_set_contents(desktopPath, desktopContent);
-    } catch (e) {
-        console.error('Launchpad: Failed to create desktop file:', e);
-        return false;
-    }
+    await _ensureDirectory(desktopFile.get_parent(), cancellable);
+    await desktopFile.replace_contents_bytes_async(
+        new GLib.Bytes(new TextEncoder().encode(desktopContent)), null, false,
+        Gio.FileCreateFlags.REPLACE_DESTINATION, cancellable);
     return true;
 }
 
-export function enable(extension, gettext) {
+export async function enable(extension, gettext) {
     // extension.js re-runs this on any settings change. A custom-icon change is
     // handled by disabling first, so that path still rewrites the .desktop file.
     if (_enabled)
         return;
 
-    if (!_writeDesktopFile(extension, gettext))
-        return;
-
     _enabled = true;
+    const cancellable = new Gio.Cancellable();
+    _enableCancellable = cancellable;
+    let ready;
+    try {
+        ready = await _queueFileOperation(() => _writeDesktopFile(extension, gettext, cancellable));
+    } catch (error) {
+        if (_enableCancellable === cancellable) {
+            _enabled = false;
+            _enableCancellable = null;
+        }
+        if (!cancellable.is_cancelled())
+            console.error('Launchpad: Failed to create desktop file:', error);
+        return;
+    }
+
+    if (!ready || _enableCancellable !== cancellable || cancellable.is_cancelled())
+        return;
 
     if (!Main.overview.isDummy)
         _watchOverviewDash();
@@ -174,6 +218,8 @@ export function enable(extension, gettext) {
 
 export function disable() {
     _enabled = false;
+    _enableCancellable?.cancel();
+    _enableCancellable = null;
 
     for (const key of ['dockSearch', 'overviewDashSearch']) {
         if (sources[key])
@@ -207,6 +253,14 @@ export function disable() {
     if (favorites.length !== global.settings.get_strv('favorite-apps').length)
         global.settings.set_strv('favorite-apps', favorites);
 
-    for (const id of [LAUNCHPAD_DESKTOP_ID, OLD_DESKTOP_ID])
-        GLib.unlink(_desktopPath(id));
+    _queueFileOperation(async () => {
+        for (const id of [LAUNCHPAD_DESKTOP_ID, OLD_DESKTOP_ID]) {
+            try {
+                await Gio.File.new_for_path(_desktopPath(id)).delete_async(GLib.PRIORITY_DEFAULT, null);
+            } catch (error) {
+                if (!error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND))
+                    console.error('Launchpad: Failed to remove desktop file:', error);
+            }
+        }
+    });
 }
