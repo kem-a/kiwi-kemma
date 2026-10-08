@@ -17,6 +17,7 @@ import { loadInterfaceXML } from 'resource:///org/gnome/shell/misc/fileUtils.js'
 const TITLE_SCROLL_GAP = '        ';
 const TITLE_SCROLL_SPEED = 40;
 const ARTWORK_SIZE = 112;
+const METADATA_REFRESH_ATTEMPTS = 5;
 // Ignore bogus remote positions for this long after our own seek
 const SEEK_SETTLE_TIME = 10 * 1000000;
 
@@ -39,6 +40,11 @@ export class MediaItem extends MessageList.Message {
     constructor(player) {
         super(player.source);
         this.add_style_class_name('media-message');
+        // Only the controls are clickable; the inherited message button must
+        // not compete with them for pointer presses.
+        this.reactive = false;
+        this.can_focus = false;
+        this.track_hover = false;
         this._player = player;
         this._position = 0;
         this._positionRequest = 0;
@@ -49,6 +55,7 @@ export class MediaItem extends MessageList.Message {
         this._lastRemotePosition = null;
         this._lastSeekTime = 0;
         this._tickTime = 0;
+        this._metadataRetries = METADATA_REFRESH_ATTEMPTS;
         this._scrollingTitle = null;
         this._titleText = '';
         this._scrollTitleWidth = 0;
@@ -71,7 +78,9 @@ export class MediaItem extends MessageList.Message {
         this._createControlButtons();
         this._createProgress();
         this.connect('notify::mapped', this._syncMapped.bind(this));
-        this._player.connectObject('changed', this._update.bind(this), this);
+        this._player.connectObject(
+            'changed', this._update.bind(this),
+            'seeked', (_player, position) => this._onSeeked(position), this);
         this._update();
     }
 
@@ -176,7 +185,7 @@ export class MediaItem extends MessageList.Message {
         });
         this._titleViewport.add_child(this._titleTrack);
         contentBox.insert_child_at_index(this._titleViewport, index);
-        this._titleViewport.connect('notify::allocation', this._scrollTitle.bind(this));
+        this._titleViewport.connect('notify::allocation', this._queueTitleScroll.bind(this));
     }
 
     _moveControlsUnderArtist() {
@@ -211,12 +220,12 @@ export class MediaItem extends MessageList.Message {
 
         this._slider.connect('drag-begin', () => {
             this._dragging = true;
-            this._dragTrackId = this._player.trackId;
+            this._dragTrackKey = this._player.trackKey;
             this._positionRequest++;
         });
         this._slider.connect('drag-end', () => {
             this._dragging = false;
-            if (this._dragTrackId === this._player.trackId)
+            if (this._dragTrackKey === this._player.trackKey)
                 this._seek();
             else
                 this._syncPosition();
@@ -241,29 +250,56 @@ export class MediaItem extends MessageList.Message {
         this._remaining.text = length ? `-${formatTime(length - this._position, withHours)}` : '--:--';
     }
 
-    _seek() {
-        this._positionRequest++;
+    async _seek() {
+        const request = ++this._positionRequest;
         this._lastSeekTime = GLib.get_monotonic_time();
-        this._player.position = Math.round(this._position);
+        const success = await this._player.seek(Math.round(this._position));
+        if (!this._player || request !== this._positionRequest || success)
+            return;
+        this._lastSeekTime = 0;
+        this._lastRemotePosition = null;
+        this._syncPosition();
+    }
+
+    _onSeeked(position) {
+        if (!Number.isFinite(position) || this._dragging)
+            return;
+        this._positionRequest++;
+        this._lastSeekTime = 0;
+        this._lastRemotePosition = position;
+        this._tickTime = GLib.get_monotonic_time();
+        this._setPosition(position);
     }
 
     async _syncPosition() {
-        if (!this.mapped || this._dragging || this._positionPending)
+        if (!this._player || !this.mapped || this._dragging || this._positionPending)
             return;
         this._positionPending = true;
+        const player = this._player;
         const request = this._positionRequest;
-        const position = await this._player.position;
+        // Some players publish duration/capabilities late without notifying
+        // clients. Retry briefly using the existing progress timer.
+        if (this._metadataRetries > 0 && (!(player.length > 0) || !player.canSeek)) {
+            this._metadataRetries--;
+            await player.refresh();
+        }
+        const position = await player.position;
         this._positionPending = false;
         if (!this._player || !this.mapped || this._dragging || request !== this._positionRequest)
             return;
         if (!Number.isFinite(position) || position === this._lastRemotePosition)
             return;
-        this._lastRemotePosition = position;
         // Players like Firefox report an uninitialized zero right after a
         // seek; keep the locally tracked position instead.
         const justSeeked = GLib.get_monotonic_time() - this._lastSeekTime < SEEK_SETTLE_TIME;
+        // Firefox can keep returning zero even after confirming a non-zero
+        // seek. Its next Seeked signal or track change remains authoritative.
+        if (position === 0 && this._lastRemotePosition > 0 &&
+            player.busName.startsWith('org.mpris.MediaPlayer2.firefox.'))
+            return;
         if (position === 0 && justSeeked && this._position > 2 * 1000000)
             return;
+        this._lastRemotePosition = position;
         this._setPosition(position);
     }
 
@@ -337,6 +373,8 @@ export class MediaItem extends MessageList.Message {
     // translates by exactly one period, so the wrap shows identical glyphs
     // at identical positions.
     _scrollTitle() {
+        if (!this.mapped || !this._titleViewport.has_allocation())
+            return;
         const text = this._titleText;
         const width = this._titleViewport.get_allocation_box().get_width();
         if (!this.mapped || width <= 0) {
@@ -394,34 +432,51 @@ export class MediaItem extends MessageList.Message {
 
     _update() {
         const trackArtists = this._player.trackArtists?.join(', ') ?? '';
-
-        this.set({ title: this._player.trackTitle, body: trackArtists, icon: null });
-        this._titleText = (this._player.trackTitle ?? '').replace(/\n/g, ' ');
-        // Not scrolling: show the plain title. Scrolling the same title:
-        // restore the doubled text that set() just overwrote.
-        if (this._scrollingTitle === null)
-            this.titleLabel.text = this._titleText;
-        else if (this._scrollingTitle === this._titleText)
-            this.titleLabel.text = this._marqueeText();
+        const title = (this._player.trackTitle ?? '').replace(/\n/g, ' ');
+        // Playback/capability updates must not rewrite the marquee text and
+        // invalidate the popup layout when the track information is unchanged.
+        if (title !== this._titleText || trackArtists !== this._displayedArtists) {
+            this.set({ title: this._player.trackTitle, body: trackArtists, icon: null });
+            this._titleText = title;
+            this._displayedArtists = trackArtists;
+            if (this._scrollingTitle === null)
+                this.titleLabel.text = title;
+            else if (this._scrollingTitle === title)
+                this.titleLabel.text = this._marqueeText();
+        }
         this._updateArtwork();
 
         const isPlaying = this._player.status === 'Playing';
         this._pauseButton.child.icon_name = isPlaying ? 'media-playback-pause-symbolic' : 'media-playback-start-symbolic';
 
-        this._prevButton.reactive = !!this._player.canGoPrevious;
-        this._nextButton.reactive = !!this._player.canGoNext;
+        this._updateControl(this._prevButton, this._player.canGoPrevious);
+        this._updateControl(this._nextButton, this._player.canGoNext);
+        this._updateControl(this._pauseButton, isPlaying ? this._player.canPause : this._player.canPlay);
         this._slider.reactive = Number.isFinite(this._player.length) && this._player.length > 0 &&
             this._player.canSeek;
         this._slider.can_focus = this._slider.reactive;
         this._slider.accessible_name = this._player.trackTitle;
-        if (this._trackId !== this._player.trackId) {
-            this._trackId = this._player.trackId;
+        if (this._trackKey !== this._player.trackKey) {
+            this._trackKey = this._player.trackKey;
             this._positionRequest++;
+            this._lastRemotePosition = null;
+            this._lastSeekTime = 0;
+            this._tickTime = 0;
+            this._metadataRetries = METADATA_REFRESH_ATTEMPTS;
             this._setPosition(0);
         } else {
             this._setPosition(this._position);
         }
         this._syncMapped();
+    }
+
+    _updateControl(button, sensitive) {
+        if (!sensitive) {
+            button.fake_release();
+            button.hover = false;
+        }
+        button.reactive = !!sensitive;
+        button.can_focus = !!sensitive;
     }
 
     vfunc_button_press_event() { return Clutter.EVENT_PROPAGATE; }
@@ -433,6 +488,7 @@ export class MediaItem extends MessageList.Message {
 GObject.registerClass(MediaItem);
 
 const MPRIS_PLAYER_PREFIX = 'org.mpris.MediaPlayer2.';
+const WEBKIT_TRACK_ID = '/org/mpris/MediaPlayer2/webkit';
 
 const MEDIA_DBUS_XML = `<?xml version="1.0"?>
 <node>
@@ -441,6 +497,10 @@ const MEDIA_DBUS_XML = `<?xml version="1.0"?>
             <arg type="s" name="interface_name" direction="in"/>
             <arg type="s" name="property_name" direction="in"/>
             <arg type="v" name="value" direction="out"/>
+        </method>
+        <method name="GetAll">
+            <arg type="s" name="interface_name" direction="in"/>
+            <arg type="a{sv}" name="properties" direction="out"/>
         </method>
     </interface>
     <interface name="org.mpris.MediaPlayer2.Player">
@@ -451,12 +511,18 @@ const MEDIA_DBUS_XML = `<?xml version="1.0"?>
         <method name="Seek">
             <arg type="x" name="Offset" direction="in"/>
         </method>
-        <method name="PlayPause"/>
+        <method name="Play"/>
+        <method name="Pause"/>
         <method name="Next"/>
         <method name="Previous"/>
+        <signal name="Seeked">
+            <arg type="x" name="Position"/>
+        </signal>
         <property name="CanGoNext" type="b" access="read"/>
         <property name="CanGoPrevious" type="b" access="read"/>
         <property name="CanPlay" type="b" access="read"/>
+        <property name="CanPause" type="b" access="read"/>
+        <property name="CanControl" type="b" access="read"/>
         <property name="CanSeek" type="b" access="read"/>
         <property name="Metadata" type="a{sv}" access="read"/>
         <property name="PlaybackStatus" type="s" access="read"/>
@@ -488,6 +554,7 @@ class Player extends GObject.Object {
         this.source = new MessageList.Source();
         this._canPlay = false;
         this._canSeek = false;
+        this._trackKey = null;
         this._destroyed = false;
         this._mprisProxy = null;
         this._playerProxy = null;
@@ -511,7 +578,7 @@ class Player extends GObject.Object {
 
         const playerPromise = Gio.DBusProxy.new(
             Gio.DBus.session,
-            Gio.DBusProxyFlags.NONE,
+            Gio.DBusProxyFlags.GET_INVALIDATED_PROPERTIES,
             playerIface,
             busName,
             '/org/mpris/MediaPlayer2',
@@ -544,37 +611,72 @@ class Player extends GObject.Object {
             .catch(() => null);
     }
 
-    set position(value) {
-        if (!this._canSeek || !this._playerProxy || !Number.isFinite(value))
-            return;
+    async seek(value) {
+        const proxy = this._playerProxy;
+        const trackKey = this.trackKey;
+        if (!this.canSeek || !proxy || !Number.isFinite(value))
+            return false;
         const length = Number.isFinite(this._length) && this._length > 0 ? this._length : null;
         const target = Math.round(length ? Math.min(length, Math.max(0, value)) : Math.max(0, value));
-        if (this._trackId && this._trackId !== '/org/mpris/MediaPlayer2/TrackList/NoTrack') {
-            this._playerProxy.SetPositionAsync(this._trackId, target).catch(() => {});
-            return;
+        try {
+            if (this._trackId === WEBKIT_TRACK_ID) {
+                // WebKit advertises SetPosition but rejects it, and its Seek
+                // method interprets the argument as an absolute position.
+                await proxy.SeekAsync(target);
+            } else if (this._trackId && this._trackId !== '/org/mpris/MediaPlayer2/TrackList/NoTrack') {
+                await proxy.SetPositionAsync(this._trackId, target);
+            } else {
+                // Players without a track id (e.g. Gapless) only support relative seeks.
+                const current = await this.position;
+                if (!Number.isFinite(current) || proxy !== this._playerProxy || trackKey !== this.trackKey)
+                    return false;
+                await proxy.SeekAsync(target - current);
+            }
+            return true;
+        } catch {
+            return false;
         }
-        // Players without a track id (e.g. Gapless) only support relative seeks
-        const currentPosition = this.position;
-        if (!currentPosition)
+    }
+
+    async refresh() {
+        const proxy = this._playerProxy;
+        const trackKey = this.trackKey;
+        if (!proxy || !this._propertiesProxy)
             return;
-        currentPosition.then(current => {
-            if (!Number.isFinite(current) || !this._playerProxy)
+        try {
+            const [properties] = await this._propertiesProxy.GetAllAsync(PLAYER_IFACE_NAME);
+            if (proxy !== this._playerProxy || trackKey !== this.trackKey)
                 return;
-            this._playerProxy.SeekAsync(target - current).catch(() => {});
-        });
+            let changed = false;
+            for (const name of ['Metadata', 'CanPlay', 'CanPause', 'CanControl', 'CanSeek', 'CanGoNext', 'CanGoPrevious']) {
+                const value = properties[name];
+                if (value && !proxy.get_cached_property(name)?.equal(value)) {
+                    proxy.set_cached_property(name, value);
+                    changed = true;
+                }
+            }
+            if (changed)
+                this._update();
+        } catch {
+            // Keep the cached state when a player cannot refresh its properties.
+        }
     }
 
     get busName() { return this._busName; }
     get trackId() { return this._trackId; }
+    get trackKey() { return this._trackKey; }
     get length() { return this._length; }
     get trackArtists() { return this._trackArtists; }
     get trackTitle() { return this._trackTitle; }
     get trackCoverUrl() { return this._trackCoverUrl; }
     get app() { return this._app; }
-    get canGoNext() { return this._playerProxy?.CanGoNext; }
-    get canGoPrevious() { return this._playerProxy?.CanGoPrevious; }
+    get canControl() { return !!this._playerProxy && this._playerProxy.CanControl !== false; }
+    // WebKit advertises navigation unconditionally, even without page handlers.
+    get canGoNext() { return this.canControl && this.trackKey !== null && this.trackId !== WEBKIT_TRACK_ID && !!this._playerProxy.CanGoNext; }
+    get canGoPrevious() { return this.canControl && this.trackKey !== null && this.trackId !== WEBKIT_TRACK_ID && !!this._playerProxy.CanGoPrevious; }
     get status() { return this._playerProxy?.PlaybackStatus; }
     get canPlay() { return this._canPlay; }
+    get canPause() { return this.canControl && this.trackKey !== null && !!this._playerProxy.CanPause; }
     get canSeek() { return this._canSeek; }
 
     destroy() {
@@ -585,19 +687,23 @@ class Player extends GObject.Object {
     }
 
     _parseMetadata(metadata) {
-        if (!metadata) {
-            this._trackId = null;
-            this._length = null;
-            this._trackArtists = null;
-            this._trackTitle = null;
-            this._trackCoverUrl = null;
-            return;
-        }
+        metadata ??= {};
         const trackId = metadata['mpris:trackid']?.deepUnpack();
         const length = metadata['mpris:length']?.deepUnpack();
-        if (this._trackId !== trackId)
+        const title = metadata['xesam:title']?.deepUnpack();
+        const url = metadata['xesam:url']?.deepUnpack();
+        const hasTrackDetails = !!title || !!url || (Number.isFinite(length) && length > 0);
+        // Decibels uses NoTrack for loaded audio. Only treat it as idle when
+        // neither the track details nor the playback state indicate media.
+        const noTrack = trackId === '/org/mpris/MediaPlayer2/TrackList/NoTrack' &&
+            !hasTrackDetails && this.status !== 'Playing' && this.status !== 'Paused';
+        // Gapless omits track ids and WebKit reuses one id for every track.
+        const trackKey = noTrack ? null
+            : JSON.stringify([trackId, url, title, metadata['xesam:artist']?.deepUnpack()]);
+        if (this._trackKey !== trackKey)
             this._length = null;
         this._trackId = trackId;
+        this._trackKey = trackKey;
         if (Number.isFinite(length) && length > 0)
             this._length = length;
 
@@ -608,7 +714,7 @@ class Player extends GObject.Object {
             this._trackArtists = [this._gettext('Unknown artist')];
         }
 
-        this._trackTitle = metadata['xesam:title']?.deepUnpack();
+        this._trackTitle = title;
         if (typeof this._trackTitle !== 'string')
             this._trackTitle = this._gettext('Unknown title');
 
@@ -626,20 +732,32 @@ class Player extends GObject.Object {
             title: this._app?.get_name() ?? this._mprisProxy?.Identity,
             icon: this._app?.get_icon() ?? null,
         });
-
-        this._setCanPlay(!!this._playerProxy?.CanPlay);
-        this._setCanSeek(!!this._playerProxy?.CanSeek);
     }
 
     _update() {
         const metadata = this._playerProxy?.Metadata;
         this._parseMetadata(metadata);
+        this._setCanSeek(this.canControl && this.trackKey !== null && !!this._playerProxy?.CanSeek);
+        this._setCanPlay(this.canControl && !!this._playerProxy?.CanPlay && this.trackKey !== null);
         this.emit('changed');
     }
 
-    previous() { this._playerProxy?.PreviousAsync().catch(() => {}); }
-    next() { this._playerProxy?.NextAsync().catch(() => {}); }
-    playPause() { this._playerProxy?.PlayPauseAsync().catch(() => {}); }
+    previous() {
+        if (this.canGoPrevious)
+            this._playerProxy.PreviousAsync().catch(() => {});
+    }
+
+    next() {
+        if (this.canGoNext)
+            this._playerProxy.NextAsync().catch(() => {});
+    }
+
+    playPause() {
+        if (this.isPlaying() ? this.canPause : this.canPlay) {
+            const action = this.isPlaying() ? 'PauseAsync' : 'PlayAsync';
+            this._playerProxy[action]().catch(() => {});
+        }
+    }
 
     raise() {
         if (this._app) {
@@ -662,10 +780,16 @@ class Player extends GObject.Object {
                 this._close();
         }, this);
 
-        if (!mprisProxy.g_name_owner)
+        if (!mprisProxy.g_name_owner) {
             this._close();
+            return;
+        }
 
         this._playerProxy.connectObject('g-properties-changed', this._update.bind(this), this);
+        this._playerProxy.connectObject('g-signal', (_proxy, _sender, name, parameters) => {
+            if (name === 'Seeked')
+                this.emit('seeked', parameters.deep_unpack()[0]);
+        }, this);
         this._update();
     }
 
@@ -697,6 +821,7 @@ class Player extends GObject.Object {
 GObject.registerClass({
     Signals: {
         'changed': { param_types: [] },
+        'seeked': { param_types: [GObject.TYPE_INT64] },
     },
     Properties: {
         'can-play': GObject.ParamSpec.boolean('can-play', 'can-play', 'Whether the player can play', GObject.ParamFlags.READABLE, false),
