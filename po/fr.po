@@ -40,15 +40,15 @@ msgstr "Launchpad"
 msgid "Open Application Overview"
 msgstr "Ouvrir l’aperçu des applications"
 
-#: apps/quickSettingsMedia.js:414
+#: apps/panelMedia.js:142
 msgid "Media"
 msgstr "Médias"
 
-#: apps/quickSettingsMedia/player.js:167
+#: apps/mediaPlayback.js:608
 msgid "Unknown artist"
 msgstr "Artiste inconnu"
 
-#: apps/quickSettingsMedia/player.js:172
+#: apps/mediaPlayback.js:613
 msgid "Unknown title"
 msgstr "Titre inconnu"
 

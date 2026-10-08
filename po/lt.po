@@ -40,15 +40,15 @@ msgstr "Launchpad"
 msgid "Open Application Overview"
 msgstr "Atverti programų apžvalgą"
 
-#: apps/quickSettingsMedia.js:414
+#: apps/panelMedia.js:142
 msgid "Media"
 msgstr "Medija"
 
-#: apps/quickSettingsMedia/player.js:167
+#: apps/mediaPlayback.js:608
 msgid "Unknown artist"
 msgstr "Nežinomas atlikėjas"
 
-#: apps/quickSettingsMedia/player.js:172
+#: apps/mediaPlayback.js:613
 msgid "Unknown title"
 msgstr "Nežinomas pavadinimas"
 
