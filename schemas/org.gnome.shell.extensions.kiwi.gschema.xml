@@ -91,11 +91,6 @@
         <summary>Notification Indicator Style</summary>
         <description>Color style of the top-panel notification indicator dot: default (red), accent (follows accent color), or symbolic (theme foreground).</description>
       </key>
-      <key name="media-controls-in-panel" type="b">
-        <default>true</default>
-        <summary>Media Controls in Panel</summary>
-        <description>Move Kiwi's media playback controls from Quick Settings to a dedicated top panel menu. Requires Move Calendar to Right with Keep GNOME Notification Panel disabled.</description>
-      </key>
       <key name="battery-percentage" type="b">
         <default>true</default>
         <summary>Battery Percentage</summary>

@@ -41,7 +41,7 @@ import { enable as overviewSeamlessZoomEnable, disable as overviewSeamlessZoomDi
 import { enable as focusOnOverviewExitEnable, disable as focusOnOverviewExitDisable } from './apps/focusOnOverviewExit.js';
 import { enable as skipOverviewEnable, disable as skipOverviewDisable } from './apps/skipOverviewOnLogin.js';
 import { enable as quickSettingsNotificationsEnable, disable as quickSettingsNotificationsDisable } from './apps/quickSettingsNotifications.js';
-import { enable as quickSettingsMediaEnable, disable as quickSettingsMediaDisable } from './apps/quickSettingsMedia.js';
+import { enable as panelMediaEnable, disable as panelMediaDisable } from './apps/panelMedia.js';
 import { enable as keyboardIndicatorEnable, disable as keyboardIndicatorDisable } from './apps/keyboardIndicator.js';
 import { enable as launchpadAppEnable, disable as launchpadAppDisable } from './apps/launchpadApp.js';
 import { enable as dockBlurEnable, disable as dockBlurDisable } from './apps/dockBlur.js';
@@ -100,22 +100,22 @@ export default class KiwiExtension extends Extension {
         if (key === 'keep-notification-panel' && this._settings.get_boolean('move-calendar-right')) {
             calendarDisable();
             quickSettingsNotificationsDisable();
-            quickSettingsMediaDisable();
+            panelMediaDisable();
         }
 
         if (this._settings.get_boolean('move-calendar-right')) {
             calendarEnable(this);
             if (!this._settings.get_boolean('keep-notification-panel')) {
                 quickSettingsNotificationsEnable(gettextFunc, this._settings);
-                quickSettingsMediaEnable(gettextFunc, this._settings.get_boolean('media-controls-in-panel'));
+                panelMediaEnable(gettextFunc);
             } else {
                 quickSettingsNotificationsDisable();
-                quickSettingsMediaDisable();
+                panelMediaDisable();
             }
         } else {
             calendarDisable();
             quickSettingsNotificationsDisable();
-            quickSettingsMediaDisable();
+            panelMediaDisable();
         }
 
         // Calendar (re-)enable moves dateMenu to the end of _rightBox, which
@@ -347,7 +347,7 @@ export default class KiwiExtension extends Extension {
         gtkThemeManagerDisable();
         firefoxThemeManagerDisable();
         thunderbirdThemeManagerDisable();
-        quickSettingsMediaDisable();
+        panelMediaDisable();
         quickSettingsNotificationsDisable();
         launchpadAppDisable();
         dockBlurDisable();

@@ -551,7 +551,6 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   overflow-y: auto;
 }
 
-.kiwi-media,
 .kiwi-notifications {
   margin: 0;
   padding: 0;
@@ -570,7 +569,17 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   padding: 12px;
 }
 
-/* The media card floats inside the popup/menu without its own card look */
+.kiwi-media {
+  margin: 0;
+  padding: 0;
+}
+
+.kiwi-media-list {
+  spacing: 12px;
+  padding: 0 12px;
+}
+
+/* Media cards float inside the panel popup without their own card look */
 .kiwi-media .message {
   background-color: transparent;
   box-shadow: none;
@@ -626,16 +635,6 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 .kiwi-media-times {
   font-size: 0.85em;
   opacity: 0.7;
-}
-
-/* Page indicators for media player */
-.kiwi-page-indicators .page-indicator {
-  padding: 0 6px;
-  margin-bottom: 8px;
-}
-
-.kiwi-page-indicators .page-indicator > StWidget {
-  border: 1px solid rgba(0, 0, 0, 0.6);
 }
 
 .message-list-clear-button {

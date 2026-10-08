@@ -525,7 +525,6 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // Expander with notification indicator style sub-option
         const calendarHasNonDefault =
             settings.get_boolean('keep-notification-panel') ||
-            settings.get_boolean('media-controls-in-panel') ||
             settings.get_string('notification-indicator-style') !== 'default';
         const calendarExpander = new Adw.ExpanderRow({
             title: _("Move Calendar to Right"),
@@ -552,16 +551,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
             [_('Default'), _('Accent'), _('Symbolic')]
         );
 
-        const mediaPanelRow = new Adw.SwitchRow({
-            title: _("Media Controls in Panel"),
-            subtitle: _("Move media playback controls from Quick Settings to a dedicated top panel menu"),
-        });
-        settings.bind('media-controls-in-panel', mediaPanelRow, 'active', Gio.SettingsBindFlags.DEFAULT);
-        settings.bind('keep-notification-panel', mediaPanelRow, 'visible',
-            Gio.SettingsBindFlags.GET | Gio.SettingsBindFlags.INVERT_BOOLEAN);
-
         calendarExpander.add_row(indicatorStyleRow);
-        calendarExpander.add_row(mediaPanelRow);
         calendarExpander.add_row(keepPanelRow);
 
         // Battery percentage clashes with GNOME's own top bar percentage, so
