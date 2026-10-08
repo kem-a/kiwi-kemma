@@ -56,6 +56,7 @@ export class MediaItem extends MessageList.Message {
         this._lastRemotePosition = null;
         this._lastSeekTime = 0;
         this._tickTime = 0;
+        this._playing = false;
         this._metadataRetries = METADATA_REFRESH_ATTEMPTS;
         this._scrollingTitle = null;
         this._titleText = '';
@@ -320,6 +321,7 @@ export class MediaItem extends MessageList.Message {
     }
 
     _setPosition(position) {
+        this._tickTime = GLib.get_monotonic_time();
         const length = this._player.length > 0 ? this._player.length : 0;
         this._position = Math.max(0, length ? Math.min(length, position) : position);
         this._syncingPosition = true;
@@ -384,6 +386,7 @@ export class MediaItem extends MessageList.Message {
     }
 
     _syncMapped() {
+        this._advancePosition();
         if (!this.mapped) {
             this._stopUpdates();
             this._stopTitleScroll();
@@ -391,7 +394,6 @@ export class MediaItem extends MessageList.Message {
         }
         this._syncPosition();
         if (!this._progressTimerId) {
-            this._tickTime = 0;
             this._progressTimerId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 1, () => {
                 this._tickPosition();
                 return GLib.SOURCE_CONTINUE;
@@ -405,12 +407,16 @@ export class MediaItem extends MessageList.Message {
     // Players like Firefox report a stale Position, so advance the local
     // position while playing and let the remote value correct it when it
     // actually changes.
-    _tickPosition() {
+    _advancePosition() {
         const now = GLib.get_monotonic_time();
         const elapsed = this._tickTime ? now - this._tickTime : 0;
         this._tickTime = now;
-        if (!this._dragging && this._player.status === 'Playing')
+        if (!this._dragging && this._playing)
             this._setPosition(this._position + elapsed);
+    }
+
+    _tickPosition() {
+        this._advancePosition();
         this._syncPosition();
     }
 
@@ -451,13 +457,13 @@ export class MediaItem extends MessageList.Message {
 
     _syncTitlePlayback() {
         const transition = this._titleTrack.get_transition('translation-x');
-        if (!transition)
-            return;
         if (this.mapped && this._player.isPlaying() && this._scrollingTitle === this._titleText) {
-            if (!transition.is_playing())
-                transition.start();
-        } else if (transition.is_playing()) {
-            transition.pause();
+            if (!transition)
+                this._scrollTitleCycle(false);
+        } else if (transition) {
+            // Removing a running ease transition releases Shell's animation
+            // bookkeeping; pausing its timeline would bypass that cleanup.
+            this._titleTrack.remove_all_transitions();
         }
     }
 
@@ -473,7 +479,7 @@ export class MediaItem extends MessageList.Message {
             this._stopTitleScroll();
             return;
         }
-        if (this._scrollingTitle === text && this._titleTrack.get_transition('translation-x')) {
+        if (this._scrollingTitle === text) {
             this._syncTitlePlayback();
             return;
         }
@@ -496,7 +502,7 @@ export class MediaItem extends MessageList.Message {
         this._scrollTitleCycle();
     }
 
-    _scrollTitleCycle() {
+    _scrollTitleCycle(reset = true) {
         const width = this._titleViewport.get_allocation_box().get_width();
         if (!this.mapped || !this._titleTrack.mapped ||
             this._scrollingTitle !== this._titleText ||
@@ -507,12 +513,15 @@ export class MediaItem extends MessageList.Message {
         if (this._titleCycleStarting || !this._player.isPlaying())
             return;
 
-        this._titleTrack.translation_x = 0;
+        if (reset)
+            this._titleTrack.translation_x = 0;
+        const remaining = Math.max(0, this._scrollDistance + this._titleTrack.translation_x);
+        const duration = Math.max(1500, Math.round(this._scrollDistance / TITLE_SCROLL_SPEED * 1000));
         this._titleCycleStarting = true;
         try {
             this._titleTrack.ease({
                 translation_x: -this._scrollDistance,
-                duration: Math.max(1500, Math.round(this._scrollDistance / TITLE_SCROLL_SPEED * 1000)),
+                duration: Math.max(1, Math.round(duration * remaining / this._scrollDistance)),
                 mode: Clutter.AnimationMode.LINEAR,
                 onComplete: () => this._scrollTitleCycle(),
             });
@@ -527,6 +536,7 @@ export class MediaItem extends MessageList.Message {
     }
 
     _update() {
+        this._advancePosition();
         const trackArtists = this._player.trackArtists?.join(', ') ?? '';
         const title = (this._player.trackTitle ?? '').replace(/\n/g, ' ');
         // Playback/capability updates must not rewrite the marquee text and
@@ -543,6 +553,7 @@ export class MediaItem extends MessageList.Message {
         this._updateArtwork();
 
         const isPlaying = this._player.status === 'Playing';
+        this._playing = isPlaying;
         this._pauseButton.child.icon_name = isPlaying ? 'media-playback-pause-symbolic' : 'media-playback-start-symbolic';
         this._syncTitlePlayback();
         this._syncVisualizer();
@@ -559,7 +570,6 @@ export class MediaItem extends MessageList.Message {
             this._positionRequest++;
             this._lastRemotePosition = null;
             this._lastSeekTime = 0;
-            this._tickTime = 0;
             this._metadataRetries = METADATA_REFRESH_ATTEMPTS;
             this._setPosition(0);
         } else {
@@ -657,6 +667,8 @@ class Player extends GObject.Object {
         this._mprisProxy = null;
         this._playerProxy = null;
         this._propertiesProxy = null;
+        this._seekRequest = 0;
+        this._seekPending = null;
 
         const mprisIface = _lookupInterface(MPRIS_IFACE_NAME);
         const playerIface = _lookupInterface(PLAYER_IFACE_NAME);
@@ -712,27 +724,43 @@ class Player extends GObject.Object {
     async seek(value) {
         const proxy = this._playerProxy;
         const trackKey = this.trackKey;
+        const request = ++this._seekRequest;
         if (!this.canSeek || !proxy || !Number.isFinite(value))
             return false;
         const length = Number.isFinite(this._length) && this._length > 0 ? this._length : null;
         const target = Math.round(length ? Math.min(length, Math.max(0, value)) : Math.max(0, value));
-        try {
-            if (this._trackId === WEBKIT_TRACK_ID) {
-                // WebKit advertises SetPosition but rejects it, and its Seek
-                // method interprets the argument as an absolute position.
-                await proxy.SeekAsync(target);
-            } else if (this._trackId && this._trackId !== '/org/mpris/MediaPlayer2/TrackList/NoTrack') {
-                await proxy.SetPositionAsync(this._trackId, target);
-            } else {
-                // Players without a track id (e.g. Gapless) only support relative seeks.
-                const current = await this.position;
-                if (!Number.isFinite(current) || proxy !== this._playerProxy || trackKey !== this.trackKey)
-                    return false;
-                await proxy.SeekAsync(target - current);
+        // Wait for an applied seek before reading the next relative offset,
+        // and discard targets superseded while a request was in flight.
+        const pending = (this._seekPending ?? Promise.resolve()).then(async () => {
+            if (!this.canSeek || proxy !== this._playerProxy || trackKey !== this.trackKey ||
+                request !== this._seekRequest)
+                return false;
+            try {
+                if (this._trackId === WEBKIT_TRACK_ID) {
+                    // WebKit advertises SetPosition but rejects it, and its Seek
+                    // method interprets the argument as an absolute position.
+                    await proxy.SeekAsync(target);
+                } else if (this._trackId && this._trackId !== '/org/mpris/MediaPlayer2/TrackList/NoTrack') {
+                    await proxy.SetPositionAsync(this._trackId, target);
+                } else {
+                    // Players without a track id (e.g. Gapless) only support relative seeks.
+                    const current = await this.position;
+                    if (!Number.isFinite(current) || !this.canSeek || proxy !== this._playerProxy ||
+                        trackKey !== this.trackKey || request !== this._seekRequest)
+                        return false;
+                    await proxy.SeekAsync(target - current);
+                }
+                return true;
+            } catch {
+                return false;
             }
-            return true;
-        } catch {
-            return false;
+        });
+        this._seekPending = pending;
+        try {
+            return await pending;
+        } finally {
+            if (this._seekPending === pending)
+                this._seekPending = null;
         }
     }
 
