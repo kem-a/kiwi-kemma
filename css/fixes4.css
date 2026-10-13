@@ -12,13 +12,15 @@
   padding: 3px 9px;
 }
 
-/* Nautilus grid view: accent background on selected file names, like macOS.
-   Nautilus forces a gray accent on its gridview, so the real one is captured
-   on the parent first. */
-.nautilus-grid-view {
+/* Capture the theme accent on both view parents before Nautilus overrides it
+   with gray on the inner views. This keeps grid and list selection consistent
+   even when the theme's CSS variable differs from the GTK named color. */
+.nautilus-grid-view,
+.nautilus-list-view {
   --kiwi-accent-bg-color: var(--accent-bg-color, #3584e4);
 }
 
+/* Nautilus grid view: accent background on selected file names, like macOS. */
 .nautilus-grid-view gridview > child:selected .icon-ui-labels-box > label:first-child {
   background-color: var(--kiwi-accent-bg-color);
   color: var(--accent-fg-color, #ffffff);
@@ -26,10 +28,9 @@
   padding: 0 4px;
 }
 
-/* Accent colored selection in Nautilus list view. Nautilus sets a grey
-   --accent-bg-color on its views, so the system accent comes from the named color. */
+/* Nautilus list view: use the same captured theme accent as the grid view. */
 .nautilus-list-view columnview > listview > row:selected {
-  background-color: @accent_bg_color;
+  background-color: var(--kiwi-accent-bg-color);
   color: var(--accent-fg-color, #ffffff);
 }
 
