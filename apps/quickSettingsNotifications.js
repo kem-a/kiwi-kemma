@@ -18,7 +18,7 @@ import {
     restoreDateMenuIndicator,
 } from './quickSettingsDnDRemoval.js';
 
-const DND_ICON_NAME = 'weather-clear-night-symbolic';
+const DND_ICON_PATH = 'icons/moon-fill-symbolic.svg';
 const DND_ICON_SIZE = 16;
 
 // State holders
@@ -35,6 +35,11 @@ let _panelMoonIcon = null;
 let _kiwiSettings = null;
 let _kiwiSettingsChangedId = null;
 
+// Load Kiwi's own moon icon from the extension directory
+function getDndIconGicon() {
+    const extensionObject = Main.extensionManager.lookup('kiwi@kemma');
+    return Gio.FileIcon.new(extensionObject.dir.get_child(DND_ICON_PATH));
+}
 
 function getSystemItemContainer() {
     // _system is created asynchronously by QuickSettings
@@ -88,7 +93,7 @@ function ensureDndButton() {
             toggle_mode: true,
             accessible_name: gettextFunc('Do Not Disturb'),
             child: new St.Icon({
-                icon_name: DND_ICON_NAME,
+                gicon: getDndIconGicon(),
                 icon_size: DND_ICON_SIZE,
                 style_class: `${iconStyle} kiwi-dnd-icon`,
             }),
@@ -352,7 +357,7 @@ function ensurePanelMoonIcon(isActive = false) {
 
     if (!_panelMoonIcon) {
         _panelMoonIcon = new St.Icon({
-            icon_name: DND_ICON_NAME,
+            gicon: getDndIconGicon(),
             style_class: 'system-status-icon kiwi-dnd-indicator',
             visible: false,
             reactive: false,
