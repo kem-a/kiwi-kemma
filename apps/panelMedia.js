@@ -21,13 +21,10 @@ class MediaList extends St.BoxLayout {
             x_expand: true,
         });
         this._items = new Map();
-        this._destroyed = false;
         this.connect('destroy', this._onDestroy.bind(this));
 
         this._source = new Source(gettext);
         this._source.connectObject('player-removed', (_source, player) => {
-            if (this._destroyed)
-                return;
             const item = this._items.get(player);
             if (!item)
                 return;
@@ -37,7 +34,7 @@ class MediaList extends St.BoxLayout {
             this.emit('changed');
         }, this);
         this._source.connectObject('player-added', (_source, player) => {
-            if (this._destroyed || this._items.has(player))
+            if (this._items.has(player))
                 return;
             const item = new MediaItem(player, requestRedraw);
             this._items.set(player, item);
@@ -52,7 +49,6 @@ class MediaList extends St.BoxLayout {
     }
 
     _onDestroy() {
-        this._destroyed = true;
         this._source.disconnectObject(this);
         for (const item of this._items.values())
             item.destroy();

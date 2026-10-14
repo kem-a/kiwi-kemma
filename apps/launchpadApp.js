@@ -3,7 +3,10 @@
 
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import GioUnix from 'gi://GioUnix';
+import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import { InjectionManager } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { dashOf, disconnectAll, watchDocks } from './dockUtils.js';
 
 Gio._promisify(Gio.File.prototype, 'query_info_async', 'query_info_finish');
@@ -20,6 +23,8 @@ const LAUNCHPAD_POSITION = 1;
 
 let _enabled = false; // Guards repeated enable() calls, including pending initialization
 let _enableCancellable = null;
+let _injectionManager = null;
+let _app = null;
 // Keep writes and disable-time deletions in order across rapid enable cycles.
 let _fileOperations = Promise.resolve();
 let globalSignals = [];
@@ -207,6 +212,17 @@ export async function enable(extension, gettext) {
     if (!ready || _enableCancellable !== cancellable || cancellable.is_cancelled())
         return;
 
+    // The shell's app cache sees a new .desktop file only after a 5 s debounce,
+    // so build the app ourselves and serve it for our id.
+    _app = new Shell.App({
+        app_info: GioUnix.DesktopAppInfo.new_from_filename(_desktopPath(LAUNCHPAD_DESKTOP_ID)),
+    });
+    _injectionManager = new InjectionManager();
+    _injectionManager.overrideMethod(Shell.AppSystem.prototype, 'lookup_app',
+        original => function (id) {
+            return id === LAUNCHPAD_DESKTOP_ID ? _app : original.call(this, id);
+        });
+
     if (!Main.overview.isDummy)
         _watchOverviewDash();
     watchDocks({ attach: _attach, count: () => docks.length, globalSignals, sources });
@@ -230,6 +246,10 @@ export function disable() {
     disconnectAll(globalSignals);
     globalSignals = [];
 
+    _injectionManager?.clear();
+    _injectionManager = null;
+    _app = null;
+
     for (const { box, childId, destroyId } of overviewWatches) {
         box.disconnect(childId);
         box.disconnect(destroyId);
@@ -241,13 +261,6 @@ export function disable() {
         box.disconnect(boxId);
     }
     docks = [];
-
-    // The shell turns every extension off while the lock screen is up and back on
-    // at unlock. Keep the entry and the pin across that: the app cache only
-    // rescans seconds after the directory changes, so removing them here would
-    // hide the icon on every unlock. A real disable still cleans up.
-    if (Main.sessionMode.isLocked)
-        return;
 
     const favorites = _otherFavorites();
     if (favorites.length !== global.settings.get_strv('favorite-apps').length)

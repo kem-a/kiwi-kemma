@@ -732,7 +732,7 @@ class Player extends GObject.Object {
         this._canPlay = false;
         this._canSeek = false;
         this._trackKey = null;
-        this._destroyed = false;
+        this._cancellable = new Gio.Cancellable();
         this._mprisProxy = null;
         this._playerProxy = null;
         this._propertiesProxy = null;
@@ -750,7 +750,7 @@ class Player extends GObject.Object {
             busName,
             '/org/mpris/MediaPlayer2',
             mprisIface.name,
-            null
+            this._cancellable
         )
             .then(proxy => this._mprisProxy = proxy)
             .catch(() => {});
@@ -762,7 +762,7 @@ class Player extends GObject.Object {
             busName,
             '/org/mpris/MediaPlayer2',
             playerIface.name,
-            null
+            this._cancellable
         )
             .then(proxy => this._playerProxy = proxy)
             .catch(() => {});
@@ -774,7 +774,7 @@ class Player extends GObject.Object {
             busName,
             '/org/mpris/MediaPlayer2',
             propertiesIface.name,
-            null
+            this._cancellable
         )
             .then(proxy => this._propertiesProxy = proxy)
             .catch(() => {});
@@ -875,9 +875,7 @@ class Player extends GObject.Object {
     get canSeek() { return this._canSeek; }
 
     destroy() {
-        if (this._destroyed)
-            return;
-        this._destroyed = true;
+        this._cancellable.cancel();
         this._close();
     }
 
@@ -965,8 +963,8 @@ class Player extends GObject.Object {
     isPlaying() { return this.status === 'Playing'; }
 
     _ready() {
-        // The proxies can resolve after destroy(); don't wire a dead player up
-        if (this._destroyed || !this._mprisProxy || !this._playerProxy)
+        // destroy() cancels pending proxy lookups, so they never arrive here
+        if (!this._mprisProxy || !this._playerProxy)
             return;
 
         const mprisProxy = this._mprisProxy;
