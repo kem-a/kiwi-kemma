@@ -30,8 +30,10 @@ let noTransitionIdleId = 0; // idle source that drops kiwi-panel-no-transition
 let colorFixIdleId = 0; // one-shot idle in applyPanelColorFix
 let themeUpdateIdleId = 0; // one-shot idle in forceThemeUpdate
 let colorSchemeIdleId = 0; // one-shot idle after color-scheme change
+let themeChangedIdleId = 0; // one-shot idle after a stylesheet swap
 let ownBackground = ''; // background declaration we keep on the panel
 let panelStyleSignal;
+let themeContextSignal;
 
 // Adaptive foreground state
 let bgSettings;
@@ -39,7 +41,7 @@ let bgSignals = [];
 let wallpaperLuminance = 0;
 let iconTheme;
 let monochromeIcons = new Map(); // gicon string -> 'light' | 'dark' | null
-let contentIcons = new WeakMap(); // St.ImageContent -> 'light' | 'dark' | null
+let contentIcons = new WeakMap(); // St.ImageContent | Gio.BytesIcon -> 'light' | 'dark' | null
 
 const SAMPLE_SIZE = 32; // wallpaper is downscaled to this before sampling
 const SAMPLE_ROWS = 4;  // top rows only — that's what sits behind the panel
@@ -50,6 +52,7 @@ const ICON_SAMPLE_SIZE = 24;
 const ICON_SATURATION_MAX = 0.15;    // above this the icon carries real colour
 const ICON_LUMINANCE_MIN = 0.6;      // above this the icon counts as light
 const ICON_LUMINANCE_MAX_DARK = 0.4; // below this it counts as dark
+const ICON_SPREAD_MAX = 0.15;        // luminance std dev; above this it has its own contrast
 
 // Blur state
 let blurEffect = null;
@@ -289,6 +292,7 @@ function _measureIcon(pixbuf) {
 
     let saturation = 0;
     let luminance = 0;
+    let luminanceSq = 0;
     let count = 0;
 
     for (let y = 0; y < height; y++) {
@@ -299,8 +303,10 @@ function _measureIcon(pixbuf) {
             const r = pixels[i] / 255, g = pixels[i + 1] / 255, b = pixels[i + 2] / 255;
             const max = Math.max(r, g, b), min = Math.min(r, g, b);
 
+            const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
             saturation += max === 0 ? 0 : (max - min) / max;
-            luminance += 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            luminance += l;
+            luminanceSq += l * l;
             count++;
         }
     }
@@ -308,6 +314,10 @@ function _measureIcon(pixbuf) {
     if (!count || (saturation / count) >= ICON_SATURATION_MAX) return null;
 
     const mean = luminance / count;
+    // A dark glyph on a white disc (ChatGPT) or a white logo with dark detail
+    // (Discord) is grey too, but one flat colour would erase its own contrast.
+    // A true monochrome icon is shaped by alpha alone, so its spread is ~0.
+    if (Math.sqrt(luminanceSq / count - mean * mean) > ICON_SPREAD_MAX) return null;
     if (mean > ICON_LUMINANCE_MIN) return 'light';
     if (mean < ICON_LUMINANCE_MAX_DARK) return 'dark';
     return null; // mid grey: pushing it either way is a coin flip
@@ -321,9 +331,13 @@ function _iconTone(gicon) {
     if (gicon instanceof Gio.EmblemedIcon)
         gicon = gicon.get_icon();
 
+    // A BytesIcon (Better Tray Icons pixmaps and tinted SVGs) has no string
+    // form, so it is keyed on the object, the way _contentTone() keys content.
     const key = gicon.to_string();
-    if (key && monochromeIcons.has(key))
-        return monochromeIcons.get(key);
+    const cache = key ? monochromeIcons : contentIcons;
+    const id = key ?? gicon;
+    if (cache.has(id))
+        return cache.get(id);
 
     let tone = null;
     try {
@@ -337,7 +351,7 @@ function _iconTone(gicon) {
         // Unresolvable icon: leave it alone
     }
 
-    if (key) monochromeIcons.set(key, tone);
+    cache.set(id, tone);
     return tone;
 }
 
@@ -366,18 +380,21 @@ function _contentTone(content) {
     return tone;
 }
 
+// Better Tray Icons gives its icons the generic system-status-icon class and
+// drops even that under its custom icon style, so inside its inline tray box
+// every icon counts.
 function _trayIcons() {
     const icons = [];
-    const walk = actor => {
+    const walk = (actor, inBti) => {
         for (const child of actor.get_children()) {
             if (child instanceof St.Icon &&
-                (child.has_style_class_name('appindicator-icon') || child.has_style_class_name('tray-icon')))
+                (inBti || child.has_style_class_name('appindicator-icon') || child.has_style_class_name('tray-icon')))
                 icons.push(child);
             else
-                walk(child);
+                walk(child, inBti || (child instanceof St.Widget && child.has_style_class_name('tray-visible-box')));
         }
     };
-    walk(Main.panel);
+    walk(Main.panel, false);
     return icons;
 }
 
@@ -788,6 +805,10 @@ function setupSignals() {
             }),
             Main.overview.connect('hidden', () => {
                 overviewHiding = false;
+                // A colour read while the overview showed is :overview's
+                // transparent, which reads back as black. Login always passes
+                // through the startup overview, so read the theme afresh.
+                setPanelBackground('');
                 checkWindowTouchingPanel();
                 // One frame later, so the write above is also transition-free
                 noTransitionIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
@@ -810,6 +831,21 @@ function forceThemeUpdate() {
         panel.add_style_class_name('panel');
         ownBackground = '';
         panel.style = null;
+        updatePanelStyle();
+        return GLib.SOURCE_REMOVE;
+    });
+}
+
+// The panel colour is read back from the panel, which reports our own inline
+// background once it is set. A stylesheet swap that bypasses color-scheme
+// (Light Style) would then never show, so drop the inline colour and read the
+// new theme's. Idle: all nodes restyled. In the overview 'hidden' redoes it.
+function onThemeChanged() {
+    if (themeChangedIdleId)
+        GLib.Source.remove(themeChangedIdleId);
+    themeChangedIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+        themeChangedIdleId = 0;
+        setPanelBackground('');
         updatePanelStyle();
         return GLib.SOURCE_REMOVE;
     });
@@ -840,6 +876,7 @@ export function enable(_settings) {
             return GLib.SOURCE_REMOVE;
         });
     });
+    themeContextSignal = St.ThemeContext.get_for_stage(global.stage).connect('changed', onThemeChanged);
 
     iconTheme = new St.IconTheme();
     bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
@@ -905,6 +942,14 @@ export function disable() {
     if (colorSchemeIdleId) {
         GLib.Source.remove(colorSchemeIdleId);
         colorSchemeIdleId = 0;
+    }
+    if (themeContextSignal) {
+        St.ThemeContext.get_for_stage(global.stage).disconnect(themeContextSignal);
+        themeContextSignal = null;
+    }
+    if (themeChangedIdleId) {
+        GLib.Source.remove(themeChangedIdleId);
+        themeChangedIdleId = 0;
     }
     ownBackground = '';
     
