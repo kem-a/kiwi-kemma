@@ -343,16 +343,17 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   padding-bottom: 6px;
 }
 
+/* !important: Blur my Shell sets its own menu item hover with !important. */
 .kiwi-popup-styled .popup-menu .popup-menu-item:hover,
 .kiwi-popup-styled .popup-menu .popup-menu-item:active,
 .kiwi-popup-styled .popup-menu .popup-menu-item.selected {
-  background-color: -st-accent-color;
-  color: -st-accent-fg-color;
+  background-color: -st-accent-color !important;
+  color: -st-accent-fg-color !important;
 }
 
 .kiwi-popup-styled .popup-menu .popup-menu-item:checked {
-  background-color: -st-accent-color;
-  color: -st-accent-fg-color;
+  background-color: -st-accent-color !important;
+  color: -st-accent-fg-color !important;
 }
 
 /* Ensure content fills the space */
