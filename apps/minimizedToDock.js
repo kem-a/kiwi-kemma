@@ -12,6 +12,7 @@ import Meta from 'gi://Meta';
 import Mtk from 'gi://Mtk';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
+import * as AppFavorites from 'resource:///org/gnome/shell/ui/appFavorites.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {
     applyIconOffset, beforeRedraw, cancelBeforeRedraw, dashEndsWithSeparator, dashOf,
@@ -460,7 +461,36 @@ function _makeTileItem(info, win) {
     return item;
 }
 
+/**
+ * Dash-to-Dock counts its separator into place, and items still animating out -
+ * an old drop placeholder, a moved app's old icon - or the trash we take away
+ * throw that count off by a slot. Keep it after the favourites and their active
+ * drop placeholder, so the last pinning slot stays on the favourites' side.
+ *
+ * @param dash the Dash-to-Dock dash actor
+ */
+function _placeDockSeparator(dash) {
+    const separator = dash._separator;
+    if (!separator)
+        return;
+
+    const favorites = AppFavorites.getAppFavorites();
+    const last = dash._box.get_children().findLast(child => {
+        // The placeholder has no app, but occupies a real favourites slot.
+        // Moving the separator ahead of it also invalidates _dragPlaceholderPos,
+        // which the shell uses as a child index when accepting the drop.
+        if (child === dash._dragPlaceholder)
+            return true;
+        const app = child.child?._delegate?.app;
+        return app && !child.animatingOut && favorites.isFavorite(app.get_id());
+    });
+    if (last && separator.get_previous_sibling() !== last)
+        dash._box.set_child_above_sibling(separator, last);
+}
+
 function _syncSeparator(info) {
+    _placeDockSeparator(info.dash);
+
     // Dash-to-Dock draws its own separator after the favourites, which for a dock
     // without loose running apps already marks the boundary we would draw
     const wanted = !dashEndsWithSeparator(info.dash) &&
