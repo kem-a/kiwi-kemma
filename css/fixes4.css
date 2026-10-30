@@ -40,6 +40,22 @@
   min-height: 32px;
 }
 
+/* Nautilus 50 removed the sidebar icon/label classes. Match the row's content
+   structure instead, which also works on 48/49 and excludes action buttons. */
+.nautilus-window placessidebar .navigation-sidebar > row > revealer > box > image {
+  color: var(--accent-color, var(--accent-bg-color, #3584e4));
+}
+
+/* Medium-weight places, with a bold label for the selected location. */
+.nautilus-window placessidebar .navigation-sidebar > row > revealer > box > label {
+  font-weight: 500;
+}
+
+.nautilus-window placessidebar .navigation-sidebar > row:selected > revealer > box > label,
+.nautilus-list-view columnview > listview > row:selected label {
+  font-weight: 700;
+}
+
 /* Filepicker */
 listview.view > row.activatable > cell {
   padding: 0px 9px;
