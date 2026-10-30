@@ -6,6 +6,9 @@ import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
+import { PopupAnimation } from 'resource:///org/gnome/shell/ui/boxpointer.js';
+import { InjectionManager } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 // State holders so we can fully restore on disable
 let dateMenu;
@@ -15,6 +18,71 @@ let originalParentIndex;
 let originalMenuBoxStyle;
 let hiddenMessageList = null; // date menu message list hidden while enabled
 let originalBannerBinProps; // { x_align, y_align, x_expand }
+let calendarAnimationInjections = null;
+
+function setupCalendarAnimation() {
+    const pointer = dateMenu.menu._boxPointer;
+    calendarAnimationInjections = new InjectionManager();
+    let animation = null;
+
+    // Keep Shell's open/close lifecycle (input muting, callbacks and fading),
+    // and only replace the motion on this calendar's BoxPointer.
+    for (const method of ['open', 'close']) {
+        calendarAnimationInjections.overrideMethod(pointer, method, original => function (animate, ...args) {
+            const previousAnimation = animation;
+            animation = { opening: method === 'open', slide: !!(animate & PopupAnimation.SLIDE) };
+            try {
+                return original.call(this, animate, ...args);
+            } finally {
+                animation = previousAnimation;
+            }
+        });
+    }
+
+    calendarAnimationInjections.overrideMethod(pointer, 'ease', original => function (params) {
+        const reducedMotion = St.ReducedMotion &&
+            St.Settings.get().reducedMotion === St.ReducedMotion.REDUCE;
+        if (animation?.slide && !reducedMotion) {
+            // Natural width is needed on the first open, before allocation.
+            const [, naturalWidth] = this.get_preferred_width(-1);
+            const distance = Math.max(this.width, naturalWidth);
+            this.translation_y = 0;
+            this.scale_x = 1;
+            this.scale_y = 1;
+            if (animation.opening)
+                this.translation_x = distance;
+
+            params = {
+                ...params,
+                translation_x: animation.opening ? 0 : distance,
+                translation_y: 0,
+                scale_x: 1,
+                scale_y: 1,
+                duration: 300,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+            };
+        }
+        return original.call(this, params);
+    });
+}
+
+function cleanupCalendarAnimation() {
+    if (!calendarAnimationInjections)
+        return;
+
+    // Complete any in-flight animation before restoring or reparenting actors.
+    // PopupMenu switched from a bitmask to an options object in GNOME 51.
+    dateMenu.menu.close(parseInt(Config.PACKAGE_VERSION) >= 51
+        ? { animate: false } : PopupAnimation.NONE);
+    calendarAnimationInjections.clear();
+    calendarAnimationInjections = null;
+
+    const pointer = dateMenu.menu._boxPointer;
+    pointer.translation_x = 0;
+    pointer.translation_y = 0;
+    pointer.scale_x = 1;
+    pointer.scale_y = 1;
+}
 
 // Notification indicator state
 let notificationIndicator = null;
@@ -214,6 +282,8 @@ export function enable(extension) {
         dateMenu.menu.box.style = `min-width: ${Math.max(300, natW + 20)}px;`;
     }
 
+    setupCalendarAnimation();
+
     // Adjust notification banner alignment without destroying the actor.
     // Apply in both modes so banners appear top-right regardless of whether
     // the GNOME notification panel is kept.
@@ -235,6 +305,8 @@ export function enable(extension) {
 
 export function disable() {
     dateMenu = Main.panel.statusArea.dateMenu;
+
+    cleanupCalendarAnimation();
 
     // Restore the message list if we hid it
     if (hiddenMessageList) {
@@ -286,4 +358,3 @@ function checkForNotifications() {
     // This catches notifications that are in the notification panel
     return Main.messageTray._notificationQueue.length > 0;
 }
-
