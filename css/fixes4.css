@@ -48,12 +48,12 @@
 
 /* Medium-weight places, with a bold label for the selected location. */
 .nautilus-window placessidebar .navigation-sidebar > row > revealer > box > label {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .nautilus-window placessidebar .navigation-sidebar > row:selected > revealer > box > label,
 .nautilus-list-view columnview > listview > row:selected label {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* Filepicker */
