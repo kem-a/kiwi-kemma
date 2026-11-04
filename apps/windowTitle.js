@@ -14,6 +14,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import { createTileGrid, canTile, canRestore, restoreAllWindows, toggleFullscreen } from './windowTiling.js';
+import { registerIndicator, unregisterIndicator } from './windowPanelLayout.js';
 
 let indicator = null;
 let _extension = null;
@@ -444,11 +445,13 @@ export function enable(ext) {
     if (!indicator) {
         indicator = new WindowTitleIndicator();
         Main.panel.addToStatusArea('window-title', indicator, -1, 'left');
+        registerIndicator('window-title', indicator);
     }
 }
 
 export function disable() {
     if (indicator) {
+        unregisterIndicator('window-title');
         indicator.destroy();
         indicator = null;
     }

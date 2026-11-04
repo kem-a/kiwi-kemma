@@ -12,6 +12,7 @@ import Shell from 'gi://Shell';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import { isMaximized, maximizeWindow, unmaximizeWindow } from './windowTiling.js';
+import { registerIndicator, unregisterIndicator } from './windowPanelLayout.js';
 
 let controlsIndicator = null;
 let _extension = null;
@@ -545,10 +546,9 @@ function _replaceIndicatorOnPanel() {
         const rightBoxChildren = Main.panel._rightBox.get_children();
         Main.panel._rightBox.insert_child_at_index(container, rightBoxChildren.length);
     } else {
-        const leftBoxChildren = Main.panel._leftBox.get_children();
-        const position = Math.max(0, leftBoxChildren.length - 1);
-        Main.panel._leftBox.insert_child_at_index(container, position);
+        Main.panel._leftBox.add_child(container);
     }
+    registerIndicator('window-controls', controlsIndicator);
 }
 
 export function enable(ext) {
@@ -561,16 +561,15 @@ export function enable(ext) {
             const rightBoxChildren = Main.panel._rightBox.get_children();
             Main.panel.addToStatusArea('window-controls', controlsIndicator, rightBoxChildren.length, 'right');
         } else {
-            // Place on left, second-to-last (since window title is last)
-            const leftBoxChildren = Main.panel._leftBox.get_children();
-            const position = Math.max(0, leftBoxChildren.length - 1);
-            Main.panel.addToStatusArea('window-controls', controlsIndicator, position, 'left');
+            Main.panel.addToStatusArea('window-controls', controlsIndicator, -1, 'left');
         }
+        registerIndicator('window-controls', controlsIndicator);
     }
 }
 
 export function disable() {
     if (controlsIndicator) {
+        unregisterIndicator('window-controls');
         controlsIndicator.destroy();
         controlsIndicator = null;
     }
