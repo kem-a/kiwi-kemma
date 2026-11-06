@@ -68,7 +68,9 @@ listview.view > row.activatable > cell {
   min-height: 16px;
 }
 
-/* Remove checkered alpha channel drawing around thumbnails and icons. Creates more cleaner look */
+/* Remove the thumbnail checkerboard and frame, keeping the icon drop shadow.
+   Nautilus 51 uses .nautilus-image.file-thumbnail; keep .thumbnail for older versions. */
+.nautilus-image.file-thumbnail,
 .thumbnail,
 .icon .thumbnail,
 .grid-view .thumbnail {
