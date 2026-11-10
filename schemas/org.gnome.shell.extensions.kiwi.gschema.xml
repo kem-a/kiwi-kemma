@@ -4,7 +4,7 @@
 
       <!--
         Keys are ordered to match the preferences window (prefs.js):
-        Panel page, Dock page, Buttons page, Options page. Within each page the
+        Panel page, Dock page, Buttons page, Sidepanel page, Options page. Within each page the
         keys follow the order of the groups and rows shown to the user.
       -->
 
@@ -228,6 +228,27 @@
         <default>false</default>
         <summary>Show Window Controls on Panel only when Fullscreen</summary>
         <description>When enabled, panel window controls and titlebar hiding apply only to fullscreen windows, not maximized.</description>
+      </key>
+
+      <!-- ========================================================= -->
+      <!-- Sidepanel page                                            -->
+      <!-- ========================================================= -->
+
+      <key name="sidepanel-transparency" type="b">
+        <default>false</default>
+        <summary>Sidepanel Transparency</summary>
+        <description>Make GTK 3 and GTK 4 application sidepanels transparent.</description>
+      </key>
+      <key name="sidepanel-transparency-level" type="i">
+        <default>10</default>
+        <range min="0" max="50"/>
+        <summary>Sidepanel Transparency Level</summary>
+        <description>Set the sidepanel transparency from 0 to 50 percent.</description>
+      </key>
+      <key name="nautilus-sidepanel-icon-color" type="b">
+        <default>false</default>
+        <summary>Color Nautilus Sidepanel Icons</summary>
+        <description>Color Nautilus sidepanel icons with the accent color.</description>
       </key>
 
       <!-- ========================================================= -->

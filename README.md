@@ -38,6 +38,11 @@ Requires [Dash to Dock](https://extensions.gnome.org/extension/307/), except Lau
 - **macOS Window Buttons**: Replace window control buttons with macOS style. Default, Alternative and Glass styles in two sizes, plus Firefox and Thunderbird styling.
 - **Show Window Controls on Panel**: Move window controls to the top panel for maximized windows and remove their titlebars for maximum space.
 
+## Sidepanel
+
+- **Sidepanel Transparency**: Adjust GTK 3 and GTK 4 sidepanel transparency with a percentage slider. GTK window backgrounds are alpha-enabled so the desktop can show through; content areas that paint their own backgrounds remain opaque.
+- **Nautilus Sidepanel Icons**: Optionally color sidepanel icons with the accent color.
+
 ## Options
 
 - **Overview Wallpaper Blur**: Use the blurred current wallpaper as overview background.
