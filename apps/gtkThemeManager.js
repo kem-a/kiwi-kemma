@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Generates GTK CSS imports for window controls and titlebar tweaks based on settings.
 //
-// Imports are written only to the user's ~/.config/gtk-{3,4}.0/gtk.css so the
-// extension never writes inside its own installation directory. This keeps
-// system-wide installs (e.g. /usr/share/gnome-shell/extensions, owned by root)
-// working. See https://github.com/kem-a/kiwi-kemma/issues/86
+// Managed imports are written to the user's ~/.config/gtk-{3,4}.0/gtk.css,
+// while dynamic sidepanel transparency is stored in a separate user stylesheet.
+// This keeps system-wide installs working without writing to the extension directory.
+// See https://github.com/kem-a/kiwi-kemma/issues/86
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
@@ -34,6 +34,49 @@ class GtkThemeManager {
         return Gio.File.new_for_path(path).get_uri();
     }
 
+    _sidepanelTransparencyCssPath(version) {
+        return GLib.build_filenamev([
+            GLib.get_user_config_dir(),
+            `gtk-${version}.0`,
+            'kiwi-sidepanel-transparency.css',
+        ]);
+    }
+
+    _buildSidepanelTransparencyCss(version) {
+        const opacity = (100 - this._settings.get_int('sidepanel-transparency-level')) / 100;
+        const windowColor = version === '3' ? '@theme_bg_color' : '@window_bg_color';
+        const contentColor = version === '3' ? '@theme_base_color' : '@view_bg_color';
+        const selectors = version === '3'
+            ? '.sidebar-pane, .sidebar, .sidebar.view, .navigation-sidebar, treeview.view.sidebar, placessidebar'
+            : '.sidebar-pane, .sidebar, .navigation-sidebar, list.navigation-sidebar, listview.navigation-sidebar, placessidebar';
+
+        return `window {\n  background: alpha(${windowColor}, ${opacity});\n}\n\nwindow.preferences {\n  background: ${windowColor};\n}\n\n${selectors} {\n  background: transparent;\n}\n\n.content-pane {\n  background: ${contentColor};\n}\n`;
+    }
+
+    async updateSidepanelTransparencyCss() {
+        const configDir = GLib.get_user_config_dir();
+
+        for (const version of ['3', '4']) {
+            const gtkConfigDir = GLib.build_filenamev([configDir, `gtk-${version}.0`]);
+            GLib.mkdir_with_parents(gtkConfigDir, 0o755);
+
+            const transparencyCssFile = Gio.File.new_for_path(
+                this._sidepanelTransparencyCssPath(version)
+            );
+            if (this._settings.get_boolean('sidepanel-transparency')) {
+                transparencyCssFile.replace_contents(
+                    this._buildSidepanelTransparencyCss(version),
+                    null,
+                    false,
+                    Gio.FileCreateFlags.REPLACE_DESTINATION,
+                    null
+                );
+            } else if (transparencyCssFile.query_exists(null)) {
+                transparencyCssFile.delete(null);
+            }
+        }
+    }
+
     // Stylesheets to pull in for a given GTK major version ('3' or '4').
     _stylesheetsFor(version) {
         const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
@@ -42,6 +85,7 @@ class GtkThemeManager {
         const buttonType = this._settings.get_string('button-type');
         const buttonSize = this._settings.get_string('button-size');
         const appFixes = this._settings.get_boolean('popup-menu-styling');
+        const colorNautilusSidebarIcons = this._settings.get_boolean('nautilus-sidepanel-icon-color');
 
         const sheets = [];
 
@@ -75,27 +119,46 @@ class GtkThemeManager {
         if (appFixes)
             sheets.push(`fixes${version}.css`);
 
+        if (version === '4' && colorNautilusSidebarIcons)
+            sheets.push('nautilus-sidebar-icons4.css');
+
         return sheets;
     }
 
-    _buildManagedBlock(version) {
+    _buildManagedBlock(version, sidepanelTransparencyCssUri) {
         const sheets = this._stylesheetsFor(version);
+        if (sidepanelTransparencyCssUri)
+            sheets.push(sidepanelTransparencyCssUri);
+
         if (!sheets.length)
             return '';
 
-        const imports = sheets.map(name => `@import url("${this._cssUri(name)}");`);
+        const imports = sheets.map(name => {
+            const uri = name.startsWith('file://') ? name : this._cssUri(name);
+            return `@import url("${uri}");`;
+        });
         return `${MARKER_BEGIN}\n${imports.join('\n')}\n${MARKER_END}\n`;
     }
 
     async updateGtkCss() {
         const configDir = GLib.get_user_config_dir();
+        await this.updateSidepanelTransparencyCss();
 
         for (const version of ['3', '4']) {
             const gtkConfigDir = GLib.build_filenamev([configDir, `gtk-${version}.0`]);
             GLib.mkdir_with_parents(gtkConfigDir, 0o755);
 
+            const transparencyCssPath = this._sidepanelTransparencyCssPath(version);
+            const transparencyCssFile = Gio.File.new_for_path(transparencyCssPath);
+            const transparencyCssUri = this._settings.get_boolean('sidepanel-transparency')
+                ? transparencyCssFile.get_uri()
+                : null;
+
             const userPath = GLib.build_filenamev([gtkConfigDir, 'gtk.css']);
-            await this.processUserGtkFile(userPath, this._buildManagedBlock(version));
+            await this.processUserGtkFile(
+                userPath,
+                this._buildManagedBlock(version, transparencyCssUri)
+            );
         }
     }
 
@@ -142,13 +205,23 @@ class GtkThemeManager {
         for (const version of ['3', '4']) {
             const userPath = GLib.build_filenamev([configDir, `gtk-${version}.0`, 'gtk.css']);
             await this.processUserGtkFile(userPath, '');
+
+            const transparencyCssFile = Gio.File.new_for_path(
+                this._sidepanelTransparencyCssPath(version)
+            );
+            if (transparencyCssFile.query_exists(null))
+                transparencyCssFile.delete(null);
         }
     }
 
     enable() {
         this._settings = this._extension.getSettings();
         this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
-            if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls' || key === 'show-window-controls-fullscreen-only' || key === 'popup-menu-styling') {
+            if (key === 'sidepanel-transparency-level') {
+                this.updateSidepanelTransparencyCss().catch(error => {
+                    console.error(`[Kiwi] Error updating sidepanel transparency stylesheet: ${error}`);
+                });
+            } else if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls' || key === 'show-window-controls-fullscreen-only' || key === 'popup-menu-styling' || key === 'sidepanel-transparency' || key === 'nautilus-sidepanel-icon-color') {
                 this.updateGtkCss().catch(error => {
                     console.error(`[Kiwi] Error in settings changed handler: ${error}`);
                 });

@@ -1,0 +1,7 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+/* Nautilus 50 removed the sidebar icon/label classes. Match the row's content
+   structure instead, which also works on 48/49 and excludes action buttons. */
+.nautilus-window placessidebar .navigation-sidebar > row > revealer > box > image {
+  color: var(--accent-color, var(--accent-bg-color, #3584e4));
+}
