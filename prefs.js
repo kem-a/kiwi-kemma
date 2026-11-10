@@ -936,6 +936,73 @@ export default class KiwiPreferences extends ExtensionPreferences {
         settings.bind('show-window-controls-fullscreen-only', fullscreenOnlyRow, 'active', Gio.SettingsBindFlags.DEFAULT);
 
         //
+        // Sidepanel Page
+        //
+        const sidepanelPage = new Adw.PreferencesPage({
+            title: _('Sidepanel'),
+            icon_name: 'sidebar-show-symbolic',
+        });
+        window.add(sidepanelPage);
+
+        const sidepanelGroup = new Adw.PreferencesGroup({
+            title: _('Sidepanel Appearance'),
+            description: _('Configure application sidepanel transparency and Nautilus icons'),
+        });
+        sidepanelPage.add(sidepanelGroup);
+
+        const sidepanelTransparency = new Adw.ExpanderRow({
+            title: _('Sidepanel Transparency'),
+            subtitle: _('Make GTK 3 and GTK 4 application sidepanels transparent'),
+            expanded: settings.get_boolean('sidepanel-transparency'),
+            show_enable_switch: true,
+        });
+        sidepanelGroup.add(sidepanelTransparency);
+        settings.bind('sidepanel-transparency', sidepanelTransparency, 'enable-expansion',
+            Gio.SettingsBindFlags.DEFAULT);
+
+        const transparencyScale = new Gtk.Scale({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            adjustment: new Gtk.Adjustment({
+                lower: 0,
+                upper: 50,
+                step_increment: 1,
+                page_increment: 10,
+                value: settings.get_int('sidepanel-transparency-level'),
+            }),
+            digits: 0,
+            draw_value: true,
+            hexpand: true,
+            sensitive: settings.get_boolean('sidepanel-transparency'),
+        });
+        transparencyScale.set_size_request(190, -1);
+        transparencyScale.connect('value-changed', scale => {
+            settings.set_int('sidepanel-transparency-level', Math.round(scale.get_value()));
+        });
+        const transparencyScaleRow = new Adw.ActionRow({
+            title: _('Transparency'),
+            subtitle: _('0% is opaque and 50% is the maximum transparency'),
+        });
+        transparencyScaleRow.add_suffix(transparencyScale);
+        transparencyScaleRow.activatable_widget = transparencyScale;
+        sidepanelTransparency.add_row(transparencyScaleRow);
+        settings.bind('sidepanel-transparency', transparencyScale, 'sensitive',
+            Gio.SettingsBindFlags.GET);
+        settings.connect('changed::sidepanel-transparency-level', () => {
+            const level = settings.get_int('sidepanel-transparency-level');
+            if (Math.round(transparencyScale.get_value()) !== level)
+                transparencyScale.set_value(level);
+        });
+
+        const colorNautilusIcons = new Adw.SwitchRow({
+            title: _('Color Nautilus Sidepanel Icons'),
+            subtitle: _('Use the accent color for icons in the Nautilus sidepanel'),
+            active: settings.get_boolean('nautilus-sidepanel-icon-color'),
+        });
+        sidepanelGroup.add(colorNautilusIcons);
+        settings.bind('nautilus-sidepanel-icon-color', colorNautilusIcons, 'active',
+            Gio.SettingsBindFlags.DEFAULT);
+
+        //
         // Options Page
         //
         const settingsPage = new Adw.PreferencesPage({
