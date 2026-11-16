@@ -160,10 +160,44 @@ function destroyDndButton() {
 }
 
 // #region Notification Classes
+
+// A collapsed group stacks its cards under the top one. See-through cards
+// (Blur my Shell) would show the stack through it, so clip each card to the
+// part below the cards above. Opaque cards keep the stock look.
+function clipStack(group) {
+    let coverBottom = -Infinity;
+    for (const item of group.get_children()) {
+        // Messages sit in St.Bin items; the cover and header do not
+        if (!(item instanceof St.Bin) || !item.visible)
+            continue;
+
+        const message = item.child;
+        const top = coverBottom - item.y;
+        if (top > 0 && message.get_theme_node().get_background_color().alpha < 255)
+            item.set_clip(0, top, item.width, Math.max(0, item.height - top));
+        else
+            item.remove_clip();
+        coverBottom = Math.max(coverBottom, item.y + message.y + message.height);
+    }
+}
+
+function watchStack(group) {
+    const watch = child => child.connect('notify::allocation', () => clipStack(group));
+    group.get_children().forEach(watch);
+    group.connect('child-added', (_group, child) => watch(child));
+}
+
 const NotificationList = GObject.registerClass(
 class NotificationList extends MessageList.MessageView {
     // Prevent media integration; Kiwi has its own media widget
     _setupMpris() {}
+
+    _addMessageAtIndex(message, index) {
+        super._addMessageAtIndex(message, index);
+        // NotificationMessageGroup is not exported before GNOME 49
+        if (message.has_style_class_name('message-notification-group'))
+            watchStack(message);
+    }
 });
 
 // Notification Header

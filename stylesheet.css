@@ -580,9 +580,11 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   padding: 0 2px;
 }
 
-/* Media cards float inside the panel popup without their own card look */
-.kiwi-media .message {
-  background-color: transparent;
+/* Media cards float inside the panel popup without their own card look.
+   !important and the extra class: Blur my Shell paints every .message with
+   an !important card background on top of the blurred popup. */
+.kiwi-media-menu .kiwi-media .message {
+  background-color: transparent !important;
   box-shadow: none;
   border: none;
   padding: 0;
@@ -673,6 +675,40 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
   box-shadow: none;
 }
 
+/* Blur my Shell styles the shell's Clear button like its quick toggles, but
+   only inside .message-list-controls, so give Kiwi's the same look. */
+.bms-popup-background-dark .kiwi-header .message-list-clear-button,
+.bms-popup-background-transparent .kiwi-header .message-list-clear-button {
+  color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.bms-popup-background-dark .kiwi-header .message-list-clear-button:hover,
+.bms-popup-background-dark .kiwi-header .message-list-clear-button:focus,
+.bms-popup-background-transparent .kiwi-header .message-list-clear-button:hover,
+.bms-popup-background-transparent .kiwi-header .message-list-clear-button:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.bms-popup-background-dark .kiwi-header .message-list-clear-button:active,
+.bms-popup-background-transparent .kiwi-header .message-list-clear-button:active {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.bms-popup-background-light .kiwi-header .message-list-clear-button {
+  color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.bms-popup-background-light .kiwi-header .message-list-clear-button:hover,
+.bms-popup-background-light .kiwi-header .message-list-clear-button:focus {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.bms-popup-background-light .kiwi-header .message-list-clear-button:active {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
 /* Notification expand buttons and close button */
 .message .message-expand-button, 
 .message .message-close-button,
@@ -694,6 +730,64 @@ Gjs_apps_windowControls_WindowControlsIndicator.panel-button:focus {
 .kiwi-notifications .message-content,
 .kiwi-notifications .message-body {
   font-size: 0.95em;
+}
+
+/* Blur my Shell turns every .message into a dark translucent card. Match its
+   toggled-off quick toggles instead: translucent where it styles them, the
+   shell theme's solid colours where it keeps the theme (surface). clipStack()
+   in quickSettingsNotifications.js stops a collapsed group showing through. */
+.bms-popup-background-dark .kiwi-notifications .message,
+.bms-popup-background-transparent .kiwi-notifications .message {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.bms-popup-background-dark .kiwi-notifications .message:second-in-stack,
+.bms-popup-background-transparent .kiwi-notifications .message:second-in-stack {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+.bms-popup-background-dark .kiwi-notifications .message:lower-in-stack,
+.bms-popup-background-transparent .kiwi-notifications .message:lower-in-stack {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.bms-popup-background-light .kiwi-notifications .message {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.bms-popup-background-light .kiwi-notifications .message:second-in-stack {
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+.bms-popup-background-light .kiwi-notifications .message:lower-in-stack {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.bms-popup-surface-dark .kiwi-notifications .message,
+.bms-popup-surface-transparent .kiwi-notifications .message {
+  background-color: #54545a !important;
+}
+
+.bms-popup-surface-dark .kiwi-notifications .message:second-in-stack,
+.bms-popup-surface-transparent .kiwi-notifications .message:second-in-stack {
+  background-color: #45454a !important;
+}
+
+.bms-popup-surface-dark .kiwi-notifications .message:lower-in-stack,
+.bms-popup-surface-transparent .kiwi-notifications .message:lower-in-stack {
+  background-color: #3d3d42 !important;
+}
+
+.bms-popup-surface-light .kiwi-notifications .message {
+  background-color: #ffffff !important;
+}
+
+.bms-popup-surface-light .kiwi-notifications .message:second-in-stack {
+  background-color: #f5f5f5 !important;
+}
+
+.bms-popup-surface-light .kiwi-notifications .message:lower-in-stack {
+  background-color: #ededed !important;
 }
 
 /* Hide scrollbar and remove its reserved space */
