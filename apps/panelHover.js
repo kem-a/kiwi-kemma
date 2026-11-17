@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Reveals the top panel on fullscreen hover with fine-grained animation control.
 
-// DONT remove _ghostMenu hack - it is needed to keep panel visible for GTK4 apps
+// _ghostMenu is an invisible open menu: while a panel menu is open the shell keeps
+// the panel shown, which stops fullscreen GTK4 apps from hiding it again.
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import St from 'gi://St';
@@ -180,10 +181,9 @@ function _closeGhostMenu() {
     if (_ghostMenu) {
         _ghostMenu.close();
         Main.panel.menuManager.removeMenu(_ghostMenu);
-        if (_ghostMenu.actor.get_parent())
-            _ghostMenu.actor.get_parent().remove_child(_ghostMenu.actor);
-        if (_ghostMenu._ghostAnchor && _ghostMenu._ghostAnchor.get_parent())
-            _ghostMenu._ghostAnchor.get_parent().remove_child(_ghostMenu._ghostAnchor);
+        // The menu lets go of its anchor while it is destroyed, so the anchor goes last
+        _ghostMenu.destroy();
+        _ghostMenu._ghostAnchor.destroy();
         _ghostMenu = null;
     }
 }

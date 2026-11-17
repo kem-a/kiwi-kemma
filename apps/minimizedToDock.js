@@ -791,14 +791,7 @@ export function enable() {
     const destroyId = global.window_manager.connect('destroy', () => _queueIconGeometry());
     globalSignals.push([global.window_manager, destroyId]);
 
-    // Snapshots outlive a disable - the shell turns extensions off for the lock
-    // screen - but only for windows still sitting minimized
-    const windows = global.get_window_actors().map(actor => actor.meta_window);
-    for (const win of snapshots.keys()) {
-        if (!windows.includes(win) || !win.minimized)
-            snapshots.delete(win);
-    }
-    windows.forEach(_trackWindow);
+    global.get_window_actors().forEach(actor => _trackWindow(actor.meta_window));
 
     // During startup the dock is not laid out yet, same caveat as dockBlur
     if (Main.layoutManager._startingUp) {
@@ -850,6 +843,7 @@ export function disable() {
     }
     windowSignals.clear();
     restoring.clear();
+    snapshots.clear();
     order = [];
 
     d2dSettings = null;

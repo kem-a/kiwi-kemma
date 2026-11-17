@@ -697,10 +697,7 @@ function connectWindowSignals(metaWindow) {
         checkWindowTouchingPanel();
     }));
 
-    // Track state changes (fullscreen, maximized, etc.)
-    actorSignals.push(metaWindow.connect('notify::fullscreened', () => {
-        checkWindowTouchingPanel();
-    }));
+    // Track maximize changes; fullscreen comes from 'in-fullscreen-changed'
     actorSignals.push(metaWindow.connect('notify::maximized-horizontally', () => {
         checkWindowTouchingPanel();
     }));
@@ -823,12 +820,10 @@ function setupSignals() {
 
 function forceThemeUpdate() {
     const panel = Main.panel;
-    panel.remove_style_class_name('panel');
     if (themeUpdateIdleId)
         GLib.Source.remove(themeUpdateIdleId);
     themeUpdateIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
         themeUpdateIdleId = 0;
-        panel.add_style_class_name('panel');
         ownBackground = '';
         panel.style = null;
         updatePanelStyle();
@@ -936,8 +931,6 @@ export function disable() {
     if (themeUpdateIdleId) {
         GLib.Source.remove(themeUpdateIdleId);
         themeUpdateIdleId = 0;
-        // forceThemeUpdate() took the class off; its idle was what put it back
-        Main.panel.add_style_class_name('panel');
     }
     if (colorSchemeIdleId) {
         GLib.Source.remove(colorSchemeIdleId);

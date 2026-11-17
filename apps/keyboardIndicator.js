@@ -58,22 +58,22 @@ function _onIndicatorDestroyed() {
 function _findLabel(root) {
     if (!root)
         return null;
+    // Prefer a visible label with text, else any label
+    const labels = _allLabels(root);
+    return labels.find(label => label.visible && label.text) ?? labels[0] ?? null;
+}
+
+// The shell keeps one hidden label per input source, so every one may hold our text
+function _allLabels(root) {
+    const labels = [];
     const stack = [root];
-    let fallback = null;
     while (stack.length) {
         const node = stack.pop();
-        if (node instanceof St.Label) {
-            // Prefer labels that are visible and have some text
-            const text = node.text ?? '';
-            if (node.visible && text.length > 0)
-                return node;
-            // Keep as last resort if nothing else found (do not store globally)
-            if (!fallback)
-                fallback = node;
-        }
+        if (node instanceof St.Label)
+            labels.push(node);
         stack.push(...node.get_children());
     }
-    return fallback;
+    return labels;
 }
 
 function _ensureLabelRef() {
@@ -285,22 +285,13 @@ export function disable() {
     // _state is null only when enable() found no indicator, so nothing was touched
     if (_state) {
         _disconnect();
-        // Try to restore any label we touched
-        const labels = new Set();
-        if (_state.label)
-            labels.add(_state.label);
-        const currentLabel = _findLabel(_state.indicator);
-        if (currentLabel)
-            labels.add(currentLabel);
-        for (const lb of labels) {
-            if (lb._kiwiOriginalText !== undefined) {
-                if (lb.text !== lb._kiwiOriginalText)
-                    lb.text = lb._kiwiOriginalText;
-                // Clear the marker to avoid leaking state
-                lb._kiwiOriginalText = undefined;
-            }
-        }
         if (_state.indicator) {
+            for (const lb of _allLabels(_state.indicator)) {
+                if (lb._kiwiOriginalText !== undefined) {
+                    lb.text = lb._kiwiOriginalText;
+                    delete lb._kiwiOriginalText;
+                }
+            }
             _state.indicator.visible = _state.shellVisible;
             _state.indicator.remove_style_class_name('kiwi-input-themed');
             _state.indicator.remove_style_class_name('kiwi-input-en');

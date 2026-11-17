@@ -31,9 +31,11 @@ export class MozillaThemeManager {
         this._config = config;
         this._settings = null;
         this._settingsChangedId = null;
+        this._cancellable = null;
     }
 
     enable() {
+        this._cancellable = new Gio.Cancellable();
         this._settings = this._extension.getSettings();
         this._settingsChangedId = this._settings.connect('changed', (_settings, key) => {
             if (key === this._config.settingsKey || key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls') {
@@ -47,33 +49,35 @@ export class MozillaThemeManager {
         this._settings.disconnect(this._settingsChangedId);
         this._settingsChangedId = null;
         this._settings = null;
+        // Stop pending updates so none writes after the cleanup below
+        this._cancellable.cancel();
+        this._cancellable = null;
         this.removeCss().catch(e => console.error(`[Kiwi] ${this._config.logPrefix} disable cleanup error: ${e}`));
         this._extension = null;
     }
 
     async updateCss() {
+        const cancellable = this._cancellable;
         const enableStyling = this._settings.get_boolean(this._config.settingsKey);
         const enableAppButtons = this._settings.get_boolean('enable-app-window-buttons');
         const showControlsOnPanel = this._settings.get_boolean('show-window-controls');
         const buttonType = this._settings.get_string('button-type');
         const buttonSize = this._settings.get_string('button-size');
-
-        if (!enableStyling && !showControlsOnPanel) {
-            await this.removeCss();
-            return;
-        }
-
-        const profile = await this._getDefaultProfile();
-        if (!profile) {
-            console.debug(`[Kiwi] ${this._config.logPrefix} no profile found`);
-            return;
-        }
-
-        const ext = this._extension;
-        const cssRoot = `${ext.path}/css`;
+        const cssRoot = `${this._extension.path}/css`;
         const prefix = this._config.cssPrefix;
 
         try {
+            if (!enableStyling && !showControlsOnPanel) {
+                await this.removeCss(cancellable);
+                return;
+            }
+
+            const profile = await this._getDefaultProfile(cancellable);
+            if (!profile) {
+                console.debug(`[Kiwi] ${this._config.logPrefix} no profile found`);
+                return;
+            }
+
             const imports = [];
             if (enableStyling && enableAppButtons) {
                 const themingPath = `${cssRoot}/${prefix}.css`;
@@ -98,21 +102,22 @@ export class MozillaThemeManager {
                 imports.push(`@import url("file://${hiddenPath}");`);
             }
 
-            await this._writeKiwiBlock(profile, imports);
-            await this._ensureLegacyPref(profile);
+            await this._writeKiwiBlock(profile, imports, cancellable);
+            await this._ensureLegacyPref(profile, cancellable);
         } catch (e) {
-            console.error(`[Kiwi] ${this._config.logPrefix} write failed for profile ${profile}: ${e}`);
+            if (!(e instanceof GLib.Error && e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)))
+                console.error(`[Kiwi] ${this._config.logPrefix} update failed: ${e}`);
         }
     }
 
-    async removeCss() {
-        const profile = await this._getDefaultProfile();
+    async removeCss(cancellable = null) {
+        const profile = await this._getDefaultProfile(cancellable);
         if (profile)
-            await this._writeKiwiBlock(profile, []);
+            await this._writeKiwiBlock(profile, [], cancellable);
     }
 
     // Rewrites only Kiwi's marked block in userChrome.css, the rest of chrome/ belongs to the user
-    async _writeKiwiBlock(profile, imports) {
+    async _writeKiwiBlock(profile, imports, cancellable) {
         const chromeDir = GLib.build_filenamev([profile, 'chrome']);
         this._migrateLegacyChrome(chromeDir);
 
@@ -121,10 +126,20 @@ export class MozillaThemeManager {
         if (!exists && !imports.length)
             return;
 
-        let text = exists ? (await this._readFileAsync(file)).replace(BLOCK_RE, '') : '';
+        const original = exists ? await this._readFileAsync(file, cancellable) : '';
+        let text = original.replace(BLOCK_RE, '');
         if (imports.length) {
             const at = text.match(PRELUDE_RE)[0].length;
             text = `${text.slice(0, at)}${BLOCK_BEGIN}\n${imports.join('\n')}\n${BLOCK_END}\n${text.slice(at)}`;
+        } else if (text === original) {
+            return;
+        } else if (!text.trim()) {
+            // The file held only Kiwi's block, so Kiwi created it
+            file.delete(null);
+            const chrome = file.get_parent();
+            if (this._isEmptyDir(chrome))
+                chrome.delete(null);
+            return;
         }
         GLib.mkdir_with_parents(chromeDir, 0o755);
         file.replace_contents(text, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
@@ -145,10 +160,7 @@ export class MozillaThemeManager {
         if (!bak.query_exists(null))
             return;
 
-        const children = chrome.enumerate_children('standard::name', Gio.FileQueryInfoFlags.NONE, null);
-        const isEmpty = children.next_file(null) === null;
-        children.close(null);
-        if (isEmpty) {
+        if (this._isEmptyDir(chrome)) {
             chrome.delete(null);
             bak.move(chrome, Gio.FileCopyFlags.NONE, null, null);
         } else {
@@ -156,18 +168,25 @@ export class MozillaThemeManager {
         }
     }
 
+    _isEmptyDir(dir) {
+        const children = dir.enumerate_children('standard::name', Gio.FileQueryInfoFlags.NONE, null);
+        const isEmpty = children.next_file(null) === null;
+        children.close(null);
+        return isEmpty;
+    }
+
     _isChromeManagedByKiwi(chromeDirPath) {
         const markerPath = GLib.build_filenamev([chromeDirPath, KIWI_MARKER_FILENAME]);
         return Gio.File.new_for_path(markerPath).query_exists(null);
     }
 
-    async _ensureLegacyPref(profileDir) {
+    async _ensureLegacyPref(profileDir, cancellable) {
         try {
             const userJsPath = GLib.build_filenamev([profileDir, 'user.js']);
             const file = Gio.File.new_for_path(userJsPath);
             let content = '';
             if (file.query_exists(null))
-                content = await this._readFileAsync(file);
+                content = await this._readFileAsync(file, cancellable);
 
             const prefLine = 'user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);';
             if (!content.includes(prefLine)) {
@@ -183,7 +202,7 @@ export class MozillaThemeManager {
      * Locate the default profile directory.
      * Tries installs.ini first, falls back to profiles.ini.
      */
-    async _getDefaultProfile() {
+    async _getDefaultProfile(cancellable) {
         // Legacy $HOME dir wins when present, same as Mozilla; else XDG config dir (Firefox 147+)
         const baseDirs = [
             GLib.build_filenamev([GLib.get_home_dir(), ...this._config.profileBaseDir.split('/')]),
@@ -191,21 +210,21 @@ export class MozillaThemeManager {
         ];
 
         for (const baseDir of baseDirs) {
-            const profile = (await this._getProfileFromInstallsIni(baseDir))
-                ?? (await this._getProfileFromProfilesIni(baseDir));
+            const profile = (await this._getProfileFromInstallsIni(baseDir, cancellable))
+                ?? (await this._getProfileFromProfilesIni(baseDir, cancellable));
             if (profile)
                 return profile;
         }
         return null;
     }
 
-    async _getProfileFromInstallsIni(baseDir) {
+    async _getProfileFromInstallsIni(baseDir, cancellable) {
         try {
             const installsIni = Gio.File.new_for_path(`${baseDir}/installs.ini`);
             if (!installsIni.query_exists(null))
                 return null;
 
-            const sections = await this._parseIniFile(installsIni);
+            const sections = await this._parseIniFile(installsIni, cancellable);
 
             let chosen = sections.find(sec => sec.data.Default && sec.data.Locked === '1');
             if (!chosen)
@@ -221,13 +240,13 @@ export class MozillaThemeManager {
         }
     }
 
-    async _getProfileFromProfilesIni(baseDir) {
+    async _getProfileFromProfilesIni(baseDir, cancellable) {
         try {
             const profilesIni = Gio.File.new_for_path(`${baseDir}/profiles.ini`);
             if (!profilesIni.query_exists(null))
                 return null;
 
-            const sections = await this._parseIniFile(profilesIni);
+            const sections = await this._parseIniFile(profilesIni, cancellable);
 
             // Find the profile marked as Default=1
             let chosen = sections.find(sec => sec.name.startsWith('Profile') && sec.data.Default === '1');
@@ -245,8 +264,8 @@ export class MozillaThemeManager {
         }
     }
 
-    async _parseIniFile(file) {
-        const text = await this._readFileAsync(file);
+    async _parseIniFile(file, cancellable) {
+        const text = await this._readFileAsync(file, cancellable);
         const lines = text.split(/\r?\n/);
         const sections = [];
         let s = {name: '', data: {}};
@@ -265,12 +284,13 @@ export class MozillaThemeManager {
         return sections;
     }
 
-    _readFileAsync(file) {
+    _readFileAsync(file, cancellable) {
         return new Promise((resolve, reject) => {
-            file.load_contents_async(null, (fileObj, res) => {
+            file.load_contents_async(cancellable, (fileObj, res) => {
                 try {
                     const [, bytes] = fileObj.load_contents_finish(res);
-                    resolve(new TextDecoder().decode(bytes));
+                    // Throw on non-UTF-8 so the file is left alone, not rewritten lossy
+                    resolve(new TextDecoder('utf-8', {fatal: true}).decode(bytes));
                 } catch (e) {
                     reject(e);
                 }

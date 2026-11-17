@@ -351,12 +351,13 @@ export default class KiwiExtension extends Extension {
         quickSettingsNotificationsDisable();
         launchpadAppDisable();
         dockBlurDisable();
-        dockStylingDisable();
         dockColorsDisable();
         // The stack borrows the minimized strip and holds a signal on it, so it
         // has to let go before that strip is destroyed
         downloadsStackDisable();
         minimizedToDockDisable();
+        // After the trash item is back in the dock, so its press handler is removed too
+        dockStylingDisable();
         reduceWindowAnimationsDisable();
         disableDragRestore();
         resetDockSettings();
