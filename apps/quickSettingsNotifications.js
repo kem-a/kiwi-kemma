@@ -8,6 +8,7 @@ import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import Meta from 'gi://Meta';
 import {
     SHELL_HAS_SYSTEM_DND,
     suppressBuiltinDndIndicator,
@@ -25,7 +26,7 @@ const DND_ICON_SIZE = 16;
 let enabled = false;
 let gettextFunc = (message) => message;
 let notificationWidget = null;
-let _originalMaxHeight; // undefined until saved; the saved style itself may be null
+let _fitLaterId = null;
 let _initTimeoutId = null;
 let _dndButton = null;
 let _notificationSettings = null;
@@ -236,6 +237,7 @@ class NotificationWidget extends St.BoxLayout {
             y_expand: true,
             y_align: Clutter.ActorAlign.FILL,
         });
+        this._maxHeight = Infinity;
 
         this._createScroll();
         this._createHeader();
@@ -279,8 +281,41 @@ class NotificationWidget extends St.BoxLayout {
     _syncEmpty() {
         this.visible = !this._list.empty;
     }
+
+    vfunc_get_preferred_height(forWidth) {
+        const [min, nat] = super.vfunc_get_preferred_height(forWidth);
+        return [Math.min(min, this._maxHeight), Math.min(nat, this._maxHeight)];
+    }
+
+    // Grow with the list until the popup reaches the bottom of its monitor's
+    // work area, keeping the gap it has under the panel; past that, scroll.
+    fitToMonitor(menu) {
+        const boxPointer = menu._boxPointer;
+        const monitor = Main.layoutManager.findIndexForActor(menu.sourceActor);
+        const area = Main.layoutManager.getWorkAreaForMonitor(monitor);
+        const gap = Math.max(0, boxPointer.y - area.y);
+        const room = area.y + area.height - gap - (boxPointer.y + boxPointer.height);
+        const maxHeight = Math.max(0, this.height + room);
+        if (maxHeight === this._maxHeight)
+            return;
+
+        this._maxHeight = maxHeight;
+        this.queue_relayout();
+    }
 }
 GObject.registerClass(NotificationWidget);
+
+// Refit after the layout pass, so the relayout is not queued mid-allocation
+function queueFitToMonitor() {
+    if (_fitLaterId)
+        return;
+
+    _fitLaterId = global.compositor.get_laters().add(Meta.LaterType.BEFORE_REDRAW, () => {
+        _fitLaterId = null;
+        notificationWidget.fitToMonitor(Main.panel.statusArea.quickSettings.menu);
+        return GLib.SOURCE_REMOVE;
+    });
+}
 
 // #endregion Notification Classes
 
@@ -308,16 +343,20 @@ export function enable(gettext, settings) {
     _initTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         const quickSettings = Main.panel.statusArea.quickSettings;
         const grid = quickSettings.menu._grid;
-        const monitor = Main.layoutManager.primaryMonitor;
-        _originalMaxHeight = quickSettings.menu.actor.get_style();
-        const newHeight = monitor.height * 0.9;
-        quickSettings.menu.actor.set_style(`max-height: ${newHeight}px;`);
 
         // Create notification widget
         if (!notificationWidget) {
             notificationWidget = new NotificationWidget();
             grid.add_child(notificationWidget);
             grid.layout_manager.child_set_property(grid, notificationWidget, 'column-span', 2);
+
+            // Refit on every popup layout, and on open for monitor changes
+            quickSettings.menu._boxPointer.connectObject('notify::allocation',
+                queueFitToMonitor, notificationWidget);
+            quickSettings.menu.connectObject('open-state-changed', (_menu, open) => {
+                if (open)
+                    queueFitToMonitor();
+            }, notificationWidget);
 
             // Dismiss the quick settings popup when a notification shown inside it is
             // activated, so the menu does not overlay (and block focus of) the launched
@@ -359,9 +398,10 @@ export function disable() {
         _initTimeoutId = null;
     }
 
-    if (_originalMaxHeight !== undefined)
-        Main.panel.statusArea.quickSettings.menu.actor.set_style(_originalMaxHeight);
-    _originalMaxHeight = undefined;
+    if (_fitLaterId) {
+        global.compositor.get_laters().remove(_fitLaterId);
+        _fitLaterId = null;
+    }
 
     destroyDndButton();
     // Always restore panel indicator; restore quick settings toggle on GNOME 49+
