@@ -211,9 +211,10 @@ function _read() {
     sampling = true;
     screenshot.screenshot_area(rect.x, rect.y, rect.width, rect.height, stream,
         (source, result) => {
-            sampling = false;
-            if (!enabled)
+            // A reply to a screenshot object disable() has since dropped
+            if (source !== screenshot)
                 return;
+            sampling = false;
             try {
                 source.screenshot_area_finish(result);
                 stream.close(null);

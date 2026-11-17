@@ -72,7 +72,7 @@ function _cancelPeriodicCheck() {
 function _startPeriodicCheck() {
     _cancelPeriodicCheck();
     _periodCheckId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-        if (!_enabled || !wsHasFullscreen) {
+        if (!wsHasFullscreen) {
             _periodCheckId = null;
             return GLib.SOURCE_REMOVE;
         }
@@ -98,7 +98,6 @@ function _scheduleHideAfterDelay(force = false) {
     _cancelHideTimeout();
     _hideTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, HIDE_DELAY_MS, () => {
         _hideTimeoutId = null;
-        if (!_enabled) return GLib.SOURCE_REMOVE;
         if (force) {
             _hidePanelAnimated();
         } else {
@@ -112,7 +111,6 @@ function _scheduleHideAfterDelay(force = false) {
 }
 
 function _showPanelAnimated() {
-    if (!_enabled) return;
     if (_panelRevealed || _animating) return; // Prevent jitter
     const panelBox = _getPanelBox();
     _cancelPanelTransitions();
@@ -134,7 +132,6 @@ function _showPanelAnimated() {
 }
 
 function _hidePanelAnimated() {
-    if (!_enabled) return;
     if (!_panelRevealed || _animating) return; // Prevent jitter
     const panelBox = _getPanelBox();
     _cancelPanelTransitions();
@@ -191,8 +188,6 @@ function _closeGhostMenu() {
 // Instead of manipulating panel translation, we work with GNOME Shell's
 // built-in panel visibility system by temporarily modifying trackFullscreen
 function _setPanelAutoHide(enable) {
-    if (!_enabled) return;
-
     const lm = Main.layoutManager;
     const panelBox = lm.panelBox;
     const record = lm._trackedActors.find(a => a.actor === panelBox);
@@ -299,8 +294,6 @@ function _onWindowCreated(display, window) {
 }
 
 function _recomputeFullscreenState() {
-    if (!_enabled) return;
-
     fullscreenWindows.clear();
     for (const w of global.workspace_manager.get_active_workspace().list_windows()) {
         if (w.is_fullscreen())
@@ -316,8 +309,6 @@ function _recomputeFullscreenState() {
         _recomputeIdleId = null;
     }
     _recomputeIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-        if (!_enabled) { _recomputeIdleId = null; return GLib.SOURCE_REMOVE; }
-
         _panelRevealed = false;
         _animating = false;
         // Auto-hide behind the hover area only in fullscreen outside the overview
@@ -338,14 +329,12 @@ function _onWorkspaceChanged() {
 }
 
 function _onOverviewShowing() {
-    if (!_enabled) return;
     // In overview, always show panel
     _setPanelAutoHide(false);
     hotCorner.hide();
 }
 
 function _onOverviewHidden() {
-    if (!_enabled) return;
     // When overview hides, recompute fullscreen state
     _recomputeFullscreenState();
 }
@@ -473,8 +462,7 @@ export function disable() {
     _panelRevealed = false;
     _animating = false;
 
-    // Restore panel to its original state - this must be done BEFORE setting _enabled to false
-    // but we already set it to false above, so we need to do manual restoration
+    // Restore panel to its original state
     _cancelPanelTransitions();
     panelBox.translation_y = 0;
     panelBox.visible = true;

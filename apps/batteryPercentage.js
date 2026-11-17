@@ -23,9 +23,10 @@ class BatteryPercentage {
         Main.panel.statusArea.quickSettings._indicators.add_child(this._batteryLabel);
         this._batteryLabel.visible = false;
         
-    // Initialize the battery proxy to interact with UPower
-    this._propertiesChangedId = null;
-    this._initBatteryProxy();
+        // Initialize the battery proxy to interact with UPower
+        this._propertiesChangedId = null;
+        this._cancellable = new Gio.Cancellable();
+        this._initBatteryProxy();
         // Track the last battery state and percentage to avoid redundant animations
         this._lastPercentage = null;
         this._lastState = null;
@@ -42,15 +43,23 @@ class BatteryPercentage {
             g_flags: Gio.DBusProxyFlags.NONE,
         });
 
-        upowerProxy.init_async(GLib.PRIORITY_DEFAULT, null, (proxy, res) => {
+        upowerProxy.init_async(GLib.PRIORITY_DEFAULT, this._cancellable, (proxy, res) => {
             try {
                 proxy.init_finish(res);
+            } catch (e) {
+                if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
+                    this._initDeviceProxy(FALLBACK_BATTERY_PATH);
+                return;
+            }
 
-                // Enumerate devices and look for battery device paths
+            // Enumerate devices and look for battery device paths
+            proxy.call('EnumerateDevices', null, Gio.DBusCallFlags.NONE, -1, this._cancellable, (_proxy, callRes) => {
                 let devices = [];
                 try {
-                    devices = proxy.call_sync('EnumerateDevices', null, Gio.DBusCallFlags.NONE, -1, null).deep_unpack()[0];
+                    devices = proxy.call_finish(callRes).deep_unpack()[0];
                 } catch (e) {
+                    if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
+                        return;
                     // Enumeration failed; use the fallback path
                 }
 
@@ -59,10 +68,7 @@ class BatteryPercentage {
                     ?? devices.find(p => /battery/i.test(p))
                     ?? FALLBACK_BATTERY_PATH;
                 this._initDeviceProxy(batteryPath);
-            } catch (e) {
-                // If anything goes wrong enumerating devices, fall back to the original hardcoded path
-                this._initDeviceProxy(FALLBACK_BATTERY_PATH);
-            }
+            });
         });
     }
 
@@ -75,18 +81,19 @@ class BatteryPercentage {
             g_flags: Gio.DBusProxyFlags.NONE,
         });
 
-        this._batteryProxy.init_async(GLib.PRIORITY_DEFAULT, null, (deviceProxy, deviceRes) => {
+        this._batteryProxy.init_async(GLib.PRIORITY_DEFAULT, this._cancellable, (deviceProxy, deviceRes) => {
             try {
                 deviceProxy.init_finish(deviceRes);
-                // Update the battery percentage after initialization
-                this._updateBatteryPercentage();
-                // Connect to the properties-changed signal to update on changes
-                this._propertiesChangedId = this._batteryProxy.connect('g-properties-changed', () => {
-                    this._updateBatteryPercentage();
-                });
-            } catch (e) {
-                // Device proxy initialization failed; nothing more we can do here.
+            } catch (_e) {
+                // Cancelled by destroy(), or no such device: nothing more we can do here
+                return;
             }
+            // Update the battery percentage after initialization
+            this._updateBatteryPercentage();
+            // Connect to the properties-changed signal to update on changes
+            this._propertiesChangedId = this._batteryProxy.connect('g-properties-changed', () => {
+                this._updateBatteryPercentage();
+            });
         });
     }
 
@@ -141,6 +148,9 @@ class BatteryPercentage {
     }
 
     destroy() {
+        // Stop proxy setup still in flight from wiring up the destroyed label
+        this._cancellable.cancel();
+        this._cancellable = null;
         if (this._propertiesChangedId && this._batteryProxy) {
             this._batteryProxy.disconnect(this._propertiesChangedId);
             this._propertiesChangedId = null;

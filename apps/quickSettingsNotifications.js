@@ -320,9 +320,6 @@ function queueFitToMonitor() {
 // #endregion Notification Classes
 
 function _applyCustomDndSetting() {
-    if (!enabled)
-        return;
-
     if (_kiwiSettings.get_boolean('custom-dnd-button')) {
         suppressBuiltinDndToggle();
         suppressBuiltinDndIndicator();

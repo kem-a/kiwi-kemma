@@ -111,7 +111,7 @@ function _untrackWindow(win) {
 }
 
 function _addWindow(win) {
-    if (!enabled || order.includes(win))
+    if (order.includes(win))
         return;
 
     // An already-minimized window is unmapped, so the snapshot taken on the way
@@ -139,11 +139,8 @@ function _removeWindow(win) {
 
     order = order.filter(w => w !== win);
     snapshots.delete(win);
-
-    if (enabled) {
-        _holdGeometry(win);
-        _syncDocks();
-    }
+    _holdGeometry(win);
+    _syncDocks();
 }
 
 /**
@@ -510,7 +507,7 @@ function _syncSeparator(info) {
  * Dash-to-Dock's separator is not the last child and ours still looks needed.
  */
 function _queueSeparatorSync() {
-    if (separatorSyncLater || !enabled)
+    if (separatorSyncLater)
         return;
     // Dash-to-Dock pulls its separator out and puts it back mid-redisplay
     separatorSyncLater = beforeRedraw(() => {
@@ -551,7 +548,7 @@ function _adoptTrash(info) {
 }
 
 function _queueTrashAdoption() {
-    if (trashAdoptionLater || !enabled)
+    if (trashAdoptionLater)
         return;
     // Same before-redraw phase as Dash-to-Dock's own rebuild, not an idle the
     // post-unlock playback can push back
@@ -669,9 +666,6 @@ function _applyIconGeometry() {
  * stop moving first.
  */
 function _queueIconGeometry() {
-    if (!enabled)
-        return;
-
     if (sources.geometryUpdate)
         GLib.Source.remove(sources.geometryUpdate);
     sources.geometryUpdate = GLib.timeout_add(GLib.PRIORITY_DEFAULT, GEOMETRY_SETTLE, () => {

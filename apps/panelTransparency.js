@@ -483,7 +483,7 @@ function applyPanelColorFix() {
         GLib.Source.remove(colorFixIdleId);
     colorFixIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
         colorFixIdleId = 0;
-        if (enabled) updatePanelStyle(lastForcedAlpha);
+        updatePanelStyle(lastForcedAlpha);
         return GLib.SOURCE_REMOVE;
     });
 }

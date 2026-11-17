@@ -67,6 +67,7 @@ let recent = [];              // newest file infos first, at most MAX_ROWS of th
 let recentCount = 0;          // files in the folder, however many that is
 let recentKey = '';           // fingerprint of the list the piles were built from
 let folderMonitor = null;     // Gio.FileMonitor on the Downloads folder
+let listCancellable = null;   // cancels folder listings still running at disable()
 let behindFolder = false;     // cards stick out of the folder rather than lie on it
 let gettextFunc = message => message;
 const sources = { dockSearch: 0, refresh: 0 };
@@ -91,9 +92,7 @@ function _openUri(uri) {
  * rather than read on the click, which is what lets the fan open at once.
  */
 function _refresh() {
-    _listDownloads(files => {
-        if (!enabled)
-            return;
+    _listDownloads(listCancellable, files => {
         recent = files.slice(0, MAX_ROWS);
         recentCount = files.length;
 
@@ -128,32 +127,39 @@ function _queueRefresh() {
  * anywhere in the enumeration order, and the count of the rest is what the top
  * row reports.
  *
+ * @param cancellable stops the listing; the callback is then never called
  * @param callback receives the file infos, newest first
  */
-function _listDownloads(callback) {
+function _listDownloads(cancellable, callback) {
     _downloadsFile().enumerate_children_async(
-        LIST_ATTRIBUTES, Gio.FileQueryInfoFlags.NONE, GLib.PRIORITY_DEFAULT, null,
+        LIST_ATTRIBUTES, Gio.FileQueryInfoFlags.NONE, GLib.PRIORITY_DEFAULT, cancellable,
         (source, result) => {
             let enumerator = null;
             try {
                 enumerator = source.enumerate_children_finish(result);
-            } catch (_) {
+            } catch (e) {
+                if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
+                    return;
                 // No Downloads folder, or it is not readable
             }
             if (enumerator)
-                _readBatch(enumerator, [], callback);
+                _readBatch(enumerator, [], cancellable, callback);
             else
                 callback([]);
         });
 }
 
-function _readBatch(enumerator, found, callback) {
-    enumerator.next_files_async(LIST_BATCH, GLib.PRIORITY_DEFAULT, null,
+function _readBatch(enumerator, found, cancellable, callback) {
+    enumerator.next_files_async(LIST_BATCH, GLib.PRIORITY_DEFAULT, cancellable,
         (source, result) => {
             let infos = [];
             try {
                 infos = source.next_files_finish(result);
-            } catch (_) {
+            } catch (e) {
+                if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+                    source.close_async(GLib.PRIORITY_DEFAULT, null, null);
+                    return;
+                }
                 // A read error ends the listing with what was found so far
             }
 
@@ -168,7 +174,7 @@ function _readBatch(enumerator, found, callback) {
                 if (!info.get_is_hidden() && !info.get_is_backup())
                     found.push(info);
             }
-            _readBatch(source, found, callback);
+            _readBatch(source, found, cancellable, callback);
         });
 }
 
@@ -539,18 +545,20 @@ function _dropOverlay(overlay) {
 function _lockDock(info, locked) {
     const container = info.container;
     // A dock torn down while the fan is open has nothing left to hold out
-    if (!container._updateDashVisibility || !container.get_stage())
+    if (!container.get_stage())
         return;
 
+    // Dash-to-Dock 110 made the method public; 109 and older (Ubuntu) keep the _
+    const updateVisibility = (container.updateDashVisibility ?? container._updateDashVisibility).bind(container);
     info.dash.requiresVisibility = locked;
     if (locked) {
-        container._updateDashVisibility();
+        updateVisibility();
         // Set last: the autohide branch above clears it
         container._ignoreHover = true;
     } else {
         container._ignoreHover = false;
         container._box.sync_hover();
-        container._updateDashVisibility();
+        updateVisibility();
     }
 }
 
@@ -931,7 +939,7 @@ function _syncSeparator(info, own) {
  * that is going on.
  */
 function _queueReplace() {
-    if (replaceLater || !enabled)
+    if (replaceLater)
         return;
     replaceLater = beforeRedraw(() => {
         replaceLater = 0;
@@ -1029,6 +1037,7 @@ export function enable(gettext, settings) {
     if (enabled)
         return;
     enabled = true;
+    listCancellable = new Gio.Cancellable();
 
     behindFolder = settings.get_boolean('downloads-behind-folder');
     const layoutId = settings.connect('changed::downloads-behind-folder', () => {
@@ -1059,10 +1068,8 @@ export function enable(gettext, settings) {
 export function disable() {
     enabled = false;
 
-    if (replaceLater) {
-        cancelBeforeRedraw(replaceLater);
-        replaceLater = 0;
-    }
+    listCancellable?.cancel();
+    listCancellable = null;
 
     for (const key of Object.keys(sources)) {
         if (sources[key])
@@ -1081,6 +1088,12 @@ export function disable() {
     globalSignals = [];
 
     [...docks].forEach(info => _detachDock(info));
+
+    // After the docks: destroying their items queues a re-place
+    if (replaceLater) {
+        cancelBeforeRedraw(replaceLater);
+        replaceLater = 0;
+    }
 
     folderMonitor?.cancel();
     folderMonitor = null;
