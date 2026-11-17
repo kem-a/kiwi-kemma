@@ -281,14 +281,4 @@
         <description>Enable or disable transparent move.</description>
       </key>
     </schema>
-
-    <!-- Internal state, not settings: kept apart so preference changes and
-         Restore Defaults never touch it -->
-    <schema id="org.gnome.shell.extensions.kiwi.state" path="/org/gnome/shell/extensions/kiwi/state/">
-      <key name="dock-colors-backup" type="a{ss}">
-        <default>{}</default>
-        <summary>Dash-to-Dock colours before Kiwi</summary>
-        <description>The Dash-to-Dock colour settings Dock Adaptive Colors replaced, restored when it is switched off. Empty while the feature is off.</description>
-      </key>
-    </schema>
 </schemalist>
