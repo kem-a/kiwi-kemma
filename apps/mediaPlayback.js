@@ -43,8 +43,7 @@ class MediaProgressSlider extends Slider {
     constructor(value) {
         super(value);
         this._handleOpacity = new St.Adjustment({ actor: this, lower: 0, upper: 1, value: 0 });
-        this._handleOpacityChangedId = this._handleOpacity.connect(
-            'notify::value', () => this.queue_repaint());
+        this._handleOpacity.connectObject('notify::value', () => this.queue_repaint(), this);
         // Slider updates its handle radius after DrawingArea's style repaint.
         this.connect_after('style-changed', () => this.queue_repaint());
         this.connect('notify::hover', () => this._syncHandle());
@@ -60,8 +59,6 @@ class MediaProgressSlider extends Slider {
         });
         this.connect('destroy', () => {
             this._handleOpacity.remove_transition('value');
-            this._handleOpacity.disconnect(this._handleOpacityChangedId);
-            this._handleOpacityChangedId = null;
             this._handleOpacity = null;
         });
     }
