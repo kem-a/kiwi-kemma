@@ -12,6 +12,14 @@ const CLOSE_DURATION = 70;     // ms
 const CLOSE_SCALE_TO = 0.97;
 
 let _origShouldAnimateActor = null;
+// Actors whose next ease() is still ours -> their 'destroy' handler id
+const _patched = new Map();
+
+function _unpatch(actor) {
+    actor.disconnect(_patched.get(actor));
+    _patched.delete(actor);
+    delete actor.ease;
+}
 
 export function enable() {
     if (_origShouldAnimateActor)
@@ -26,18 +34,16 @@ export function enable() {
     // completion callback intact and only rewrite the ease params.
     Main.wm._shouldAnimateActor = function (actor, types) {
         const shouldAnimate = _origShouldAnimateActor.call(this, actor, types);
-        if (!shouldAnimate || actor._kiwiEasePatched)
+        if (!shouldAnimate || _patched.has(actor))
             return shouldAnimate;
 
         // One-shot replacement of ease(): the caller calls it next. Which
         // animation we are in is only decided there — _mapWindow/_destroyWindow
         // register the actor in wm._mapping/_destroying between this call and
         // theirs, so a Set lookup replaces sniffing the caller off a stack.
-        actor._kiwiEasePatched = true;
         const origEase = actor.ease;
         actor.ease = function (params) {
-            actor.ease = origEase;
-            actor._kiwiEasePatched = false;
+            _unpatch(actor);
 
             const forOpening = Main.wm._mapping.has(actor);
             const forClosing = Main.wm._destroying.has(actor);
@@ -66,6 +72,8 @@ export function enable() {
 
             return origEase.call(this, params);
         };
+        // A window can close unanimated before its ease() comes
+        _patched.set(actor, actor.connect('destroy', () => _patched.delete(actor)));
 
         return shouldAnimate;
     };
@@ -76,4 +84,6 @@ export function disable() {
         Main.wm._shouldAnimateActor = _origShouldAnimateActor;
         _origShouldAnimateActor = null;
     }
+    // A mapped window waits for the overview to hide before its ease() runs
+    [..._patched.keys()].forEach(_unpatch);
 }

@@ -12,8 +12,7 @@ import Clutter from 'gi://Clutter';
 
 import { connectPaintSignal } from './blurPaintSignal.js';
 
-let settings;
-let enabled = false;
+let settings = null; // set exactly while enabled
 let windowSignals = [];
 let settingsSignals = [];
 let interfaceSettings;
@@ -850,9 +849,8 @@ export function enable(_settings) {
     // extension.js re-runs every module's enable() on any settings change, so
     // this must be idempotent — otherwise originalStyle is re-captured from a
     // panel we already made transparent, and timers/signals pile up.
-    if (enabled) return;
+    if (settings) return;
     settings = _settings;
-    enabled = true;
 
     originalStyle = Main.panel.get_style();
     panelStyleSignal = Main.panel.connect('notify::style', () => {
@@ -909,8 +907,6 @@ export function enable(_settings) {
 }
 
 export function disable() {
-    enabled = false;
-
     if (timeoutId) {
         GLib.Source.remove(timeoutId);
         timeoutId = null;

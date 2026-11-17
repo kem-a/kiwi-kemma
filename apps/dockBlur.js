@@ -12,7 +12,6 @@ import Shell from 'gi://Shell';
 import { connectPaintSignal } from './blurPaintSignal.js';
 import { dashOf, dockContainers } from './dockUtils.js';
 
-let enabled = false;
 let dockSearchId = null;
 let dashes = []; // array of per-dash state objects
 let blurRepaintSignals = []; // global event signal connections for blur repaints
@@ -259,10 +258,10 @@ let startupCompleteId = null;
 
 export function enable() {
     // Every settings change re-runs this; a second pass would connect another
-    // child-added handler over the one we hold and leave it connected for good
-    if (enabled)
+    // child-added handler over the one we hold and leave it connected for good.
+    // One of the two ids is set from here until disable().
+    if (childAddedId || startupCompleteId)
         return;
-    enabled = true;
 
     // During shell startup the dock geometry is unreliable (startup animation,
     // layout not settled) — blurring then yields a mis-sized blur bar.
@@ -304,8 +303,6 @@ function _enable() {
 }
 
 export function disable() {
-    enabled = false;
-
     if (startupCompleteId) {
         Main.layoutManager.disconnect(startupCompleteId);
         startupCompleteId = null;

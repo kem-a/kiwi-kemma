@@ -59,15 +59,15 @@ const LIST_ATTRIBUTES = [
     'thumbnail::path',
 ].join(',');
 
-let enabled = false;
 let docks = [];               // [{ dash, strip, item, button, iconSize, signals }]
 let globalSignals = [];       // [[object, id]]
 let fan = null;               // { overlay, grab, rows, anchor }
+const folds = new Map();      // overlay -> dock info, for fans still folding back
 let recent = [];              // newest file infos first, at most MAX_ROWS of them
 let recentCount = 0;          // files in the folder, however many that is
 let recentKey = '';           // fingerprint of the list the piles were built from
 let folderMonitor = null;     // Gio.FileMonitor on the Downloads folder
-let listCancellable = null;   // cancels folder listings still running at disable()
+let listCancellable = null;   // set while enabled; cancels folder listings at disable()
 let behindFolder = false;     // cards stick out of the folder rather than lie on it
 let gettextFunc = message => message;
 const sources = { dockSearch: 0, refresh: 0 };
@@ -568,6 +568,7 @@ function _closeFan() {
 
     const { overlay, grab, rows, info } = fan;
     fan = null;
+    folds.set(overlay, info);
 
     Main.popModal(grab);
     _lockDock(info, false);
@@ -583,6 +584,9 @@ function _closeFan() {
             landed = true;
             return;
         }
+        // _dropFolds() took it down already
+        if (!folds.delete(overlay))
+            return;
         _dropOverlay(overlay);
         // Rebuilt from the folder as it stands now, in case it changed while the
         // fan was out
@@ -647,6 +651,21 @@ function _closeFan() {
     folding = false;
     if (landed)
         finish();
+}
+
+/**
+ * Take down the fans of a dock that are still folding back, before the dock and
+ * the cards their rows land on go away. Folds stopped this way skip finish().
+ *
+ * @param info the per-dock state
+ */
+function _dropFolds(info) {
+    for (const [overlay, owner] of folds) {
+        if (owner !== info)
+            continue;
+        folds.delete(overlay);
+        _dropOverlay(overlay);
+    }
 }
 
 function _toggleFan(info) {
@@ -1009,6 +1028,7 @@ function _detachDock(info, removeActors = true) {
     _clearStripSignal(info);
 
     _closeFan();
+    _dropFolds(info);
 
     if (removeActors) {
         info.item?.destroy();
@@ -1034,9 +1054,8 @@ function _watchDocks() {
 
 export function enable(gettext, settings) {
     gettextFunc = gettext;
-    if (enabled)
+    if (listCancellable)
         return;
-    enabled = true;
     listCancellable = new Gio.Cancellable();
 
     behindFolder = settings.get_boolean('downloads-behind-folder');
@@ -1066,8 +1085,6 @@ export function enable(gettext, settings) {
 }
 
 export function disable() {
-    enabled = false;
-
     listCancellable?.cancel();
     listCancellable = null;
 

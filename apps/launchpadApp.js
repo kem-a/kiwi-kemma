@@ -21,7 +21,7 @@ const ICON_RELATIVE_PATH = 'icons/launchpad.svg';
 // Right after the first favorite, like Launchpad after Finder
 const LAUNCHPAD_POSITION = 1;
 
-let _enabled = false; // Guards repeated enable() calls, including pending initialization
+// Set from the start of enable(), pending initialization included, until disable()
 let _enableCancellable = null;
 let _injectionManager = null;
 let _app = null;
@@ -67,6 +67,16 @@ function _takeOver(dash, item) {
         dash.showAppsButton.checked = !dash.showAppsButton.checked;
     };
     appIcon.popupMenu = () => false;
+}
+
+// Back to the class methods the overrides above shadow
+function _release(item) {
+    const appIcon = item.child?._delegate;
+    if (appIcon?.app?.get_id() !== LAUNCHPAD_DESKTOP_ID)
+        return;
+
+    delete appIcon.activate;
+    delete appIcon.popupMenu;
 }
 
 function _watchDash(dash) {
@@ -190,20 +200,17 @@ NoDisplay=false
 export async function enable(extension, gettext) {
     // extension.js re-runs this on any settings change. A custom-icon change is
     // handled by disabling first, so that path still rewrites the .desktop file.
-    if (_enabled)
+    if (_enableCancellable)
         return;
 
-    _enabled = true;
     const cancellable = new Gio.Cancellable();
     _enableCancellable = cancellable;
     let ready;
     try {
         ready = await _queueFileOperation(() => _writeDesktopFile(extension, gettext, cancellable));
     } catch (error) {
-        if (_enableCancellable === cancellable) {
-            _enabled = false;
+        if (_enableCancellable === cancellable)
             _enableCancellable = null;
-        }
         if (!cancellable.is_cancelled())
             console.error('Launchpad: Failed to create desktop file:', error);
         return;
@@ -233,7 +240,6 @@ export async function enable(extension, gettext) {
 }
 
 export function disable() {
-    _enabled = false;
     _enableCancellable?.cancel();
     _enableCancellable = null;
 
@@ -253,12 +259,14 @@ export function disable() {
     for (const { box, childId, destroyId } of overviewWatches) {
         box.disconnect(childId);
         box.disconnect(destroyId);
+        box.get_children().forEach(_release);
     }
     overviewWatches = [];
 
     for (const { container, destroyId, box, boxId } of docks) {
         container.disconnect(destroyId);
         box.disconnect(boxId);
+        box.get_children().forEach(_release);
     }
     docks = [];
 

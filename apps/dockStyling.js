@@ -46,13 +46,19 @@ function _wireItem(item) {
     button._kiwiPressId = button.connect('notify::pressed', () => syncDarken(button));
 }
 
-function _unwireItem(item) {
-    const button = item.child;
-    if (!button?._kiwiPressId)
-        return;
-    button.disconnect(button._kiwiPressId);
-    button._kiwiPressId = 0;
-    syncDarken(button, false);
+// Minimize-to-dock moves the trash item out of the box into its own strip, so
+// look through the whole dash for the buttons we wired, not just the box
+function _unwireDash(dash) {
+    const stack = [dash];
+    while (stack.length) {
+        const actor = stack.pop();
+        if (actor._kiwiPressId) {
+            actor.disconnect(actor._kiwiPressId);
+            delete actor._kiwiPressId;
+            syncDarken(actor, false);
+        }
+        stack.push(...actor.get_children());
+    }
 }
 
 function _applyDock(container) {
@@ -120,6 +126,8 @@ export function disable() {
 
     for (const container of dockContainers()) {
         container.remove_style_class_name(STYLE_CLASS);
-        dashOf(container)?._box?.get_children().forEach(_unwireItem);
+        const dash = dashOf(container);
+        if (dash)
+            _unwireDash(dash);
     }
 }

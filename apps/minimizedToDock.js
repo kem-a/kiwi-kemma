@@ -35,7 +35,6 @@ const GEOMETRY_SETTLE = 100;  // ms of a still dock before recomputing targets
 const TILE_SLOT_TIME = 160;   // ms to open or close the slot along the dock
 const TILE_GROW_TIME = 240;   // ms for the thumbnail itself to grow or shrink
 
-let enabled = false;
 let docks = [];                 // [{ dash, strip, iconSize, signals, tiles, trashItem }]
 let order = [];                 // Meta.Window[], in minimize order (newest last)
 let snapshots = new Map();      // Meta.Window -> { content, width, height }
@@ -754,9 +753,10 @@ function _detachDock(info, removeActors = true) {
 /* ----------------------------------------------------------- entry points */
 
 export function enable() {
-    if (enabled)
+    // Every settings change re-runs this; globalSignals is filled below and
+    // emptied only by disable()
+    if (globalSignals.length)
         return;
-    enabled = true;
 
     // Dash-to-Dock cannot take its trash item back while we hold it, so follow
     // the setting to know when the user does not want it any more
@@ -806,8 +806,6 @@ function _watchDocks() {
 }
 
 export function disable() {
-    enabled = false;
-
     if (trashAdoptionLater) {
         cancelBeforeRedraw(trashAdoptionLater);
         trashAdoptionLater = 0;

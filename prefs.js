@@ -127,6 +127,16 @@ export default class KiwiPreferences extends ExtensionPreferences {
         cssProvider.load_from_path(GLib.build_filenamev([this.path, 'css', 'prefs.css']));
         Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
+        // The prefs process outlives this window and hosts other extensions' windows,
+        // so give back the handlers, icon path and CSS when it closes
+        const handlers = [];
+        const watch = (object, signal, callback) => handlers.push([object, object.connect(signal, callback)]);
+        window.connect('close-request', () => {
+            handlers.forEach(([object, id]) => object.disconnect(id));
+            iconTheme.set_search_path(iconTheme.get_search_path().filter(path => path !== iconsPath));
+            Gtk.StyleContext.remove_provider_for_display(Gdk.Display.get_default(), cssProvider);
+        });
+
         //
         // About Page (First Page)
         //
@@ -267,7 +277,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
             // Copyright section
             const copyrightGroup = new Adw.PreferencesGroup({
                 title: _('Copyright'),
-                description: `${_('Copyright')} © 2025 Arnis Kemlers\n\n${_('This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.')}`,
+                description: `${_('Copyright')} © 2025 Arnis Kemlers\n\n${_(
+                    'This program is free software: you can redistribute it and/or modify it under the terms of the ' +
+                    'GNU General Public License as published by the Free Software Foundation, either version 3 of the ' +
+                    'License, or (at your option) any later version.')}`,
             });
             legalContent.add(copyrightGroup);
 
@@ -517,10 +530,10 @@ export default class KiwiPreferences extends ExtensionPreferences {
         };
 
         syncWindowTitleExpansion();
-        settings.connect('changed::show-window-title', syncWindowTitleExpansion);
-        settings.connect('changed::show-window-title-icon', syncWindowTitleExpansion);
-        settings.connect('changed::show-window-subtitle', syncWindowTitleExpansion);
-        settings.connect('changed::show-tiling-title-menu', syncWindowTitleExpansion);
+        watch(settings, 'changed::show-window-title', syncWindowTitleExpansion);
+        watch(settings, 'changed::show-window-title-icon', syncWindowTitleExpansion);
+        watch(settings, 'changed::show-window-subtitle', syncWindowTitleExpansion);
+        watch(settings, 'changed::show-tiling-title-menu', syncWindowTitleExpansion);
 
         // Expander with notification indicator style sub-option
         const calendarHasNonDefault =
@@ -573,7 +586,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
                 : _("Show battery percentage in the top bar when below 20%");
         };
         syncBatteryRow();
-        interfaceSettings.connect('changed::show-battery-percentage', syncBatteryRow);
+        watch(interfaceSettings, 'changed::show-battery-percentage', syncBatteryRow);
 
         this._addSwitchRows(settings, windowTitleGroup, [
             { key: 'custom-dnd-button', title: _("Custom Do Not Disturb Button"), subtitle: _("Replace the system Do Not Disturb button with Kiwi's custom implementation") },
@@ -626,8 +639,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         };
 
         syncKeyboardIndicatorExpansion();
-        settings.connect('changed::keyboard-indicator', syncKeyboardIndicatorExpansion);
-        settings.connect('changed::hide-keyboard-indicator', syncKeyboardIndicatorExpansion);
+        watch(settings, 'changed::keyboard-indicator', syncKeyboardIndicatorExpansion);
+        watch(settings, 'changed::hide-keyboard-indicator', syncKeyboardIndicatorExpansion);
 
         //
         // Dock Page
@@ -683,8 +696,8 @@ export default class KiwiPreferences extends ExtensionPreferences {
         };
 
         syncDownloadsExpansion();
-        settings.connect('changed::downloads-in-dock', syncDownloadsExpansion);
-        settings.connect('changed::downloads-behind-folder', syncDownloadsExpansion);
+        watch(settings, 'changed::downloads-in-dock', syncDownloadsExpansion);
+        watch(settings, 'changed::downloads-behind-folder', syncDownloadsExpansion);
 
         // Launchpad Application with custom icon option
         const launchpadHasNonDefault = settings.get_string('launchpad-app-custom-icon') !== '';
@@ -784,7 +797,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         launchpadExpander.add_row(launchpadIconRow);
         dockGroup.add(launchpadExpander);
 
-        settings.connect('changed::launchpad-app-custom-icon', () => {
+        watch(settings, 'changed::launchpad-app-custom-icon', () => {
             const path = settings.get_string('launchpad-app-custom-icon');
             launchpadIconRow.subtitle = path
                 ? GLib.path_get_basename(path)
@@ -856,7 +869,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         };
 
         syncButtonsExpansion();
-        settings.connect('changed::enable-app-window-buttons', syncButtonsExpansion);
+        watch(settings, 'changed::enable-app-window-buttons', syncButtonsExpansion);
 
         const buttonTypeRow = this._createEnumComboRow(
             settings,
@@ -898,7 +911,7 @@ export default class KiwiPreferences extends ExtensionPreferences {
         // No need to manage visibility; expander controls reveal
 
         // When the main switch is turned off, also turn off Firefox styling
-        settings.connect('changed::enable-app-window-buttons', () => {
+        watch(settings, 'changed::enable-app-window-buttons', () => {
             const enabled = settings.get_boolean('enable-app-window-buttons');
             if (!enabled) {
                 if (settings.get_boolean('enable-firefox-styling'))
@@ -1009,7 +1022,11 @@ export default class KiwiPreferences extends ExtensionPreferences {
 
         // Explanation text
         const explanationLabel = new Gtk.Label({
-            label: _('The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. GTK3 apps cannot natively show hover effects on all three window controls simultaneously, requiring this custom library to achieve the desired behavior.\n\nThis binary code cannot be distributed through the GNOME Extensions platform due to security policies regarding native libraries, but manual installation is possible.'),
+            label: _('The titlebuttons hover module provides macOS-like hover effects for window controls in GTK3 applications. ' +
+                'GTK3 apps cannot natively show hover effects on all three window controls simultaneously, ' +
+                'requiring this custom library to achieve the desired behavior.\n\n' +
+                'This binary code cannot be distributed through the GNOME Extensions platform due to security policies ' +
+                'regarding native libraries, but manual installation is possible.'),
             wrap: true,
             halign: Gtk.Align.START,
             xalign: 0,

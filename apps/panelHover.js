@@ -26,7 +26,6 @@ let overviewShowingHandler = null;
 let overviewHiddenHandler = null;
 let wsHasFullscreen = false;
 let hotCorner = null;
-let _enabled = false;
 let _hideTimeoutId = null;
 let _panelRevealed = false;
 let _animating = false;
@@ -340,15 +339,10 @@ function _onOverviewHidden() {
 }
 
 export function enable() {
-    // extension.js re-runs this on any settings change, and the reset below is a
-    // full teardown: dropping the chrome recomputes the input region and every
-    // window on the system gets re-connected. Only pay that when not already up.
-    if (_enabled)
+    // extension.js re-runs this on any settings change; set up only once
+    if (hotCorner)
         return;
-    disable(); // Clean reset
-    _enabled = true;
-    _originalTrackFullscreen = null; // Reset for fresh start
-    
+
     hotCorner = _createHoverArea();
     Main.layoutManager.addChrome(hotCorner, {
         trackFullscreen: false, // We manage visibility ourselves
@@ -404,8 +398,6 @@ export function enable() {
 }
 
 export function disable() {
-    _enabled = false;
-
     // Clear any pending timeout
     _cancelHideTimeout();
     _cancelPeriodicCheck();
@@ -459,21 +451,23 @@ export function disable() {
     windowSignals.clear();
     fullscreenWindows.clear();
     wsHasFullscreen = false;
+
+    // Undo only what Kiwi changed, so another extension's panel state survives:
+    // an unfinished reveal animation, and trackFullscreen once it was captured
+    if (_animating) {
+        _cancelPanelTransitions();
+        panelBox.translation_y = 0;
+    }
     _panelRevealed = false;
     _animating = false;
 
-    // Restore panel to its original state
-    _cancelPanelTransitions();
-    panelBox.translation_y = 0;
-    panelBox.visible = true;
-
-    // Restore trackFullscreen to its original value, or default to true if not stored
-    const lm = Main.layoutManager;
-    const record = lm._trackedActors.find(a => a.actor === panelBox);
-    if (record)
-        record.trackFullscreen = _originalTrackFullscreen ?? true;
-    lm._updateVisibility();
-
-    // Reset stored values
-    _originalTrackFullscreen = null;
+    if (_originalTrackFullscreen !== null) {
+        panelBox.visible = true;
+        const lm = Main.layoutManager;
+        const record = lm._trackedActors.find(a => a.actor === panelBox);
+        if (record)
+            record.trackFullscreen = _originalTrackFullscreen;
+        lm._updateVisibility();
+        _originalTrackFullscreen = null;
+    }
 }

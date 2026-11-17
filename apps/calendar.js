@@ -12,7 +12,6 @@ import { InjectionManager } from 'resource:///org/gnome/shell/extensions/extensi
 
 // State holders so we can fully restore on disable
 let dateMenu;
-let enabled = false;
 let originalParent;
 let originalParentIndex;
 let originalMenuBoxStyle;
@@ -90,7 +89,7 @@ let notificationIndicatorParent = null;
 let notificationSignals = [];
 let indicatorInsertTimeoutId = null; // timeout id for delayed indicator insertion
 let kiwiExtension = null;
-let kiwiSettings = null;
+let kiwiSettings = null; // set exactly while enabled
 let indicatorStyleSignalId = 0;
 
 function applyIndicatorStyle(style) {
@@ -249,7 +248,7 @@ function updateNotificationIndicator() {
 }
 
 export function enable(extension) {
-    if (enabled)
+    if (kiwiSettings)
         return; // Prevent double-application
     kiwiExtension = extension;
     kiwiSettings = extension.getSettings();
@@ -299,8 +298,6 @@ export function enable(extension) {
 
     // Set up notification indicator on QuickSettings
     setupNotificationIndicator();
-
-    enabled = true;
 }
 
 export function disable() {
@@ -341,8 +338,6 @@ export function disable() {
 
     // Clean up notification indicator
     cleanupNotificationIndicator();
-
-    enabled = false;
 }
 
 function checkForNotifications() {

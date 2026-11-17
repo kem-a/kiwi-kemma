@@ -23,7 +23,6 @@ const DND_ICON_PATH = 'icons/moon-fill-symbolic.svg';
 const DND_ICON_SIZE = 16;
 
 // State holders
-let enabled = false;
 let gettextFunc = (message) => message;
 let notificationWidget = null;
 let _fitLaterId = null;
@@ -183,9 +182,9 @@ function clipStack(group) {
 }
 
 function watchStack(group) {
-    const watch = child => child.connect('notify::allocation', () => clipStack(group));
+    const watch = child => child.connectObject('notify::allocation', () => clipStack(group), group);
     group.get_children().forEach(watch);
-    group.connect('child-added', (_group, child) => watch(child));
+    group.connectObject('child-added', (_group, child) => watch(child), group);
 }
 
 const NotificationList = GObject.registerClass(
@@ -334,7 +333,7 @@ function _applyCustomDndSetting() {
 export function enable(gettext, settings) {
     gettextFunc = gettext;
     _kiwiSettings = settings;
-    if (enabled || _initTimeoutId) return;
+    if (notificationWidget || _initTimeoutId) return;
 
     // Delay to ensure quicksettings is fully loaded
     _initTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
@@ -383,7 +382,6 @@ export function enable(gettext, settings) {
         if (!_kiwiSettingsChangedId)
             _kiwiSettingsChangedId = _kiwiSettings.connect('changed::custom-dnd-button', _applyCustomDndSetting);
 
-        enabled = true;
         _initTimeoutId = null;
         return GLib.SOURCE_REMOVE;
     });
@@ -416,7 +414,6 @@ export function disable() {
     }
     _kiwiSettings = null;
 
-    enabled = false;
     gettextFunc = (message) => message;
 }
 

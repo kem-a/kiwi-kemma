@@ -11,6 +11,7 @@ import GObject from 'gi://GObject';
 import Mtk from 'gi://Mtk';
 import St from 'gi://St';
 
+import { InjectionManager } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { ControlsState } from 'resource:///org/gnome/shell/ui/overviewControls.js';
 import { Workspace, WorkspaceBackground } from 'resource:///org/gnome/shell/ui/workspace.js';
@@ -29,8 +30,7 @@ const RELEASE_MIN_MS = 350;
 let _overviewHiddenId = 0;
 let _controlsLayout = null;
 let _origComputeBox = null;
-let _origInit = null;
-let _initPatch = null;
+let _injections = null;
 let _touchpadGesture = null;
 let _controls = null;
 let _smoothTimeline = null;
@@ -140,13 +140,13 @@ function applyPatches() {
         return box;
     };
 
-    _origInit = Workspace.prototype._init;
-    _initPatch = function (metaWorkspace, monitorIndex, overviewAdjustment) {
-        _origInit.call(this, metaWorkspace, monitorIndex, overviewAdjustment);
-        if (monitorIndex === Main.layoutManager.primaryIndex)
-            patchWorkspace(this);
-    };
-    Workspace.prototype._init = _initPatch;
+    _injections = new InjectionManager();
+    _injections.overrideMethod(Workspace.prototype, '_init',
+        original => function (metaWorkspace, monitorIndex, overviewAdjustment) {
+            original.call(this, metaWorkspace, monitorIndex, overviewAdjustment);
+            if (monitorIndex === Main.layoutManager.primaryIndex)
+                patchWorkspace(this);
+        });
 
     // The tracker binds its handlers at construction, so scale the distance where the
     // touchpad gesture emits it. Touchscreen swipes keep 1:1 tracking.
@@ -207,7 +207,7 @@ function applyPatches() {
 }
 
 export function enable() {
-    if (_origInit || _overviewHiddenId)
+    if (_injections || _overviewHiddenId)
         return;
 
     // Patching mid-animation would mix patched and unpatched geometry. An interrupted
@@ -233,8 +233,8 @@ export function disable() {
 
     if (_controlsLayout)
         _controlsLayout._computeWorkspacesBoxForState = _origComputeBox;
-    if (_initPatch && Workspace.prototype._init === _initPatch)
-        Workspace.prototype._init = _origInit;
+    _injections?.clear();
+    _injections = null;
     restoreLiveWorkspaces();
 
     _smoothTimeline?.stop();
@@ -247,6 +247,4 @@ export function disable() {
     _touchpadGesture = null;
     _controlsLayout = null;
     _origComputeBox = null;
-    _origInit = null;
-    _initPatch = null;
 }

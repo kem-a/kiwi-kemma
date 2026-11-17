@@ -255,7 +255,7 @@ export default class KiwiExtension extends Extension {
 
         // Dock colors that follow the wallpaper behind the dock
         if (hasDock && this._settings.get_boolean('dock-adaptive-colors'))
-            dockColorsEnable();
+            dockColorsEnable(this);
         else
             dockColorsDisable();
 

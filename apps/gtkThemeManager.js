@@ -19,6 +19,11 @@ const MANAGED_BLOCK_REGEX = /\/\* Kiwi \(is not Apple\) - managed imports: begin
 // style. Cleans up the unmarked imports written by versions <= 1.9.1.
 const LEGACY_IMPORT_REGEX = /^[^\n]*@import[^\n]*kiwi@kemma[^\n]*\n?/gm;
 
+const SETTINGS_KEYS = [
+    'enable-app-window-buttons', 'button-type', 'button-size',
+    'show-window-controls', 'show-window-controls-fullscreen-only', 'popup-menu-styling',
+];
+
 let gtkThemeManager = null;
 
 class GtkThemeManager {
@@ -26,6 +31,7 @@ class GtkThemeManager {
         this._extension = ext;
         this._settings = null;
         this._settingsChangedId = null;
+        this._cancellable = null;
     }
 
     // Absolute file:// URI for a stylesheet shipped in the extension's css folder.
@@ -88,67 +94,74 @@ class GtkThemeManager {
     }
 
     async updateGtkCss() {
-        const configDir = GLib.get_user_config_dir();
+        // A newer run supersedes this one, so a stale block is never written last
+        this._cancellable?.cancel();
+        this._cancellable = new Gio.Cancellable();
+        await this._syncFiles({3: this._buildManagedBlock('3'), 4: this._buildManagedBlock('4')}, this._cancellable);
+    }
 
+    // Writes each version's block; a cancelled run stops before touching another file
+    async _syncFiles(blocks, cancellable) {
         for (const version of ['3', '4']) {
-            const gtkConfigDir = GLib.build_filenamev([configDir, `gtk-${version}.0`]);
-            GLib.mkdir_with_parents(gtkConfigDir, 0o755);
-
-            const userPath = GLib.build_filenamev([gtkConfigDir, 'gtk.css']);
-            await this.processUserGtkFile(userPath, this._buildManagedBlock(version));
+            const filePath = GLib.build_filenamev([GLib.get_user_config_dir(), `gtk-${version}.0`, 'gtk.css']);
+            try {
+                await this.processUserGtkFile(filePath, blocks[version], cancellable);
+            } catch (error) {
+                if (error instanceof GLib.Error && error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
+                    return;
+                console.error(`[Kiwi] Error processing GTK file ${filePath}: ${error}`);
+            }
         }
     }
 
     // Replaces our managed block in the user's gtk.css, leaving their own rules
     // untouched. An empty block removes our imports entirely.
-    async processUserGtkFile(filePath, managedBlock) {
-        try {
-            const file = Gio.File.new_for_path(filePath);
-            const exists = file.query_exists(null);
+    async processUserGtkFile(filePath, managedBlock, cancellable) {
+        const file = Gio.File.new_for_path(filePath);
+        const exists = file.query_exists(null);
 
-            if (!exists && !managedBlock)
-                return;
+        if (!exists && !managedBlock)
+            return;
 
-            let existingContent = '';
-            if (exists) {
-                const [contents] = await file.load_contents_async(null);
-                existingContent = new TextDecoder().decode(contents);
-            }
-
-            // Strip any previous block, plus unmarked imports from older versions
-            existingContent = existingContent
-                .replace(MANAGED_BLOCK_REGEX, '')
-                .replace(LEGACY_IMPORT_REGEX, '');
-
-            // Our imports come first so user rules can still override them
-            const newContent = managedBlock + existingContent;
-
-            if (!newContent.trim()) {
-                // Nothing but our own content was in there
-                if (exists)
-                    file.delete(null);
-                return;
-            }
-
-            file.replace_contents(newContent, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
-        } catch (error) {
-            console.error(`[Kiwi] Error processing GTK file ${filePath}: ${error}`);
+        let original = '';
+        if (exists) {
+            const [contents] = await file.load_contents_async(cancellable);
+            // Throw on non-UTF-8 so the file is left alone, not rewritten lossy
+            original = new TextDecoder('utf-8', {fatal: true}).decode(contents);
         }
+
+        // Strip any previous block, plus unmarked imports from older versions
+        const userContent = original
+            .replace(MANAGED_BLOCK_REGEX, '')
+            .replace(LEGACY_IMPORT_REGEX, '');
+
+        // Our imports come first so user rules can still override them
+        const newContent = managedBlock + userContent;
+        if (newContent === original)
+            return;
+
+        // Nothing but our own content was in there. A symlinked file belongs to
+        // the user's setup, so it is emptied rather than deleted.
+        const isSymlink = exists && file.query_info('standard::is-symlink',
+            Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null).get_is_symlink();
+        if (!newContent.trim() && !isSymlink) {
+            file.delete(null);
+            return;
+        }
+
+        GLib.mkdir_with_parents(file.get_parent().get_path(), 0o755);
+        // No REPLACE_DESTINATION: it would turn a symlink into a regular file
+        file.replace_contents(newContent, null, false, Gio.FileCreateFlags.NONE, null);
     }
 
     async removeUserGtkConfig() {
-        const configDir = GLib.get_user_config_dir();
-
-        for (const version of ['3', '4']) {
-            const userPath = GLib.build_filenamev([configDir, `gtk-${version}.0`, 'gtk.css']);
-            await this.processUserGtkFile(userPath, '');
-        }
+        await this._syncFiles({3: '', 4: ''}, null);
     }
 
     enable() {
         this._settings = this._extension.getSettings();
         this._settingsChangedId = this._settings.connect('changed', (settings, key) => {
-            if (key === 'enable-app-window-buttons' || key === 'button-type' || key === 'button-size' || key === 'show-window-controls' || key === 'show-window-controls-fullscreen-only' || key === 'popup-menu-styling') {
+            if (SETTINGS_KEYS.includes(key)) {
                 this.updateGtkCss().catch(error => {
                     console.error(`[Kiwi] Error in settings changed handler: ${error}`);
                 });
@@ -165,6 +178,9 @@ class GtkThemeManager {
         this._settings.disconnect(this._settingsChangedId);
         this._settingsChangedId = null;
         this._settings = null;
+        // Stop pending updates so none writes after the cleanup below
+        this._cancellable.cancel();
+        this._cancellable = null;
 
         // Remove our imports from user GTK config files
         this.removeUserGtkConfig().catch(error => {

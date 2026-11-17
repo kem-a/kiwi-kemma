@@ -44,6 +44,11 @@ const DOT_KEY = 'custom-theme-running-dots-color';
 const PILL_KEY = 'background-color';
 const SAVED_KEYS = [DOT_KEY, PILL_KEY];
 
+// The user's own values live in dconf, not memory: the shell skips disable() at
+// logout, and the next enable() would otherwise save Kiwi's colours as theirs
+const BACKUP_SCHEMA = 'org.gnome.shell.extensions.kiwi.state';
+const BACKUP_KEY = 'dock-colors-backup';
+
 // At the opacity Dash-to-Dock paints the pill, what shows through it comes
 // mostly from behind the dock - so that, not the pill, is what the indicator has
 // to read against.
@@ -68,14 +73,13 @@ const SETTLE = 200;       // ms of quiet before a reading is taken
 const LIGHT_ENTER = 0.62;
 const LIGHT_LEAVE = 0.5;
 
-let enabled = false;
-let d2d;
+let d2d = null;              // Dash-to-Dock's settings, set exactly while enabled
+let state = null;            // Kiwi's state settings, holding the backup
 let bgSettings;
 let screenshot;
 let globalSignals = [];      // [object, id], for disconnectAll
 let windowSignals = [];      // [object, id], torn down and rebuilt per workspace
 let sources = {};
-let savedColors = null;
 let docks = [];              // [{ container, destroyId }]
 let mode = null;             // 'light' | 'dark' behind the dock, once measured
 let scheme = null;           // 'light' | 'dark' session
@@ -337,18 +341,22 @@ function _disconnectWindowSignals() {
 
 /* ------------------------------------------------------------- entry points */
 
-export function enable() {
+export function enable(extension) {
     // Settings changes re-run the whole apply pass; don't stack signals or
     // capture the colours we already wrote as the user's own
-    if (enabled)
+    if (d2d)
         return;
 
     d2d = dockSettings();
     if (!d2d)
         return;
-    enabled = true;
 
-    savedColors = Object.fromEntries(SAVED_KEYS.map(key => [key, d2d.get_string(key)]));
+    // A backup still there is from a session that ended without disable()
+    state = extension.getSettings(BACKUP_SCHEMA);
+    if (state.get_value(BACKUP_KEY).n_children() === 0) {
+        const colors = Object.fromEntries(SAVED_KEYS.map(key => [key, d2d.get_string(key)]));
+        state.set_value(BACKUP_KEY, new GLib.Variant('a{ss}', colors));
+    }
     screenshot = new Shell.Screenshot();
     bgSettings = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
 
@@ -388,8 +396,6 @@ export function enable() {
 }
 
 export function disable() {
-    enabled = false;
-
     for (const id of [settleId, sources.dockSearch]) {
         if (id)
             GLib.Source.remove(id);
@@ -410,9 +416,12 @@ export function disable() {
     docks = [];
 
     // Nothing was saved when enable() never got as far as taking the dock over
-    for (const [key, value] of Object.entries(savedColors ?? {}))
-        d2d.set_string(key, value);
-    savedColors = null;
+    if (state) {
+        for (const [key, value] of Object.entries(state.get_value(BACKUP_KEY).deep_unpack()))
+            d2d.set_string(key, value);
+        state.reset(BACKUP_KEY);
+    }
+    state = null;
 
     d2d = null;
     bgSettings = null;

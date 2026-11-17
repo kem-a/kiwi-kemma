@@ -31,8 +31,7 @@ const BLUR_RADIUS = 60;
 const BRIGHTNESS_DARK = 0.80;
 const BRIGHTNESS_LIGHT = 0.65;
 
-let _enabled = false;
-let _group = null;
+let _group = null;        // set exactly while enabled
 let _managers = [];
 let _groupSignals = [];   // reconnected on every rebuild
 let _globalSignals = [];  // live for as long as the module is enabled
@@ -116,9 +115,8 @@ function _syncBrightness() {
 }
 
 export function enable() {
-    if (_enabled)
+    if (_group)
         return;
-    _enabled = true;
 
     _build();
 
@@ -132,7 +130,6 @@ export function enable() {
 }
 
 export function disable() {
-    _enabled = false;
     _disconnect(_globalSignals);
     _teardown();
 }
