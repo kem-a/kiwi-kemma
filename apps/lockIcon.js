@@ -11,8 +11,8 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 
 export const LockIcon = GObject.registerClass(
 class LockIcon extends PanelMenu.Button {
-    _init() {
-        super._init(0.0, 'Lock Indicator', false);
+    constructor() {
+        super(0.0, 'Lock Indicator', false);
 
         // GNOME 51 dropped Clutter.get_default_backend(); go through the context.
         this.keymap = global.stage.get_context().get_backend().get_default_seat().get_keymap();

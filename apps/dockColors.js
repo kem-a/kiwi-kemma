@@ -219,15 +219,17 @@ function _read() {
             if (source !== screenshot)
                 return;
             sampling = false;
+            let pixbuf;
             try {
                 source.screenshot_area_finish(result);
                 stream.close(null);
-                const pixbuf = GdkPixbuf.Pixbuf.new_from_stream(
+                pixbuf = GdkPixbuf.Pixbuf.new_from_stream(
                     Gio.MemoryInputStream.new_from_bytes(stream.steal_as_bytes()), null);
-                _apply(_luminance(pixbuf, skip));
             } catch (_e) {
                 // A capture the compositor refused: keep the set we are on
+                return;
             }
+            _apply(_luminance(pixbuf, skip));
         });
 }
 

@@ -10,9 +10,10 @@ import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 
 import { connectPaintSignal } from './blurPaintSignal.js';
-import { dashOf, dockContainers } from './dockUtils.js';
+import { dashOf, disconnectAll, watchDocks } from './dockUtils.js';
 
-let dockSearchId = null;
+let globalSignals = []; // [object, id]: the startup and dock watch handlers
+const sources = { dockSearch: 0 };
 let dashes = []; // array of per-dash state objects
 let blurRepaintSignals = []; // global event signal connections for blur repaints
 let blurRepaintIdleId = 0; // idle source for coalesced blur repaints
@@ -244,79 +245,40 @@ function _removeDashBlur(info, disconnectDestroy = true) {
         _disconnectRepaintSignals();
 }
 
-function _blurExistingDocks() {
-    dockContainers().forEach(container => _tryBlurDock(container));
-}
-
 function _removeAllBlurs() {
     // Copy array since _removeDashBlur mutates it
     [...dashes].forEach(info => _removeDashBlur(info));
 }
 
-let childAddedId = null;
-let startupCompleteId = null;
+function _watchDocks() {
+    watchDocks({ attach: _tryBlurDock, count: () => dashes.length, globalSignals, sources });
+}
 
 export function enable() {
-    // Every settings change re-runs this; a second pass would connect another
-    // child-added handler over the one we hold and leave it connected for good.
-    // One of the two ids is set from here until disable().
-    if (childAddedId || startupCompleteId)
+    // Every settings change re-runs this; globalSignals is filled below and
+    // emptied only by disable()
+    if (globalSignals.length)
         return;
 
     // During shell startup the dock geometry is unreliable (startup animation,
     // layout not settled) — blurring then yields a mis-sized blur bar.
     // Defer until startup completes, like blur-my-shell does.
     if (Main.layoutManager._startingUp) {
-        startupCompleteId = Main.layoutManager.connect('startup-complete', () => {
-            Main.layoutManager.disconnect(startupCompleteId);
-            startupCompleteId = null;
-            _enable();
-        });
+        const startupId = Main.layoutManager.connect('startup-complete', () => _watchDocks());
+        globalSignals.push([Main.layoutManager, startupId]);
         return;
     }
-    _enable();
-}
-
-function _enable() {
-    // Watch for new dock containers being added (e.g., dock enabled after us)
-    childAddedId = Main.uiGroup.connect('child-added', (_group, actor) => {
-        if (actor.name === 'dashtodockContainer')
-            _tryBlurDock(actor);
-    });
-
-    // Blur any already-existing docks
-    _blurExistingDocks();
-
-    // If no docks found yet, retry a few times (dock may load after us)
-    if (dashes.length === 0) {
-        let attempts = 0;
-        dockSearchId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-            attempts++;
-            _blurExistingDocks();
-            if (dashes.length > 0 || attempts >= 10) {
-                dockSearchId = null;
-                return GLib.SOURCE_REMOVE;
-            }
-            return GLib.SOURCE_CONTINUE;
-        });
-    }
+    _watchDocks();
 }
 
 export function disable() {
-    if (startupCompleteId) {
-        Main.layoutManager.disconnect(startupCompleteId);
-        startupCompleteId = null;
+    if (sources.dockSearch) {
+        GLib.Source.remove(sources.dockSearch);
+        sources.dockSearch = 0;
     }
 
-    if (dockSearchId) {
-        GLib.Source.remove(dockSearchId);
-        dockSearchId = null;
-    }
-
-    if (childAddedId) {
-        Main.uiGroup.disconnect(childAddedId);
-        childAddedId = null;
-    }
+    disconnectAll(globalSignals);
+    globalSignals = [];
 
     _removeAllBlurs();
 }

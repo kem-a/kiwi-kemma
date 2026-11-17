@@ -40,8 +40,8 @@ function formatTime(position, withHours = false) {
 }
 
 class MediaProgressSlider extends Slider {
-    _init(value) {
-        super._init(value);
+    constructor(value) {
+        super(value);
         this._handleOpacity = new St.Adjustment({ actor: this, lower: 0, upper: 1, value: 0 });
         this._handleOpacityChangedId = this._handleOpacity.connect(
             'notify::value', () => this.queue_repaint());
@@ -705,8 +705,6 @@ const MEDIA_DBUS_XML = `<?xml version="1.0"?>
         <property name="PlaybackStatus" type="s" access="read"/>
     </interface>
     <interface name="org.mpris.MediaPlayer2">
-        <method name="Raise"/>
-        <property name="CanRaise" type="b" access="read"/>
         <property name="DesktopEntry" type="s" access="read"/>
         <property name="Identity" type="s" access="read"/>
     </interface>
@@ -781,7 +779,7 @@ class Player extends GObject.Object {
 
         Promise.all([playerPromise, propertiesPromise, mprisPromise])
             .then(this._ready.bind(this))
-            .catch(() => {});
+            .catch(error => console.error('[kiwi] Could not set up media player:', error));
     }
 
     get position() {
@@ -864,7 +862,6 @@ class Player extends GObject.Object {
     get trackArtists() { return this._trackArtists; }
     get trackTitle() { return this._trackTitle; }
     get trackCoverUrl() { return this._trackCoverUrl; }
-    get app() { return this._app; }
     get canControl() { return !!this._playerProxy && this._playerProxy.CanControl !== false; }
     // WebKit advertises navigation unconditionally, even without page handlers.
     get canGoNext() { return this.canControl && this.trackKey !== null && this.trackId !== WEBKIT_TRACK_ID && !!this._playerProxy.CanGoNext; }
@@ -949,14 +946,6 @@ class Player extends GObject.Object {
         if (this.isPlaying() ? this.canPause : this.canPlay) {
             const action = this.isPlaying() ? 'PauseAsync' : 'PlayAsync';
             this._playerProxy[action]().catch(() => {});
-        }
-    }
-
-    raise() {
-        if (this._app) {
-            this._app.activate();
-        } else if (this._mprisProxy?.CanRaise) {
-            this._mprisProxy.RaiseAsync().catch(() => {});
         }
     }
 
@@ -1065,10 +1054,6 @@ export class Source extends GObject.Object {
 
     destroy() {
         this.stop();
-    }
-
-    get players() {
-        return [...this._players.values()];
     }
 
     _addPlayer(busName) {

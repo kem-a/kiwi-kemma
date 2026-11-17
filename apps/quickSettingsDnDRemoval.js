@@ -7,15 +7,6 @@ import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 
 export const SHELL_HAS_SYSTEM_DND = parseInt(Config.PACKAGE_VERSION) >= 49;
 
-const DND_ICON_NAMES = new Set([
-    'weather-clear-night-symbolic',
-    'weather-clear-night',
-    'notifications-disabled-symbolic',
-    'notifications-disabled',
-    'notifications-none-symbolic',
-    'notifications-none',
-].map(name => name.toLowerCase()));
-
 const _suppressedActors = {
     toggle: null,
     indicator: null,
@@ -24,43 +15,13 @@ const _suppressedActors = {
 let _dateMenuIndicatorState = null;
 let _dateMenuIndicatorSignals = null;
 
-function matchesDndIconName(iconName) {
-    if (!iconName)
-        return false;
-
-    return DND_ICON_NAMES.has(`${iconName}`.toLowerCase());
+// The shell's own DND indicator; its quickSettingsItems[0] is the DND toggle.
+// Built with the other indicators once their async setup is done.
+function getDndIndicator() {
+    return Main.panel.statusArea.quickSettings._doNotDisturb;
 }
 
-function actorContainsDndIcon(actor, depth = 0) {
-    if (depth > 4)
-        return false;
-
-    if (matchesDndIconName(actor.icon_name))
-        return true;
-
-    return actor.get_children().some(child => actorContainsDndIcon(child, depth + 1));
-}
-
-function isDoNotDisturbToggle(actor) {
-    const accessibleName = actor.accessible_name?.toLowerCase() ?? '';
-    if (accessibleName.includes('do not disturb'))
-        return true;
-
-    const title = `${actor.title ?? actor.text ?? ''}`.toLowerCase();
-    if (title.includes('do not disturb'))
-        return true;
-
-    if (actorContainsDndIcon(actor))
-        return true;
-
-    const styleClass = actor.style_class ?? '';
-    if (styleClass.includes('dnd') || styleClass.includes('do-not-disturb'))
-        return true;
-
-    return actor.constructor.name.toLowerCase().includes('disturb');
-}
-
-function suppressActor(key, actor, { preserveVisibility = false } = {}) {
+function suppressActor(key, actor) {
     const parent = actor.get_parent();
     if (!parent)
         return false;
@@ -69,11 +30,6 @@ function suppressActor(key, actor, { preserveVisibility = false } = {}) {
         actor,
         parent,
         index: parent.get_children().indexOf(actor),
-        state: preserveVisibility ? {
-            visible: actor.visible,
-            reactive: actor.reactive,
-            opacity: actor.opacity,
-        } : null,
     };
 
     parent.remove_child(actor);
@@ -85,20 +41,12 @@ function suppressActor(key, actor, { preserveVisibility = false } = {}) {
 function restoreActor(key) {
     const suppressed = _suppressedActors[key];
     if (!suppressed)
-        return;
+        return null;
 
-    const { actor, parent, index, state } = suppressed;
+    const { actor, parent, index } = suppressed;
     parent.insert_child_at_index(actor, Math.min(index, parent.get_n_children()));
-
-    if (state) {
-        actor.reactive = state.reactive;
-        actor.opacity = state.opacity;
-        actor.visible = state.visible;
-    } else {
-        actor.show();
-    }
-
     _suppressedActors[key] = null;
+    return actor;
 }
 
 export function suppressBuiltinDndToggle() {
@@ -108,42 +56,35 @@ export function suppressBuiltinDndToggle() {
     if (_suppressedActors.toggle)
         return true;
 
-    const grid = Main.panel.statusArea.quickSettings.menu._grid;
-    const toggle = grid.get_children().find(child => isDoNotDisturbToggle(child));
-    if (!toggle)
-        return true;
+    const indicator = getDndIndicator();
+    if (!indicator)
+        return false;
 
-    return suppressActor('toggle', toggle);
+    return suppressActor('toggle', indicator.quickSettingsItems[0]);
 }
 
 export function restoreBuiltinDndToggle() {
     if (!SHELL_HAS_SYSTEM_DND)
         return;
 
-    restoreActor('toggle');
+    restoreActor('toggle')?.show();
 }
 
 export function suppressBuiltinDndIndicator() {
     if (_suppressedActors.indicator)
         return true;
 
-    const indicators = Main.panel.statusArea.quickSettings._indicators;
-    const indicator = indicators.get_children().find(child => {
-        const styleClass = child.style_class ?? '';
-        if (styleClass.includes('kiwi-dnd-indicator'))
-            return false;
-
-        return actorContainsDndIcon(child) || styleClass.includes('dnd');
-    });
-
+    // Shell 48 has none; on 49+ it may not be built yet
+    const indicator = getDndIndicator();
     if (!indicator)
-        return true;
+        return !SHELL_HAS_SYSTEM_DND;
 
-    return suppressActor('indicator', indicator, { preserveVisibility: true });
+    return suppressActor('indicator', indicator);
 }
 
 export function restoreBuiltinDndIndicator() {
-    restoreActor('indicator');
+    // Shown again only if DND is on, as the shell decides
+    restoreActor('indicator')?._syncIndicatorsVisible();
 }
 
 export function hideDateMenuIndicator() {
@@ -151,7 +92,6 @@ export function hideDateMenuIndicator() {
 
     if (!_dateMenuIndicatorState) {
         _dateMenuIndicatorState = {
-            visible: indicator.visible,
             reactive: indicator.reactive,
             opacity: indicator.opacity,
         };
@@ -181,7 +121,8 @@ export function restoreDateMenuIndicator() {
 
     indicator.opacity = _dateMenuIndicatorState.opacity;
     indicator.reactive = _dateMenuIndicatorState.reactive;
-    indicator.visible = _dateMenuIndicatorState.visible;
+    // Visibility follows unread count and DND, which may have changed meanwhile
+    indicator._sync();
 
     _dateMenuIndicatorState = null;
 }

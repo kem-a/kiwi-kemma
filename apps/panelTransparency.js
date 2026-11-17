@@ -725,14 +725,9 @@ function disconnectWindowSignals(metaWindow) {
 
 function setupSignals() {
     settingsSignals = [
+        // Turning it off disables this module first (extension.js), so only on remains
         settings.connect('changed::panel-transparency', () => {
-            if (settings.get_boolean('panel-transparency')) {
-                checkWindowTouchingPanel();
-            } else {
-                lastForcedAlpha = null;
-                updateBlurVisibility(false);
-                restorePanelStyle();
-            }
+            checkWindowTouchingPanel();
         }),
         settings.connect('changed::panel-transparency-level', () => {
             updatePanelStyle(null);

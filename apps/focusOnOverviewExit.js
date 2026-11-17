@@ -49,11 +49,7 @@ function _focusHoveredWindow() {
     if (!window)
         return;
 
-    try {
-        window.activate(global.get_current_time());
-    } catch (e) {
-        console.error(`Kiwi: could not focus the window under the cursor: ${e.message}`);
-    }
+    window.activate(global.get_current_time());
 }
 
 function _startHoverTracking() {

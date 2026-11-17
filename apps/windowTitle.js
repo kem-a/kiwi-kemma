@@ -73,8 +73,8 @@ function windowForActor(actor) {
 
 const WindowTitleIndicator = GObject.registerClass(
 class WindowTitleIndicator extends PanelMenu.Button {
-    _init() {
-        super._init(0.0, 'window-title', true);
+    constructor() {
+        super(0.0, 'window-title', true);
 
         this._syncMenuIdleId = null;
         this._focusSyncIdleId = null;

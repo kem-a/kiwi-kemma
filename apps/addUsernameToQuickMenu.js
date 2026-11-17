@@ -9,8 +9,8 @@ import GObject from 'gi://GObject';
 
 export const AddUsernameToQuickMenu = GObject.registerClass(
 class AddUsernameToQuickMenu extends St.Widget {
-    _init() {
-        super._init({
+    constructor() {
+        super({
             layout_manager: new Clutter.BinLayout(),
             x_expand: false,
             y_expand: false,
@@ -73,29 +73,6 @@ class AddUsernameToQuickMenu extends St.Widget {
         });
     }
 
-    animateOut(callback) {
-        // Get the full width of the label
-        let [, naturalWidth] = this._usernameLabel.get_preferred_width(-1);
-
-        // Stop any existing animations
-        this._usernameLabel.remove_all_transitions();
-
-        // Animate the label sliding out to the right
-        this._usernameLabel.ease({
-            translation_x: naturalWidth,
-            duration: 250, // Set duration to 1000 milliseconds
-            mode: Clutter.AnimationMode.LINEAR, // Constant speed
-            onComplete: () => {
-                this._usernameLabel.translation_x = naturalWidth;
-                this.visible = false;
-
-                if (callback) {
-                    callback();
-                }
-            },
-        });
-    }
-
     destroy() {
         if (this._mappedId) {
             this.disconnect(this._mappedId);
@@ -113,7 +90,7 @@ export function enable() {
         addUsernameInstance = new AddUsernameToQuickMenu();
         const QuickSettingsMenu = Main.panel.statusArea.quickSettings;
 
-        // Insert your instance into the indicators container at the first position
+        // First in the indicators container, left of the system icons
         QuickSettingsMenu._indicators.insert_child_at_index(addUsernameInstance, 0);
 
         // Animate the username sliding in

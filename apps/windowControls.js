@@ -27,8 +27,8 @@ const SYMBOLIC_ICONS = {
 
 const WindowControlsIndicator = GObject.registerClass(
 class WindowControlsIndicator extends PanelMenu.Button {
-    _init() {
-        super._init(0.0, 'window-controls', true);
+    constructor() {
+        super(0.0, 'window-controls', true);
 
         this._settings = _extension.getSettings();
         this._useMacosIcons = this._settings.get_boolean('enable-app-window-buttons');

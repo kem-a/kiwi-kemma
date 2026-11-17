@@ -19,9 +19,6 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 // Minimum number of workspaces to maintain (main + 1 empty)
 const MIN_WORKSPACES = 2;
 
-// Always keep at least one empty workspace after the last workspace with windows
-const KEEP_EMPTY_WORKSPACE_AT_END = true;
-
 // Debounce delay before isolating fullscreen window (ms)
 const FULLSCREEN_ISOLATION_DELAY = 600;
 
@@ -224,13 +221,6 @@ class FullscreenWorkspaceManager {
     }
 
     /**
-     * Check if a workspace has a fullscreen window
-     */
-    _isFullscreenWorkspace(workspaceIndex) {
-        return this._fullscreenWorkspaces.has(workspaceIndex);
-    }
-
-    /**
      * Get the fullscreen window on a workspace (if any)
      */
     _getFullscreenWindowOnWorkspace(workspaceIndex) {
@@ -273,9 +263,6 @@ class FullscreenWorkspaceManager {
             wm.append_new_workspace(false, global.get_current_time());
             this._isCreatingWorkspace = false;
         }
-
-        if (!KEEP_EMPTY_WORKSPACE_AT_END)
-            return;
 
         const lastOccupied = this._findLastOccupiedWorkspaceIndex();
         
@@ -452,7 +439,7 @@ class FullscreenWorkspaceManager {
                 continue;
 
             // Skip the +1 empty workspace at the end (if it's the last one)
-            if (KEEP_EMPTY_WORKSPACE_AT_END && i === lastOccupied + 1 && i === wm.n_workspaces - 1)
+            if (i === lastOccupied + 1 && i === wm.n_workspaces - 1)
                 continue;
 
             const windows = this._filterWorkspaceRelevantWindows(

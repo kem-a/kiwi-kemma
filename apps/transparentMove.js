@@ -4,8 +4,6 @@
 import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
 
-const TRANSPARENT_ON_MOVING = true;
-const TRANSPARENT_ON_RESIZING = true;
 const TRANSITION_TIME = 0.2; // in seconds
 const WINDOW_OPACITY = 230; // Opacity value (0-255)
 
@@ -41,14 +39,7 @@ export class TransparentMove {
     }
 
     init_grab_operations() {
-        this._allowed_grab_operations = [];
-        if (TRANSPARENT_ON_MOVING) {
-            this._allowed_grab_operations.push(..._grab_moving_operations);
-        }
-    
-        if (TRANSPARENT_ON_RESIZING) {
-            this._allowed_grab_operations.push(..._grab_resizing_operations);
-        }
+        this._allowed_grab_operations = [..._grab_moving_operations, ..._grab_resizing_operations];
     }
 
     is_grab_operation_allowed(grab_op) {
@@ -66,21 +57,14 @@ export class TransparentMove {
             return;
         }
 
-        if (TRANSITION_TIME < 0.001) {
-            window_surfaces.forEach(surface => {
-                surface.opacity = target_opacity;
+        window_surfaces.forEach(surface => {
+            surface.ease({
+                duration: TRANSITION_TIME * 1000,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+                opacity: target_opacity,
+                onComplete: complete_func,
             });
-            complete_func();
-        } else {
-            window_surfaces.forEach(surface => {
-                surface.ease({
-                    duration: TRANSITION_TIME * 1000,
-                    mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-                    opacity: target_opacity,
-                    onComplete: complete_func,
-                });
-            });
-        }
+        });
     }
 
     get_window_surfaces(meta_window) {
@@ -111,7 +95,7 @@ export class TransparentMove {
         return surfaces;
     }
 
-    window_grab_begin(meta_display, meta_window, meta_grab_op, gpointer) {
+    window_grab_begin(meta_display, meta_window, meta_grab_op) {
         if (!meta_window || !this.is_grab_operation_allowed(meta_grab_op)) {
             return;
         }
@@ -127,7 +111,7 @@ export class TransparentMove {
         this.set_opacity(window_surfaces, WINDOW_OPACITY);
     }
 
-    window_grab_end(meta_display, meta_window, meta_grab_op, gpointer) {
+    window_grab_end(meta_display, meta_window, meta_grab_op) {
         if (!meta_window || !this.is_grab_operation_allowed(meta_grab_op)) {
             return;
         }
