@@ -8,6 +8,7 @@ import Clutter from 'gi://Clutter';
 import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import GnomeDesktop from 'gi://GnomeDesktop?version=4.0';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -38,6 +39,8 @@ const STACK_DEPTH = 5;        // thumbnails deep the pile is drawn
 const STACK_STEP = 0.04;      // offset between two piled thumbnails, in icon sizes
 const STACK_TILT = 2.2;       // degrees added per thumbnail down the pile
 const REFRESH_DELAY = 400;    // ms of a quiet Downloads folder before rereading
+const THUMBNAIL_RETRY_DELAY = 500;  // ms between checks for a late thumbnail
+const THUMBNAIL_RETRY_LIMIT = 20;   // checks before a missing preview is left alone
 // A card is as big as an app icon in the dock, give or take the rim of the
 // folder it sits on, and the pile as a whole stays inside the same box.
 const STACK_EXTENT = 1;       // how much of the icon box the whole pile fills
@@ -55,6 +58,7 @@ const LIST_ATTRIBUTES = [
     'standard::is-hidden',
     'standard::is-backup',
     'standard::icon',
+    'standard::content-type',
     'time::modified',
     'thumbnail::path',
 ].join(',');
@@ -66,11 +70,14 @@ const folds = new Map();      // overlay -> dock info, for fans still folding ba
 let recent = [];              // newest file infos first, at most MAX_ROWS of them
 let recentCount = 0;          // files in the folder, however many that is
 let recentKey = '';           // fingerprint of the list the piles were built from
+let thumbnailFactory = null;  // GnomeDesktop.DesktopThumbnailFactory, made on first use
+const thumbnailJobs = new Map(); // uri -> Gio.Cancellable, one generation per file
+let thumbnailRetries = 0;     // refresh attempts spent on a missing preview
 let folderMonitor = null;     // Gio.FileMonitor on the Downloads folder
 let listCancellable = null;   // set while enabled; cancels folder listings at disable()
 let behindFolder = false;     // cards stick out of the folder rather than lie on it
 let gettextFunc = message => message;
-const sources = { dockSearch: 0, refresh: 0 };
+const sources = { dockSearch: 0, refresh: 0, thumbRetry: 0 };
 // A re-place has to land on a frame boundary, not whenever the main loop next
 // goes idle, so it is a compositor later and stays out of the table above
 let replaceLater = 0;
@@ -93,6 +100,10 @@ function _openUri(uri) {
  */
 function _refresh() {
     _listDownloads(listCancellable, files => {
+        // A listing delivered just as the extension is disabled still arrives
+        if (!listCancellable)
+            return;
+
         recent = files.slice(0, MAX_ROWS);
         recentCount = files.length;
 
@@ -103,11 +114,25 @@ function _refresh() {
             _modified(info),
             info.get_attribute_byte_string('thumbnail::path') ?? '',
         ].join('@')).join('|')}`;
-        if (key === recentKey)
-            return;
-        recentKey = key;
+        if (key !== recentKey) {
+            recentKey = key;
+            thumbnailRetries = 0;
+            docks.forEach(_syncButton);
+        }
 
-        docks.forEach(_syncButton);
+        // The monitor fires as soon as the file appears, which can be before a
+        // large picture has been thumbnailed. Make the missing previews now and
+        // keep checking until they land, so a later download is not needed to
+        // make the first one show up.
+        let pending = false;
+        for (const info of recent) {
+            if (_ensureThumbnail(info))
+                pending = true;
+        }
+        if (pending)
+            _retryThumbnails();
+        else
+            _cancelThumbnailRetry();
     });
 }
 
@@ -120,6 +145,29 @@ function _queueRefresh() {
         _refresh();
         return GLib.SOURCE_REMOVE;
     });
+}
+
+/**
+ * Look again shortly for a preview that is still being generated, without
+ * holding up the pile on it. The count is reset whenever the folder changes,
+ * so a slow download gets a fresh set of checks rather than the leftovers of
+ * the file before it.
+ */
+function _retryThumbnails() {
+    if (!listCancellable || sources.thumbRetry || thumbnailRetries >= THUMBNAIL_RETRY_LIMIT)
+        return;
+    sources.thumbRetry = GLib.timeout_add(GLib.PRIORITY_DEFAULT, THUMBNAIL_RETRY_DELAY, () => {
+        sources.thumbRetry = 0;
+        thumbnailRetries++;
+        _refresh();
+        return GLib.SOURCE_REMOVE;
+    });
+}
+
+function _cancelThumbnailRetry() {
+    if (sources.thumbRetry)
+        GLib.Source.remove(sources.thumbRetry);
+    sources.thumbRetry = 0;
 }
 
 /**
@@ -180,6 +228,108 @@ function _readBatch(enumerator, found, cancellable, callback) {
 
 function _modified(info) {
     return info.get_attribute_uint64('time::modified');
+}
+
+/**
+ * The factory that turns a download into the picture on its row. Made on first
+ * use, so a session that never needs a preview never loads it.
+ */
+function _thumbnailFactory() {
+    thumbnailFactory ??= GnomeDesktop.DesktopThumbnailFactory.new(
+        GnomeDesktop.DesktopThumbnailSize.LARGE);
+    return thumbnailFactory;
+}
+
+/**
+ * Whether a listing already carries a preview that can be drawn. A path alone
+ * is not enough: the cache can be caught mid-write, and get_file_info is what
+ * tells us the picture is whole.
+ *
+ * @param info a file info from the Downloads folder
+ */
+function _hasThumbnail(info) {
+    const path = info.get_attribute_byte_string('thumbnail::path');
+    return !!path && !!GdkPixbuf.Pixbuf.get_file_info(path)[0];
+}
+
+/**
+ * Generate the preview for a file whose thumbnail is not in the cache yet, and
+ * refresh the pile once it lands. A preview already being made by the desktop
+ * is left alone; only a missing one is generated here.
+ *
+ * @param info a file info from the Downloads folder
+ * @returns whether a refresh is still owed for this file
+ */
+function _ensureThumbnail(info) {
+    if (_hasThumbnail(info))
+        return false;
+
+    const file = _downloadsFile().get_child(info.get_name());
+    const uri = file.get_uri();
+    const mtime = _modified(info);
+    const contentType = info.get_content_type();
+    const factory = _thumbnailFactory();
+
+    if (!contentType || !factory.can_thumbnail(uri, contentType, mtime))
+        return false;
+    if (factory.has_valid_failed_thumbnail(uri, mtime))
+        return false;
+    // In the cache already, even though this listing did not see it yet
+    if (factory.lookup(uri, mtime))
+        return true;
+    if (thumbnailJobs.has(uri))
+        return true;
+    // Older GNOME Desktops only have the synchronous API; wait for an external
+    // thumbnailer instead of blocking the shell on a large picture
+    if (typeof factory.generate_thumbnail_async !== 'function')
+        return true;
+
+    const cancellable = new Gio.Cancellable();
+    thumbnailJobs.set(uri, cancellable);
+
+    factory.generate_thumbnail_async(uri, contentType, cancellable, (source, result) => {
+        let thumbnail = null;
+        try {
+            thumbnail = source.generate_thumbnail_finish(result);
+        } catch (e) {
+            _thumbnailFailed(e, info);
+        }
+
+        if (!thumbnail) {
+            _finishThumbnail(uri, cancellable);
+            _retryThumbnails();
+            return;
+        }
+
+        source.save_thumbnail_async(thumbnail, uri, mtime, cancellable, (source, result) => {
+            let saved = false;
+            try {
+                source.save_thumbnail_finish(result);
+                saved = true;
+            } catch (e) {
+                _thumbnailFailed(e, info);
+            }
+            _finishThumbnail(uri, cancellable);
+            // thumbnail::path only sees the cache on the next listing
+            if (saved && listCancellable)
+                _queueRefresh();
+            else
+                _retryThumbnails();
+        });
+    });
+
+    return true;
+}
+
+function _finishThumbnail(uri, cancellable) {
+    if (thumbnailJobs.get(uri) === cancellable)
+        thumbnailJobs.delete(uri);
+}
+
+function _thumbnailFailed(error, info) {
+    if (error?.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
+        return;
+    console.warn(`[Kiwi] Could not thumbnail ${info.get_name()}: ${error.message ?? error}`);
 }
 
 /**
@@ -1093,6 +1243,14 @@ export function disable() {
             GLib.Source.remove(sources[key]);
         sources[key] = 0;
     }
+
+    // Generation callbacks check listCancellable, which is already null, so a
+    // cancelled preview cannot queue a refresh after disable
+    for (const cancellable of thumbnailJobs.values())
+        cancellable.cancel();
+    thumbnailJobs.clear();
+    thumbnailFactory = null;
+    thumbnailRetries = 0;
 
     if (fan) {
         Main.popModal(fan.grab);
